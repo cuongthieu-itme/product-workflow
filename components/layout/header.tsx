@@ -1,63 +1,45 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { ThemeToggle } from '@/components/layout/theme-toggle'
-import { Bell, User, ChevronDown } from 'lucide-react'
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { Bell, User, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
-import { Badge } from '@/components/ui/badge'
-import { useRouter } from 'next/navigation'
-import { logout } from '@/lib/auth'
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
+import { logout } from "@/lib/auth";
+import { useGetUserInfoQuery } from "@/pages/auth/hooks";
+import { UserRoleEnum } from "@/pages/auth/constants";
+import { getRoleName } from "@/helpers";
 
 export default function Header() {
-  const router = useRouter()
-  const [username, setUsername] = useState<string | null>('Người dùng demo')
-  const [userRole, setUserRole] = useState<string | null>('admin')
-  const [passwordRequests, setPasswordRequests] = useState<any[]>([])
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedUsername =
-        localStorage.getItem('username') || 'Người dùng demo'
-      const storedUserRole = localStorage.getItem('userRole') || 'admin'
-      setUsername(storedUsername)
-      setUserRole(storedUserRole)
-
-      if (storedUserRole === 'admin') {
-        const storedRequests = JSON.parse(
-          localStorage.getItem('forgotRequests') || '[]'
-        )
-        const pendingRequests = storedRequests.filter(
-          (req: any) => req.status === 'pending'
-        )
-        setPasswordRequests(pendingRequests)
-      }
-    }
-  }, [])
+  const router = useRouter();
+  const { data } = useGetUserInfoQuery();
+  const [passwordRequests, setPasswordRequests] = useState<any[]>([]);
 
   const handleLogout = () => {
-    logout()
-    router.push('/login')
-  }
+    logout();
+    router.push("/login");
+  };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return new Intl.DateTimeFormat('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date)
-  }
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  };
 
   return (
     <header className="flex h-14 items-center justify-between w-full">
@@ -76,7 +58,7 @@ export default function Header() {
       {/* Right side actions */}
       <div className="flex items-center space-x-2">
         {/* Notifications - responsive */}
-        {userRole === 'admin' && (
+        {data?.role === UserRoleEnum.ADMIN && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon" className="relative">
@@ -113,10 +95,10 @@ export default function Header() {
                           Yêu cầu đặt lại mật khẩu
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          Người dùng{' '}
+                          Người dùng{" "}
                           <span className="font-medium">
                             {request.username}
-                          </span>{' '}
+                          </span>{" "}
                           đã yêu cầu đặt lại mật khẩu
                         </div>
                         <div className="text-xs text-muted-foreground">
@@ -149,7 +131,7 @@ export default function Header() {
             <Button variant="outline" className="flex items-center gap-2 px-3">
               <User className="h-4 w-4" />
               <span className="hidden sm:inline-block max-w-24 truncate">
-                {username || 'Người dùng'}
+                {data?.userName ?? "Người dùng"}
               </span>
               <ChevronDown className="h-3 w-3" />
             </Button>
@@ -157,9 +139,11 @@ export default function Header() {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
-                <span className="truncate">{username || 'Người dùng'}</span>
+                <span className="truncate">
+                  {data?.userName ?? "Người dùng"}
+                </span>
                 <span className="text-xs font-normal text-muted-foreground">
-                  {userRole === 'admin' ? 'Quản trị viên' : 'Người dùng'}
+                  {getRoleName(data?.role ?? UserRoleEnum.USER)}
                 </span>
               </div>
             </DropdownMenuLabel>
@@ -174,5 +158,5 @@ export default function Header() {
         </DropdownMenu>
       </div>
     </header>
-  )
+  );
 }

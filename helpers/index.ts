@@ -1,0 +1,1 @@
+export { getRoleName } from "./getRoleName";

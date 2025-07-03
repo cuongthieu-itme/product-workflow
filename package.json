@@ -52,6 +52,7 @@
     "embla-carousel-react": "latest",
     "firebase": "latest",
     "input-otp": "1.4.1",
+    "jotai": "^2.12.5",
     "lucide-react": "^0.454.0",
     "next": "15.2.4",
     "next-auth": "latest",

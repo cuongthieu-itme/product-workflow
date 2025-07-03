@@ -1,6 +1,6 @@
 "use client";
 
-import request from "@/app/configs/axiosConfig";
+import request from "@/configs/axiosConfig";
 import { AxiosError, AxiosResponse } from "axios";
 import { useEffect } from "react";
 
@@ -11,7 +11,12 @@ export const AxiosProvider = ({ children }: any) => {
     };
 
     const errInterceptor = (error: AxiosError) => {
-      return Promise.reject(error);
+      const customError = error.response?.data ?? {
+        message: "Không thể kết nối đến máy chủ",
+        status: error.response?.status,
+      };
+
+      return Promise.reject(customError);
     };
 
     const interceptor = request.interceptors.response.use(
