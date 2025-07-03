@@ -1,19 +1,47 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ArrowLeft, Users, FileText, Calendar, UserCog, RefreshCw, AlertCircle } from "lucide-react"
-import Link from "next/link"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/components/ui/use-toast"
-import { Badge } from "@/components/ui/badge"
-import { doc, getDoc, updateDoc, collection, getDocs, query, where } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  ArrowLeft,
+  Users,
+  FileText,
+  Calendar,
+  UserCog,
+  RefreshCw,
+  AlertCircle
+} from 'lucide-react'
+import Link from 'next/link'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { useToast } from '@/components/ui/use-toast'
+import { Badge } from '@/components/ui/badge'
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
+  getDocs,
+  query,
+  where
+} from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 export default function DepartmentDetailPage() {
   const params = useParams()
@@ -30,77 +58,100 @@ export default function DepartmentDetailPage() {
     setError(null)
 
     try {
-      console.log("Đang lấy thông tin phòng ban từ Firestore với ID:", departmentId)
+      console.log(
+        'Đang lấy thông tin phòng ban từ Firestore với ID:',
+        departmentId
+      )
 
       // Lấy thông tin phòng ban từ Firestore
-      const departmentRef = doc(db, "departments", departmentId)
+      const departmentRef = doc(db, 'departments', departmentId)
       const departmentSnap = await getDoc(departmentRef)
 
       if (!departmentSnap.exists()) {
-        console.error("Không tìm thấy phòng ban với ID:", departmentId)
+        console.error('Không tìm thấy phòng ban với ID:', departmentId)
         setError(`Không tìm thấy phòng ban với ID: ${departmentId}`)
         setIsLoading(false)
         return
       }
 
       const departmentData = departmentSnap.data()
-      console.log("Đã lấy được thông tin phòng ban:", departmentData)
+      console.log('Đã lấy được thông tin phòng ban:', departmentData)
       setDepartment(departmentData)
 
       // Lấy danh sách người dùng thuộc phòng ban từ Firestore
-      const usersCollection = collection(db, "users")
-      const usersQuery = query(usersCollection, where("department", "==", departmentId))
+      const usersCollection = collection(db, 'users')
+      const usersQuery = query(
+        usersCollection,
+        where('department', '==', departmentId)
+      )
       const usersSnapshot = await getDocs(usersQuery)
 
       const usersData = usersSnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),
+        ...doc.data()
       }))
 
-      console.log("Đã lấy được", usersData.length, "người dùng thuộc phòng ban")
+      console.log('Đã lấy được', usersData.length, 'người dùng thuộc phòng ban')
       setUsers(usersData)
 
       // Cập nhật localStorage để đồng bộ
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         // Cập nhật phòng ban trong localStorage
-        const storedDepartments = JSON.parse(localStorage.getItem("departments") || "[]")
-        const updatedDepartments = storedDepartments.map((dept: any) =>
-          dept.id === departmentId ? { ...dept, ...departmentData } : dept,
+        const storedDepartments = JSON.parse(
+          localStorage.getItem('departments') || '[]'
         )
-        localStorage.setItem("departments", JSON.stringify(updatedDepartments))
+        const updatedDepartments = storedDepartments.map((dept: any) =>
+          dept.id === departmentId ? { ...dept, ...departmentData } : dept
+        )
+        localStorage.setItem('departments', JSON.stringify(updatedDepartments))
 
         // Cập nhật người dùng trong localStorage
-        const storedUsers = JSON.parse(localStorage.getItem("users") || "[]")
+        const storedUsers = JSON.parse(localStorage.getItem('users') || '[]')
         const updatedUsers = storedUsers.map((user: any) => {
           const matchedUser = usersData.find((u: any) => u.id === user.id)
           return matchedUser ? { ...user, ...matchedUser } : user
         })
-        localStorage.setItem("users", JSON.stringify(updatedUsers))
+        localStorage.setItem('users', JSON.stringify(updatedUsers))
       }
     } catch (err) {
-      console.error("Lỗi khi lấy thông tin phòng ban:", err)
-      setError(`Lỗi khi lấy thông tin phòng ban: ${err instanceof Error ? err.message : String(err)}`)
+      console.error('Lỗi khi lấy thông tin phòng ban:', err)
+      setError(
+        `Lỗi khi lấy thông tin phòng ban: ${err instanceof Error ? err.message : String(err)}`
+      )
 
       // Thử lấy từ localStorage nếu Firestore thất bại
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         try {
-          console.log("Thử lấy dữ liệu từ localStorage...")
-          const departments = JSON.parse(localStorage.getItem("departments") || "[]")
-          const foundDepartment = departments.find((dept: any) => dept.id === departmentId)
+          console.log('Thử lấy dữ liệu từ localStorage...')
+          const departments = JSON.parse(
+            localStorage.getItem('departments') || '[]'
+          )
+          const foundDepartment = departments.find(
+            (dept: any) => dept.id === departmentId
+          )
 
           if (foundDepartment) {
-            console.log("Đã tìm thấy phòng ban trong localStorage:", foundDepartment)
+            console.log(
+              'Đã tìm thấy phòng ban trong localStorage:',
+              foundDepartment
+            )
             setDepartment(foundDepartment)
 
-            const allUsers = JSON.parse(localStorage.getItem("users") || "[]")
-            const departmentUsers = allUsers.filter((user: any) => user.department === departmentId)
-            console.log("Đã tìm thấy", departmentUsers.length, "người dùng thuộc phòng ban trong localStorage")
+            const allUsers = JSON.parse(localStorage.getItem('users') || '[]')
+            const departmentUsers = allUsers.filter(
+              (user: any) => user.department === departmentId
+            )
+            console.log(
+              'Đã tìm thấy',
+              departmentUsers.length,
+              'người dùng thuộc phòng ban trong localStorage'
+            )
             setUsers(departmentUsers)
           } else {
-            console.error("Không tìm thấy phòng ban trong localStorage")
+            console.error('Không tìm thấy phòng ban trong localStorage')
           }
         } catch (localErr) {
-          console.error("Lỗi khi lấy dữ liệu từ localStorage:", localErr)
+          console.error('Lỗi khi lấy dữ liệu từ localStorage:', localErr)
         }
       }
     } finally {
@@ -117,32 +168,38 @@ export default function DepartmentDetailPage() {
       // Cập nhật state
       setDepartment({
         ...department,
-        manager: managerId === "none" ? "" : managerId,
+        manager: managerId === 'none' ? '' : managerId
       })
 
       // Cập nhật vào Firestore
-      const departmentRef = doc(db, "departments", departmentId)
-      await updateDoc(departmentRef, { manager: managerId === "none" ? "" : managerId })
+      const departmentRef = doc(db, 'departments', departmentId)
+      await updateDoc(departmentRef, {
+        manager: managerId === 'none' ? '' : managerId
+      })
 
       // Cập nhật localStorage
-      if (typeof window !== "undefined") {
-        const departments = JSON.parse(localStorage.getItem("departments") || "[]")
-        const updatedDepartments = departments.map((dept: any) =>
-          dept.id === departmentId ? { ...dept, manager: managerId === "none" ? "" : managerId } : dept,
+      if (typeof window !== 'undefined') {
+        const departments = JSON.parse(
+          localStorage.getItem('departments') || '[]'
         )
-        localStorage.setItem("departments", JSON.stringify(updatedDepartments))
+        const updatedDepartments = departments.map((dept: any) =>
+          dept.id === departmentId
+            ? { ...dept, manager: managerId === 'none' ? '' : managerId }
+            : dept
+        )
+        localStorage.setItem('departments', JSON.stringify(updatedDepartments))
       }
 
       toast({
-        title: "Cập nhật thành công",
-        description: "Đã cập nhật trưởng phòng cho phòng ban.",
+        title: 'Cập nhật thành công',
+        description: 'Đã cập nhật trưởng phòng cho phòng ban.'
       })
     } catch (error) {
-      console.error("Lỗi khi cập nhật trưởng phòng:", error)
+      console.error('Lỗi khi cập nhật trưởng phòng:', error)
       toast({
-        variant: "destructive",
-        title: "Lỗi",
-        description: "Không thể cập nhật trưởng phòng. Vui lòng thử lại sau.",
+        variant: 'destructive',
+        title: 'Lỗi',
+        description: 'Không thể cập nhật trưởng phòng. Vui lòng thử lại sau.'
       })
     }
   }
@@ -150,8 +207,8 @@ export default function DepartmentDetailPage() {
   const refreshData = () => {
     fetchDepartmentData()
     toast({
-      title: "Làm mới dữ liệu",
-      description: "Đang tải lại thông tin phòng ban...",
+      title: 'Làm mới dữ liệu',
+      description: 'Đang tải lại thông tin phòng ban...'
     })
   }
 
@@ -197,7 +254,9 @@ export default function DepartmentDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
         <h1 className="text-2xl font-bold">Không tìm thấy phòng ban</h1>
-        <p className="text-muted-foreground">Phòng ban bạn đang tìm kiếm không tồn tại.</p>
+        <p className="text-muted-foreground">
+          Phòng ban bạn đang tìm kiếm không tồn tại.
+        </p>
         <div className="flex gap-2">
           <Button asChild>
             <Link href="/dashboard/departments">
@@ -258,11 +317,17 @@ export default function DepartmentDetailPage() {
               <div>
                 <p className="text-sm font-medium">Ngày tạo</p>
                 <p className="text-sm">
-                  {department.createdAt && typeof department.createdAt === "object" && department.createdAt.seconds
-                    ? new Date(department.createdAt.seconds * 1000).toLocaleDateString("vi-VN")
+                  {department.createdAt &&
+                  typeof department.createdAt === 'object' &&
+                  department.createdAt.seconds
+                    ? new Date(
+                        department.createdAt.seconds * 1000
+                      ).toLocaleDateString('vi-VN')
                     : department.createdAt
-                      ? new Date(department.createdAt).toLocaleDateString("vi-VN")
-                      : "Không xác định"}
+                      ? new Date(department.createdAt).toLocaleDateString(
+                          'vi-VN'
+                        )
+                      : 'Không xác định'}
                 </p>
               </div>
             </div>
@@ -281,10 +346,15 @@ export default function DepartmentDetailPage() {
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Danh sách thành viên</CardTitle>
-                <CardDescription>Tất cả thành viên thuộc phòng ban {department.name}</CardDescription>
+                <CardDescription>
+                  Tất cả thành viên thuộc phòng ban {department.name}
+                </CardDescription>
               </div>
               {users.length > 0 && (
-                <Select value={department.manager || "none"} onValueChange={handleManagerChange}>
+                <Select
+                  value={department.manager || 'none'}
+                  onValueChange={handleManagerChange}
+                >
                   <SelectTrigger className="w-[200px]">
                     <SelectValue placeholder="Chọn trưởng phòng" />
                   </SelectTrigger>
@@ -306,22 +376,35 @@ export default function DepartmentDetailPage() {
                     <div
                       key={user.id}
                       className={`flex items-center justify-between p-3 border rounded-md ${
-                        user.id === department.manager ? "bg-primary/5 border-primary/20" : ""
+                        user.id === department.manager
+                          ? 'bg-primary/5 border-primary/20'
+                          : ''
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-primary font-bold">{user.fullName.charAt(0)}</span>
+                          <span className="text-primary font-bold">
+                            {user.fullName.charAt(0)}
+                          </span>
                         </div>
                         <div>
                           <p className="font-medium">{user.fullName}</p>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
-                          {user.phone && <p className="text-sm text-muted-foreground">SĐT: {user.phone}</p>}
+                          <p className="text-sm text-muted-foreground">
+                            {user.email}
+                          </p>
+                          {user.phone && (
+                            <p className="text-sm text-muted-foreground">
+                              SĐT: {user.phone}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         {user.id === department.manager && (
-                          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                          <Badge
+                            variant="outline"
+                            className="bg-primary/10 text-primary border-primary/20"
+                          >
                             Trưởng phòng
                           </Badge>
                         )}
@@ -337,7 +420,9 @@ export default function DepartmentDetailPage() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-muted-foreground">Chưa có thành viên nào trong phòng ban này.</p>
+                  <p className="text-muted-foreground">
+                    Chưa có thành viên nào trong phòng ban này.
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -347,11 +432,15 @@ export default function DepartmentDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle>Dự án</CardTitle>
-              <CardDescription>Các dự án đang được thực hiện bởi phòng ban {department.name}</CardDescription>
+              <CardDescription>
+                Các dự án đang được thực hiện bởi phòng ban {department.name}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
-                <p className="text-muted-foreground">Chưa có dự án nào được gán cho phòng ban này.</p>
+                <p className="text-muted-foreground">
+                  Chưa có dự án nào được gán cho phòng ban này.
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -360,11 +449,15 @@ export default function DepartmentDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle>Báo cáo</CardTitle>
-              <CardDescription>Báo cáo hiệu suất của phòng ban {department.name}</CardDescription>
+              <CardDescription>
+                Báo cáo hiệu suất của phòng ban {department.name}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
-                <p className="text-muted-foreground">Chưa có báo cáo nào cho phòng ban này.</p>
+                <p className="text-muted-foreground">
+                  Chưa có báo cáo nào cho phòng ban này.
+                </p>
               </div>
             </CardContent>
           </Card>

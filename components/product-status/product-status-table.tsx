@@ -1,9 +1,16 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useProductStatus } from "./product-status-context-firebase"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useState } from 'react'
+import { useProductStatus } from './product-status-context-firebase'
+import { Button } from '@/components/ui/button'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,12 +19,12 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
-import { Edit, Trash2, Eye } from "lucide-react"
-import { ProductStatusDetail } from "./product-status-detail"
-import { AddProductStatusForm } from "./add-product-status-form"
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
+import { Edit, Trash2, Eye } from 'lucide-react'
+import { ProductStatusDetail } from './product-status-detail'
+import { AddProductStatusForm } from './add-product-status-form'
 
 export function ProductStatusTable() {
   const { productStatuses, deleteProductStatus } = useProductStatus()
@@ -56,7 +63,7 @@ export function ProductStatusTable() {
       id: status.id,
       name: status.name,
       description: status.description,
-      color: status.color,
+      color: status.color
     })
     setIsEditDialogOpen(true)
   }
@@ -89,7 +96,10 @@ export function ProductStatusTable() {
               productStatuses.map((status) => (
                 <TableRow key={status.id}>
                   <TableCell>
-                    <div className="w-4 h-4 rounded-full" style={{ backgroundColor: status.color || "#888888" }} />
+                    <div
+                      className="w-4 h-4 rounded-full"
+                      style={{ backgroundColor: status.color || '#888888' }}
+                    />
                   </TableCell>
                   <TableCell className="font-medium">
                     {status.name}
@@ -102,11 +112,19 @@ export function ProductStatusTable() {
                   <TableCell>{status.description}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => handleViewDetail(status.id)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleViewDetail(status.id)}
+                      >
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">Xem chi tiết</span>
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleEditClick(status)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditClick(status)}
+                      >
                         <Edit className="h-4 w-4" />
                         <span className="sr-only">Sửa</span>
                       </Button>
@@ -128,23 +146,33 @@ export function ProductStatusTable() {
         </Table>
       </div>
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Bạn có chắc chắn muốn xóa?</AlertDialogTitle>
             <AlertDialogDescription>
-              Hành động này không thể hoàn tác. Trạng thái này sẽ bị xóa vĩnh viễn khỏi hệ thống.
+              Hành động này không thể hoàn tác. Trạng thái này sẽ bị xóa vĩnh
+              viễn khỏi hệ thống.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>Xóa</AlertDialogAction>
+            <AlertDialogAction onClick={handleDeleteConfirm}>
+              Xóa
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       {detailStatusId && (
-        <ProductStatusDetail statusId={detailStatusId} open={isDetailOpen} onOpenChange={setIsDetailOpen} />
+        <ProductStatusDetail
+          statusId={detailStatusId}
+          open={isDetailOpen}
+          onOpenChange={setIsDetailOpen}
+        />
       )}
 
       {editingStatus && (

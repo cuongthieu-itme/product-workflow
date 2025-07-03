@@ -1,28 +1,38 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/components/ui/use-toast"
-import { useProductStatus } from "@/components/product-status/product-status-context-firebase"
-import { useSubWorkflow } from "@/components/workflow/sub-workflow-context-firebase"
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/components/ui/use-toast'
+import { useProductStatus } from '@/components/product-status/product-status-context-firebase'
+import { useSubWorkflow } from '@/components/workflow/sub-workflow-context-firebase'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Loader2 } from "lucide-react"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+  DialogTitle
+} from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Loader2 } from 'lucide-react'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 
 interface AddProductStatusFormProps {
   isOpen?: boolean
@@ -39,22 +49,22 @@ interface AddProductStatusFormProps {
 }
 
 const predefinedColors = [
-  "#ef4444", // red
-  "#f97316", // orange
-  "#f59e0b", // amber
-  "#eab308", // yellow
-  "#84cc16", // lime
-  "#22c55e", // green
-  "#10b981", // emerald
-  "#14b8a6", // teal
-  "#06b6d4", // cyan
-  "#0ea5e9", // sky
-  "#3b82f6", // blue
-  "#6366f1", // indigo
-  "#8b5cf6", // violet
-  "#a855f7", // purple
-  "#d946ef", // fuchsia
-  "#ec4899", // pink
+  '#ef4444', // red
+  '#f97316', // orange
+  '#f59e0b', // amber
+  '#eab308', // yellow
+  '#84cc16', // lime
+  '#22c55e', // green
+  '#10b981', // emerald
+  '#14b8a6', // teal
+  '#06b6d4', // cyan
+  '#0ea5e9', // sky
+  '#3b82f6', // blue
+  '#6366f1', // indigo
+  '#8b5cf6', // violet
+  '#a855f7', // purple
+  '#d946ef', // fuchsia
+  '#ec4899' // pink
 ]
 
 export function AddProductStatusForm({
@@ -62,20 +72,25 @@ export function AddProductStatusForm({
   onClose,
   onStatusAdded,
   editingStatus = null,
-  onSuccess,
+  onSuccess
 }: AddProductStatusFormProps) {
   const { toast } = useToast()
-  const { addProductStatus, updateProductStatus, isProductStatusNameExists, getStandardWorkflowId } = useProductStatus()
+  const {
+    addProductStatus,
+    updateProductStatus,
+    isProductStatusNameExists,
+    getStandardWorkflowId
+  } = useProductStatus()
   const { subWorkflows, loading: subWorkflowLoading } = useSubWorkflow()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    color: "#4f46e5", // Màu mặc định
-    workflowId: "", // ID của quy trình, mặc định là quy trình chuẩn
+    name: '',
+    description: '',
+    color: '#4f46e5', // Màu mặc định
+    workflowId: '' // ID của quy trình, mặc định là quy trình chuẩn
   })
-  const [nameError, setNameError] = useState("")
-  const [isDialogMode] = useState(typeof isOpen !== "undefined")
+  const [nameError, setNameError] = useState('')
+  const [isDialogMode] = useState(typeof isOpen !== 'undefined')
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
 
   // Reset form khi mở dialog hoặc khi chuyển giữa thêm mới và chỉnh sửa
@@ -87,18 +102,18 @@ export function AddProductStatusForm({
         setFormData({
           name: editingStatus.name,
           description: editingStatus.description,
-          color: editingStatus.color || "#4f46e5",
-          workflowId: editingStatus.workflowId || standardWorkflowId,
+          color: editingStatus.color || '#4f46e5',
+          workflowId: editingStatus.workflowId || standardWorkflowId
         })
       } else {
         setFormData({
-          name: "",
-          description: "",
-          color: "#4f46e5",
-          workflowId: standardWorkflowId,
+          name: '',
+          description: '',
+          color: '#4f46e5',
+          workflowId: standardWorkflowId
         })
       }
-      setNameError("")
+      setNameError('')
     }
   }, [isOpen, editingStatus, isDialogMode, getStandardWorkflowId])
 
@@ -106,8 +121,8 @@ export function AddProductStatusForm({
     setFormData((prev) => ({ ...prev, [field]: value }))
 
     // Xóa thông báo lỗi khi người dùng thay đổi tên
-    if (field === "name") {
-      setNameError("")
+    if (field === 'name') {
+      setNameError('')
     }
   }
 
@@ -115,10 +130,13 @@ export function AddProductStatusForm({
     let isValid = true
 
     if (!formData.name.trim()) {
-      setNameError("Vui lòng nhập tên trạng thái")
+      setNameError('Vui lòng nhập tên trạng thái')
       isValid = false
-    } else if (isProductStatusNameExists && isProductStatusNameExists(formData.name, editingStatus?.id)) {
-      setNameError("Trạng thái này đã tồn tại, vui lòng chọn tên khác")
+    } else if (
+      isProductStatusNameExists &&
+      isProductStatusNameExists(formData.name, editingStatus?.id)
+    ) {
+      setNameError('Trạng thái này đã tồn tại, vui lòng chọn tên khác')
       isValid = false
     }
 
@@ -141,12 +159,12 @@ export function AddProductStatusForm({
           name: formData.name,
           description: formData.description,
           color: formData.color,
-          workflowId: formData.workflowId || getStandardWorkflowId(),
+          workflowId: formData.workflowId || getStandardWorkflowId()
         })
 
         toast({
-          title: "Cập nhật thành công",
-          description: `Trạng thái "${formData.name}" đã được cập nhật.`,
+          title: 'Cập nhật thành công',
+          description: `Trạng thái "${formData.name}" đã được cập nhật.`
         })
       } else {
         // Thêm trạng thái mới
@@ -155,12 +173,12 @@ export function AddProductStatusForm({
           description: formData.description,
           color: formData.color,
           workflowId: formData.workflowId || getStandardWorkflowId(),
-          order: 999, // Will be sorted later
+          order: 999 // Will be sorted later
         })
 
         toast({
-          title: "Tạo trạng thái thành công",
-          description: `Trạng thái "${formData.name}" đã được tạo.`,
+          title: 'Tạo trạng thái thành công',
+          description: `Trạng thái "${formData.name}" đã được tạo.`
         })
       }
 
@@ -175,21 +193,21 @@ export function AddProductStatusForm({
         if (!isDialogMode) {
           const standardWorkflowId = getStandardWorkflowId()
           setFormData({
-            name: "",
-            description: "",
-            color: "#4f46e5",
-            workflowId: standardWorkflowId,
+            name: '',
+            description: '',
+            color: '#4f46e5',
+            workflowId: standardWorkflowId
           })
         }
       }, 1000)
     } catch (error) {
       setIsLoading(false)
       toast({
-        title: "Có lỗi xảy ra",
-        description: "Không thể lưu trạng thái sản phẩm. Vui lòng thử lại sau.",
-        variant: "destructive",
+        title: 'Có lỗi xảy ra',
+        description: 'Không thể lưu trạng thái sản phẩm. Vui lòng thử lại sau.',
+        variant: 'destructive'
       })
-      console.error("Error saving product status:", error)
+      console.error('Error saving product status:', error)
     }
   }
 
@@ -202,9 +220,9 @@ export function AddProductStatusForm({
         <Input
           id="name"
           value={formData.name}
-          onChange={(e) => handleInputChange("name", e.target.value)}
+          onChange={(e) => handleInputChange('name', e.target.value)}
           placeholder="Nhập tên trạng thái"
-          className={nameError ? "border-red-500" : ""}
+          className={nameError ? 'border-red-500' : ''}
         />
         {nameError && <p className="text-sm text-red-500">{nameError}</p>}
       </div>
@@ -216,7 +234,7 @@ export function AddProductStatusForm({
         <Textarea
           id="description"
           value={formData.description}
-          onChange={(e) => handleInputChange("description", e.target.value)}
+          onChange={(e) => handleInputChange('description', e.target.value)}
           placeholder="Nhập mô tả chi tiết về trạng thái sản phẩm"
           rows={4}
         />
@@ -229,10 +247,16 @@ export function AddProductStatusForm({
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className={cn("w-[160px] justify-start", !formData.color && "text-muted-foreground")}
+                className={cn(
+                  'w-[160px] justify-start',
+                  !formData.color && 'text-muted-foreground'
+                )}
               >
-                <div className="h-4 w-4 rounded-full mr-2" style={{ backgroundColor: formData.color || "#4f46e5" }} />
-                <span>{formData.color || "#4f46e5"}</span>
+                <div
+                  className="h-4 w-4 rounded-full mr-2"
+                  style={{ backgroundColor: formData.color || '#4f46e5' }}
+                />
+                <span>{formData.color || '#4f46e5'}</span>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-64 p-3">
@@ -241,12 +265,14 @@ export function AddProductStatusForm({
                   <button
                     key={color}
                     className={cn(
-                      "h-8 w-8 rounded-full border-2 flex items-center justify-center",
-                      formData.color === color ? "border-black dark:border-white" : "border-transparent",
+                      'h-8 w-8 rounded-full border-2 flex items-center justify-center',
+                      formData.color === color
+                        ? 'border-black dark:border-white'
+                        : 'border-transparent'
                     )}
                     style={{ backgroundColor: color }}
                     onClick={() => {
-                      handleInputChange("color", color)
+                      handleInputChange('color', color)
                       setColorPickerOpen(false)
                     }}
                     type="button"
@@ -258,20 +284,23 @@ export function AddProductStatusForm({
                   type="color"
                   value={formData.color}
                   id="color-picker"
-                  onChange={(e) => handleInputChange("color", e.target.value)}
+                  onChange={(e) => handleInputChange('color', e.target.value)}
                   className="w-10 h-10 p-0 border-none"
                 />
                 <Input
                   type="text"
                   value={formData.color}
-                  onChange={(e) => handleInputChange("color", e.target.value)}
+                  onChange={(e) => handleInputChange('color', e.target.value)}
                   placeholder="#000000"
                   className="flex-1"
                 />
               </div>
             </PopoverContent>
           </Popover>
-          <div className="h-8 w-8 rounded-md" style={{ backgroundColor: formData.color || "#4f46e5" }} />
+          <div
+            className="h-8 w-8 rounded-md"
+            style={{ backgroundColor: formData.color || '#4f46e5' }}
+          />
         </div>
       </div>
 
@@ -281,14 +310,16 @@ export function AddProductStatusForm({
         </Label>
         <Select
           value={formData.workflowId}
-          onValueChange={(value) => handleInputChange("workflowId", value)}
+          onValueChange={(value) => handleInputChange('workflowId', value)}
           disabled={subWorkflowLoading || isLoading}
         >
           <SelectTrigger id="workflow">
             <SelectValue placeholder="Chọn quy trình" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={getStandardWorkflowId()}>Quy trình chuẩn</SelectItem>
+            <SelectItem value={getStandardWorkflowId()}>
+              Quy trình chuẩn
+            </SelectItem>
             {subWorkflows.map((workflow) => (
               <SelectItem key={workflow.id} value={workflow.id}>
                 {workflow.name}
@@ -297,14 +328,15 @@ export function AddProductStatusForm({
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          Chọn quy trình sẽ được áp dụng cho trạng thái này. Mặc định là quy trình chuẩn.
+          Chọn quy trình sẽ được áp dụng cho trạng thái này. Mặc định là quy
+          trình chuẩn.
         </p>
       </div>
 
       {!isDialogMode && (
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {editingStatus ? "Cập nhật trạng thái" : "Tạo trạng thái mới"}
+          {editingStatus ? 'Cập nhật trạng thái' : 'Tạo trạng thái mới'}
         </Button>
       )}
     </form>
@@ -316,11 +348,15 @@ export function AddProductStatusForm({
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>{editingStatus ? "Chỉnh sửa trạng thái" : "Thêm trạng thái sản phẩm mới"}</DialogTitle>
+            <DialogTitle>
+              {editingStatus
+                ? 'Chỉnh sửa trạng thái'
+                : 'Thêm trạng thái sản phẩm mới'}
+            </DialogTitle>
             <DialogDescription>
               {editingStatus
-                ? "Chỉnh sửa thông tin trạng thái sản phẩm"
-                : "Nhập thông tin chi tiết về trạng thái sản phẩm mới"}
+                ? 'Chỉnh sửa thông tin trạng thái sản phẩm'
+                : 'Nhập thông tin chi tiết về trạng thái sản phẩm mới'}
             </DialogDescription>
           </DialogHeader>
 
@@ -329,12 +365,17 @@ export function AddProductStatusForm({
           </ScrollArea>
 
           <DialogFooter className="flex justify-between sm:justify-between">
-            <Button variant="outline" type="button" onClick={onClose} disabled={isLoading}>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={onClose}
+              disabled={isLoading}
+            >
               Hủy
             </Button>
             <Button type="submit" onClick={handleSubmit} disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {editingStatus ? "Cập nhật" : "Tạo trạng thái"}
+              {editingStatus ? 'Cập nhật' : 'Tạo trạng thái'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -345,7 +386,9 @@ export function AddProductStatusForm({
   // Nếu component được sử dụng trực tiếp (không trong dialog)
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">{editingStatus ? "Chỉnh sửa trạng thái" : "Thêm trạng thái mới"}</h2>
+      <h2 className="text-xl font-semibold mb-4">
+        {editingStatus ? 'Chỉnh sửa trạng thái' : 'Thêm trạng thái mới'}
+      </h2>
       {renderForm()}
     </div>
   )

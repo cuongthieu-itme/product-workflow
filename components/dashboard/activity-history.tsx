@@ -1,29 +1,49 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { historyService } from "@/lib/history-service"
-import type { HistoryEntry } from "@/models/history"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { User, Clock, CheckCircle, XCircle, AlertCircle, Search } from "lucide-react"
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
-import { useRequest } from "@/components/requests/request-context-firebase"
-import { useSubWorkflow } from "@/components/workflow/sub-workflow-context-firebase"
-import { useStandardWorkflow } from "@/components/workflow/standard-workflow-context-firebase"
+import { useState, useEffect } from 'react'
+import { historyService } from '@/lib/history-service'
+import type { HistoryEntry } from '@/models/history'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import {
+  User,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Search
+} from 'lucide-react'
+import { format } from 'date-fns'
+import { vi } from 'date-fns/locale'
+import { useRequest } from '@/components/requests/request-context-firebase'
+import { useSubWorkflow } from '@/components/workflow/sub-workflow-context-firebase'
+import { useStandardWorkflow } from '@/components/workflow/standard-workflow-context-firebase'
 
 export function ActivityHistory() {
   const [allHistory, setAllHistory] = useState<HistoryEntry[]>([])
   const [filteredHistory, setFilteredHistory] = useState<HistoryEntry[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [actionFilter, setActionFilter] = useState("all")
-  const [activeTab, setActiveTab] = useState("current")
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [actionFilter, setActionFilter] = useState('all')
+  const [activeTab, setActiveTab] = useState('current')
 
   const { requests } = useRequest()
   const { subWorkflows } = useSubWorkflow()
@@ -43,7 +63,7 @@ export function ActivityHistory() {
       const history = await historyService.getAllHistory()
       setAllHistory(history)
     } catch (error) {
-      console.error("Error fetching history:", error)
+      console.error('Error fetching history:', error)
     } finally {
       setLoading(false)
     }
@@ -52,17 +72,20 @@ export function ActivityHistory() {
   const filterHistory = () => {
     let filtered = [...allHistory]
 
-    if (activeTab === "current") {
+    if (activeTab === 'current') {
       filtered = filtered.filter(
         (entry) =>
-          entry.action === "start_step" &&
+          entry.action === 'start_step' &&
           !allHistory.some(
-            (h) => h.requestId === entry.requestId && h.entityId === entry.entityId && h.action === "complete_step",
-          ),
+            (h) =>
+              h.requestId === entry.requestId &&
+              h.entityId === entry.entityId &&
+              h.action === 'complete_step'
+          )
       )
-    } else if (activeTab === "completed") {
-      filtered = filtered.filter((entry) => entry.action === "complete_step")
-    } else if (activeTab === "all") {
+    } else if (activeTab === 'completed') {
+      filtered = filtered.filter((entry) => entry.action === 'complete_step')
+    } else if (activeTab === 'all') {
     }
 
     if (searchTerm) {
@@ -70,18 +93,18 @@ export function ActivityHistory() {
         (entry) =>
           entry.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           entry.requestId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          entry.details?.toLowerCase().includes(searchTerm.toLowerCase()),
+          entry.details?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
-    if (statusFilter !== "all") {
+    if (statusFilter !== 'all') {
       filtered = filtered.filter((entry) => {
-        const status = entry.metadata?.status || "unknown"
+        const status = entry.metadata?.status || 'unknown'
         return status === statusFilter
       })
     }
 
-    if (actionFilter !== "all") {
+    if (actionFilter !== 'all') {
       filtered = filtered.filter((entry) => entry.action === actionFilter)
     }
 
@@ -97,11 +120,11 @@ export function ActivityHistory() {
   const getStatusIcon = (entry: HistoryEntry) => {
     const status = entry.metadata?.status
     switch (status) {
-      case "in_progress":
+      case 'in_progress':
         return <Clock className="h-4 w-4 text-blue-500" />
-      case "completed":
+      case 'completed':
         return <CheckCircle className="h-4 w-4 text-green-500" />
-      case "skipped":
+      case 'skipped':
         return <XCircle className="h-4 w-4 text-red-500" />
       default:
         return <AlertCircle className="h-4 w-4 text-gray-500" />
@@ -111,7 +134,7 @@ export function ActivityHistory() {
   const getStatusBadge = (entry: HistoryEntry) => {
     const status = entry.metadata?.status || entry.action
 
-    if (status === "in_progress" || entry.action === "start_step") {
+    if (status === 'in_progress' || entry.action === 'start_step') {
       const isOverdue = checkIfOverdue(entry)
       if (isOverdue) {
         return <Badge variant="destructive">Trễ giờ</Badge>
@@ -121,35 +144,39 @@ export function ActivityHistory() {
     }
 
     const statusMap = {
-      completed: { label: "Đã hoàn thành", variant: "secondary" as const },
-      skipped: { label: "Đã bỏ qua", variant: "destructive" as const },
-      complete_step: { label: "Hoàn thành", variant: "secondary" as const },
-      revert: { label: "Quay lại", variant: "destructive" as const },
+      completed: { label: 'Đã hoàn thành', variant: 'secondary' as const },
+      skipped: { label: 'Đã bỏ qua', variant: 'destructive' as const },
+      complete_step: { label: 'Hoàn thành', variant: 'secondary' as const },
+      revert: { label: 'Quay lại', variant: 'destructive' as const }
     }
 
-    const statusInfo = statusMap[status as keyof typeof statusMap] || { label: "Đang làm", variant: "outline" as const }
+    const statusInfo = statusMap[status as keyof typeof statusMap] || {
+      label: 'Đang làm',
+      variant: 'outline' as const
+    }
     return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
   }
 
   const checkIfOverdue = (entry: HistoryEntry) => {
     const estimatedTime = entry.metadata?.estimatedTime
-    const estimatedTimeUnit = entry.metadata?.estimatedTimeUnit || "hours"
+    const estimatedTimeUnit = entry.metadata?.estimatedTimeUnit || 'hours'
     const startTime = entry.metadata?.startedAt || entry.timestamp
 
     if (!estimatedTime || !startTime) return false
 
-    const startDate = startTime instanceof Date ? startTime : new Date(startTime)
+    const startDate =
+      startTime instanceof Date ? startTime : new Date(startTime)
     const now = new Date()
 
     let estimatedMs = 0
     switch (estimatedTimeUnit) {
-      case "minutes":
+      case 'minutes':
         estimatedMs = estimatedTime * 60 * 1000
         break
-      case "hours":
+      case 'hours':
         estimatedMs = estimatedTime * 60 * 60 * 1000
         break
-      case "days":
+      case 'days':
         estimatedMs = estimatedTime * 24 * 60 * 60 * 1000
         break
       default:
@@ -170,7 +197,7 @@ export function ActivityHistory() {
       try {
         const deadlineStr = entry.metadata.fieldValues.deadline
         const deadlineDate =
-          typeof deadlineStr === "string"
+          typeof deadlineStr === 'string'
             ? new Date(deadlineStr)
             : deadlineStr instanceof Date
               ? deadlineStr
@@ -180,27 +207,28 @@ export function ActivityHistory() {
           return deadlineDate
         }
       } catch (error) {
-        console.warn("Error parsing deadline from fieldValues:", error)
+        console.warn('Error parsing deadline from fieldValues:', error)
       }
     }
 
     const estimatedTime = entry.metadata?.estimatedTime
-    const estimatedTimeUnit = entry.metadata?.estimatedTimeUnit || "hours"
+    const estimatedTimeUnit = entry.metadata?.estimatedTimeUnit || 'hours'
     const startTime = entry.metadata?.startedAt || entry.timestamp
 
     if (!estimatedTime || !startTime) return null
 
-    const startDate = startTime instanceof Date ? startTime : new Date(startTime)
+    const startDate =
+      startTime instanceof Date ? startTime : new Date(startTime)
 
     let estimatedMs = 0
     switch (estimatedTimeUnit) {
-      case "minutes":
+      case 'minutes':
         estimatedMs = estimatedTime * 60 * 1000
         break
-      case "hours":
+      case 'hours':
         estimatedMs = estimatedTime * 60 * 60 * 1000
         break
-      case "days":
+      case 'days':
         estimatedMs = estimatedTime * 24 * 60 * 60 * 1000
         break
       default:
@@ -213,22 +241,25 @@ export function ActivityHistory() {
   const getCurrentWorkSummary = () => {
     const currentWork = allHistory.filter(
       (entry) =>
-        entry.action === "start_step" &&
+        entry.action === 'start_step' &&
         !allHistory.some(
-          (h) => h.requestId === entry.requestId && h.entityId === entry.entityId && h.action === "complete_step",
-        ),
+          (h) =>
+            h.requestId === entry.requestId &&
+            h.entityId === entry.entityId &&
+            h.action === 'complete_step'
+        )
     )
 
     const workByUser = currentWork.reduce(
       (acc, entry) => {
-        const userName = entry.userName || "Không xác định"
+        const userName = entry.userName || 'Không xác định'
         if (!acc[userName]) {
           acc[userName] = []
         }
         acc[userName].push(entry)
         return acc
       },
-      {} as Record<string, HistoryEntry[]>,
+      {} as Record<string, HistoryEntry[]>
     )
 
     return workByUser
@@ -236,21 +267,26 @@ export function ActivityHistory() {
 
   const getPerformanceStatistics = () => {
     const completedSteps = allHistory
-      .filter((entry) => entry.action === "complete_step")
+      .filter((entry) => entry.action === 'complete_step')
       .map((completeEntry) => {
         const startEntry = allHistory.find(
           (startEntry) =>
-            startEntry.action === "start_step" &&
+            startEntry.action === 'start_step' &&
             startEntry.requestId === completeEntry.requestId &&
             startEntry.entityId === completeEntry.entityId &&
-            startEntry.userId === completeEntry.userId,
+            startEntry.userId === completeEntry.userId
         )
 
         if (!startEntry) return null
 
-        const startTime = startEntry.timestamp instanceof Date ? startEntry.timestamp : new Date(startEntry.timestamp)
+        const startTime =
+          startEntry.timestamp instanceof Date
+            ? startEntry.timestamp
+            : new Date(startEntry.timestamp)
         const endTime =
-          completeEntry.timestamp instanceof Date ? completeEntry.timestamp : new Date(completeEntry.timestamp)
+          completeEntry.timestamp instanceof Date
+            ? completeEntry.timestamp
+            : new Date(completeEntry.timestamp)
         const duration = endTime.getTime() - startTime.getTime()
 
         return {
@@ -260,7 +296,7 @@ export function ActivityHistory() {
           stepName: getStepName(completeEntry),
           duration: duration,
           startTime,
-          endTime,
+          endTime
         }
       })
       .filter(Boolean)
@@ -274,7 +310,7 @@ export function ActivityHistory() {
             stepName: step.stepName,
             durations: [],
             count: 0,
-            users: new Set(),
+            users: new Set()
           }
         }
         acc[key].durations.push(step.duration)
@@ -282,27 +318,29 @@ export function ActivityHistory() {
         acc[key].users.add(step.userName)
         return acc
       },
-      {} as Record<string, any>,
+      {} as Record<string, any>
     )
 
     return Object.values(groupedByStep).map((stat: any) => {
-      const averageDuration = stat.durations.reduce((sum: number, d: number) => sum + d, 0) / stat.durations.length
+      const averageDuration =
+        stat.durations.reduce((sum: number, d: number) => sum + d, 0) /
+        stat.durations.length
 
       let standardDuration = null
-      let standardTimeUnit = "hours"
+      let standardTimeUnit = 'hours'
 
       if (standardWorkflow?.steps) {
         const step = standardWorkflow.steps.find((s) => s.id === stat.stepId)
         if (step && step.estimatedTime) {
-          standardTimeUnit = step.estimatedTimeUnit || "hours"
+          standardTimeUnit = step.estimatedTimeUnit || 'hours'
           switch (standardTimeUnit) {
-            case "minutes":
+            case 'minutes':
               standardDuration = step.estimatedTime * 60 * 1000
               break
-            case "hours":
+            case 'hours':
               standardDuration = step.estimatedTime * 60 * 60 * 1000
               break
-            case "days":
+            case 'days':
               standardDuration = step.estimatedTime * 24 * 60 * 60 * 1000
               break
             default:
@@ -315,7 +353,8 @@ export function ActivityHistory() {
       let variancePercentage = null
       if (standardDuration) {
         variance = averageDuration - standardDuration
-        variancePercentage = ((averageDuration - standardDuration) / standardDuration) * 100
+        variancePercentage =
+          ((averageDuration - standardDuration) / standardDuration) * 100
       }
 
       return {
@@ -327,7 +366,7 @@ export function ActivityHistory() {
         standardTimeUnit,
         variance,
         variancePercentage,
-        userCount: stat.users.size,
+        userCount: stat.users.size
       }
     })
   }
@@ -387,16 +426,23 @@ export function ActivityHistory() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{entries.length}</div>
-              <p className="text-xs text-muted-foreground">công việc đang thực hiện</p>
+              <div className="text-2xl font-bold text-blue-600">
+                {entries.length}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                công việc đang thực hiện
+              </p>
               <div className="mt-2 space-y-1">
                 {entries.slice(0, 2).map((entry, index) => (
                   <div key={index} className="text-xs truncate">
-                    {entry.requestId}: {entry.metadata?.stepName || entry.details}
+                    {entry.requestId}:{' '}
+                    {entry.metadata?.stepName || entry.details}
                   </div>
                 ))}
                 {entries.length > 2 && (
-                  <div className="text-xs text-muted-foreground">+{entries.length - 2} công việc khác</div>
+                  <div className="text-xs text-muted-foreground">
+                    +{entries.length - 2} công việc khác
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -440,7 +486,9 @@ export function ActivityHistory() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="current">Đang thực hiện ({Object.values(currentWorkSummary).flat().length})</TabsTrigger>
+          <TabsTrigger value="current">
+            Đang thực hiện ({Object.values(currentWorkSummary).flat().length})
+          </TabsTrigger>
           <TabsTrigger value="completed">Đã hoàn thành</TabsTrigger>
           <TabsTrigger value="performance">Thống kê hiệu suất</TabsTrigger>
           <TabsTrigger value="all">Tất cả hoạt động</TabsTrigger>
@@ -467,7 +515,9 @@ export function ActivityHistory() {
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-8">
                         <div className="text-muted-foreground">
-                          {loading ? "Đang tải..." : "Không có hoạt động nào phù hợp"}
+                          {loading
+                            ? 'Đang tải...'
+                            : 'Không có hoạt động nào phù hợp'}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -477,40 +527,57 @@ export function ActivityHistory() {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <User className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-medium">{entry.userName || "Không xác định"}</span>
+                            <span className="font-medium">
+                              {entry.userName || 'Không xác định'}
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="max-w-xs">
-                            <div className="font-medium truncate">{getRequestName(entry.requestId)}</div>
-                            <code className="text-xs text-muted-foreground">{entry.requestId}</code>
+                            <div className="font-medium truncate">
+                              {getRequestName(entry.requestId)}
+                            </div>
+                            <code className="text-xs text-muted-foreground">
+                              {entry.requestId}
+                            </code>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {getStatusIcon(entry)}
-                            <span className="text-sm">{getStepName(entry)}</span>
+                            <span className="text-sm">
+                              {getStepName(entry)}
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell>{getStatusBadge(entry)}</TableCell>
                         <TableCell>
                           <div className="text-sm">
                             {entry.timestamp instanceof Date
-                              ? format(entry.timestamp, "dd/MM/yyyy HH:mm", { locale: vi })
-                              : "Không xác định"}
+                              ? format(entry.timestamp, 'dd/MM/yyyy HH:mm', {
+                                  locale: vi
+                                })
+                              : 'Không xác định'}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm text-muted-foreground">
                             {(() => {
                               const estimatedEnd = getEstimatedEndTime(entry)
-                              if (!estimatedEnd) return "Chưa xác định"
+                              if (!estimatedEnd) return 'Chưa xác định'
 
                               try {
-                                return format(estimatedEnd, "dd/MM/yyyy HH:mm", { locale: vi })
+                                return format(
+                                  estimatedEnd,
+                                  'dd/MM/yyyy HH:mm',
+                                  { locale: vi }
+                                )
                               } catch (error) {
-                                console.warn("Error formatting estimated end time:", error)
-                                return "Lỗi định dạng"
+                                console.warn(
+                                  'Error formatting estimated end time:',
+                                  error
+                                )
+                                return 'Lỗi định dạng'
                               }
                             })()}
                           </div>
@@ -518,18 +585,27 @@ export function ActivityHistory() {
                         <TableCell>
                           <div className="text-sm">
                             {entry.metadata?.completedAt instanceof Date
-                              ? format(entry.metadata.completedAt, "dd/MM/yyyy HH:mm", { locale: vi })
-                              : entry.action === "complete_step"
+                              ? format(
+                                  entry.metadata.completedAt,
+                                  'dd/MM/yyyy HH:mm',
+                                  { locale: vi }
+                                )
+                              : entry.action === 'complete_step'
                                 ? format(
-                                    entry.timestamp instanceof Date ? entry.timestamp : new Date(),
-                                    "dd/MM/yyyy HH:mm",
-                                    { locale: vi },
+                                    entry.timestamp instanceof Date
+                                      ? entry.timestamp
+                                      : new Date(),
+                                    'dd/MM/yyyy HH:mm',
+                                    { locale: vi }
                                   )
-                                : "-"}
+                                : '-'}
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="text-sm max-w-xs truncate" title={entry.details}>
+                          <div
+                            className="text-sm max-w-xs truncate"
+                            title={entry.details}
+                          >
                             {entry.details}
                           </div>
                         </TableCell>
@@ -568,7 +644,9 @@ export function ActivityHistory() {
                     return performanceStats.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={7} className="text-center py-8">
-                          <div className="text-muted-foreground">Chưa có dữ liệu thống kê hiệu suất</div>
+                          <div className="text-muted-foreground">
+                            Chưa có dữ liệu thống kê hiệu suất
+                          </div>
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -577,33 +655,51 @@ export function ActivityHistory() {
                         .map((stat, index) => (
                           <TableRow key={index}>
                             <TableCell>
-                              <span className="font-medium">{stat.stepName}</span>
+                              <span className="font-medium">
+                                {stat.stepName}
+                              </span>
                             </TableCell>
                             <TableCell>
                               <Badge variant="outline">{stat.count} lần</Badge>
                             </TableCell>
                             <TableCell>
-                              <Badge variant="secondary">{stat.userCount} người</Badge>
+                              <Badge variant="secondary">
+                                {stat.userCount} người
+                              </Badge>
                             </TableCell>
                             <TableCell>
                               {stat.standardDuration ? (
-                                <span className="text-blue-600">{formatDuration(stat.standardDuration)}</span>
+                                <span className="text-blue-600">
+                                  {formatDuration(stat.standardDuration)}
+                                </span>
                               ) : (
-                                <span className="text-muted-foreground">Chưa thiết lập</span>
+                                <span className="text-muted-foreground">
+                                  Chưa thiết lập
+                                </span>
                               )}
                             </TableCell>
                             <TableCell>
-                              <span className="font-medium">{formatDuration(stat.averageDuration)}</span>
+                              <span className="font-medium">
+                                {formatDuration(stat.averageDuration)}
+                              </span>
                             </TableCell>
                             <TableCell>
                               {stat.variance !== null ? (
                                 <div className="flex items-center gap-1">
-                                  <span className={stat.variance > 0 ? "text-red-600" : "text-green-600"}>
-                                    {stat.variance > 0 ? "+" : ""}
+                                  <span
+                                    className={
+                                      stat.variance > 0
+                                        ? 'text-red-600'
+                                        : 'text-green-600'
+                                    }
+                                  >
+                                    {stat.variance > 0 ? '+' : ''}
                                     {formatDuration(Math.abs(stat.variance))}
                                   </span>
-                                  <span className={`text-xs ${stat.variance > 0 ? "text-red-600" : "text-green-600"}`}>
-                                    ({stat.variancePercentage > 0 ? "+" : ""}
+                                  <span
+                                    className={`text-xs ${stat.variance > 0 ? 'text-red-600' : 'text-green-600'}`}
+                                  >
+                                    ({stat.variancePercentage > 0 ? '+' : ''}
                                     {stat.variancePercentage.toFixed(1)}%)
                                   </span>
                                 </div>
@@ -616,17 +712,17 @@ export function ActivityHistory() {
                                 <Badge
                                   variant={
                                     stat.variancePercentage <= -10
-                                      ? "default"
+                                      ? 'default'
                                       : stat.variancePercentage <= 10
-                                        ? "secondary"
-                                        : "destructive"
+                                        ? 'secondary'
+                                        : 'destructive'
                                   }
                                 >
                                   {stat.variancePercentage <= -10
-                                    ? "Xuất sắc"
+                                    ? 'Xuất sắc'
                                     : stat.variancePercentage <= 10
-                                      ? "Tốt"
-                                      : "Cần cải thiện"}
+                                      ? 'Tốt'
+                                      : 'Cần cải thiện'}
                                 </Badge>
                               ) : (
                                 <Badge variant="outline">Chưa đánh giá</Badge>

@@ -1,14 +1,20 @@
-"use client"
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { CheckCircle, Circle, AlertCircle, ChevronRight } from "lucide-react"
-import { cn } from "@/lib/utils"
+'use client'
+import { useState } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { CheckCircle, Circle, AlertCircle, ChevronRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface Field {
   id: string
@@ -49,66 +55,72 @@ interface WorkflowStepExecutionUIProps {
 
 // Thêm hàm helper để format ngày giờ theo múi giờ Việt Nam
 const formatDateTimeForInput = (dateString: string) => {
-  if (!dateString) return ""
+  if (!dateString) return ''
 
   try {
     const date = new Date(dateString)
 
     // Chuyển sang múi giờ Việt Nam sử dụng toLocaleString
-    const vietnamDate = new Date(date.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }))
+    const vietnamDate = new Date(
+      date.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' })
+    )
 
     // Format thành YYYY-MM-DDTHH:mm cho input datetime-local
     const year = vietnamDate.getFullYear()
-    const month = String(vietnamDate.getMonth() + 1).padStart(2, "0")
-    const day = String(vietnamDate.getDate()).padStart(2, "0")
-    const hours = String(vietnamDate.getHours()).padStart(2, "0")
-    const minutes = String(vietnamDate.getMinutes()).padStart(2, "0")
+    const month = String(vietnamDate.getMonth() + 1).padStart(2, '0')
+    const day = String(vietnamDate.getDate()).padStart(2, '0')
+    const hours = String(vietnamDate.getHours()).padStart(2, '0')
+    const minutes = String(vietnamDate.getMinutes()).padStart(2, '0')
 
     return `${year}-${month}-${day}T${hours}:${minutes}`
   } catch (error) {
-    console.error("Error formatting date:", error)
-    return ""
+    console.error('Error formatting date:', error)
+    return ''
   }
 }
 
 // Cập nhật hàm calculateDeadline để sử dụng múi giờ Việt Nam
-const calculateDeadline = (receiveDate: string, estimatedTime: number, estimatedTimeUnit: string) => {
-  if (!receiveDate) return ""
+const calculateDeadline = (
+  receiveDate: string,
+  estimatedTime: number,
+  estimatedTimeUnit: string
+) => {
+  if (!receiveDate) return ''
 
   try {
     // Sử dụng trực tiếp thời gian từ input (đã là local time)
     const receive = new Date(receiveDate)
     const deadline = new Date(receive)
 
-    console.log("🔄 Calculating deadline:", {
+    console.log('🔄 Calculating deadline:', {
       receiveDate,
       estimatedTime,
       estimatedTimeUnit,
-      receiveParsed: receive.toISOString(),
+      receiveParsed: receive.toISOString()
     })
 
     // Chuyển đổi thời gian ước tính thành ngày
     let daysToAdd = estimatedTime
-    if (estimatedTimeUnit === "hours") {
+    if (estimatedTimeUnit === 'hours') {
       daysToAdd = Math.ceil(estimatedTime / 8) // 8 giờ làm việc = 1 ngày, làm tròn lên
-    } else if (estimatedTimeUnit === "weeks") {
+    } else if (estimatedTimeUnit === 'weeks') {
       daysToAdd = estimatedTime * 7
-    } else if (estimatedTimeUnit === "months") {
+    } else if (estimatedTimeUnit === 'months') {
       daysToAdd = estimatedTime * 30
     }
 
     deadline.setDate(deadline.getDate() + daysToAdd)
 
-    console.log("📅 Deadline calculated:", {
+    console.log('📅 Deadline calculated:', {
       daysToAdd,
-      finalDeadline: deadline.toISOString(),
+      finalDeadline: deadline.toISOString()
     })
 
     // Format về datetime-local
     return formatDateTimeForInput(deadline.toISOString())
   } catch (error) {
-    console.error("Error calculating deadline:", error)
-    return ""
+    console.error('Error calculating deadline:', error)
+    return ''
   }
 }
 
@@ -122,11 +134,12 @@ export function WorkflowStepExecutionUI({
   requestData = {},
   onRevertToPreviousStep,
   hideCompleteButton = false,
-  hideTimeInfo = false,
+  hideTimeInfo = false
 }: WorkflowStepExecutionUIProps) {
   const [selectedStepId, setSelectedStepId] = useState(currentStepId)
 
-  const currentStep = steps.find((step) => step.id === selectedStepId) || steps[0]
+  const currentStep =
+    steps.find((step) => step.id === selectedStepId) || steps[0]
 
   // Tính toán ngày deadline dựa trên ngày tiếp nhận và thời gian ước tính
 
@@ -135,17 +148,18 @@ export function WorkflowStepExecutionUI({
     onFieldChange(fieldId, value)
 
     // Nếu thay đổi ngày tiếp nhận, tự động tính deadline
-    if (fieldId === "receiveDate" && currentStep) {
+    if (fieldId === 'receiveDate' && currentStep) {
       const newDeadline = calculateDeadline(
         value,
         currentStep.estimatedTime || 1,
-        currentStep.estimatedTimeUnit || "days",
+        currentStep.estimatedTimeUnit || 'days'
       )
 
       if (newDeadline) {
         // Tìm field deadline và cập nhật
         const deadlineField = currentStep.fields.find(
-          (f) => f.id === "deadline" || f.name.toLowerCase().includes("deadline"),
+          (f) =>
+            f.id === 'deadline' || f.name.toLowerCase().includes('deadline')
         )
         if (deadlineField) {
           setTimeout(() => {
@@ -159,26 +173,37 @@ export function WorkflowStepExecutionUI({
   // Lấy trạng thái của bước
   const getStepStatus = (stepId: string) => {
     const step = steps.find((s) => s.id === stepId)
-    return step?.status || (stepId === currentStepId ? "in_progress" : "not_started")
+    return (
+      step?.status || (stepId === currentStepId ? 'in_progress' : 'not_started')
+    )
   }
 
   // Lấy style cho button bước
   const getStepButtonStyle = (stepId: string, isSelected: boolean) => {
     const status = getStepStatus(stepId)
     let baseStyle =
-      "px-4 py-3 rounded-lg border-2 transition-all duration-200 cursor-pointer min-w-[160px] text-center relative"
+      'px-4 py-3 rounded-lg border-2 transition-all duration-200 cursor-pointer min-w-[160px] text-center relative'
 
     if (isSelected) {
-      baseStyle += " ring-2 ring-blue-500 ring-offset-2"
+      baseStyle += ' ring-2 ring-blue-500 ring-offset-2'
     }
 
     switch (status) {
-      case "completed":
-        return cn(baseStyle, "bg-green-100 border-green-300 text-green-800 hover:bg-green-200")
-      case "in_progress":
-        return cn(baseStyle, "bg-orange-100 border-orange-300 text-orange-800 hover:bg-orange-200")
+      case 'completed':
+        return cn(
+          baseStyle,
+          'bg-green-100 border-green-300 text-green-800 hover:bg-green-200'
+        )
+      case 'in_progress':
+        return cn(
+          baseStyle,
+          'bg-orange-100 border-orange-300 text-orange-800 hover:bg-orange-200'
+        )
       default:
-        return cn(baseStyle, "bg-blue-100 border-blue-300 text-blue-800 hover:bg-blue-200")
+        return cn(
+          baseStyle,
+          'bg-blue-100 border-blue-300 text-blue-800 hover:bg-blue-200'
+        )
     }
   }
 
@@ -186,21 +211,21 @@ export function WorkflowStepExecutionUI({
   const getStepStatusText = (stepId: string) => {
     const status = getStepStatus(stepId)
     switch (status) {
-      case "completed":
-        return "Hoàn thành"
-      case "in_progress":
-        return "Đang xử lý"
+      case 'completed':
+        return 'Hoàn thành'
+      case 'in_progress':
+        return 'Đang xử lý'
       default:
-        return "Chưa bắt đầu"
+        return 'Chưa bắt đầu'
     }
   }
 
   // Render field input
   const renderFieldInput = (field: Field) => {
-    const value = fieldValues[field.id] || ""
+    const value = fieldValues[field.id] || ''
 
     switch (field.type) {
-      case "text":
+      case 'text':
         return (
           <Input
             id={field.id}
@@ -211,7 +236,7 @@ export function WorkflowStepExecutionUI({
           />
         )
 
-      case "textarea":
+      case 'textarea':
         return (
           <Textarea
             id={field.id}
@@ -223,7 +248,7 @@ export function WorkflowStepExecutionUI({
           />
         )
 
-      case "date":
+      case 'date':
         return (
           <Input
             id={field.id}
@@ -239,9 +264,12 @@ export function WorkflowStepExecutionUI({
           />
         )
 
-      case "select":
+      case 'select':
         return (
-          <Select value={value} onValueChange={(val) => handleFieldChange(field.id, val)}>
+          <Select
+            value={value}
+            onValueChange={(val) => handleFieldChange(field.id, val)}
+          >
             <SelectTrigger>
               <SelectValue placeholder={`Chọn ${field.name.toLowerCase()}`} />
             </SelectTrigger>
@@ -255,7 +283,7 @@ export function WorkflowStepExecutionUI({
           </Select>
         )
 
-      case "number":
+      case 'number':
         return (
           <Input
             id={field.id}
@@ -286,8 +314,13 @@ export function WorkflowStepExecutionUI({
         <CardHeader>
           <CardTitle>Các bước quy trình</CardTitle>
           <div className="text-sm text-muted-foreground">
-            {steps.length} bước • Tiến độ:{" "}
-            {Math.round((steps.filter((s) => getStepStatus(s.id) === "completed").length / steps.length) * 100)}%
+            {steps.length} bước • Tiến độ:{' '}
+            {Math.round(
+              (steps.filter((s) => getStepStatus(s.id) === 'completed').length /
+                steps.length) *
+                100
+            )}
+            %
           </div>
         </CardHeader>
         <CardContent>
@@ -300,20 +333,27 @@ export function WorkflowStepExecutionUI({
 
                 return (
                   <div key={step.id} className="flex items-center">
-                    <div className={getStepButtonStyle(step.id, isSelected)} onClick={() => setSelectedStepId(step.id)}>
+                    <div
+                      className={getStepButtonStyle(step.id, isSelected)}
+                      onClick={() => setSelectedStepId(step.id)}
+                    >
                       <div className="flex items-center justify-center gap-2 mb-2">
-                        {status === "completed" ? (
+                        {status === 'completed' ? (
                           <CheckCircle className="h-5 w-5" />
-                        ) : status === "in_progress" ? (
+                        ) : status === 'in_progress' ? (
                           <AlertCircle className="h-5 w-5" />
                         ) : (
                           <Circle className="h-5 w-5" />
                         )}
                         <span className="font-medium">{step.name}</span>
                       </div>
-                      <div className="text-xs">{getStepStatusText(step.id)}</div>
+                      <div className="text-xs">
+                        {getStepStatusText(step.id)}
+                      </div>
                     </div>
-                    {index < steps.length - 1 && <ChevronRight className="h-5 w-5 text-gray-400 mx-2 flex-shrink-0" />}
+                    {index < steps.length - 1 && (
+                      <ChevronRight className="h-5 w-5 text-gray-400 mx-2 flex-shrink-0" />
+                    )}
                   </div>
                 )
               })}
@@ -325,15 +365,21 @@ export function WorkflowStepExecutionUI({
             <Card className="border-2 border-blue-200 mt-6">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  {getStepStatus(currentStep.id) === "completed" ? (
+                  {getStepStatus(currentStep.id) === 'completed' ? (
                     <CheckCircle className="h-5 w-5 text-green-600" />
-                  ) : getStepStatus(currentStep.id) === "in_progress" ? (
+                  ) : getStepStatus(currentStep.id) === 'in_progress' ? (
                     <AlertCircle className="h-5 w-5 text-orange-600" />
                   ) : (
                     <Circle className="h-5 w-5 text-blue-600" />
                   )}
                   {currentStep.name}
-                  <Badge variant={getStepStatus(currentStep.id) === "completed" ? "default" : "secondary"}>
+                  <Badge
+                    variant={
+                      getStepStatus(currentStep.id) === 'completed'
+                        ? 'default'
+                        : 'secondary'
+                    }
+                  >
                     {getStepStatusText(currentStep.id)}
                   </Badge>
                 </CardTitle>
@@ -344,7 +390,9 @@ export function WorkflowStepExecutionUI({
               <CardContent className="space-y-4">
                 {currentStep.description && (
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Mô tả</Label>
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Mô tả
+                    </Label>
                     <p className="text-sm mt-1">{currentStep.description}</p>
                   </div>
                 )}
@@ -352,22 +400,37 @@ export function WorkflowStepExecutionUI({
                 {!hideTimeInfo && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Vai trò thực hiện</Label>
-                      <p className="text-sm mt-1">{currentStep.assigneeRole || "Chưa phân công"}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Thời gian ước tính</Label>
+                      <Label className="text-sm font-medium text-muted-foreground">
+                        Vai trò thực hiện
+                      </Label>
                       <p className="text-sm mt-1">
-                        {currentStep.estimatedTime || 0} {currentStep.estimatedTimeUnit || "ngày"}
+                        {currentStep.assigneeRole || 'Chưa phân công'}
                       </p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Có chi phí</Label>
-                      <p className="text-sm mt-1">{currentStep.hasCost ? "Có" : "Không"}</p>
+                      <Label className="text-sm font-medium text-muted-foreground">
+                        Thời gian ước tính
+                      </Label>
+                      <p className="text-sm mt-1">
+                        {currentStep.estimatedTime || 0}{' '}
+                        {currentStep.estimatedTimeUnit || 'ngày'}
+                      </p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Bắt buộc</Label>
-                      <p className="text-sm mt-1">{currentStep.isRequired ? "Có" : "Không"}</p>
+                      <Label className="text-sm font-medium text-muted-foreground">
+                        Có chi phí
+                      </Label>
+                      <p className="text-sm mt-1">
+                        {currentStep.hasCost ? 'Có' : 'Không'}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">
+                        Bắt buộc
+                      </Label>
+                      <p className="text-sm mt-1">
+                        {currentStep.isRequired ? 'Có' : 'Không'}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -375,15 +438,26 @@ export function WorkflowStepExecutionUI({
                 {/* Fields */}
                 {currentStep.fields && currentStep.fields.length > 0 && (
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground mb-2 block">Các trường dữ liệu</Label>
+                    <Label className="text-sm font-medium text-muted-foreground mb-2 block">
+                      Các trường dữ liệu
+                    </Label>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {currentStep.fields.map((field) => (
                         <div key={field.id} className="space-y-2">
-                          <Label htmlFor={field.id} className="text-sm font-medium">
+                          <Label
+                            htmlFor={field.id}
+                            className="text-sm font-medium"
+                          >
                             {field.name}
-                            {field.required && <span className="text-red-500 ml-1">*</span>}
+                            {field.required && (
+                              <span className="text-red-500 ml-1">*</span>
+                            )}
                           </Label>
-                          {field.description && <p className="text-xs text-muted-foreground">{field.description}</p>}
+                          {field.description && (
+                            <p className="text-xs text-muted-foreground">
+                              {field.description}
+                            </p>
+                          )}
                           {renderFieldInput(field)}
                         </div>
                       ))}
@@ -391,16 +465,17 @@ export function WorkflowStepExecutionUI({
                   </div>
                 )}
 
-                {!hideCompleteButton && getStepStatus(currentStep.id) === "in_progress" && (
-                  <div className="flex justify-end pt-4">
-                    <Button
-                      onClick={() => onCompleteStep(currentStep.id)}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      Hoàn thành bước
-                    </Button>
-                  </div>
-                )}
+                {!hideCompleteButton &&
+                  getStepStatus(currentStep.id) === 'in_progress' && (
+                    <div className="flex justify-end pt-4">
+                      <Button
+                        onClick={() => onCompleteStep(currentStep.id)}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        Hoàn thành bước
+                      </Button>
+                    </div>
+                  )}
               </CardContent>
             </Card>
           )}

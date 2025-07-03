@@ -1,9 +1,15 @@
-"use client"
+'use client'
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Search, SlidersHorizontal } from 'lucide-react'
 
 export function ProductFilters() {
   return (
@@ -15,7 +21,12 @@ export function ProductFilters() {
           </label>
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input id="search" type="search" placeholder="Tìm theo tên sản phẩm, mô tả hoặc SKU..." className="pl-8" />
+            <Input
+              id="search"
+              type="search"
+              placeholder="Tìm theo tên sản phẩm, mô tả hoặc SKU..."
+              className="pl-8"
+            />
           </div>
         </div>
         <div className="grid gap-2">

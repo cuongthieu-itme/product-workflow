@@ -1,51 +1,60 @@
-"use client"
+'use client'
 
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from 'recharts'
 
 // Dữ liệu mẫu cho biểu đồ hiệu suất sản phẩm
 const data = [
   {
-    name: "Tháng 1",
-    "Sản phẩm mới": 4,
-    "Đang phát triển": 7,
-    "Đã ra mắt": 2,
-    "Thời gian phát triển": 45,
+    name: 'Tháng 1',
+    'Sản phẩm mới': 4,
+    'Đang phát triển': 7,
+    'Đã ra mắt': 2,
+    'Thời gian phát triển': 45
   },
   {
-    name: "Tháng 2",
-    "Sản phẩm mới": 3,
-    "Đang phát triển": 8,
-    "Đã ra mắt": 3,
-    "Thời gian phát triển": 42,
+    name: 'Tháng 2',
+    'Sản phẩm mới': 3,
+    'Đang phát triển': 8,
+    'Đã ra mắt': 3,
+    'Thời gian phát triển': 42
   },
   {
-    name: "Tháng 3",
-    "Sản phẩm mới": 5,
-    "Đang phát triển": 9,
-    "Đã ra mắt": 4,
-    "Thời gian phát triển": 40,
+    name: 'Tháng 3',
+    'Sản phẩm mới': 5,
+    'Đang phát triển': 9,
+    'Đã ra mắt': 4,
+    'Thời gian phát triển': 40
   },
   {
-    name: "Tháng 4",
-    "Sản phẩm mới": 6,
-    "Đang phát triển": 10,
-    "Đã ra mắt": 5,
-    "Thời gian phát triển": 38,
+    name: 'Tháng 4',
+    'Sản phẩm mới': 6,
+    'Đang phát triển': 10,
+    'Đã ra mắt': 5,
+    'Thời gian phát triển': 38
   },
   {
-    name: "Tháng 5",
-    "Sản phẩm mới": 4,
-    "Đang phát triển": 8,
-    "Đã ra mắt": 6,
-    "Thời gian phát triển": 35,
+    name: 'Tháng 5',
+    'Sản phẩm mới': 4,
+    'Đang phát triển': 8,
+    'Đã ra mắt': 6,
+    'Thời gian phát triển': 35
   },
   {
-    name: "Tháng 6",
-    "Sản phẩm mới": 3,
-    "Đang phát triển": 7,
-    "Đã ra mắt": 4,
-    "Thời gian phát triển": 32,
-  },
+    name: 'Tháng 6',
+    'Sản phẩm mới': 3,
+    'Đang phát triển': 7,
+    'Đã ra mắt': 4,
+    'Thời gian phát triển': 32
+  }
 ]
 
 export function ProductPerformanceChart() {

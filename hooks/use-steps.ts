@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import { useState, useCallback } from "react"
+import { useState, useCallback } from 'react'
 
 interface Step {
   id: string
@@ -14,7 +14,9 @@ export function useSteps() {
 
   const toggleStep = useCallback((stepId: string) => {
     setSelectedSteps((prevSelectedSteps) => {
-      const stepIndex = prevSelectedSteps.findIndex((step) => step.id === stepId)
+      const stepIndex = prevSelectedSteps.findIndex(
+        (step) => step.id === stepId
+      )
 
       if (stepIndex > -1) {
         // Nếu bước đã được chọn, loại bỏ nó
@@ -40,6 +42,6 @@ export function useSteps() {
     selectedSteps,
     toggleStep,
     selectSteps,
-    clearSelectedSteps,
+    clearSelectedSteps
   }
 }

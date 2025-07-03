@@ -1,16 +1,26 @@
-"use client"
+'use client'
 
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
-import { CalendarIcon, Clock } from "lucide-react"
-import { useState } from "react"
+import { format } from 'date-fns'
+import { vi } from 'date-fns/locale'
+import { CalendarIcon, Clock } from 'lucide-react'
+import { useState } from 'react'
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Label } from "@/components/ui/label"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import { Label } from '@/components/ui/label'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 
 interface DateTimePickerProps {
   date: Date | undefined
@@ -19,12 +29,21 @@ interface DateTimePickerProps {
   placeholder?: string
 }
 
-export function DateTimePicker({ date, setDate, className, placeholder = "Chọn ngày và giờ" }: DateTimePickerProps) {
+export function DateTimePicker({
+  date,
+  setDate,
+  className,
+  placeholder = 'Chọn ngày và giờ'
+}: DateTimePickerProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   // Tạo mảng giờ và phút
-  const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0"))
-  const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, "0"))
+  const hours = Array.from({ length: 24 }, (_, i) =>
+    i.toString().padStart(2, '0')
+  )
+  const minutes = Array.from({ length: 60 }, (_, i) =>
+    i.toString().padStart(2, '0')
+  )
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {
@@ -38,11 +57,11 @@ export function DateTimePicker({ date, setDate, className, placeholder = "Chọn
     }
   }
 
-  const handleTimeChange = (type: "hour" | "minute", value: string) => {
+  const handleTimeChange = (type: 'hour' | 'minute', value: string) => {
     if (!date) {
       // Nếu chưa có ngày, tạo ngày mới với thời gian hiện tại
       const newDate = new Date()
-      if (type === "hour") {
+      if (type === 'hour') {
         newDate.setHours(Number.parseInt(value))
       } else {
         newDate.setMinutes(Number.parseInt(value))
@@ -50,7 +69,7 @@ export function DateTimePicker({ date, setDate, className, placeholder = "Chọn
       setDate(newDate)
     } else {
       const newDate = new Date(date)
-      if (type === "hour") {
+      if (type === 'hour') {
         newDate.setHours(Number.parseInt(value))
       } else {
         newDate.setMinutes(Number.parseInt(value))
@@ -64,15 +83,27 @@ export function DateTimePicker({ date, setDate, className, placeholder = "Chọn
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground", className)}
+          className={cn(
+            'w-full justify-start text-left font-normal',
+            !date && 'text-muted-foreground',
+            className
+          )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "dd/MM/yyyy HH:mm", { locale: vi }) : placeholder}
+          {date
+            ? format(date, 'dd/MM/yyyy HH:mm', { locale: vi })
+            : placeholder}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <div className="flex">
-          <Calendar mode="single" selected={date} onSelect={handleDateSelect} initialFocus locale={vi} />
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={handleDateSelect}
+            initialFocus
+            locale={vi}
+          />
           <div className="border-l border-border p-3 space-y-3">
             <div className="flex items-center space-x-2">
               <Clock className="h-4 w-4" />
@@ -82,8 +113,10 @@ export function DateTimePicker({ date, setDate, className, placeholder = "Chọn
             <div className="space-y-2">
               <Label className="text-xs text-muted-foreground">Giờ</Label>
               <Select
-                value={date ? date.getHours().toString().padStart(2, "0") : "08"}
-                onValueChange={(value) => handleTimeChange("hour", value)}
+                value={
+                  date ? date.getHours().toString().padStart(2, '0') : '08'
+                }
+                onValueChange={(value) => handleTimeChange('hour', value)}
               >
                 <SelectTrigger className="w-20">
                   <SelectValue />
@@ -101,8 +134,10 @@ export function DateTimePicker({ date, setDate, className, placeholder = "Chọn
             <div className="space-y-2">
               <Label className="text-xs text-muted-foreground">Phút</Label>
               <Select
-                value={date ? date.getMinutes().toString().padStart(2, "0") : "00"}
-                onValueChange={(value) => handleTimeChange("minute", value)}
+                value={
+                  date ? date.getMinutes().toString().padStart(2, '0') : '00'
+                }
+                onValueChange={(value) => handleTimeChange('minute', value)}
               >
                 <SelectTrigger className="w-20">
                   <SelectValue />
@@ -117,7 +152,11 @@ export function DateTimePicker({ date, setDate, className, placeholder = "Chọn
               </Select>
             </div>
 
-            <Button onClick={() => setIsOpen(false)} className="w-full mt-4" size="sm">
+            <Button
+              onClick={() => setIsOpen(false)}
+              className="w-full mt-4"
+              size="sm"
+            >
               Xác nhận
             </Button>
           </div>

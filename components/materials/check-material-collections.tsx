@@ -1,19 +1,31 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { db } from "@/lib/firebase"
-import { collection, getDocs, doc, setDoc, Timestamp } from "firebase/firestore"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import { useState, useEffect } from 'react'
+import { db } from '@/lib/firebase'
+import { collection, getDocs, doc, setDoc, Timestamp } from 'firebase/firestore'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 
 export default function CheckMaterialCollections() {
   const [loading, setLoading] = useState(true)
   const [materialRequestsExists, setMaterialRequestsExists] = useState(false)
-  const [materialImportRequestsExists, setMaterialImportRequestsExists] = useState(false)
-  const [initializingMaterialRequests, setInitializingMaterialRequests] = useState(false)
-  const [initializingMaterialImportRequests, setInitializingMaterialImportRequests] = useState(false)
+  const [materialImportRequestsExists, setMaterialImportRequestsExists] =
+    useState(false)
+  const [initializingMaterialRequests, setInitializingMaterialRequests] =
+    useState(false)
+  const [
+    initializingMaterialImportRequests,
+    setInitializingMaterialImportRequests
+  ] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -26,14 +38,18 @@ export default function CheckMaterialCollections() {
     setError(null)
     try {
       // Kiểm tra collection materialRequests
-      const materialRequestsSnapshot = await getDocs(collection(db, "materialRequests"))
+      const materialRequestsSnapshot = await getDocs(
+        collection(db, 'materialRequests')
+      )
       setMaterialRequestsExists(!materialRequestsSnapshot.empty)
 
       // Kiểm tra collection materialImportRequests
-      const materialImportRequestsSnapshot = await getDocs(collection(db, "materialImportRequests"))
+      const materialImportRequestsSnapshot = await getDocs(
+        collection(db, 'materialImportRequests')
+      )
       setMaterialImportRequestsExists(!materialImportRequestsSnapshot.empty)
     } catch (err: any) {
-      console.error("Lỗi khi kiểm tra collections:", err)
+      console.error('Lỗi khi kiểm tra collections:', err)
       setError(`Lỗi khi kiểm tra collections: ${err.message}`)
     } finally {
       setLoading(false)
@@ -46,25 +62,25 @@ export default function CheckMaterialCollections() {
     try {
       // Tạo document mẫu trong collection materialRequests
       const sampleData = {
-        materialId: "sample-material-id",
-        materialName: "Nguyên vật liệu mẫu",
+        materialId: 'sample-material-id',
+        materialName: 'Nguyên vật liệu mẫu',
         quantity: 100,
         expectedDate: new Date().toISOString(),
-        supplier: "Nhà cung cấp mẫu",
-        status: "pending",
-        reason: "Khởi tạo collection",
-        sourceCountry: "Việt Nam",
+        supplier: 'Nhà cung cấp mẫu',
+        status: 'pending',
+        reason: 'Khởi tạo collection',
+        sourceCountry: 'Việt Nam',
         importPrice: 1000000,
         requestCode: `SAMPLE-${Date.now()}`,
         createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now(),
+        updatedAt: Timestamp.now()
       }
 
-      await setDoc(doc(db, "materialRequests", "sample-request"), sampleData)
+      await setDoc(doc(db, 'materialRequests', 'sample-request'), sampleData)
       setMaterialRequestsExists(true)
-      setMessage("Đã khởi tạo collection materialRequests thành công")
+      setMessage('Đã khởi tạo collection materialRequests thành công')
     } catch (err: any) {
-      console.error("Lỗi khi khởi tạo collection materialRequests:", err)
+      console.error('Lỗi khi khởi tạo collection materialRequests:', err)
       setError(`Lỗi khi khởi tạo collection materialRequests: ${err.message}`)
     } finally {
       setInitializingMaterialRequests(false)
@@ -77,25 +93,30 @@ export default function CheckMaterialCollections() {
     try {
       // Tạo document mẫu trong collection materialImportRequests
       const sampleData = {
-        materialId: "sample-material-id",
-        materialName: "Nguyên vật liệu mẫu",
+        materialId: 'sample-material-id',
+        materialName: 'Nguyên vật liệu mẫu',
         quantity: 100,
         requestCode: `SAMPLE-IMPORT-${Date.now()}`,
         createdAt: Timestamp.now(),
-        status: "pending",
+        status: 'pending',
         expectedDate: new Date().toISOString(),
-        supplier: "Nhà cung cấp mẫu",
-        reason: "Khởi tạo collection",
-        sourceCountry: "Việt Nam",
-        importPrice: 1000000,
+        supplier: 'Nhà cung cấp mẫu',
+        reason: 'Khởi tạo collection',
+        sourceCountry: 'Việt Nam',
+        importPrice: 1000000
       }
 
-      await setDoc(doc(db, "materialImportRequests", "sample-import-request"), sampleData)
+      await setDoc(
+        doc(db, 'materialImportRequests', 'sample-import-request'),
+        sampleData
+      )
       setMaterialImportRequestsExists(true)
-      setMessage("Đã khởi tạo collection materialImportRequests thành công")
+      setMessage('Đã khởi tạo collection materialImportRequests thành công')
     } catch (err: any) {
-      console.error("Lỗi khi khởi tạo collection materialImportRequests:", err)
-      setError(`Lỗi khi khởi tạo collection materialImportRequests: ${err.message}`)
+      console.error('Lỗi khi khởi tạo collection materialImportRequests:', err)
+      setError(
+        `Lỗi khi khởi tạo collection materialImportRequests: ${err.message}`
+      )
     } finally {
       setInitializingMaterialImportRequests(false)
     }
@@ -108,7 +129,7 @@ export default function CheckMaterialCollections() {
     if (!materialImportRequestsExists) {
       await initializeMaterialImportRequests()
     }
-    setMessage("Đã khởi tạo tất cả collections thành công")
+    setMessage('Đã khởi tạo tất cả collections thành công')
   }
 
   return (
@@ -116,7 +137,8 @@ export default function CheckMaterialCollections() {
       <CardHeader>
         <CardTitle>Kiểm tra Collections Nguyên vật liệu</CardTitle>
         <CardDescription>
-          Kiểm tra và khởi tạo các collections liên quan đến nguyên vật liệu nếu chúng không tồn tại
+          Kiểm tra và khởi tạo các collections liên quan đến nguyên vật liệu nếu
+          chúng không tồn tại
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -131,7 +153,9 @@ export default function CheckMaterialCollections() {
               <div className="flex items-center justify-between p-4 border rounded-md">
                 <div>
                   <h3 className="font-medium">Collection materialRequests</h3>
-                  <p className="text-sm text-muted-foreground">Lưu trữ yêu cầu nhập nguyên vật liệu</p>
+                  <p className="text-sm text-muted-foreground">
+                    Lưu trữ yêu cầu nhập nguyên vật liệu
+                  </p>
                 </div>
                 <div className="flex items-center">
                   {materialRequestsExists ? (
@@ -150,7 +174,9 @@ export default function CheckMaterialCollections() {
 
               <div className="flex items-center justify-between p-4 border rounded-md">
                 <div>
-                  <h3 className="font-medium">Collection materialImportRequests</h3>
+                  <h3 className="font-medium">
+                    Collection materialImportRequests
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     Lưu trữ yêu cầu nhập nguyên vật liệu từ context yêu cầu
                   </p>
@@ -200,7 +226,9 @@ export default function CheckMaterialCollections() {
               disabled={initializingMaterialRequests || loading}
               variant="secondary"
             >
-              {initializingMaterialRequests && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {initializingMaterialRequests && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Khởi tạo materialRequests
             </Button>
           )}
@@ -210,7 +238,9 @@ export default function CheckMaterialCollections() {
               disabled={initializingMaterialImportRequests || loading}
               variant="secondary"
             >
-              {initializingMaterialImportRequests && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {initializingMaterialImportRequests && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Khởi tạo materialImportRequests
             </Button>
           )}
@@ -218,12 +248,15 @@ export default function CheckMaterialCollections() {
             <Button
               onClick={initializeBothCollections}
               disabled={
-                (initializingMaterialRequests || initializingMaterialImportRequests || loading) &&
+                (initializingMaterialRequests ||
+                  initializingMaterialImportRequests ||
+                  loading) &&
                 materialRequestsExists &&
                 materialImportRequestsExists
               }
             >
-              {(initializingMaterialRequests || initializingMaterialImportRequests) && (
+              {(initializingMaterialRequests ||
+                initializingMaterialImportRequests) && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               Khởi tạo tất cả

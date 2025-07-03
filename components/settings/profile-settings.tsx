@@ -1,25 +1,31 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, Upload } from "lucide-react"
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Loader2, Upload } from 'lucide-react'
 
 export function ProfileSettings() {
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
-    name: "Nguyễn Văn A",
-    email: "nguyenvana@example.com",
-    phone: "0987654321",
-    department: "product",
-    position: "Quản lý sản phẩm",
-    bio: "Quản lý sản phẩm với hơn 5 năm kinh nghiệm trong lĩnh vực phát triển sản phẩm nội thất.",
+    name: 'Nguyễn Văn A',
+    email: 'nguyenvana@example.com',
+    phone: '0987654321',
+    department: 'product',
+    position: 'Quản lý sản phẩm',
+    bio: 'Quản lý sản phẩm với hơn 5 năm kinh nghiệm trong lĩnh vực phát triển sản phẩm nội thất.'
   })
 
   const handleInputChange = (field: string, value: string) => {
@@ -48,14 +54,21 @@ export function ProfileSettings() {
             <Upload className="h-4 w-4" />
             Thay đổi ảnh đại diện
           </Button>
-          <p className="mt-2 text-sm text-muted-foreground">Định dạng JPG, GIF hoặc PNG. Kích thước tối đa 1MB.</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Định dạng JPG, GIF hoặc PNG. Kích thước tối đa 1MB.
+          </p>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="name">Họ và tên</Label>
-          <Input id="name" value={formData.name} onChange={(e) => handleInputChange("name", e.target.value)} required />
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={(e) => handleInputChange('name', e.target.value)}
+            required
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
@@ -63,17 +76,24 @@ export function ProfileSettings() {
             id="email"
             type="email"
             value={formData.email}
-            onChange={(e) => handleInputChange("email", e.target.value)}
+            onChange={(e) => handleInputChange('email', e.target.value)}
             required
           />
         </div>
         <div className="space-y-2">
           <Label htmlFor="phone">Số điện thoại</Label>
-          <Input id="phone" value={formData.phone} onChange={(e) => handleInputChange("phone", e.target.value)} />
+          <Input
+            id="phone"
+            value={formData.phone}
+            onChange={(e) => handleInputChange('phone', e.target.value)}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="department">Phòng ban</Label>
-          <Select value={formData.department} onValueChange={(value) => handleInputChange("department", value)}>
+          <Select
+            value={formData.department}
+            onValueChange={(value) => handleInputChange('department', value)}
+          >
             <SelectTrigger id="department">
               <SelectValue placeholder="Chọn phòng ban" />
             </SelectTrigger>
@@ -91,14 +111,19 @@ export function ProfileSettings() {
           <Input
             id="position"
             value={formData.position}
-            onChange={(e) => handleInputChange("position", e.target.value)}
+            onChange={(e) => handleInputChange('position', e.target.value)}
           />
         </div>
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="bio">Giới thiệu</Label>
-        <Textarea id="bio" value={formData.bio} onChange={(e) => handleInputChange("bio", e.target.value)} rows={4} />
+        <Textarea
+          id="bio"
+          value={formData.bio}
+          onChange={(e) => handleInputChange('bio', e.target.value)}
+          rows={4}
+        />
       </div>
 
       <div className="flex justify-end">

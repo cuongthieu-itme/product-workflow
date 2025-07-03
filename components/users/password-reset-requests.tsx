@@ -1,9 +1,16 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from 'react'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -11,11 +18,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useToast } from "@/components/ui/use-toast"
+  DialogTrigger
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useToast } from '@/components/ui/use-toast'
 
 interface PasswordResetRequest {
   id: string
@@ -27,76 +34,85 @@ interface PasswordResetRequest {
 export function PasswordResetRequests() {
   const { toast } = useToast()
   const [requests, setRequests] = useState<PasswordResetRequest[]>([])
-  const [selectedRequest, setSelectedRequest] = useState<PasswordResetRequest | null>(null)
-  const [newPassword, setNewPassword] = useState("")
+  const [selectedRequest, setSelectedRequest] =
+    useState<PasswordResetRequest | null>(null)
+  const [newPassword, setNewPassword] = useState('')
 
   useEffect(() => {
     // Lấy danh sách yêu cầu đặt lại mật khẩu từ localStorage
-    const storedRequests = JSON.parse(localStorage.getItem("forgotRequests") || "[]")
+    const storedRequests = JSON.parse(
+      localStorage.getItem('forgotRequests') || '[]'
+    )
     setRequests(storedRequests)
   }, [])
 
   const handleResetPassword = (request: PasswordResetRequest) => {
     setSelectedRequest(request)
-    setNewPassword("")
+    setNewPassword('')
   }
 
   const handleSaveNewPassword = () => {
     if (!selectedRequest || !newPassword) return
 
     // Cập nhật mật khẩu người dùng
-    const users = JSON.parse(localStorage.getItem("users") || "[]")
+    const users = JSON.parse(localStorage.getItem('users') || '[]')
     const updatedUsers = users.map((user: any) =>
-      user.username === selectedRequest.username ? { ...user, password: newPassword } : user,
+      user.username === selectedRequest.username
+        ? { ...user, password: newPassword }
+        : user
     )
-    localStorage.setItem("users", JSON.stringify(updatedUsers))
+    localStorage.setItem('users', JSON.stringify(updatedUsers))
 
     // Cập nhật trạng thái yêu cầu
     const updatedRequests = requests.map((req) =>
-      req.id === selectedRequest.id ? { ...req, status: "completed" } : req,
+      req.id === selectedRequest.id ? { ...req, status: 'completed' } : req
     )
-    localStorage.setItem("forgotRequests", JSON.stringify(updatedRequests))
+    localStorage.setItem('forgotRequests', JSON.stringify(updatedRequests))
     setRequests(updatedRequests)
 
     // Lưu lịch sử đặt lại mật khẩu
-    const passwordHistory = JSON.parse(localStorage.getItem("passwordHistory") || "[]")
+    const passwordHistory = JSON.parse(
+      localStorage.getItem('passwordHistory') || '[]'
+    )
     passwordHistory.push({
       username: selectedRequest.username,
-      changedBy: localStorage.getItem("username") || "admin",
-      changedAt: new Date().toISOString(),
+      changedBy: localStorage.getItem('username') || 'admin',
+      changedAt: new Date().toISOString()
     })
-    localStorage.setItem("passwordHistory", JSON.stringify(passwordHistory))
+    localStorage.setItem('passwordHistory', JSON.stringify(passwordHistory))
 
     // Thêm thông báo cho người dùng
-    const notifications = JSON.parse(localStorage.getItem("notifications") || "[]")
+    const notifications = JSON.parse(
+      localStorage.getItem('notifications') || '[]'
+    )
     notifications.push({
       id: Date.now().toString(),
-      title: "Mật khẩu đã được đặt lại",
+      title: 'Mật khẩu đã được đặt lại',
       message: `Mật khẩu của bạn đã được đặt lại bởi quản trị viên.`,
-      type: "password_reset",
+      type: 'password_reset',
       createdAt: new Date().toISOString(),
       read: false,
-      forUser: selectedRequest.username,
+      forUser: selectedRequest.username
     })
-    localStorage.setItem("notifications", JSON.stringify(notifications))
+    localStorage.setItem('notifications', JSON.stringify(notifications))
 
     setSelectedRequest(null)
-    setNewPassword("")
+    setNewPassword('')
 
     toast({
-      title: "Đặt lại mật khẩu thành công",
-      description: `Mật khẩu của người dùng ${selectedRequest.username} đã được đặt lại.`,
+      title: 'Đặt lại mật khẩu thành công',
+      description: `Mật khẩu của người dùng ${selectedRequest.username} đã được đặt lại.`
     })
   }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return new Intl.DateTimeFormat("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+    return new Intl.DateTimeFormat('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     }).format(date)
   }
 
@@ -104,7 +120,9 @@ export function PasswordResetRequests() {
     <div>
       {requests.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-muted-foreground">Không có yêu cầu đặt lại mật khẩu nào.</p>
+          <p className="text-muted-foreground">
+            Không có yêu cầu đặt lại mật khẩu nào.
+          </p>
         </div>
       ) : (
         <Table>
@@ -119,18 +137,27 @@ export function PasswordResetRequests() {
           <TableBody>
             {requests.map((request) => (
               <TableRow key={request.id}>
-                <TableCell className="font-medium">{request.username}</TableCell>
+                <TableCell className="font-medium">
+                  {request.username}
+                </TableCell>
                 <TableCell>{formatDate(request.requestedAt)}</TableCell>
                 <TableCell>
-                  <Badge variant={request.status === "pending" ? "outline" : "default"}>
-                    {request.status === "pending" ? "Đang chờ" : "Đã xử lý"}
+                  <Badge
+                    variant={
+                      request.status === 'pending' ? 'outline' : 'default'
+                    }
+                  >
+                    {request.status === 'pending' ? 'Đang chờ' : 'Đã xử lý'}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  {request.status === "pending" && (
+                  {request.status === 'pending' && (
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="outline" onClick={() => handleResetPassword(request)}>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleResetPassword(request)}
+                        >
                           Đặt lại mật khẩu
                         </Button>
                       </DialogTrigger>
@@ -139,12 +166,16 @@ export function PasswordResetRequests() {
                           <DialogHeader>
                             <DialogTitle>Đặt lại mật khẩu</DialogTitle>
                             <DialogDescription>
-                              Đặt lại mật khẩu cho người dùng {selectedRequest.username}
+                              Đặt lại mật khẩu cho người dùng{' '}
+                              {selectedRequest.username}
                             </DialogDescription>
                           </DialogHeader>
                           <div className="grid gap-4 py-4">
                             <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="new-password" className="text-right">
+                              <Label
+                                htmlFor="new-password"
+                                className="text-right"
+                              >
                                 Mật khẩu mới
                               </Label>
                               <Input
@@ -157,7 +188,10 @@ export function PasswordResetRequests() {
                             </div>
                           </div>
                           <DialogFooter>
-                            <Button type="submit" onClick={handleSaveNewPassword}>
+                            <Button
+                              type="submit"
+                              onClick={handleSaveNewPassword}
+                            >
                               Đặt lại mật khẩu
                             </Button>
                           </DialogFooter>

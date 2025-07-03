@@ -1,34 +1,40 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Bell } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
+import { useState } from 'react'
+import { Bell } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
 
 // Mock data for notifications
 const mockNotifications = [
   {
-    id: "1",
-    title: "Yêu cầu phê duyệt thiết kế",
+    id: '1',
+    title: 'Yêu cầu phê duyệt thiết kế',
     message: "Sản phẩm 'Ghế Ergonomic Pro' cần được phê duyệt thiết kế",
     date: new Date(2023, 3, 20),
-    read: false,
+    read: false
   },
   {
-    id: "2",
-    title: "Cập nhật thông số kỹ thuật",
-    message: "Cần cập nhật thông số kỹ thuật cho sản phẩm 'Đèn Bàn LED Thông Minh'",
+    id: '2',
+    title: 'Cập nhật thông số kỹ thuật',
+    message:
+      "Cần cập nhật thông số kỹ thuật cho sản phẩm 'Đèn Bàn LED Thông Minh'",
     date: new Date(2023, 3, 14),
-    read: true,
+    read: true
   },
   {
-    id: "3",
-    title: "Chiến dịch marketing đã bắt đầu",
-    message: "Chiến dịch marketing cho sản phẩm 'Bàn Làm Việc Thông Minh' đã bắt đầu",
+    id: '3',
+    title: 'Chiến dịch marketing đã bắt đầu',
+    message:
+      "Chiến dịch marketing cho sản phẩm 'Bàn Làm Việc Thông Minh' đã bắt đầu",
     date: new Date(2023, 4, 5),
-    read: false,
-  },
+    read: false
+  }
 ]
 
 export function NotificationsPopover() {
@@ -60,21 +66,25 @@ export function NotificationsPopover() {
     }
 
     // Full date
-    return new Intl.DateTimeFormat("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
+    return new Intl.DateTimeFormat('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
     }).format(date)
   }
 
   const handleMarkAsRead = (id: string) => {
     setNotifications(
-      notifications.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)),
+      notifications.map((notification) =>
+        notification.id === id ? { ...notification, read: true } : notification
+      )
     )
   }
 
   const handleMarkAllAsRead = () => {
-    setNotifications(notifications.map((notification) => ({ ...notification, read: true })))
+    setNotifications(
+      notifications.map((notification) => ({ ...notification, read: true }))
+    )
   }
 
   return (
@@ -100,19 +110,30 @@ export function NotificationsPopover() {
         </div>
         <div className="max-h-[300px] overflow-y-auto">
           {notifications.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground">Không có thông báo nào</div>
+            <div className="p-4 text-center text-muted-foreground">
+              Không có thông báo nào
+            </div>
           ) : (
             <div className="divide-y">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={cn("p-4 hover:bg-muted/50 transition-colors", !notification.read && "bg-muted/20")}
+                  className={cn(
+                    'p-4 hover:bg-muted/50 transition-colors',
+                    !notification.read && 'bg-muted/20'
+                  )}
                 >
                   <div className="flex justify-between items-start">
-                    <h4 className="font-medium text-sm">{notification.title}</h4>
-                    <span className="text-xs text-muted-foreground">{formatTime(notification.date)}</span>
+                    <h4 className="font-medium text-sm">
+                      {notification.title}
+                    </h4>
+                    <span className="text-xs text-muted-foreground">
+                      {formatTime(notification.date)}
+                    </span>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {notification.message}
+                  </p>
                   {!notification.read && (
                     <Button
                       variant="ghost"

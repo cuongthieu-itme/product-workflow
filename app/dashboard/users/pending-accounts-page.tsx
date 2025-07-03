@@ -1,12 +1,18 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { PendingAccounts } from "@/components/users/pending-accounts"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { collection, getDocs } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from 'react'
+import { PendingAccounts } from '@/components/users/pending-accounts'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+import { Badge } from '@/components/ui/badge'
 
 export default function PendingAccountsPage() {
   const [pendingCount, setPendingCount] = useState(0)
@@ -14,11 +20,11 @@ export default function PendingAccountsPage() {
   useEffect(() => {
     const fetchPendingCount = async () => {
       try {
-        const pendingUsersRef = collection(db, "pendingUsers")
+        const pendingUsersRef = collection(db, 'pendingUsers')
         const snapshot = await getDocs(pendingUsersRef)
         setPendingCount(snapshot.size)
       } catch (error) {
-        console.error("Error fetching pending users count:", error)
+        console.error('Error fetching pending users count:', error)
       }
     }
 
@@ -52,7 +58,8 @@ export default function PendingAccountsPage() {
             <CardHeader>
               <CardTitle>Tài khoản chờ duyệt</CardTitle>
               <CardDescription>
-                Danh sách các tài khoản đang chờ được duyệt. Bạn có thể duyệt hoặc từ chối các tài khoản này.
+                Danh sách các tài khoản đang chờ được duyệt. Bạn có thể duyệt
+                hoặc từ chối các tài khoản này.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -64,7 +71,9 @@ export default function PendingAccountsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Tài khoản đã duyệt</CardTitle>
-              <CardDescription>Danh sách các tài khoản đã được duyệt và đang hoạt động.</CardDescription>
+              <CardDescription>
+                Danh sách các tài khoản đã được duyệt và đang hoạt động.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <p>Chức năng đang được phát triển...</p>
@@ -75,7 +84,9 @@ export default function PendingAccountsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Tài khoản đã từ chối</CardTitle>
-              <CardDescription>Danh sách các tài khoản đã bị từ chối.</CardDescription>
+              <CardDescription>
+                Danh sách các tài khoản đã bị từ chối.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <p>Chức năng đang được phát triển...</p>

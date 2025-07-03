@@ -1,38 +1,63 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useStandardWorkflow, type StandardWorkflowStep, type StepField } from "./standard-workflow-context-firebase"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState } from 'react'
+import {
+  useStandardWorkflow,
+  type StandardWorkflowStep,
+  type StepField
+} from './standard-workflow-context-firebase'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"
-import { Plus, Trash2, DollarSign, GripVertical, Edit, FileText } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, User } from "lucide-react" // Import Calendar and User icons
-import { useAvailableVariables } from "../variables/available-variables-context"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useToast } from "@/components/ui/use-toast"
-import { useUsers } from "@/hooks/use-users"
-import { ScrollArea } from "@/components/ui/scroll-area"
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
+import {
+  Plus,
+  Trash2,
+  DollarSign,
+  GripVertical,
+  Edit,
+  FileText
+} from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Calendar, User } from 'lucide-react' // Import Calendar and User icons
+import { useAvailableVariables } from '../variables/available-variables-context'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import { useToast } from '@/components/ui/use-toast'
+import { useUsers } from '@/hooks/use-users'
+import { ScrollArea } from '@/components/ui/scroll-area'
 interface StandardWorkflowStepFormProps {
   workflowId: string
   onSelect?: (id: string) => void // Declare onSelect prop
 }
 
-export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkflowStepFormProps) {
+export function StandardWorkflowStepForm({
+  workflowId,
+  onSelect
+}: StandardWorkflowStepFormProps) {
   const { toast } = useToast()
   const {
     standardWorkflow,
@@ -42,7 +67,7 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
     reorderStandardWorkflowSteps,
     addStepField,
     updateStepField,
-    deleteStepField,
+    deleteStepField
   } = useStandardWorkflow()
 
   const { variables: availableVariables } = useAvailableVariables()
@@ -50,7 +75,7 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
 
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null)
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState("steps")
+  const [activeTab, setActiveTab] = useState('steps')
   const [showAddStepDialog, setShowAddStepDialog] = useState(false)
   const [showEditStepDialog, setShowEditStepDialog] = useState(false)
   const [showDeleteStepDialog, setShowDeleteStepDialog] = useState(false)
@@ -58,29 +83,33 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
   const [showEditFieldDialog, setShowEditFieldDialog] = useState(false)
   const [showDeleteFieldDialog, setShowDeleteFieldDialog] = useState(false)
 
-  const [newStep, setNewStep] = useState<Omit<StandardWorkflowStep, "id" | "order" | "fields">>({
-    name: "",
-    description: "",
+  const [newStep, setNewStep] = useState<
+    Omit<StandardWorkflowStep, 'id' | 'order' | 'fields'>
+  >({
+    name: '',
+    description: '',
     estimatedTime: 1,
-    estimatedTimeUnit: "days",
+    estimatedTimeUnit: 'days',
     isRequired: false,
     notifyBeforeDeadline: 1,
-    hasCost: false,
+    hasCost: false
   })
 
-  const [newField, setNewField] = useState<Omit<StepField, "id">>({
-    name: "",
-    type: "text",
+  const [newField, setNewField] = useState<Omit<StepField, 'id'>>({
+    name: '',
+    type: 'text',
     required: false,
-    description: "",
+    description: '',
     options: [],
-    isSystem: false,
+    isSystem: false
   })
 
   // Lấy bước được chọn
   const getSelectedStep = () => {
     if (!standardWorkflow || !selectedStepId) return null
-    return standardWorkflow.steps.find((step) => step.id === selectedStepId) || null
+    return (
+      standardWorkflow.steps.find((step) => step.id === selectedStepId) || null
+    )
   }
 
   // Lấy trường được chọn
@@ -98,12 +127,15 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
     const step = getSelectedStep()
     if (!step) return
 
-    const existingField = step.fields.find((field) => field.type === "variable" && field.variableSource === variable.id)
+    const existingField = step.fields.find(
+      (field) =>
+        field.type === 'variable' && field.variableSource === variable.id
+    )
 
     if (existingField) {
       toast({
-        title: "Thông báo",
-        description: `Biến "${variable.name}" đã tồn tại trong bước này`,
+        title: 'Thông báo',
+        description: `Biến "${variable.name}" đã tồn tại trong bước này`
       })
       return
     }
@@ -112,16 +144,16 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
     addStepField(selectedStepId, {
       id: `var_${Date.now()}`,
       name: variable.name,
-      type: "variable",
+      type: 'variable',
       required: variable.isRequired || false,
       description: variable.description,
       isSystem: false,
-      variableSource: variable.id,
+      variableSource: variable.id
     })
 
     toast({
-      title: "Thành công",
-      description: `Đã thêm biến "${variable.name}" vào bước`,
+      title: 'Thành công',
+      description: `Đã thêm biến "${variable.name}" vào bước`
     })
   }
 
@@ -129,9 +161,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
   const handleAddStep = () => {
     if (!newStep.name.trim()) {
       toast({
-        title: "Lỗi",
-        description: "Vui lòng nhập tên bước",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Vui lòng nhập tên bước',
+        variant: 'destructive'
       })
       return
     }
@@ -141,56 +173,56 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
       ...newStep,
       fields: [
         {
-          id: "assignee",
-          name: "Người đảm nhận",
-          type: "user",
+          id: 'assignee',
+          name: 'Người đảm nhận',
+          type: 'user',
           required: true,
-          description: "Người chịu trách nhiệm cho bước này",
-          isSystem: true,
+          description: 'Người chịu trách nhiệm cho bước này',
+          isSystem: true
         },
         {
-          id: "receiveDate",
-          name: "Thời gian tiếp nhận",
-          type: "date",
+          id: 'receiveDate',
+          name: 'Thời gian tiếp nhận',
+          type: 'date',
           required: true,
-          description: "Ngày tiếp nhận yêu cầu",
-          isSystem: true,
+          description: 'Ngày tiếp nhận yêu cầu',
+          isSystem: true
         },
         {
-          id: "deadline",
-          name: "Ngày deadline",
-          type: "date",
+          id: 'deadline',
+          name: 'Ngày deadline',
+          type: 'date',
           required: true,
-          description: "Ngày dự kiến hoàn thành công việc",
-          isSystem: true,
+          description: 'Ngày dự kiến hoàn thành công việc',
+          isSystem: true
         },
         {
-          id: "status",
-          name: "Trạng thái",
-          type: "select",
+          id: 'status',
+          name: 'Trạng thái',
+          type: 'select',
           required: true,
-          description: "Trạng thái hiện tại của bước",
-          options: ["Chưa bắt đầu", "Đang thực hiện", "Hoàn thành", "Quá hạn"],
-          isSystem: true,
-        },
-      ],
+          description: 'Trạng thái hiện tại của bước',
+          options: ['Chưa bắt đầu', 'Đang thực hiện', 'Hoàn thành', 'Quá hạn'],
+          isSystem: true
+        }
+      ]
     })
 
     // Reset form và đóng dialog
     setNewStep({
-      name: "",
-      description: "",
+      name: '',
+      description: '',
       estimatedTime: 1,
-      estimatedTimeUnit: "days",
+      estimatedTimeUnit: 'days',
       isRequired: false,
       notifyBeforeDeadline: 1,
-      hasCost: false,
+      hasCost: false
     })
     setShowAddStepDialog(false)
 
     // Chọn bước mới tạo
     setSelectedStepId(stepId)
-    setActiveTab("fields")
+    setActiveTab('fields')
   }
 
   // Xử lý cập nhật bước
@@ -200,24 +232,29 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
 
     if (!selectedStep.name.trim()) {
       toast({
-        title: "Lỗi",
-        description: "Vui lòng nhập tên bước",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Vui lòng nhập tên bước',
+        variant: 'destructive'
       })
       return
     }
 
     // Tạo object cập nhật chỉ với các giá trị đã được định nghĩa
-    const updateData: Partial<Omit<StandardWorkflowStep, "id">> = {}
+    const updateData: Partial<Omit<StandardWorkflowStep, 'id'>> = {}
 
     if (selectedStep.name !== undefined) updateData.name = selectedStep.name
-    if (selectedStep.description !== undefined) updateData.description = selectedStep.description
-    if (selectedStep.estimatedTime !== undefined) updateData.estimatedTime = selectedStep.estimatedTime
-    if (selectedStep.isRequired !== undefined) updateData.isRequired = selectedStep.isRequired
+    if (selectedStep.description !== undefined)
+      updateData.description = selectedStep.description
+    if (selectedStep.estimatedTime !== undefined)
+      updateData.estimatedTime = selectedStep.estimatedTime
+    if (selectedStep.isRequired !== undefined)
+      updateData.isRequired = selectedStep.isRequired
     if (selectedStep.notifyBeforeDeadline !== undefined)
       updateData.notifyBeforeDeadline = selectedStep.notifyBeforeDeadline
-    if (selectedStep.hasCost !== undefined) updateData.hasCost = selectedStep.hasCost
-    if (selectedStep.allowedUsers !== undefined) updateData.allowedUsers = selectedStep.allowedUsers
+    if (selectedStep.hasCost !== undefined)
+      updateData.hasCost = selectedStep.hasCost
+    if (selectedStep.allowedUsers !== undefined)
+      updateData.allowedUsers = selectedStep.allowedUsers
 
     updateStandardWorkflowStep(selectedStep.id, updateData)
 
@@ -243,7 +280,10 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
     const [removed] = steps.splice(result.source.index, 1)
     steps.splice(result.destination.index, 0, removed)
 
-    const reorderedSteps = steps.map((step, index) => ({ ...step, order: index }))
+    const reorderedSteps = steps.map((step, index) => ({
+      ...step,
+      order: index
+    }))
     reorderStandardWorkflowSteps(reorderedSteps)
   }
 
@@ -263,16 +303,16 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
   // Xử lý chọn bước
   const handleSelectStep = (id: string) => {
     setSelectedStepId(id)
-    setActiveTab("fields")
+    setActiveTab('fields')
   }
 
   // Xử lý thêm trường
   const handleAddField = () => {
     if (!newField.name.trim()) {
       toast({
-        title: "Lỗi",
-        description: "Vui lòng nhập tên trường",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Vui lòng nhập tên trường',
+        variant: 'destructive'
       })
       return
     }
@@ -281,16 +321,16 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
 
     addStepField(selectedStepId, {
       ...newField,
-      id: Date.now().toString(), // Generate a unique ID for the new field
+      id: Date.now().toString() // Generate a unique ID for the new field
     })
 
     setNewField({
-      name: "",
-      type: "text",
+      name: '',
+      type: 'text',
       required: false,
-      description: "",
+      description: '',
       options: [],
-      isSystem: false,
+      isSystem: false
     })
     setShowAddFieldDialog(false)
   }
@@ -307,7 +347,7 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
       description: selectedField.description,
       options: selectedField.options,
       currencySymbol: selectedField.currencySymbol,
-      variableSource: selectedField.variableSource,
+      variableSource: selectedField.variableSource
     })
 
     setShowEditFieldDialog(false)
@@ -327,16 +367,16 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
   // Hàm hỗ trợ hiển thị tên loại trường
   const getFieldTypeName = (type: string): string => {
     const typeMap: Record<string, string> = {
-      text: "Văn bản",
-      date: "Ngày tháng",
-      datetime: "Ngày giờ",
-      select: "Lựa chọn đơn",
-      multiselect: "Lựa chọn nhiều",
-      user: "Người dùng",
-      checkbox: "Hộp kiểm",
-      number: "Số",
-      currency: "Tiền tệ",
-      variable: "Biến",
+      text: 'Văn bản',
+      date: 'Ngày tháng',
+      datetime: 'Ngày giờ',
+      select: 'Lựa chọn đơn',
+      multiselect: 'Lựa chọn nhiều',
+      user: 'Người dùng',
+      checkbox: 'Hộp kiểm',
+      number: 'Số',
+      currency: 'Tiền tệ',
+      variable: 'Biến'
     }
     return typeMap[type] || type
   }
@@ -344,17 +384,20 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
   // Hàm hỗ trợ hiển thị tên biến
   const getVariableName = (id: string): string => {
     const variable = availableVariables.find((v) => v.id === id)
-    return variable ? variable.name : "Không xác định"
+    return variable ? variable.name : 'Không xác định'
   }
 
   // Nhóm biến theo nguồn
-  const groupedVariables = availableVariables.reduce((acc: Record<string, any[]>, variable) => {
-    if (!acc[variable.source]) {
-      acc[variable.source] = []
-    }
-    acc[variable.source].push(variable)
-    return acc
-  }, {})
+  const groupedVariables = availableVariables.reduce(
+    (acc: Record<string, any[]>, variable) => {
+      if (!acc[variable.source]) {
+        acc[variable.source] = []
+      }
+      acc[variable.source].push(variable)
+      return acc
+    },
+    {}
+  )
 
   if (!standardWorkflow) {
     return (
@@ -388,20 +431,32 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
               <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId="steps">
                   {(provided) => (
-                    <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className="space-y-4"
+                    >
                       {standardWorkflow.steps.length === 0 ? (
                         <div className="text-center py-10 border rounded-md bg-muted/30">
-                          <p className="text-muted-foreground">Chưa có bước nào trong quy trình</p>
+                          <p className="text-muted-foreground">
+                            Chưa có bước nào trong quy trình
+                          </p>
                         </div>
                       ) : (
                         standardWorkflow.steps.map((step, index) => (
-                          <Draggable key={step.id} draggableId={step.id} index={index}>
+                          <Draggable
+                            key={step.id}
+                            draggableId={step.id}
+                            index={index}
+                          >
                             {(provided) => (
                               <Card
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                className={`${step.isRequired ? "border-primary/50" : ""} ${
-                                  selectedStepId === step.id ? "ring-2 ring-primary" : ""
+                                className={`${step.isRequired ? 'border-primary/50' : ''} ${
+                                  selectedStepId === step.id
+                                    ? 'ring-2 ring-primary'
+                                    : ''
                                 }`}
                               >
                                 <CardHeader className="flex flex-row items-center justify-between py-3">
@@ -414,27 +469,41 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                                       <GripVertical className="h-5 w-5 text-gray-400" />
                                     </div>
                                     <div className="flex flex-col items-center justify-center bg-primary/10 rounded-full w-8 h-8">
-                                      <span className="text-sm font-medium">{index + 1}</span>
+                                      <span className="text-sm font-medium">
+                                        {index + 1}
+                                      </span>
                                     </div>
                                     <div>
                                       <CardTitle className="text-base flex items-center gap-2">
                                         {step.name}
                                         {step.isRequired && (
-                                          <Badge variant="outline" className="text-xs font-normal">
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs font-normal"
+                                          >
                                             Bắt buộc
                                           </Badge>
                                         )}
                                         {step.hasCost && (
-                                          <Badge variant="outline" className="text-xs font-normal bg-green-50">
-                                            <DollarSign className="h-3 w-3 mr-1" /> Chi phí
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs font-normal bg-green-50"
+                                          >
+                                            <DollarSign className="h-3 w-3 mr-1" />{' '}
+                                            Chi phí
                                           </Badge>
                                         )}
                                       </CardTitle>
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-1">
-                                    <Button variant="ghost" size="sm" onClick={() => handleSelectStep(step.id)}>
-                                      <FileText className="h-4 w-4 mr-1" /> Trường dữ liệu ({step.fields.length})
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleSelectStep(step.id)}
+                                    >
+                                      <FileText className="h-4 w-4 mr-1" />{' '}
+                                      Trường dữ liệu ({step.fields.length})
                                     </Button>
                                     <Button
                                       variant="ghost"
@@ -463,22 +532,33 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                                 <CardContent className="py-2">
                                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-1">
-                                      <p className="text-xs text-muted-foreground">Mô tả</p>
-                                      <p className="text-sm">{step.description || "Không có mô tả"}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                      <p className="text-xs text-muted-foreground flex items-center">
-                                        <Calendar className="h-3 w-3 mr-1" /> Thời gian ước tính
+                                      <p className="text-xs text-muted-foreground">
+                                        Mô tả
                                       </p>
                                       <p className="text-sm">
-                                        {step.estimatedTime} {step.estimatedTimeUnit === "hours" ? "giờ" : "ngày"}
+                                        {step.description || 'Không có mô tả'}
                                       </p>
                                     </div>
                                     <div className="space-y-1">
                                       <p className="text-xs text-muted-foreground flex items-center">
-                                        <User className="h-3 w-3 mr-1" /> Người đảm nhiệm
+                                        <Calendar className="h-3 w-3 mr-1" />{' '}
+                                        Thời gian ước tính
                                       </p>
-                                      <p className="text-sm">{step.assigneeRole || "Chưa xác định"}</p>
+                                      <p className="text-sm">
+                                        {step.estimatedTime}{' '}
+                                        {step.estimatedTimeUnit === 'hours'
+                                          ? 'giờ'
+                                          : 'ngày'}
+                                      </p>
+                                    </div>
+                                    <div className="space-y-1">
+                                      <p className="text-xs text-muted-foreground flex items-center">
+                                        <User className="h-3 w-3 mr-1" /> Người
+                                        đảm nhiệm
+                                      </p>
+                                      <p className="text-sm">
+                                        {step.assigneeRole || 'Chưa xác định'}
+                                      </p>
                                     </div>
                                   </div>
                                 </CardContent>
@@ -499,7 +579,8 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <h3 className="text-lg font-medium">
-                      Trường dữ liệu cho bước: {getSelectedStep()?.name || "Không xác định"}
+                      Trường dữ liệu cho bước:{' '}
+                      {getSelectedStep()?.name || 'Không xác định'}
                     </h3>
                     <div className="flex gap-2">
                       <Button onClick={() => setShowAddFieldDialog(true)}>
@@ -508,34 +589,43 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
 
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline">Chọn biến có sẵn để thêm</Button>
+                          <Button variant="outline">
+                            Chọn biến có sẵn để thêm
+                          </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-80 max-h-[400px] overflow-y-auto">
-                          {Object.entries(groupedVariables).map(([source, variables]) => (
-                            <div key={source} className="p-2">
-                              <h4 className="text-sm font-medium mb-2 text-muted-foreground">
-                                {source === "request"
-                                  ? "Biến yêu cầu"
-                                  : source === "system"
-                                    ? "Biến hệ thống"
-                                    : "Biến tùy chỉnh"}
-                              </h4>
-                              <div className="space-y-1">
-                                {variables.map((variable) => (
-                                  <DropdownMenuItem
-                                    key={variable.id}
-                                    onClick={() => handleAddVariableField(variable)}
-                                    className="flex items-center justify-between cursor-pointer"
-                                  >
-                                    <span>{variable.name}</span>
-                                    <Badge variant="outline" className="ml-2 text-xs">
-                                      {variable.source}
-                                    </Badge>
-                                  </DropdownMenuItem>
-                                ))}
+                          {Object.entries(groupedVariables).map(
+                            ([source, variables]) => (
+                              <div key={source} className="p-2">
+                                <h4 className="text-sm font-medium mb-2 text-muted-foreground">
+                                  {source === 'request'
+                                    ? 'Biến yêu cầu'
+                                    : source === 'system'
+                                      ? 'Biến hệ thống'
+                                      : 'Biến tùy chỉnh'}
+                                </h4>
+                                <div className="space-y-1">
+                                  {variables.map((variable) => (
+                                    <DropdownMenuItem
+                                      key={variable.id}
+                                      onClick={() =>
+                                        handleAddVariableField(variable)
+                                      }
+                                      className="flex items-center justify-between cursor-pointer"
+                                    >
+                                      <span>{variable.name}</span>
+                                      <Badge
+                                        variant="outline"
+                                        className="ml-2 text-xs"
+                                      >
+                                        {variable.source}
+                                      </Badge>
+                                    </DropdownMenuItem>
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            )
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -543,24 +633,35 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
 
                   {getSelectedStep()?.fields.length === 0 ? (
                     <div className="text-center py-10 border rounded-md bg-muted/30">
-                      <p className="text-muted-foreground">Chưa có trường dữ liệu nào trong bước này</p>
+                      <p className="text-muted-foreground">
+                        Chưa có trường dữ liệu nào trong bước này
+                      </p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {getSelectedStep()?.fields.map((field) => (
-                        <Card key={field.id} className={field.isSystem ? "border-blue-200" : ""}>
+                        <Card
+                          key={field.id}
+                          className={field.isSystem ? 'border-blue-200' : ''}
+                        >
                           <CardHeader className="py-3">
                             <div className="flex justify-between items-start">
                               <div>
                                 <CardTitle className="text-base flex items-center gap-2">
                                   {field.name}
                                   {field.required && (
-                                    <Badge variant="outline" className="text-xs font-normal text-red-500">
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs font-normal text-red-500"
+                                    >
                                       Bắt buộc
                                     </Badge>
                                   )}
                                   {field.isSystem && (
-                                    <Badge variant="outline" className="text-xs font-normal bg-blue-50">
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs font-normal bg-blue-50"
+                                    >
                                       Hệ thống
                                     </Badge>
                                   )}
@@ -598,39 +699,63 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                           </CardHeader>
                           <CardContent className="py-2">
                             <div className="space-y-2">
-                              <p className="text-xs text-muted-foreground">Mô tả</p>
-                              <p className="text-sm">{field.description || "Không có mô tả"}</p>
+                              <p className="text-xs text-muted-foreground">
+                                Mô tả
+                              </p>
+                              <p className="text-sm">
+                                {field.description || 'Không có mô tả'}
+                              </p>
 
-                              {field.type === "select" && field.options && field.options.length > 0 && (
-                                <div className="mt-2">
-                                  <p className="text-xs text-muted-foreground">Tùy chọn</p>
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {field.options.map((option, index) => (
-                                      <Badge key={index} variant="secondary" className="text-xs">
-                                        {option}
-                                      </Badge>
-                                    ))}
+                              {field.type === 'select' &&
+                                field.options &&
+                                field.options.length > 0 && (
+                                  <div className="mt-2">
+                                    <p className="text-xs text-muted-foreground">
+                                      Tùy chọn
+                                    </p>
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                      {field.options.map((option, index) => (
+                                        <Badge
+                                          key={index}
+                                          variant="secondary"
+                                          className="text-xs"
+                                        >
+                                          {option}
+                                        </Badge>
+                                      ))}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
+                                )}
 
-                              {field.type === "variable" && field.variableSource && (
-                                <div className="mt-2">
-                                  <p className="text-xs text-muted-foreground">Nguồn biến</p>
-                                  <Badge variant="outline" className="text-xs mt-1">
-                                    {getVariableName(field.variableSource)}
-                                  </Badge>
-                                </div>
-                              )}
+                              {field.type === 'variable' &&
+                                field.variableSource && (
+                                  <div className="mt-2">
+                                    <p className="text-xs text-muted-foreground">
+                                      Nguồn biến
+                                    </p>
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs mt-1"
+                                    >
+                                      {getVariableName(field.variableSource)}
+                                    </Badge>
+                                  </div>
+                                )}
 
-                              {field.type === "currency" && field.currencySymbol && (
-                                <div className="mt-2">
-                                  <p className="text-xs text-muted-foreground">Đơn vị tiền tệ</p>
-                                  <Badge variant="outline" className="text-xs mt-1">
-                                    {field.currencySymbol}
-                                  </Badge>
-                                </div>
-                              )}
+                              {field.type === 'currency' &&
+                                field.currencySymbol && (
+                                  <div className="mt-2">
+                                    <p className="text-xs text-muted-foreground">
+                                      Đơn vị tiền tệ
+                                    </p>
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs mt-1"
+                                    >
+                                      {field.currencySymbol}
+                                    </Badge>
+                                  </div>
+                                )}
                             </div>
                           </CardContent>
                         </Card>
@@ -640,7 +765,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 </div>
               ) : (
                 <div className="text-center py-10 border rounded-md bg-muted/30">
-                  <p className="text-muted-foreground">Vui lòng chọn một bước để xem trường dữ liệu</p>
+                  <p className="text-muted-foreground">
+                    Vui lòng chọn một bước để xem trường dữ liệu
+                  </p>
                 </div>
               )}
             </TabsContent>
@@ -653,7 +780,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
         <DialogContent className="sm:max-w-[600px] max-h-[80vh]">
           <DialogHeader>
             <DialogTitle>Thêm bước mới</DialogTitle>
-            <DialogDescription>Thêm một bước mới vào quy trình.</DialogDescription>
+            <DialogDescription>
+              Thêm một bước mới vào quy trình.
+            </DialogDescription>
           </DialogHeader>
           <ScrollArea className="max-h-[60vh] pr-4">
             <div className="space-y-4 py-4">
@@ -664,7 +793,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 <Input
                   id="step-name"
                   value={newStep.name}
-                  onChange={(e) => setNewStep({ ...newStep, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewStep({ ...newStep, name: e.target.value })
+                  }
                   placeholder="Nhập tên bước"
                 />
               </div>
@@ -672,8 +803,10 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 <Label htmlFor="step-description">Mô tả</Label>
                 <Textarea
                   id="step-description"
-                  value={newStep.description || ""}
-                  onChange={(e) => setNewStep({ ...newStep, description: e.target.value })}
+                  value={newStep.description || ''}
+                  onChange={(e) =>
+                    setNewStep({ ...newStep, description: e.target.value })
+                  }
                   placeholder="Nhập mô tả bước"
                   rows={2}
                 />
@@ -685,13 +818,20 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                     id="step-estimated-time"
                     type="number"
                     value={newStep.estimatedTime.toString()}
-                    onChange={(e) => setNewStep({ ...newStep, estimatedTime: Number.parseInt(e.target.value, 10) })}
+                    onChange={(e) =>
+                      setNewStep({
+                        ...newStep,
+                        estimatedTime: Number.parseInt(e.target.value, 10)
+                      })
+                    }
                     placeholder="Nhập thời gian"
                     className="flex-1"
                   />
                   <Select
                     value={newStep.estimatedTimeUnit}
-                    onValueChange={(value: "days" | "hours") => setNewStep({ ...newStep, estimatedTimeUnit: value })}
+                    onValueChange={(value: 'days' | 'hours') =>
+                      setNewStep({ ...newStep, estimatedTimeUnit: value })
+                    }
                   >
                     <SelectTrigger className="w-24">
                       <SelectValue />
@@ -704,13 +844,18 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="step-notify-before-deadline">Thông báo trước hạn (ngày)</Label>
+                <Label htmlFor="step-notify-before-deadline">
+                  Thông báo trước hạn (ngày)
+                </Label>
                 <Input
                   id="step-notify-before-deadline"
                   type="number"
                   value={newStep.notifyBeforeDeadline.toString()}
                   onChange={(e) =>
-                    setNewStep({ ...newStep, notifyBeforeDeadline: Number.parseInt(e.target.value, 10) })
+                    setNewStep({
+                      ...newStep,
+                      notifyBeforeDeadline: Number.parseInt(e.target.value, 10)
+                    })
                   }
                   placeholder="Nhập số ngày"
                 />
@@ -719,7 +864,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 <Checkbox
                   id="step-required"
                   checked={newStep.isRequired}
-                  onCheckedChange={(checked) => setNewStep({ ...newStep, isRequired: !!checked })}
+                  onCheckedChange={(checked) =>
+                    setNewStep({ ...newStep, isRequired: !!checked })
+                  }
                 />
                 <Label htmlFor="step-required" className="text-sm">
                   Bước bắt buộc
@@ -729,7 +876,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 <Checkbox
                   id="step-has-cost"
                   checked={newStep.hasCost}
-                  onCheckedChange={(checked) => setNewStep({ ...newStep, hasCost: !!checked })}
+                  onCheckedChange={(checked) =>
+                    setNewStep({ ...newStep, hasCost: !!checked })
+                  }
                 />
                 <Label htmlFor="step-has-cost" className="text-sm">
                   Có chi phí
@@ -738,7 +887,10 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
             </div>
           </ScrollArea>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddStepDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowAddStepDialog(false)}
+            >
               Hủy
             </Button>
             <Button onClick={handleAddStep}>Thêm bước</Button>
@@ -762,11 +914,13 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                   </Label>
                   <Input
                     id="edit-step-name"
-                    value={getSelectedStep()?.name || ""}
+                    value={getSelectedStep()?.name || ''}
                     onChange={(e) => {
                       const step = getSelectedStep()
                       if (step && selectedStepId) {
-                        updateStandardWorkflowStep(selectedStepId, { name: e.target.value })
+                        updateStandardWorkflowStep(selectedStepId, {
+                          name: e.target.value
+                        })
                       }
                     }}
                     placeholder="Nhập tên bước"
@@ -776,11 +930,13 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                   <Label htmlFor="edit-step-description">Mô tả</Label>
                   <Textarea
                     id="edit-step-description"
-                    value={getSelectedStep()?.description || ""}
+                    value={getSelectedStep()?.description || ''}
                     onChange={(e) => {
                       const step = getSelectedStep()
                       if (step && selectedStepId) {
-                        updateStandardWorkflowStep(selectedStepId, { description: e.target.value })
+                        updateStandardWorkflowStep(selectedStepId, {
+                          description: e.target.value
+                        })
                       }
                     }}
                     placeholder="Nhập mô tả bước"
@@ -788,17 +944,21 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-step-estimated-time">Thời gian ước tính</Label>
+                  <Label htmlFor="edit-step-estimated-time">
+                    Thời gian ước tính
+                  </Label>
                   <div className="flex gap-2">
                     <Input
                       id="edit-step-estimated-time"
                       type="number"
-                      value={getSelectedStep()?.estimatedTime?.toString() || "1"}
+                      value={
+                        getSelectedStep()?.estimatedTime?.toString() || '1'
+                      }
                       onChange={(e) => {
                         const step = getSelectedStep()
                         if (step && selectedStepId) {
                           updateStandardWorkflowStep(selectedStepId, {
-                            estimatedTime: Number.parseInt(e.target.value, 10),
+                            estimatedTime: Number.parseInt(e.target.value, 10)
                           })
                         }
                       }}
@@ -806,11 +966,13 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                       className="flex-1"
                     />
                     <Select
-                      value={getSelectedStep()?.estimatedTimeUnit || "days"}
-                      onValueChange={(value: "days" | "hours") => {
+                      value={getSelectedStep()?.estimatedTimeUnit || 'days'}
+                      onValueChange={(value: 'days' | 'hours') => {
                         const step = getSelectedStep()
                         if (step && selectedStepId) {
-                          updateStandardWorkflowStep(selectedStepId, { estimatedTimeUnit: value })
+                          updateStandardWorkflowStep(selectedStepId, {
+                            estimatedTimeUnit: value
+                          })
                         }
                       }}
                     >
@@ -825,16 +987,23 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-step-notify-before-deadline">Thông báo trước hạn (ngày)</Label>
+                  <Label htmlFor="edit-step-notify-before-deadline">
+                    Thông báo trước hạn (ngày)
+                  </Label>
                   <Input
                     id="edit-step-notify-before-deadline"
                     type="number"
-                    value={getSelectedStep()?.notifyBeforeDeadline.toString() || "1"}
+                    value={
+                      getSelectedStep()?.notifyBeforeDeadline.toString() || '1'
+                    }
                     onChange={(e) => {
                       const step = getSelectedStep()
                       if (step && selectedStepId) {
                         updateStandardWorkflowStep(selectedStepId, {
-                          notifyBeforeDeadline: Number.parseInt(e.target.value, 10),
+                          notifyBeforeDeadline: Number.parseInt(
+                            e.target.value,
+                            10
+                          )
                         })
                       }
                     }}
@@ -848,7 +1017,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                     onCheckedChange={(checked) => {
                       const step = getSelectedStep()
                       if (step && selectedStepId) {
-                        updateStandardWorkflowStep(selectedStepId, { isRequired: !!checked })
+                        updateStandardWorkflowStep(selectedStepId, {
+                          isRequired: !!checked
+                        })
                       }
                     }}
                   />
@@ -863,7 +1034,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                     onCheckedChange={(checked) => {
                       const step = getSelectedStep()
                       if (step && selectedStepId) {
-                        updateStandardWorkflowStep(selectedStepId, { hasCost: !!checked })
+                        updateStandardWorkflowStep(selectedStepId, {
+                          hasCost: !!checked
+                        })
                       }
                     }}
                   />
@@ -872,7 +1045,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                   </Label>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-step-allowed-users">Nhân sự được thao tác</Label>
+                  <Label htmlFor="edit-step-allowed-users">
+                    Nhân sự được thao tác
+                  </Label>
                   <div className="space-y-2">
                     <Select
                       value=""
@@ -882,7 +1057,7 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                           const currentAllowedUsers = step.allowedUsers || []
                           if (!currentAllowedUsers.includes(userId)) {
                             updateStandardWorkflowStep(selectedStepId, {
-                              allowedUsers: [...currentAllowedUsers, userId],
+                              allowedUsers: [...currentAllowedUsers, userId]
                             })
                           }
                         }
@@ -893,7 +1068,12 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                       </SelectTrigger>
                       <SelectContent className="max-h-[200px]">
                         {users
-                          .filter((user) => !(getSelectedStep()?.allowedUsers || []).includes(user.id))
+                          .filter(
+                            (user) =>
+                              !(getSelectedStep()?.allowedUsers || []).includes(
+                                user.id
+                              )
+                          )
                           .map((user) => (
                             <SelectItem key={user.id} value={user.id}>
                               <div className="flex items-center gap-2">
@@ -913,7 +1093,11 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                         const user = users.find((u) => u.id === userId)
                         if (!user) return null
                         return (
-                          <Badge key={userId} variant="secondary" className="flex items-center gap-1">
+                          <Badge
+                            key={userId}
+                            variant="secondary"
+                            className="flex items-center gap-1"
+                          >
                             <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center text-xs">
                               {user.name.charAt(0)}
                             </div>
@@ -926,7 +1110,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                                 const step = getSelectedStep()
                                 if (step && selectedStepId) {
                                   updateStandardWorkflowStep(selectedStepId, {
-                                    allowedUsers: (step.allowedUsers || []).filter((id) => id !== userId),
+                                    allowedUsers: (
+                                      step.allowedUsers || []
+                                    ).filter((id) => id !== userId)
                                   })
                                 }
                               }}
@@ -940,7 +1126,8 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
 
                     {(getSelectedStep()?.allowedUsers || []).length === 0 && (
                       <p className="text-sm text-muted-foreground">
-                        Chưa có nhân sự nào được chọn. Hệ thống sẽ sử dụng vai trò người đảm nhiệm.
+                        Chưa có nhân sự nào được chọn. Hệ thống sẽ sử dụng vai
+                        trò người đảm nhiệm.
                       </p>
                     )}
                   </div>
@@ -949,7 +1136,10 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
             )}
           </ScrollArea>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditStepDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowEditStepDialog(false)}
+            >
               Hủy
             </Button>
             <Button onClick={handleUpdateStep}>Lưu thay đổi</Button>
@@ -958,14 +1148,23 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
       </Dialog>
 
       {/* Dialog xóa bước */}
-      <Dialog open={showDeleteStepDialog} onOpenChange={setShowDeleteStepDialog}>
+      <Dialog
+        open={showDeleteStepDialog}
+        onOpenChange={setShowDeleteStepDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Xóa bước</DialogTitle>
-            <DialogDescription>Bạn có chắc chắn muốn xóa bước này? Hành động này không thể hoàn tác.</DialogDescription>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa bước này? Hành động này không thể hoàn
+              tác.
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteStepDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteStepDialog(false)}
+            >
               Hủy
             </Button>
             <Button variant="destructive" onClick={handleDeleteStep}>
@@ -980,7 +1179,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
         <DialogContent className="sm:max-w-[600px] max-h-[80vh]">
           <DialogHeader>
             <DialogTitle>Thêm trường dữ liệu</DialogTitle>
-            <DialogDescription>Thêm một trường dữ liệu mới vào bước.</DialogDescription>
+            <DialogDescription>
+              Thêm một trường dữ liệu mới vào bước.
+            </DialogDescription>
           </DialogHeader>
           <ScrollArea className="max-h-[60vh] pr-4">
             <div className="space-y-4 py-4">
@@ -991,7 +1192,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 <Input
                   id="field-name"
                   value={newField.name}
-                  onChange={(e) => setNewField({ ...newField, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewField({ ...newField, name: e.target.value })
+                  }
                   placeholder="Nhập tên trường"
                 />
               </div>
@@ -1006,10 +1209,10 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                       ...newField,
                       type: value,
                       options:
-                        value === "select" || value === "multiselect"
-                          ? ["Tùy chọn 1", "Tùy chọn 2", "Tùy chọn 3"]
+                        value === 'select' || value === 'multiselect'
+                          ? ['Tùy chọn 1', 'Tùy chọn 2', 'Tùy chọn 3']
                           : undefined,
-                      currencySymbol: value === "currency" ? "VND" : undefined,
+                      currencySymbol: value === 'currency' ? 'VND' : undefined
                     })
                   }}
                 >
@@ -1034,23 +1237,30 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 <Label htmlFor="field-description">Mô tả</Label>
                 <Textarea
                   id="field-description"
-                  value={newField.description || ""}
-                  onChange={(e) => setNewField({ ...newField, description: e.target.value })}
+                  value={newField.description || ''}
+                  onChange={(e) =>
+                    setNewField({ ...newField, description: e.target.value })
+                  }
                   placeholder="Nhập mô tả trường"
                   rows={2}
                 />
               </div>
 
-              {(newField.type === "select" || newField.type === "multiselect") && (
+              {(newField.type === 'select' ||
+                newField.type === 'multiselect') && (
                 <div className="space-y-2">
-                  <Label htmlFor="field-options">Tùy chọn (mỗi dòng một tùy chọn)</Label>
+                  <Label htmlFor="field-options">
+                    Tùy chọn (mỗi dòng một tùy chọn)
+                  </Label>
                   <Textarea
                     id="field-options"
-                    value={(newField.options || []).join("\n")}
+                    value={(newField.options || []).join('\n')}
                     onChange={(e) =>
                       setNewField({
                         ...newField,
-                        options: e.target.value.split("\n").filter((option) => option.trim() !== ""),
+                        options: e.target.value
+                          .split('\n')
+                          .filter((option) => option.trim() !== '')
                       })
                     }
                     placeholder="Nhập các tùy chọn, mỗi dòng một tùy chọn"
@@ -1059,24 +1269,31 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 </div>
               )}
 
-              {newField.type === "currency" && (
+              {newField.type === 'currency' && (
                 <div className="space-y-2">
                   <Label htmlFor="field-currency">Đơn vị tiền tệ</Label>
                   <Input
                     id="field-currency"
-                    value={newField.currencySymbol || "VND"}
-                    onChange={(e) => setNewField({ ...newField, currencySymbol: e.target.value })}
+                    value={newField.currencySymbol || 'VND'}
+                    onChange={(e) =>
+                      setNewField({
+                        ...newField,
+                        currencySymbol: e.target.value
+                      })
+                    }
                     placeholder="Nhập đơn vị tiền tệ (VND, USD, ...)"
                   />
                 </div>
               )}
 
-              {newField.type === "variable" && (
+              {newField.type === 'variable' && (
                 <div className="space-y-2">
                   <Label htmlFor="field-variable">Nguồn biến</Label>
                   <Select
-                    value={newField.variableSource || ""}
-                    onValueChange={(value) => setNewField({ ...newField, variableSource: value })}
+                    value={newField.variableSource || ''}
+                    onValueChange={(value) =>
+                      setNewField({ ...newField, variableSource: value })
+                    }
                   >
                     <SelectTrigger id="field-variable">
                       <SelectValue placeholder="Chọn nguồn biến" />
@@ -1096,7 +1313,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 <Checkbox
                   id="field-required"
                   checked={newField.required}
-                  onCheckedChange={(checked) => setNewField({ ...newField, required: !!checked })}
+                  onCheckedChange={(checked) =>
+                    setNewField({ ...newField, required: !!checked })
+                  }
                 />
                 <Label htmlFor="field-required" className="text-sm">
                   Trường bắt buộc
@@ -1105,7 +1324,10 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
             </div>
           </ScrollArea>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddFieldDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowAddFieldDialog(false)}
+            >
               Hủy
             </Button>
             <Button onClick={handleAddField}>Thêm trường</Button>
@@ -1118,7 +1340,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Chỉnh sửa trường dữ liệu</DialogTitle>
-            <DialogDescription>Chỉnh sửa thông tin của trường dữ liệu.</DialogDescription>
+            <DialogDescription>
+              Chỉnh sửa thông tin của trường dữ liệu.
+            </DialogDescription>
           </DialogHeader>
           {getSelectedField() && (
             <div className="space-y-4 py-4">
@@ -1128,11 +1352,13 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 </Label>
                 <Input
                   id="edit-field-name"
-                  value={getSelectedField()?.name || ""}
+                  value={getSelectedField()?.name || ''}
                   onChange={(e) => {
                     const field = getSelectedField()
                     if (field && selectedStepId) {
-                      updateStepField(selectedStepId, field.id, { name: e.target.value })
+                      updateStepField(selectedStepId, field.id, {
+                        name: e.target.value
+                      })
                     }
                   }}
                   placeholder="Nhập tên trường"
@@ -1144,17 +1370,24 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                   Loại trường <span className="text-red-500">*</span>
                 </Label>
                 <Select
-                  value={getSelectedField()?.type || "text"}
+                  value={getSelectedField()?.type || 'text'}
                   onValueChange={(value: any) => {
                     const field = getSelectedField()
                     if (field && selectedStepId) {
                       updateStepField(selectedStepId, field.id, {
                         type: value,
                         options:
-                          value === "select" || value === "multiselect"
-                            ? field.options || ["Tùy chọn 1", "Tùy chọn 2", "Tùy chọn 3"]
+                          value === 'select' || value === 'multiselect'
+                            ? field.options || [
+                                'Tùy chọn 1',
+                                'Tùy chọn 2',
+                                'Tùy chọn 3'
+                              ]
                             : undefined,
-                        currencySymbol: value === "currency" ? field.currencySymbol || "VND" : undefined,
+                        currencySymbol:
+                          value === 'currency'
+                            ? field.currencySymbol || 'VND'
+                            : undefined
                       })
                     }
                   }}
@@ -1181,11 +1414,13 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 <Label htmlFor="edit-field-description">Mô tả</Label>
                 <Textarea
                   id="edit-field-description"
-                  value={getSelectedField()?.description || ""}
+                  value={getSelectedField()?.description || ''}
                   onChange={(e) => {
                     const field = getSelectedField()
                     if (field && selectedStepId) {
-                      updateStepField(selectedStepId, field.id, { description: e.target.value })
+                      updateStepField(selectedStepId, field.id, {
+                        description: e.target.value
+                      })
                     }
                   }}
                   placeholder="Nhập mô tả trường"
@@ -1194,17 +1429,22 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 />
               </div>
 
-              {(getSelectedField()?.type === "select" || getSelectedField()?.type === "multiselect") && (
+              {(getSelectedField()?.type === 'select' ||
+                getSelectedField()?.type === 'multiselect') && (
                 <div className="space-y-2">
-                  <Label htmlFor="edit-field-options">Tùy chọn (mỗi dòng một tùy chọn)</Label>
+                  <Label htmlFor="edit-field-options">
+                    Tùy chọn (mỗi dòng một tùy chọn)
+                  </Label>
                   <Textarea
                     id="edit-field-options"
-                    value={(getSelectedField()?.options || []).join("\n")}
+                    value={(getSelectedField()?.options || []).join('\n')}
                     onChange={(e) => {
                       const field = getSelectedField()
                       if (field && selectedStepId) {
                         updateStepField(selectedStepId, field.id, {
-                          options: e.target.value.split("\n").filter((option) => option.trim() !== ""),
+                          options: e.target.value
+                            .split('\n')
+                            .filter((option) => option.trim() !== '')
                         })
                       }
                     }}
@@ -1215,16 +1455,18 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 </div>
               )}
 
-              {getSelectedField()?.type === "currency" && (
+              {getSelectedField()?.type === 'currency' && (
                 <div className="space-y-2">
                   <Label htmlFor="edit-field-currency">Đơn vị tiền tệ</Label>
                   <Input
                     id="edit-field-currency"
-                    value={getSelectedField()?.currencySymbol || "VND"}
+                    value={getSelectedField()?.currencySymbol || 'VND'}
                     onChange={(e) => {
                       const field = getSelectedField()
                       if (field && selectedStepId) {
-                        updateStepField(selectedStepId, field.id, { currencySymbol: e.target.value })
+                        updateStepField(selectedStepId, field.id, {
+                          currencySymbol: e.target.value
+                        })
                       }
                     }}
                     placeholder="Nhập đơn vị tiền tệ (VND, USD, ...)"
@@ -1233,15 +1475,17 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                 </div>
               )}
 
-              {getSelectedField()?.type === "variable" && (
+              {getSelectedField()?.type === 'variable' && (
                 <div className="space-y-2">
                   <Label htmlFor="edit-field-variable">Nguồn biến</Label>
                   <Select
-                    value={getSelectedField()?.variableSource || ""}
+                    value={getSelectedField()?.variableSource || ''}
                     onValueChange={(value) => {
                       const field = getSelectedField()
                       if (field && selectedStepId) {
-                        updateStepField(selectedStepId, field.id, { variableSource: value })
+                        updateStepField(selectedStepId, field.id, {
+                          variableSource: value
+                        })
                       }
                     }}
                     disabled={getSelectedField()?.isSystem}
@@ -1267,7 +1511,9 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
                   onCheckedChange={(checked) => {
                     const field = getSelectedField()
                     if (field && selectedStepId) {
-                      updateStepField(selectedStepId, field.id, { required: !!checked })
+                      updateStepField(selectedStepId, field.id, {
+                        required: !!checked
+                      })
                     }
                   }}
                   disabled={getSelectedField()?.isSystem}
@@ -1279,10 +1525,16 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditFieldDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowEditFieldDialog(false)}
+            >
               Hủy
             </Button>
-            <Button onClick={handleUpdateField} disabled={getSelectedField()?.isSystem}>
+            <Button
+              onClick={handleUpdateField}
+              disabled={getSelectedField()?.isSystem}
+            >
               Lưu thay đổi
             </Button>
           </DialogFooter>
@@ -1290,16 +1542,23 @@ export function StandardWorkflowStepForm({ workflowId, onSelect }: StandardWorkf
       </Dialog>
 
       {/* Dialog xóa trường */}
-      <Dialog open={showDeleteFieldDialog} onOpenChange={setShowDeleteFieldDialog}>
+      <Dialog
+        open={showDeleteFieldDialog}
+        onOpenChange={setShowDeleteFieldDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Xóa trường dữ liệu</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa trường này? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa trường này? Hành động này không thể hoàn
+              tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteFieldDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteFieldDialog(false)}
+            >
               Hủy
             </Button>
             <Button variant="destructive" onClick={handleDeleteField}>

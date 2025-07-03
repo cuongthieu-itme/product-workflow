@@ -1,6 +1,14 @@
-import { collection, getDocs, query, where, addDoc, writeBatch, doc } from "firebase/firestore"
-import { db } from "./firebase"
-import { historyService } from "./history-service"
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  addDoc,
+  writeBatch,
+  doc
+} from 'firebase/firestore'
+import { db } from './firebase'
+import { historyService } from './history-service'
 
 // Hàm khởi tạo dữ liệu mẫu
 export async function initializeData(maxRetries = 3) {
@@ -9,8 +17,8 @@ export async function initializeData(maxRetries = 3) {
   while (retries < maxRetries) {
     try {
       // Check if we're online
-      if (typeof navigator !== "undefined" && !navigator.onLine) {
-        console.log("Browser is offline, skipping data initialization")
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        console.log('Browser is offline, skipping data initialization')
         return
       }
 
@@ -18,18 +26,21 @@ export async function initializeData(maxRetries = 3) {
         createAdminAccount(),
         initializeDepartments(),
         initializeProductStatuses(),
-        historyService.initializeHistoryCollection(), // Thêm khởi tạo collection lịch sử
+        historyService.initializeHistoryCollection() // Thêm khởi tạo collection lịch sử
         // Add other initialization functions as needed
       ])
 
-      console.log("All data initialized successfully")
+      console.log('All data initialized successfully')
       return
     } catch (error) {
       retries++
-      console.error(`Error initializing data (attempt ${retries}/${maxRetries}):`, error)
+      console.error(
+        `Error initializing data (attempt ${retries}/${maxRetries}):`,
+        error
+      )
 
       if (retries >= maxRetries) {
-        console.error("Max retries reached, giving up on data initialization")
+        console.error('Max retries reached, giving up on data initialization')
         throw error
       }
 
@@ -45,8 +56,8 @@ export async function initializeData(maxRetries = 3) {
 async function createAdminAccount() {
   try {
     // Check if admin account already exists
-    const usersRef = collection(db, "users")
-    const adminQuery = query(usersRef, where("username", "==", "admin"))
+    const usersRef = collection(db, 'users')
+    const adminQuery = query(usersRef, where('username', '==', 'admin'))
     const adminSnapshot = await getDocs(adminQuery)
 
     if (adminSnapshot.empty) {
@@ -54,24 +65,24 @@ async function createAdminAccount() {
 
       // Create admin user
       const adminUser = {
-        username: "admin",
-        password: "admin", // In a real environment, use a stronger password
-        fullName: "Administrator",
-        email: "admin@example.com",
-        role: "admin",
-        department: "admin",
-        status: "active",
-        createdAt: new Date().toISOString(),
+        username: 'admin',
+        password: 'admin', // In a real environment, use a stronger password
+        fullName: 'Administrator',
+        email: 'admin@example.com',
+        role: 'admin',
+        department: 'admin',
+        status: 'active',
+        createdAt: new Date().toISOString()
       }
 
       // Add to users collection
       const docRef = await addDoc(usersRef, adminUser)
-      console.log("Admin account created with ID:", docRef.id)
+      console.log('Admin account created with ID:', docRef.id)
     } else {
-      console.log("Admin account already exists")
+      console.log('Admin account already exists')
     }
   } catch (error) {
-    console.error("Error creating admin account:", error)
+    console.error('Error creating admin account:', error)
     throw error
   }
 }
@@ -79,19 +90,35 @@ async function createAdminAccount() {
 // Initialize departments if they don't exist
 async function initializeDepartments() {
   try {
-    const departmentsRef = collection(db, "departments")
+    const departmentsRef = collection(db, 'departments')
     const departmentsSnapshot = await getDocs(departmentsRef)
 
     if (departmentsSnapshot.empty) {
-      console.log("No departments found, initializing...")
+      console.log('No departments found, initializing...')
 
       const batch = writeBatch(db)
 
       const departments = [
-        { name: "R&D", description: "Research and Development", createdAt: new Date().toISOString() },
-        { name: "Marketing", description: "Marketing Department", createdAt: new Date().toISOString() },
-        { name: "Production", description: "Production Department", createdAt: new Date().toISOString() },
-        { name: "Quality Control", description: "Quality Control Department", createdAt: new Date().toISOString() },
+        {
+          name: 'R&D',
+          description: 'Research and Development',
+          createdAt: new Date().toISOString()
+        },
+        {
+          name: 'Marketing',
+          description: 'Marketing Department',
+          createdAt: new Date().toISOString()
+        },
+        {
+          name: 'Production',
+          description: 'Production Department',
+          createdAt: new Date().toISOString()
+        },
+        {
+          name: 'Quality Control',
+          description: 'Quality Control Department',
+          createdAt: new Date().toISOString()
+        }
       ]
 
       departments.forEach((department) => {
@@ -100,12 +127,12 @@ async function initializeDepartments() {
       })
 
       await batch.commit()
-      console.log("Departments initialized successfully")
+      console.log('Departments initialized successfully')
     } else {
-      console.log("Departments already exist")
+      console.log('Departments already exist')
     }
   } catch (error) {
-    console.error("Error initializing departments:", error)
+    console.error('Error initializing departments:', error)
     throw error
   }
 }
@@ -113,36 +140,51 @@ async function initializeDepartments() {
 // Initialize product statuses if they don't exist
 async function initializeProductStatuses() {
   try {
-    const statusesRef = collection(db, "productStatuses")
+    const statusesRef = collection(db, 'productStatuses')
     const statusesSnapshot = await getDocs(statusesRef)
 
     if (statusesSnapshot.empty) {
-      console.log("No product statuses found, initializing...")
+      console.log('No product statuses found, initializing...')
 
       const batch = writeBatch(db)
 
       const statuses = [
-        { name: "Draft", description: "Initial draft", color: "#E5E7EB", createdAt: new Date().toISOString() },
-        { name: "In Review", description: "Under review", color: "#FEF3C7", createdAt: new Date().toISOString() },
         {
-          name: "Approved",
-          description: "Approved for production",
-          color: "#D1FAE5",
-          createdAt: new Date().toISOString(),
+          name: 'Draft',
+          description: 'Initial draft',
+          color: '#E5E7EB',
+          createdAt: new Date().toISOString()
         },
         {
-          name: "In Production",
-          description: "Currently in production",
-          color: "#DBEAFE",
-          createdAt: new Date().toISOString(),
+          name: 'In Review',
+          description: 'Under review',
+          color: '#FEF3C7',
+          createdAt: new Date().toISOString()
         },
         {
-          name: "Completed",
-          description: "Production completed",
-          color: "#C7D2FE",
-          createdAt: new Date().toISOString(),
+          name: 'Approved',
+          description: 'Approved for production',
+          color: '#D1FAE5',
+          createdAt: new Date().toISOString()
         },
-        { name: "On Hold", description: "Temporarily on hold", color: "#FEE2E2", createdAt: new Date().toISOString() },
+        {
+          name: 'In Production',
+          description: 'Currently in production',
+          color: '#DBEAFE',
+          createdAt: new Date().toISOString()
+        },
+        {
+          name: 'Completed',
+          description: 'Production completed',
+          color: '#C7D2FE',
+          createdAt: new Date().toISOString()
+        },
+        {
+          name: 'On Hold',
+          description: 'Temporarily on hold',
+          color: '#FEE2E2',
+          createdAt: new Date().toISOString()
+        }
       ]
 
       statuses.forEach((status) => {
@@ -151,12 +193,12 @@ async function initializeProductStatuses() {
       })
 
       await batch.commit()
-      console.log("Product statuses initialized successfully")
+      console.log('Product statuses initialized successfully')
     } else {
-      console.log("Product statuses already exist")
+      console.log('Product statuses already exist')
     }
   } catch (error) {
-    console.error("Error initializing product statuses:", error)
+    console.error('Error initializing product statuses:', error)
     throw error
   }
 }

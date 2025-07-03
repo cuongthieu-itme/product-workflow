@@ -1,20 +1,48 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ArrowLeft, RefreshCw, AlertCircle, Mail, Phone, Building, Calendar } from "lucide-react"
-import Link from "next/link"
-import { useToast } from "@/components/ui/use-toast"
-import { Badge } from "@/components/ui/badge"
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useState, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  ArrowLeft,
+  RefreshCw,
+  AlertCircle,
+  Mail,
+  Phone,
+  Building,
+  Calendar
+} from 'lucide-react'
+import Link from 'next/link'
+import { useToast } from '@/components/ui/use-toast'
+import { Badge } from '@/components/ui/badge'
+import {
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs
+} from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
 
 export default function UserDetailPage() {
   const params = useParams()
@@ -33,26 +61,26 @@ export default function UserDetailPage() {
     setError(null)
 
     try {
-      console.log("Đang lấy thông tin người dùng từ Firestore với ID:", userId)
+      console.log('Đang lấy thông tin người dùng từ Firestore với ID:', userId)
 
       // Lấy thông tin người dùng từ Firestore
-      const userRef = doc(db, "users", userId)
+      const userRef = doc(db, 'users', userId)
       const userSnap = await getDoc(userRef)
 
       if (!userSnap.exists()) {
-        console.error("Không tìm thấy người dùng với ID:", userId)
+        console.error('Không tìm thấy người dùng với ID:', userId)
         setError(`Không tìm thấy người dùng với ID: ${userId}`)
         setIsLoading(false)
         return
       }
 
       const userData = userSnap.data()
-      console.log("Đã lấy được thông tin người dùng:", userData)
+      console.log('Đã lấy được thông tin người dùng:', userData)
       setUser({ id: userId, ...userData })
 
       // Lấy thông tin phòng ban nếu có
       if (userData.department) {
-        const departmentRef = doc(db, "departments", userData.department)
+        const departmentRef = doc(db, 'departments', userData.department)
         const departmentSnap = await getDoc(departmentRef)
 
         if (departmentSnap.exists()) {
@@ -62,49 +90,62 @@ export default function UserDetailPage() {
       }
 
       // Lấy danh sách yêu cầu mà người dùng được giao
-      const requestsCollection = collection(db, "requests")
-      const requestsQuery = query(requestsCollection, where("assignee.id", "==", userId))
+      const requestsCollection = collection(db, 'requests')
+      const requestsQuery = query(
+        requestsCollection,
+        where('assignee.id', '==', userId)
+      )
       const requestsSnapshot = await getDocs(requestsQuery)
 
       const requestsData = requestsSnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),
+        ...doc.data()
       }))
 
-      console.log("Đã lấy được", requestsData.length, "yêu cầu của người dùng")
+      console.log('Đã lấy được', requestsData.length, 'yêu cầu của người dùng')
       setRequests(requestsData)
     } catch (err) {
-      console.error("Lỗi khi lấy thông tin người dùng:", err)
-      setError(`Lỗi khi lấy thông tin người dùng: ${err instanceof Error ? err.message : String(err)}`)
+      console.error('Lỗi khi lấy thông tin người dùng:', err)
+      setError(
+        `Lỗi khi lấy thông tin người dùng: ${err instanceof Error ? err.message : String(err)}`
+      )
 
       // Thử lấy từ localStorage nếu Firestore thất bại
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         try {
-          console.log("Thử lấy dữ liệu từ localStorage...")
-          const users = JSON.parse(localStorage.getItem("users") || "[]")
+          console.log('Thử lấy dữ liệu từ localStorage...')
+          const users = JSON.parse(localStorage.getItem('users') || '[]')
           const foundUser = users.find((u: any) => u.id === userId)
 
           if (foundUser) {
-            console.log("Đã tìm thấy người dùng trong localStorage:", foundUser)
+            console.log('Đã tìm thấy người dùng trong localStorage:', foundUser)
             setUser(foundUser)
 
             if (foundUser.department) {
-              const departments = JSON.parse(localStorage.getItem("departments") || "[]")
-              const foundDepartment = departments.find((d: any) => d.id === foundUser.department)
+              const departments = JSON.parse(
+                localStorage.getItem('departments') || '[]'
+              )
+              const foundDepartment = departments.find(
+                (d: any) => d.id === foundUser.department
+              )
               if (foundDepartment) {
                 setDepartment(foundDepartment)
               }
             }
 
             // Lấy yêu cầu từ localStorage
-            const allRequests = JSON.parse(localStorage.getItem("requests") || "[]")
-            const userRequests = allRequests.filter((req: any) => req.assignee && req.assignee.id === userId)
+            const allRequests = JSON.parse(
+              localStorage.getItem('requests') || '[]'
+            )
+            const userRequests = allRequests.filter(
+              (req: any) => req.assignee && req.assignee.id === userId
+            )
             setRequests(userRequests)
           } else {
-            console.error("Không tìm thấy người dùng trong localStorage")
+            console.error('Không tìm thấy người dùng trong localStorage')
           }
         } catch (localErr) {
-          console.error("Lỗi khi lấy dữ liệu từ localStorage:", localErr)
+          console.error('Lỗi khi lấy dữ liệu từ localStorage:', localErr)
         }
       }
     } finally {
@@ -119,35 +160,35 @@ export default function UserDetailPage() {
   const refreshData = () => {
     fetchUserData()
     toast({
-      title: "Làm mới dữ liệu",
-      description: "Đang tải lại thông tin người dùng...",
+      title: 'Làm mới dữ liệu',
+      description: 'Đang tải lại thông tin người dùng...'
     })
   }
 
   const formatDate = (date: any) => {
-    if (!date) return "Không xác định"
+    if (!date) return 'Không xác định'
 
     try {
-      if (typeof date === "object" && date.seconds) {
-        return new Date(date.seconds * 1000).toLocaleDateString("vi-VN")
+      if (typeof date === 'object' && date.seconds) {
+        return new Date(date.seconds * 1000).toLocaleDateString('vi-VN')
       }
-      return new Date(date).toLocaleDateString("vi-VN")
+      return new Date(date).toLocaleDateString('vi-VN')
     } catch (error) {
-      return "Không xác định"
+      return 'Không xác định'
     }
   }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "pending":
+      case 'pending':
         return <Badge variant="secondary">Chờ xử lý</Badge>
-      case "in_progress":
+      case 'in_progress':
         return <Badge variant="default">Đang xử lý</Badge>
-      case "completed":
+      case 'completed':
         return <Badge variant="success">Hoàn thành</Badge>
-      case "denied":
+      case 'denied':
         return <Badge variant="destructive">Từ chối</Badge>
-      case "hold":
+      case 'hold':
         return <Badge variant="warning">Tạm giữ</Badge>
       default:
         return <Badge>{status}</Badge>
@@ -194,7 +235,9 @@ export default function UserDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
         <h1 className="text-2xl font-bold">Không tìm thấy người dùng</h1>
-        <p className="text-muted-foreground">Người dùng bạn đang tìm kiếm không tồn tại.</p>
+        <p className="text-muted-foreground">
+          Người dùng bạn đang tìm kiếm không tồn tại.
+        </p>
         <div className="flex gap-2">
           <Button onClick={() => router.back()}>
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -230,25 +273,35 @@ export default function UserDetailPage() {
           <div className="flex items-start gap-4">
             <Avatar className="h-16 w-16">
               {user.photoURL ? (
-                <AvatarImage src={user.photoURL || "/placeholder.svg"} alt={user.fullName} />
+                <AvatarImage
+                  src={user.photoURL || '/placeholder.svg'}
+                  alt={user.fullName}
+                />
               ) : (
                 <AvatarFallback className="text-lg">
-                  {user.fullName?.charAt(0) || user.username?.charAt(0) || "U"}
+                  {user.fullName?.charAt(0) || user.username?.charAt(0) || 'U'}
                 </AvatarFallback>
               )}
             </Avatar>
             <div>
               <CardTitle className="text-2xl">{user.fullName}</CardTitle>
-              <CardDescription className="text-base mt-1">@{user.username}</CardDescription>
+              <CardDescription className="text-base mt-1">
+                @{user.username}
+              </CardDescription>
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant={user.role === "admin" ? "default" : "outline"}>
-                  {user.role === "admin" ? "Admin" : "User"}
+                <Badge variant={user.role === 'admin' ? 'default' : 'outline'}>
+                  {user.role === 'admin' ? 'Admin' : 'User'}
                 </Badge>
-                <Badge variant={user.status === "active" ? "success" : "destructive"}>
-                  {user.status === "active" ? "Hoạt động" : "Vô hiệu hóa"}
+                <Badge
+                  variant={user.status === 'active' ? 'success' : 'destructive'}
+                >
+                  {user.status === 'active' ? 'Hoạt động' : 'Vô hiệu hóa'}
                 </Badge>
                 {department && department.manager === user.id && (
-                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                  <Badge
+                    variant="outline"
+                    className="bg-primary/10 text-primary border-primary/20"
+                  >
                     Trưởng phòng
                   </Badge>
                 )}
@@ -263,14 +316,14 @@ export default function UserDetailPage() {
                 <Mail className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Email</p>
-                  <p>{user.email || "Chưa cập nhật"}</p>
+                  <p>{user.email || 'Chưa cập nhật'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Số điện thoại</p>
-                  <p>{user.phone || "Chưa cập nhật"}</p>
+                  <p>{user.phone || 'Chưa cập nhật'}</p>
                 </div>
               </div>
             </div>
@@ -279,7 +332,7 @@ export default function UserDetailPage() {
                 <Building className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Phòng ban</p>
-                  <p>{department ? department.name : "Không xác định"}</p>
+                  <p>{department ? department.name : 'Không xác định'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -304,13 +357,18 @@ export default function UserDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle>Công việc đang thực hiện</CardTitle>
-              <CardDescription>Danh sách các yêu cầu đang được xử lý bởi {user.fullName}</CardDescription>
+              <CardDescription>
+                Danh sách các yêu cầu đang được xử lý bởi {user.fullName}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {renderRequestsTable(
                 requests.filter(
-                  (req) => req.status === "pending" || req.status === "in_progress" || req.status === "hold",
-                ),
+                  (req) =>
+                    req.status === 'pending' ||
+                    req.status === 'in_progress' ||
+                    req.status === 'hold'
+                )
               )}
             </CardContent>
           </Card>
@@ -319,16 +377,24 @@ export default function UserDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle>Công việc đã hoàn thành</CardTitle>
-              <CardDescription>Danh sách các yêu cầu đã được hoàn thành bởi {user.fullName}</CardDescription>
+              <CardDescription>
+                Danh sách các yêu cầu đã được hoàn thành bởi {user.fullName}
+              </CardDescription>
             </CardHeader>
-            <CardContent>{renderRequestsTable(requests.filter((req) => req.status === "completed"))}</CardContent>
+            <CardContent>
+              {renderRequestsTable(
+                requests.filter((req) => req.status === 'completed')
+              )}
+            </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="all" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Tất cả công việc</CardTitle>
-              <CardDescription>Danh sách tất cả các yêu cầu được giao cho {user.fullName}</CardDescription>
+              <CardDescription>
+                Danh sách tất cả các yêu cầu được giao cho {user.fullName}
+              </CardDescription>
             </CardHeader>
             <CardContent>{renderRequestsTable(requests)}</CardContent>
           </Card>
@@ -362,14 +428,20 @@ export default function UserDetailPage() {
           <TableBody>
             {requestsList.map((request) => (
               <TableRow key={request.id}>
-                <TableCell className="font-medium">{request.id.substring(0, 8)}</TableCell>
+                <TableCell className="font-medium">
+                  {request.id.substring(0, 8)}
+                </TableCell>
                 <TableCell>{request.title}</TableCell>
                 <TableCell>{getStatusBadge(request.status)}</TableCell>
                 <TableCell>{formatDate(request.createdAt)}</TableCell>
-                <TableCell>{request.dueDate ? formatDate(request.dueDate) : "Không có"}</TableCell>
+                <TableCell>
+                  {request.dueDate ? formatDate(request.dueDate) : 'Không có'}
+                </TableCell>
                 <TableCell className="text-right">
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/requests/${request.id}`}>Xem chi tiết</Link>
+                    <Link href={`/dashboard/requests/${request.id}`}>
+                      Xem chi tiết
+                    </Link>
                   </Button>
                 </TableCell>
               </TableRow>

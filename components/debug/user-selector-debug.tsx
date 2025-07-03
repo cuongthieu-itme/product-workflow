@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import { UserSelector } from "../requests/user-selector"
+import { UserSelector } from '../requests/user-selector'
 
 interface UserSelectorDebugProps {
   selectedStep: any
@@ -8,10 +8,14 @@ interface UserSelectorDebugProps {
   onFieldChange: (fieldId: string, value: any) => void
 }
 
-export function UserSelectorDebug({ selectedStep, fieldValues, onFieldChange }: UserSelectorDebugProps) {
-  console.log("🔍 Debug - selectedStep:", selectedStep)
-  console.log("🔍 Debug - allowedUsers:", selectedStep?.allowedUsers)
-  console.log("🔍 Debug - assigneeRole:", selectedStep?.assigneeRole)
+export function UserSelectorDebug({
+  selectedStep,
+  fieldValues,
+  onFieldChange
+}: UserSelectorDebugProps) {
+  console.log('🔍 Debug - selectedStep:', selectedStep)
+  console.log('🔍 Debug - allowedUsers:', selectedStep?.allowedUsers)
+  console.log('🔍 Debug - assigneeRole:', selectedStep?.assigneeRole)
 
   return (
     <div className="space-y-4 p-4 border border-blue-200 rounded-md bg-blue-50">
@@ -27,7 +31,7 @@ export function UserSelectorDebug({ selectedStep, fieldValues, onFieldChange }: 
       <UserSelector
         selectedUser={null}
         onSelectUser={(user) => {
-          console.log("🎯 User selected:", user)
+          console.log('🎯 User selected:', user)
           onFieldChange(`step_${selectedStep?.id}_assignee`, user)
         }}
         allowedUsers={selectedStep?.allowedUsers || []}

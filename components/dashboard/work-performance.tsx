@@ -1,11 +1,24 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { collection, getDocs, query, where } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { useState, useEffect } from 'react'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { collection, getDocs, query, where } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 interface WorkflowStepPerformance {
   stepName: string
@@ -18,7 +31,9 @@ interface WorkflowStepPerformance {
 }
 
 export function WorkPerformance() {
-  const [performanceData, setPerformanceData] = useState<WorkflowStepPerformance[]>([])
+  const [performanceData, setPerformanceData] = useState<
+    WorkflowStepPerformance[]
+  >([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -30,12 +45,15 @@ export function WorkPerformance() {
       setLoading(true)
 
       // Get all history entries
-      const historyQuery = query(collection(db, "requestHistory"), where("entityType", "==", "step"))
+      const historyQuery = query(
+        collection(db, 'requestHistory'),
+        where('entityType', '==', 'step')
+      )
 
       const historySnapshot = await getDocs(historyQuery)
       const historyEntries = historySnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),
+        ...doc.data()
       }))
 
       // Group entries by step and request
@@ -43,9 +61,16 @@ export function WorkPerformance() {
 
       historyEntries.forEach((entry) => {
         const stepName =
-          entry.metadata?.stepName || entry.details?.replace("Bắt đầu bước: ", "").replace("Hoàn thành bước: ", "")
+          entry.metadata?.stepName ||
+          entry.details
+            ?.replace('Bắt đầu bước: ', '')
+            .replace('Hoàn thành bước: ', '')
 
-        if (!stepName || stepName.includes("collection") || stepName.includes("Khởi tạo")) {
+        if (
+          !stepName ||
+          stepName.includes('collection') ||
+          stepName.includes('Khởi tạo')
+        ) {
           return
         }
 
@@ -55,9 +80,9 @@ export function WorkPerformance() {
           stepTaskMap[taskKey] = {}
         }
 
-        if (entry.action === "start_step") {
+        if (entry.action === 'start_step') {
           stepTaskMap[taskKey].start = entry
-        } else if (entry.action === "complete_step") {
+        } else if (entry.action === 'complete_step') {
           stepTaskMap[taskKey].complete = entry
         }
       })
@@ -68,7 +93,9 @@ export function WorkPerformance() {
       Object.values(stepTaskMap).forEach((task) => {
         if (!task.start || !task.complete) return
 
-        const stepName = task.start.metadata?.stepName || task.start.details?.replace("Bắt đầu bước: ", "")
+        const stepName =
+          task.start.metadata?.stepName ||
+          task.start.details?.replace('Bắt đầu bước: ', '')
 
         if (!stepName) return
 
@@ -81,7 +108,7 @@ export function WorkPerformance() {
             totalExpectedHours: 0,
             totalActualHours: 0,
             efficiency: 0,
-            deviation: 0,
+            deviation: 0
           }
         }
 
@@ -92,17 +119,21 @@ export function WorkPerformance() {
           const startTime = task.start.timestamp?.toDate
             ? task.start.timestamp.toDate()
             : new Date(task.start.timestamp)
-          expectedHours = (deadline.getTime() - startTime.getTime()) / (1000 * 60 * 60)
+          expectedHours =
+            (deadline.getTime() - startTime.getTime()) / (1000 * 60 * 60)
         } else if (task.start.metadata?.estimatedTime) {
           expectedHours = task.start.metadata.estimatedTime
         }
 
         // Calculate actual hours
-        const startTime = task.start.timestamp?.toDate ? task.start.timestamp.toDate() : new Date(task.start.timestamp)
+        const startTime = task.start.timestamp?.toDate
+          ? task.start.timestamp.toDate()
+          : new Date(task.start.timestamp)
         const completeTime = task.complete.timestamp?.toDate
           ? task.complete.timestamp.toDate()
           : new Date(task.complete.timestamp)
-        const actualHours = (completeTime.getTime() - startTime.getTime()) / (1000 * 60 * 60)
+        const actualHours =
+          (completeTime.getTime() - startTime.getTime()) / (1000 * 60 * 60)
 
         // Add to totals
         stepStats[stepName].completedCount++
@@ -116,12 +147,16 @@ export function WorkPerformance() {
       })
 
       // Calculate final metrics for each step
-      const performanceStats: WorkflowStepPerformance[] = Object.values(stepStats).map((step) => {
+      const performanceStats: WorkflowStepPerformance[] = Object.values(
+        stepStats
+      ).map((step) => {
         // Count unique staff for this step
         const uniqueStaff = new Set()
         Object.values(stepTaskMap).forEach((task) => {
           if (task.start && task.complete) {
-            const taskStepName = task.start.metadata?.stepName || task.start.details?.replace("Bắt đầu bước: ", "")
+            const taskStepName =
+              task.start.metadata?.stepName ||
+              task.start.details?.replace('Bắt đầu bước: ', '')
             if (taskStepName === step.stepName) {
               if (task.start.userId) uniqueStaff.add(task.start.userId)
               if (task.complete.userId) uniqueStaff.add(task.complete.userId)
@@ -133,7 +168,8 @@ export function WorkPerformance() {
 
         // Calculate efficiency: Expected / Actual * 100%
         if (step.totalActualHours > 0) {
-          step.efficiency = (step.totalExpectedHours / step.totalActualHours) * 100
+          step.efficiency =
+            (step.totalExpectedHours / step.totalActualHours) * 100
         } else {
           step.efficiency = 0
         }
@@ -149,7 +185,7 @@ export function WorkPerformance() {
 
       setPerformanceData(performanceStats)
     } catch (error) {
-      console.error("Error fetching performance data:", error)
+      console.error('Error fetching performance data:', error)
     } finally {
       setLoading(false)
     }
@@ -178,9 +214,9 @@ export function WorkPerformance() {
   }
 
   const getDeviationColor = (deviation: number) => {
-    if (deviation <= 0) return "text-green-600" // Ahead of schedule
-    if (deviation <= 2) return "text-yellow-600" // Slightly behind
-    return "text-red-600" // Significantly behind
+    if (deviation <= 0) return 'text-green-600' // Ahead of schedule
+    if (deviation <= 2) return 'text-yellow-600' // Slightly behind
+    return 'text-red-600' // Significantly behind
   }
 
   if (loading) {
@@ -188,7 +224,9 @@ export function WorkPerformance() {
       <Card>
         <CardHeader>
           <CardTitle>Thống kê hiệu suất theo bước công việc</CardTitle>
-          <CardDescription>So sánh thời gian thực tế với thời gian chuẩn của từng bước</CardDescription>
+          <CardDescription>
+            So sánh thời gian thực tế với thời gian chuẩn của từng bước
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-32">
@@ -204,12 +242,16 @@ export function WorkPerformance() {
     <Card>
       <CardHeader>
         <CardTitle>Thống kê hiệu suất theo bước công việc</CardTitle>
-        <CardDescription>So sánh thời gian thực tế với thời gian chuẩn của từng bước</CardDescription>
+        <CardDescription>
+          So sánh thời gian thực tế với thời gian chuẩn của từng bước
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {performanceData.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-muted-foreground">Chưa có dữ liệu thống kê hiệu suất</p>
+            <p className="text-muted-foreground">
+              Chưa có dữ liệu thống kê hiệu suất
+            </p>
           </div>
         ) : (
           <div className="rounded-md border">
@@ -217,10 +259,14 @@ export function WorkPerformance() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Bước công việc</TableHead>
-                  <TableHead className="text-center">Số lần hoàn thành</TableHead>
+                  <TableHead className="text-center">
+                    Số lần hoàn thành
+                  </TableHead>
                   <TableHead className="text-center">Số nhân viên</TableHead>
                   <TableHead className="text-center">Thời gian chuẩn</TableHead>
-                  <TableHead className="text-center">Thời gian thực tế TB</TableHead>
+                  <TableHead className="text-center">
+                    Thời gian thực tế TB
+                  </TableHead>
                   <TableHead className="text-center">Chênh lệch</TableHead>
                   <TableHead className="text-center">Hiệu suất</TableHead>
                 </TableRow>
@@ -228,13 +274,25 @@ export function WorkPerformance() {
               <TableBody>
                 {performanceData.map((step, index) => (
                   <TableRow key={index}>
-                    <TableCell className="font-medium">{step.stepName}</TableCell>
-                    <TableCell className="text-center">{step.completedCount}</TableCell>
-                    <TableCell className="text-center">{step.staffCount}</TableCell>
-                    <TableCell className="text-center">{formatTime(step.totalExpectedHours)}</TableCell>
-                    <TableCell className="text-center">{formatTime(step.totalActualHours)}</TableCell>
-                    <TableCell className={`text-center ${getDeviationColor(step.deviation)}`}>
-                      {step.deviation > 0 ? "+" : ""}
+                    <TableCell className="font-medium">
+                      {step.stepName}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {step.completedCount}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {step.staffCount}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {formatTime(step.totalExpectedHours)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {formatTime(step.totalActualHours)}
+                    </TableCell>
+                    <TableCell
+                      className={`text-center ${getDeviationColor(step.deviation)}`}
+                    >
+                      {step.deviation > 0 ? '+' : ''}
                       {formatTime(Math.abs(step.deviation))}
                     </TableCell>
                     <TableCell className="text-center">

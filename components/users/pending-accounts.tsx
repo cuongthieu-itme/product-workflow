@@ -1,26 +1,46 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { CheckCircle, XCircle, Edit, RefreshCw } from "lucide-react"
-import { useToast } from "@/components/ui/use-toast"
+import { useState, useEffect } from 'react'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { CheckCircle, XCircle, Edit, RefreshCw } from 'lucide-react'
+import { useToast } from '@/components/ui/use-toast'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { CheckCircle2 } from "lucide-react"
-import { collection, getDocs, doc, deleteDoc, addDoc, updateDoc } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { CheckCircle2 } from 'lucide-react'
+import {
+  collection,
+  getDocs,
+  doc,
+  deleteDoc,
+  addDoc,
+  updateDoc
+} from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 interface PendingUser {
   id: string
@@ -38,11 +58,11 @@ export function PendingAccounts() {
   const { toast } = useToast()
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([])
   const [editingUser, setEditingUser] = useState<PendingUser | null>(null)
-  const [rejectReason, setRejectReason] = useState("")
+  const [rejectReason, setRejectReason] = useState('')
   const [showRejectDialog, setShowRejectDialog] = useState(false)
   const [userToReject, setUserToReject] = useState<PendingUser | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
-  const [successMessage, setSuccessMessage] = useState("")
+  const [successMessage, setSuccessMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [departments, setDepartments] = useState<any[]>([])
 
@@ -50,18 +70,20 @@ export function PendingAccounts() {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const departmentsRef = collection(db, "departments")
+        const departmentsRef = collection(db, 'departments')
         const snapshot = await getDocs(departmentsRef)
         const departmentsData = snapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data(),
+          ...doc.data()
         }))
         setDepartments(departmentsData)
       } catch (error) {
-        console.error("Error fetching departments:", error)
+        console.error('Error fetching departments:', error)
         // Fallback to localStorage if Firebase fails
-        if (typeof window !== "undefined") {
-          const storedDepartments = JSON.parse(localStorage.getItem("departments") || "[]")
+        if (typeof window !== 'undefined') {
+          const storedDepartments = JSON.parse(
+            localStorage.getItem('departments') || '[]'
+          )
           setDepartments(storedDepartments)
         }
       }
@@ -74,19 +96,19 @@ export function PendingAccounts() {
   const fetchPendingUsers = async () => {
     setIsLoading(true)
     try {
-      const pendingUsersRef = collection(db, "pendingUsers")
+      const pendingUsersRef = collection(db, 'pendingUsers')
       const snapshot = await getDocs(pendingUsersRef)
       const pendingUsersData = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),
+        ...doc.data()
       })) as PendingUser[]
       setPendingUsers(pendingUsersData)
     } catch (error) {
-      console.error("Error fetching pending users:", error)
+      console.error('Error fetching pending users:', error)
       toast({
-        variant: "destructive",
-        title: "Lỗi",
-        description: "Không thể tải danh sách tài khoản chờ duyệt",
+        variant: 'destructive',
+        title: 'Lỗi',
+        description: 'Không thể tải danh sách tài khoản chờ duyệt'
       })
     } finally {
       setIsLoading(false)
@@ -107,36 +129,40 @@ export function PendingAccounts() {
 
     try {
       // Cập nhật thông tin người dùng trong Firebase
-      const userRef = doc(db, "pendingUsers", editingUser.id)
+      const userRef = doc(db, 'pendingUsers', editingUser.id)
       await updateDoc(userRef, {
         username: editingUser.username,
         fullName: editingUser.fullName,
         email: editingUser.email,
         password: editingUser.password,
         role: editingUser.role,
-        department: editingUser.department,
+        department: editingUser.department
       })
 
       // Cập nhật state
-      const updatedPendingUsers = pendingUsers.map((user) => (user.id === editingUser.id ? editingUser : user))
+      const updatedPendingUsers = pendingUsers.map((user) =>
+        user.id === editingUser.id ? editingUser : user
+      )
       setPendingUsers(updatedPendingUsers)
       setEditingUser(null)
 
       // Hiển thị thông báo thành công
-      setSuccessMessage(`Thông tin tài khoản ${editingUser.username} đã được cập nhật.`)
+      setSuccessMessage(
+        `Thông tin tài khoản ${editingUser.username} đã được cập nhật.`
+      )
       setShowSuccess(true)
       setTimeout(() => setShowSuccess(false), 3000)
 
       toast({
-        title: "Cập nhật thành công",
-        description: `Thông tin tài khoản ${editingUser.username} đã được cập nhật.`,
+        title: 'Cập nhật thành công',
+        description: `Thông tin tài khoản ${editingUser.username} đã được cập nhật.`
       })
     } catch (error) {
-      console.error("Error updating user:", error)
+      console.error('Error updating user:', error)
       toast({
-        variant: "destructive",
-        title: "Lỗi",
-        description: "Không thể cập nhật thông tin tài khoản",
+        variant: 'destructive',
+        title: 'Lỗi',
+        description: 'Không thể cập nhật thông tin tài khoản'
       })
     } finally {
       setIsLoading(false)
@@ -148,25 +174,25 @@ export function PendingAccounts() {
 
     try {
       // Chuyển tài khoản từ pendingUsers sang users trong Firebase
-      const approvedUser = { ...user, status: "active" }
+      const approvedUser = { ...user, status: 'active' }
       delete approvedUser.id // Remove the id field before adding to users collection
 
       // Add to users collection
-      const usersRef = collection(db, "users")
+      const usersRef = collection(db, 'users')
       await addDoc(usersRef, approvedUser)
 
       // Delete from pendingUsers collection
-      const pendingUserRef = doc(db, "pendingUsers", user.id)
+      const pendingUserRef = doc(db, 'pendingUsers', user.id)
       await deleteDoc(pendingUserRef)
 
       // Lưu lịch sử phê duyệt
-      const approvalHistoryRef = collection(db, "approvalHistory")
+      const approvalHistoryRef = collection(db, 'approvalHistory')
       await addDoc(approvalHistoryRef, {
         userId: user.id,
         username: user.username,
-        action: "approve",
-        approvedBy: localStorage.getItem("username") || "admin",
-        approvedAt: new Date().toISOString(),
+        action: 'approve',
+        approvedBy: localStorage.getItem('username') || 'admin',
+        approvedAt: new Date().toISOString()
       })
 
       // Cập nhật state
@@ -174,20 +200,22 @@ export function PendingAccounts() {
       setPendingUsers(updatedPendingUsers)
 
       // Hiển thị thông báo thành công
-      setSuccessMessage(`Tài khoản ${user.username} đã được phê duyệt thành công.`)
+      setSuccessMessage(
+        `Tài khoản ${user.username} đã được phê duyệt thành công.`
+      )
       setShowSuccess(true)
       setTimeout(() => setShowSuccess(false), 3000)
 
       toast({
-        title: "Phê duyệt thành công",
-        description: `Tài khoản ${user.username} đã được phê duyệt và kích hoạt.`,
+        title: 'Phê duyệt thành công',
+        description: `Tài khoản ${user.username} đã được phê duyệt và kích hoạt.`
       })
     } catch (error) {
-      console.error("Error approving user:", error)
+      console.error('Error approving user:', error)
       toast({
-        variant: "destructive",
-        title: "Lỗi",
-        description: "Không thể phê duyệt tài khoản",
+        variant: 'destructive',
+        title: 'Lỗi',
+        description: 'Không thể phê duyệt tài khoản'
       })
     } finally {
       setIsLoading(false)
@@ -196,7 +224,7 @@ export function PendingAccounts() {
 
   const openRejectDialog = (user: PendingUser) => {
     setUserToReject(user)
-    setRejectReason("")
+    setRejectReason('')
     setShowRejectDialog(true)
   }
 
@@ -206,21 +234,23 @@ export function PendingAccounts() {
 
     try {
       // Delete from pendingUsers collection
-      const pendingUserRef = doc(db, "pendingUsers", userToReject.id)
+      const pendingUserRef = doc(db, 'pendingUsers', userToReject.id)
       await deleteDoc(pendingUserRef)
 
       // Lưu lịch sử từ chối
-      const rejectionHistoryRef = collection(db, "rejectionHistory")
+      const rejectionHistoryRef = collection(db, 'rejectionHistory')
       await addDoc(rejectionHistoryRef, {
         userId: userToReject.id,
         username: userToReject.username,
         reason: rejectReason,
-        rejectedBy: localStorage.getItem("username") || "admin",
-        rejectedAt: new Date().toISOString(),
+        rejectedBy: localStorage.getItem('username') || 'admin',
+        rejectedAt: new Date().toISOString()
       })
 
       // Cập nhật state
-      const updatedPendingUsers = pendingUsers.filter((u) => u.id !== userToReject.id)
+      const updatedPendingUsers = pendingUsers.filter(
+        (u) => u.id !== userToReject.id
+      )
       setPendingUsers(updatedPendingUsers)
 
       // Đóng dialog
@@ -233,15 +263,15 @@ export function PendingAccounts() {
       setTimeout(() => setShowSuccess(false), 3000)
 
       toast({
-        title: "Từ chối thành công",
-        description: `Tài khoản ${userToReject.username} đã bị từ chối.`,
+        title: 'Từ chối thành công',
+        description: `Tài khoản ${userToReject.username} đã bị từ chối.`
       })
     } catch (error) {
-      console.error("Error rejecting user:", error)
+      console.error('Error rejecting user:', error)
       toast({
-        variant: "destructive",
-        title: "Lỗi",
-        description: "Không thể từ chối tài khoản",
+        variant: 'destructive',
+        title: 'Lỗi',
+        description: 'Không thể từ chối tài khoản'
       })
     } finally {
       setIsLoading(false)
@@ -251,8 +281,8 @@ export function PendingAccounts() {
   const refreshPendingUsersList = () => {
     fetchPendingUsers()
     toast({
-      title: "Làm mới thành công",
-      description: "Danh sách tài khoản chờ duyệt đã được cập nhật.",
+      title: 'Làm mới thành công',
+      description: 'Danh sách tài khoản chờ duyệt đã được cập nhật.'
     })
   }
 
@@ -264,18 +294,18 @@ export function PendingAccounts() {
 
     // Fallback cho các giá trị cũ
     switch (departmentId) {
-      case "product":
-        return "Phòng Sản Phẩm"
-      case "design":
-        return "Phòng Thiết Kế"
-      case "marketing":
-        return "Phòng Marketing"
-      case "sales":
-        return "Phòng Kinh Doanh"
-      case "rd":
-        return "Phòng R&D"
-      case "operations":
-        return "Phòng Vận Hành"
+      case 'product':
+        return 'Phòng Sản Phẩm'
+      case 'design':
+        return 'Phòng Thiết Kế'
+      case 'marketing':
+        return 'Phòng Marketing'
+      case 'sales':
+        return 'Phòng Kinh Doanh'
+      case 'rd':
+        return 'Phòng R&D'
+      case 'operations':
+        return 'Phòng Vận Hành'
       default:
         return departmentId
     }
@@ -287,13 +317,19 @@ export function PendingAccounts() {
         <Alert className="bg-green-50 border-green-200">
           <CheckCircle2 className="h-4 w-4 text-green-600" />
           <AlertTitle className="text-green-800">Thành công!</AlertTitle>
-          <AlertDescription className="text-green-700">{successMessage}</AlertDescription>
+          <AlertDescription className="text-green-700">
+            {successMessage}
+          </AlertDescription>
         </Alert>
       )}
 
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">Danh sách tài khoản chờ duyệt</h3>
-        <Button variant="outline" onClick={refreshPendingUsersList} disabled={isLoading}>
+        <Button
+          variant="outline"
+          onClick={refreshPendingUsersList}
+          disabled={isLoading}
+        >
           {isLoading ? (
             <>
               <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
@@ -337,10 +373,16 @@ export function PendingAccounts() {
                   <TableCell>{user.fullName}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{getDepartmentName(user.department)}</TableCell>
-                  <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    {new Date(user.createdAt).toLocaleDateString()}
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="icon" onClick={() => handleEditUser(user)}>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleEditUser(user)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
@@ -376,11 +418,16 @@ export function PendingAccounts() {
 
       {/* Dialog chỉnh sửa thông tin tài khoản */}
       {editingUser && (
-        <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
+        <Dialog
+          open={!!editingUser}
+          onOpenChange={(open) => !open && setEditingUser(null)}
+        >
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Chỉnh sửa thông tin tài khoản</DialogTitle>
-              <DialogDescription>Chỉnh sửa thông tin tài khoản trước khi phê duyệt</DialogDescription>
+              <DialogDescription>
+                Chỉnh sửa thông tin tài khoản trước khi phê duyệt
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
@@ -390,7 +437,9 @@ export function PendingAccounts() {
                 <Input
                   id="username"
                   value={editingUser.username}
-                  onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })}
+                  onChange={(e) =>
+                    setEditingUser({ ...editingUser, username: e.target.value })
+                  }
                   className="col-span-3"
                 />
               </div>
@@ -401,7 +450,9 @@ export function PendingAccounts() {
                 <Input
                   id="fullName"
                   value={editingUser.fullName}
-                  onChange={(e) => setEditingUser({ ...editingUser, fullName: e.target.value })}
+                  onChange={(e) =>
+                    setEditingUser({ ...editingUser, fullName: e.target.value })
+                  }
                   className="col-span-3"
                 />
               </div>
@@ -412,7 +463,9 @@ export function PendingAccounts() {
                 <Input
                   id="email"
                   value={editingUser.email}
-                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                  onChange={(e) =>
+                    setEditingUser({ ...editingUser, email: e.target.value })
+                  }
                   className="col-span-3"
                 />
               </div>
@@ -424,7 +477,9 @@ export function PendingAccounts() {
                   id="password"
                   type="password"
                   value={editingUser.password}
-                  onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
+                  onChange={(e) =>
+                    setEditingUser({ ...editingUser, password: e.target.value })
+                  }
                   className="col-span-3"
                 />
               </div>
@@ -434,7 +489,9 @@ export function PendingAccounts() {
                 </Label>
                 <Select
                   value={editingUser.role}
-                  onValueChange={(value) => setEditingUser({ ...editingUser, role: value })}
+                  onValueChange={(value) =>
+                    setEditingUser({ ...editingUser, role: value })
+                  }
                 >
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Chọn vai trò" />
@@ -451,7 +508,9 @@ export function PendingAccounts() {
                 </Label>
                 <Select
                   value={editingUser.department}
-                  onValueChange={(value) => setEditingUser({ ...editingUser, department: value })}
+                  onValueChange={(value) =>
+                    setEditingUser({ ...editingUser, department: value })
+                  }
                 >
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Chọn phòng ban" />
@@ -468,8 +527,12 @@ export function PendingAccounts() {
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit" onClick={handleSaveEdit} disabled={isLoading}>
-                {isLoading ? "Đang lưu..." : "Lưu thay đổi"}
+              <Button
+                type="submit"
+                onClick={handleSaveEdit}
+                disabled={isLoading}
+              >
+                {isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -481,7 +544,9 @@ export function PendingAccounts() {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Từ chối tài khoản</DialogTitle>
-            <DialogDescription>Vui lòng nhập lý do từ chối tài khoản {userToReject?.username}</DialogDescription>
+            <DialogDescription>
+              Vui lòng nhập lý do từ chối tài khoản {userToReject?.username}
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
@@ -498,11 +563,18 @@ export function PendingAccounts() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowRejectDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowRejectDialog(false)}
+            >
               Hủy
             </Button>
-            <Button variant="destructive" onClick={handleRejectUser} disabled={isLoading || !rejectReason}>
-              {isLoading ? "Đang xử lý..." : "Từ chối tài khoản"}
+            <Button
+              variant="destructive"
+              onClick={handleRejectUser}
+              disabled={isLoading || !rejectReason}
+            >
+              {isLoading ? 'Đang xử lý...' : 'Từ chối tài khoản'}
             </Button>
           </DialogFooter>
         </DialogContent>

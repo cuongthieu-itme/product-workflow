@@ -1,10 +1,16 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { CopyIcon, CheckIcon } from "lucide-react"
+import { useState } from 'react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { CopyIcon, CheckIcon } from 'lucide-react'
 
 export function ApiExamples() {
   const [copiedExample, setCopiedExample] = useState<string | null>(null)
@@ -17,9 +23,9 @@ export function ApiExamples() {
 
   const examples = [
     {
-      id: "fetch-products",
-      title: "Lấy danh sách sản phẩm",
-      description: "Ví dụ về cách lấy danh sách sản phẩm với JavaScript",
+      id: 'fetch-products',
+      title: 'Lấy danh sách sản phẩm',
+      description: 'Ví dụ về cách lấy danh sách sản phẩm với JavaScript',
       code: `// Sử dụng Fetch API
 async function getProducts() {
   try {
@@ -47,12 +53,12 @@ async function getProducts() {
 // Gọi hàm
 getProducts().then(products => {
   // Xử lý dữ liệu sản phẩm
-});`,
+});`
     },
     {
-      id: "create-product",
-      title: "Tạo sản phẩm mới",
-      description: "Ví dụ về cách tạo sản phẩm mới với JavaScript",
+      id: 'create-product',
+      title: 'Tạo sản phẩm mới',
+      description: 'Ví dụ về cách tạo sản phẩm mới với JavaScript',
       code: `// Sử dụng Fetch API
 async function createProduct(productData) {
   try {
@@ -88,12 +94,13 @@ const newProduct = {
 
 createProduct(newProduct).then(product => {
   // Xử lý sản phẩm đã tạo
-});`,
+});`
     },
     {
-      id: "update-product-step",
-      title: "Cập nhật trạng thái bước trong quy trình",
-      description: "Ví dụ về cách cập nhật trạng thái của một bước trong quy trình phát triển sản phẩm",
+      id: 'update-product-step',
+      title: 'Cập nhật trạng thái bước trong quy trình',
+      description:
+        'Ví dụ về cách cập nhật trạng thái của một bước trong quy trình phát triển sản phẩm',
       code: `// Sử dụng Fetch API
 async function updateProductStep(productId, stepData) {
   try {
@@ -130,12 +137,12 @@ updateProductStep(productId, stepData).then(result => {
   // Xử lý kết quả
   console.log('Updated step:', result.step);
   console.log('Updated product:', result.product);
-});`,
+});`
     },
     {
-      id: "create-notification",
-      title: "Tạo thông báo mới",
-      description: "Ví dụ về cách tạo thông báo mới cho các phòng ban",
+      id: 'create-notification',
+      title: 'Tạo thông báo mới',
+      description: 'Ví dụ về cách tạo thông báo mới cho các phòng ban',
       code: `// Sử dụng Fetch API
 async function createNotification(notificationData) {
   try {
@@ -171,12 +178,13 @@ const newNotification = {
 
 createNotification(newNotification).then(notification => {
   // Xử lý thông báo đã tạo
-});`,
+});`
     },
     {
-      id: "generate-report",
-      title: "Tạo báo cáo mới",
-      description: "Ví dụ về cách tạo báo cáo mới về tiến độ phát triển sản phẩm",
+      id: 'generate-report',
+      title: 'Tạo báo cáo mới',
+      description:
+        'Ví dụ về cách tạo báo cáo mới về tiến độ phát triển sản phẩm',
       code: `// Sử dụng Fetch API
 async function createReport(reportData) {
   try {
@@ -232,15 +240,17 @@ const newReport = {
 
 createReport(newReport).then(report => {
   // Xử lý báo cáo đã tạo
-});`,
-    },
+});`
+    }
   ]
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Ví dụ sử dụng API</CardTitle>
-        <CardDescription>Các ví dụ về cách sử dụng API của ProductFlow với JavaScript</CardDescription>
+        <CardDescription>
+          Các ví dụ về cách sử dụng API của ProductFlow với JavaScript
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue={examples[0].id} className="w-full">
@@ -257,7 +267,9 @@ createReport(newReport).then(report => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-medium">{example.title}</h3>
-                    <p className="text-muted-foreground">{example.description}</p>
+                    <p className="text-muted-foreground">
+                      {example.description}
+                    </p>
                   </div>
                   <Button
                     variant="outline"
@@ -276,7 +288,9 @@ createReport(newReport).then(report => {
                     )}
                   </Button>
                 </div>
-                <pre className="overflow-auto rounded-md bg-muted p-4 text-sm">{example.code}</pre>
+                <pre className="overflow-auto rounded-md bg-muted p-4 text-sm">
+                  {example.code}
+                </pre>
               </div>
             </TabsContent>
           ))}

@@ -1,26 +1,32 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useState, useEffect, useCallback } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/components/ui/use-toast"
-import { useWorkflow, type Workflow } from "./workflow-context"
-import { useProductStatus } from "../product-status/product-status-context"
+import { useState, useEffect, useCallback } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { useToast } from '@/components/ui/use-toast'
+import { useWorkflow, type Workflow } from './workflow-context'
+import { useProductStatus } from '../product-status/product-status-context'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Loader2 } from "lucide-react"
+  DialogTitle
+} from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Loader2 } from 'lucide-react'
 
 interface AddWorkflowFormProps {
   isOpen: boolean
@@ -29,23 +35,30 @@ interface AddWorkflowFormProps {
   editingWorkflow?: Workflow | null
 }
 
-export function AddWorkflowForm({ isOpen, onClose, onWorkflowAdded, editingWorkflow = null }: AddWorkflowFormProps) {
+export function AddWorkflowForm({
+  isOpen,
+  onClose,
+  onWorkflowAdded,
+  editingWorkflow = null
+}: AddWorkflowFormProps) {
   const { toast } = useToast()
   const { addWorkflow, updateWorkflow, isStatusHasWorkflow } = useWorkflow()
   const { productStatuses } = useProductStatus()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    statusId: "",
+    name: '',
+    description: '',
+    statusId: ''
   })
-  const [nameError, setNameError] = useState("")
-  const [statusError, setStatusError] = useState("")
+  const [nameError, setNameError] = useState('')
+  const [statusError, setStatusError] = useState('')
 
   // Memoize các trạng thái có thể chọn để tránh tính toán lại không cần thiết
   const selectableStatuses = useCallback(() => {
     // Lọc ra các trạng thái chưa có quy trình (trừ trạng thái của quy trình đang chỉnh sửa)
-    const availableStatuses = productStatuses.filter((status) => !isStatusHasWorkflow(status.id, editingWorkflow?.id))
+    const availableStatuses = productStatuses.filter(
+      (status) => !isStatusHasWorkflow(status.id, editingWorkflow?.id)
+    )
 
     // Thêm trạng thái hiện tại của quy trình đang chỉnh sửa (nếu có)
     const currentStatus = editingWorkflow
@@ -54,7 +67,9 @@ export function AddWorkflowForm({ isOpen, onClose, onWorkflowAdded, editingWorkf
 
     // Danh sách trạng thái có thể chọn
     return currentStatus
-      ? [...availableStatuses, currentStatus].sort((a, b) => a.name.localeCompare(b.name))
+      ? [...availableStatuses, currentStatus].sort((a, b) =>
+          a.name.localeCompare(b.name)
+        )
       : availableStatuses
   }, [productStatuses, isStatusHasWorkflow, editingWorkflow])
 
@@ -65,18 +80,18 @@ export function AddWorkflowForm({ isOpen, onClose, onWorkflowAdded, editingWorkf
         setFormData({
           name: editingWorkflow.name,
           description: editingWorkflow.description,
-          statusId: editingWorkflow.statusId,
+          statusId: editingWorkflow.statusId
         })
       } else {
         const statuses = selectableStatuses()
         setFormData({
-          name: "",
-          description: "",
-          statusId: statuses.length > 0 ? statuses[0].id : "",
+          name: '',
+          description: '',
+          statusId: statuses.length > 0 ? statuses[0].id : ''
         })
       }
-      setNameError("")
-      setStatusError("")
+      setNameError('')
+      setStatusError('')
     }
   }, [isOpen, editingWorkflow, selectableStatuses])
 
@@ -84,10 +99,10 @@ export function AddWorkflowForm({ isOpen, onClose, onWorkflowAdded, editingWorkf
     setFormData((prev) => ({ ...prev, [field]: value }))
 
     // Xóa thông báo lỗi khi người dùng thay đổi giá trị
-    if (field === "name") {
-      setNameError("")
-    } else if (field === "statusId") {
-      setStatusError("")
+    if (field === 'name') {
+      setNameError('')
+    } else if (field === 'statusId') {
+      setStatusError('')
     }
   }, [])
 
@@ -98,15 +113,17 @@ export function AddWorkflowForm({ isOpen, onClose, onWorkflowAdded, editingWorkf
     let isValid = true
 
     if (!formData.name.trim()) {
-      setNameError("Vui lòng nhập tên quy trình")
+      setNameError('Vui lòng nhập tên quy trình')
       isValid = false
     }
 
     if (!formData.statusId) {
-      setStatusError("Vui lòng chọn trạng thái sản phẩm")
+      setStatusError('Vui lòng chọn trạng thái sản phẩm')
       isValid = false
     } else if (isStatusHasWorkflow(formData.statusId, editingWorkflow?.id)) {
-      setStatusError("Trạng thái này đã có quy trình khác. Mỗi trạng thái chỉ có thể gắn một quy trình.")
+      setStatusError(
+        'Trạng thái này đã có quy trình khác. Mỗi trạng thái chỉ có thể gắn một quy trình.'
+      )
       isValid = false
     }
 
@@ -131,13 +148,13 @@ export function AddWorkflowForm({ isOpen, onClose, onWorkflowAdded, editingWorkf
           updateWorkflow(editingWorkflow.id, {
             name: formData.name,
             description: formData.description,
-            statusId: formData.statusId,
+            statusId: formData.statusId
           })
 
           toast({
-            title: "Cập nhật thành công",
+            title: 'Cập nhật thành công',
             description: `Quy trình "${formData.name}" đã được cập nhật.`,
-            variant: "success",
+            variant: 'success'
           })
         } else {
           // Thêm quy trình mới
@@ -145,13 +162,13 @@ export function AddWorkflowForm({ isOpen, onClose, onWorkflowAdded, editingWorkf
             name: formData.name,
             description: formData.description,
             statusId: formData.statusId,
-            steps: [],
+            steps: []
           })
 
           toast({
-            title: "Tạo quy trình thành công",
+            title: 'Tạo quy trình thành công',
             description: `Quy trình "${formData.name}" đã được tạo. Bạn có thể thêm các bước vào quy trình này sau.`,
-            variant: "success",
+            variant: 'success'
           })
         }
 
@@ -164,13 +181,23 @@ export function AddWorkflowForm({ isOpen, onClose, onWorkflowAdded, editingWorkf
       } catch (error) {
         setIsLoading(false)
         toast({
-          title: "Có lỗi xảy ra",
-          description: "Không thể lưu quy trình làm việc. Vui lòng thử lại sau.",
-          variant: "destructive",
+          title: 'Có lỗi xảy ra',
+          description:
+            'Không thể lưu quy trình làm việc. Vui lòng thử lại sau.',
+          variant: 'destructive'
         })
       }
     },
-    [validateForm, formData, editingWorkflow, updateWorkflow, addWorkflow, toast, onWorkflowAdded, onClose],
+    [
+      validateForm,
+      formData,
+      editingWorkflow,
+      updateWorkflow,
+      addWorkflow,
+      toast,
+      onWorkflowAdded,
+      onClose
+    ]
   )
 
   const statuses = selectableStatuses()
@@ -179,11 +206,15 @@ export function AddWorkflowForm({ isOpen, onClose, onWorkflowAdded, editingWorkf
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{editingWorkflow ? "Chỉnh sửa quy trình" : "Thêm quy trình làm việc mới"}</DialogTitle>
+          <DialogTitle>
+            {editingWorkflow
+              ? 'Chỉnh sửa quy trình'
+              : 'Thêm quy trình làm việc mới'}
+          </DialogTitle>
           <DialogDescription>
             {editingWorkflow
-              ? "Chỉnh sửa thông tin quy trình làm việc"
-              : "Nhập thông tin chi tiết về quy trình làm việc mới"}
+              ? 'Chỉnh sửa thông tin quy trình làm việc'
+              : 'Nhập thông tin chi tiết về quy trình làm việc mới'}
           </DialogDescription>
         </DialogHeader>
 
@@ -196,9 +227,9 @@ export function AddWorkflowForm({ isOpen, onClose, onWorkflowAdded, editingWorkf
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => handleInputChange("name", e.target.value)}
+                onChange={(e) => handleInputChange('name', e.target.value)}
                 placeholder="Nhập tên quy trình"
-                className={nameError ? "border-red-500" : ""}
+                className={nameError ? 'border-red-500' : ''}
               />
               {nameError && <p className="text-sm text-red-500">{nameError}</p>}
             </div>
@@ -207,8 +238,11 @@ export function AddWorkflowForm({ isOpen, onClose, onWorkflowAdded, editingWorkf
               <Label htmlFor="statusId" className="text-right">
                 Trạng thái sản phẩm <span className="text-red-500">*</span>
               </Label>
-              <Select value={formData.statusId} onValueChange={(value) => handleInputChange("statusId", value)}>
-                <SelectTrigger className={statusError ? "border-red-500" : ""}>
+              <Select
+                value={formData.statusId}
+                onValueChange={(value) => handleInputChange('statusId', value)}
+              >
+                <SelectTrigger className={statusError ? 'border-red-500' : ''}>
                   <SelectValue placeholder="Chọn trạng thái sản phẩm" />
                 </SelectTrigger>
                 <SelectContent>
@@ -225,7 +259,9 @@ export function AddWorkflowForm({ isOpen, onClose, onWorkflowAdded, editingWorkf
                   )}
                 </SelectContent>
               </Select>
-              {statusError && <p className="text-sm text-red-500">{statusError}</p>}
+              {statusError && (
+                <p className="text-sm text-red-500">{statusError}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -235,7 +271,9 @@ export function AddWorkflowForm({ isOpen, onClose, onWorkflowAdded, editingWorkf
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange('description', e.target.value)
+                }
                 placeholder="Nhập mô tả chi tiết về quy trình làm việc"
                 rows={4}
               />
@@ -244,12 +282,17 @@ export function AddWorkflowForm({ isOpen, onClose, onWorkflowAdded, editingWorkf
         </ScrollArea>
 
         <DialogFooter className="flex justify-between sm:justify-between">
-          <Button variant="outline" type="button" onClick={onClose} disabled={isLoading}>
+          <Button
+            variant="outline"
+            type="button"
+            onClick={onClose}
+            disabled={isLoading}
+          >
             Hủy
           </Button>
           <Button type="submit" onClick={handleSubmit} disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {editingWorkflow ? "Cập nhật" : "Tạo quy trình"}
+            {editingWorkflow ? 'Cập nhật' : 'Tạo quy trình'}
           </Button>
         </DialogFooter>
       </DialogContent>

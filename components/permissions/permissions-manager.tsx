@@ -1,58 +1,82 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { usePermissions, type WorkflowArea, type PermissionType } from "@/components/permissions-context"
-import { PermissionsTable } from "@/components/permissions/permissions-table"
-import { PermissionsByDepartment } from "@/components/permissions/permissions-by-department"
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { CheckCircle2 } from "lucide-react"
+import { useState } from 'react'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  usePermissions,
+  type WorkflowArea,
+  type PermissionType
+} from '@/components/permissions-context'
+import { PermissionsTable } from '@/components/permissions/permissions-table'
+import { PermissionsByDepartment } from '@/components/permissions/permissions-by-department'
+import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/use-toast'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { CheckCircle2 } from 'lucide-react'
 
 export function PermissionsManager() {
   const { permissions, updatePermission } = usePermissions()
   const { toast } = useToast()
   const [showSuccess, setShowSuccess] = useState(false)
-  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null)
+  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(
+    null
+  )
 
   // Danh sách các phòng ban
   const departments = [
-    { id: "product", name: "Phòng Sản Phẩm" },
-    { id: "design", name: "Phòng Thiết Kế" },
-    { id: "marketing", name: "Phòng Marketing" },
-    { id: "sales", name: "Phòng Kinh Doanh" },
-    { id: "operations", name: "Phòng Vận Hành" },
+    { id: 'product', name: 'Phòng Sản Phẩm' },
+    { id: 'design', name: 'Phòng Thiết Kế' },
+    { id: 'marketing', name: 'Phòng Marketing' },
+    { id: 'sales', name: 'Phòng Kinh Doanh' },
+    { id: 'operations', name: 'Phòng Vận Hành' }
   ]
 
   // Danh sách các khu vực trong quy trình
   const workflowAreas: { id: WorkflowArea; name: string }[] = [
-    { id: "request", name: "Khởi Tạo Yêu Cầu" },
-    { id: "review", name: "Kiểm Tra Phát Triển" },
-    { id: "design", name: "Thiết Kế & Xác Nhận" },
-    { id: "production", name: "Cập Nhật SKU & Thông Tin" },
-    { id: "marketing", name: "Truyền Thông Marketing" },
-    { id: "launch", name: "Ra Mắt & Hoạt Động Sau Ra Mắt" },
-    { id: "reports", name: "Báo Cáo" },
-    { id: "users", name: "Quản Lý Người Dùng" },
-    { id: "settings", name: "Cài Đặt Hệ Thống" },
+    { id: 'request', name: 'Khởi Tạo Yêu Cầu' },
+    { id: 'review', name: 'Kiểm Tra Phát Triển' },
+    { id: 'design', name: 'Thiết Kế & Xác Nhận' },
+    { id: 'production', name: 'Cập Nhật SKU & Thông Tin' },
+    { id: 'marketing', name: 'Truyền Thông Marketing' },
+    { id: 'launch', name: 'Ra Mắt & Hoạt Động Sau Ra Mắt' },
+    { id: 'reports', name: 'Báo Cáo' },
+    { id: 'users', name: 'Quản Lý Người Dùng' },
+    { id: 'settings', name: 'Cài Đặt Hệ Thống' }
   ]
 
   // Các loại quyền
-  const permissionTypes: { id: PermissionType; name: string; description: string }[] = [
-    { id: "edit", name: "Chỉnh Sửa", description: "Cho phép xem và chỉnh sửa" },
-    { id: "view", name: "Xem", description: "Chỉ cho phép xem, không chỉnh sửa" },
-    { id: "hide", name: "Ẩn", description: "Không cho phép xem hoặc truy cập" },
+  const permissionTypes: {
+    id: PermissionType
+    name: string
+    description: string
+  }[] = [
+    { id: 'edit', name: 'Chỉnh Sửa', description: 'Cho phép xem và chỉnh sửa' },
+    {
+      id: 'view',
+      name: 'Xem',
+      description: 'Chỉ cho phép xem, không chỉnh sửa'
+    },
+    { id: 'hide', name: 'Ẩn', description: 'Không cho phép xem hoặc truy cập' }
   ]
 
   // Cập nhật quyền và hiển thị thông báo
-  const handleUpdatePermission = (department: string, area: WorkflowArea, permission: PermissionType) => {
+  const handleUpdatePermission = (
+    department: string,
+    area: WorkflowArea,
+    permission: PermissionType
+  ) => {
     updatePermission(department, area, permission)
 
     toast({
-      title: "Cập nhật thành công",
-      description: `Đã cập nhật quyền cho ${getDepartmentName(department)} đối với khu vực ${getAreaName(area)}.`,
+      title: 'Cập nhật thành công',
+      description: `Đã cập nhật quyền cho ${getDepartmentName(department)} đối với khu vực ${getAreaName(area)}.`
     })
 
     setShowSuccess(true)
@@ -76,13 +100,13 @@ export function PermissionsManager() {
     // Đặt lại quyền cho từng phòng ban và khu vực
     departments.forEach((department) => {
       workflowAreas.forEach((area) => {
-        let defaultPermission: PermissionType = "view"
+        let defaultPermission: PermissionType = 'view'
 
         // Quyền mặc định dựa trên phòng ban và khu vực
         if (department.id === area.id) {
-          defaultPermission = "edit"
-        } else if (department.id === "admin") {
-          defaultPermission = "edit"
+          defaultPermission = 'edit'
+        } else if (department.id === 'admin') {
+          defaultPermission = 'edit'
         }
 
         updatePermission(department.id, area.id, defaultPermission)
@@ -90,8 +114,8 @@ export function PermissionsManager() {
     })
 
     toast({
-      title: "Đặt lại thành công",
-      description: "Đã đặt lại tất cả quyền truy cập về mặc định.",
+      title: 'Đặt lại thành công',
+      description: 'Đã đặt lại tất cả quyền truy cập về mặc định.'
     })
 
     setShowSuccess(true)
@@ -103,9 +127,12 @@ export function PermissionsManager() {
       {showSuccess && (
         <Alert className="bg-green-50 border-green-200">
           <CheckCircle2 className="h-4 w-4 text-green-600" />
-          <AlertTitle className="text-green-800">Cập nhật thành công!</AlertTitle>
+          <AlertTitle className="text-green-800">
+            Cập nhật thành công!
+          </AlertTitle>
           <AlertDescription className="text-green-700">
-            Quyền truy cập đã được cập nhật thành công và sẽ được áp dụng ngay lập tức.
+            Quyền truy cập đã được cập nhật thành công và sẽ được áp dụng ngay
+            lập tức.
           </AlertDescription>
         </Alert>
       )}
@@ -126,7 +153,9 @@ export function PermissionsManager() {
           <Card>
             <CardHeader>
               <CardTitle>Bảng Quyền Truy Cập</CardTitle>
-              <CardDescription>Quản lý quyền truy cập của tất cả phòng ban đối với các khu vực</CardDescription>
+              <CardDescription>
+                Quản lý quyền truy cập của tất cả phòng ban đối với các khu vực
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <PermissionsTable
@@ -144,7 +173,9 @@ export function PermissionsManager() {
           <Card>
             <CardHeader>
               <CardTitle>Quyền Truy Cập Theo Phòng Ban</CardTitle>
-              <CardDescription>Quản lý quyền truy cập chi tiết cho từng phòng ban</CardDescription>
+              <CardDescription>
+                Quản lý quyền truy cập chi tiết cho từng phòng ban
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <PermissionsByDepartment

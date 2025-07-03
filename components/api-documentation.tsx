@@ -1,10 +1,16 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { CopyIcon, CheckIcon } from "lucide-react"
+import { useState } from 'react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { CopyIcon, CheckIcon } from 'lucide-react'
 
 export function ApiDocumentation() {
   const [copiedEndpoint, setCopiedEndpoint] = useState<string | null>(null)
@@ -17,13 +23,13 @@ export function ApiDocumentation() {
 
   const endpoints = [
     {
-      category: "Authentication",
+      category: 'Authentication',
       items: [
         {
-          name: "Login",
-          method: "POST",
-          endpoint: "/api/auth/signin",
-          description: "Đăng nhập và lấy token xác thực",
+          name: 'Login',
+          method: 'POST',
+          endpoint: '/api/auth/signin',
+          description: 'Đăng nhập và lấy token xác thực',
           request: `{
   "email": "user@example.com",
   "password": "password123"
@@ -40,30 +46,30 @@ export function ApiDocumentation() {
     },
     "token": "jwt_token_here"
   }
-}`,
+}`
         },
         {
-          name: "Logout",
-          method: "POST",
-          endpoint: "/api/auth/signout",
-          description: "Đăng xuất và hủy token hiện tại",
+          name: 'Logout',
+          method: 'POST',
+          endpoint: '/api/auth/signout',
+          description: 'Đăng xuất và hủy token hiện tại',
           request: `{}`,
           response: `{
   "success": true,
   "message": "Logged out successfully"
-}`,
-        },
-      ],
+}`
+        }
+      ]
     },
     {
-      category: "Products",
+      category: 'Products',
       items: [
         {
-          name: "Get Products",
-          method: "GET",
-          endpoint: "/api/products",
-          description: "Lấy danh sách sản phẩm với các tùy chọn lọc",
-          request: "Query params: status, department, page, limit",
+          name: 'Get Products',
+          method: 'GET',
+          endpoint: '/api/products',
+          description: 'Lấy danh sách sản phẩm với các tùy chọn lọc',
+          request: 'Query params: status, department, page, limit',
           response: `{
   "success": true,
   "data": [
@@ -85,13 +91,13 @@ export function ApiDocumentation() {
     "limit": 10,
     "pages": 3
   }
-}`,
+}`
         },
         {
-          name: "Create Product",
-          method: "POST",
-          endpoint: "/api/products",
-          description: "Tạo sản phẩm mới",
+          name: 'Create Product',
+          method: 'POST',
+          endpoint: '/api/products',
+          description: 'Tạo sản phẩm mới',
           request: `{
   "name": "Tên Sản Phẩm",
   "description": "Mô tả sản phẩm",
@@ -111,14 +117,14 @@ export function ApiDocumentation() {
     "departments": ["product", "design"],
     "sku": ""
   }
-}`,
+}`
         },
         {
-          name: "Get Product",
-          method: "GET",
-          endpoint: "/api/products/{id}",
-          description: "Lấy thông tin chi tiết của sản phẩm",
-          request: "Path param: id",
+          name: 'Get Product',
+          method: 'GET',
+          endpoint: '/api/products/{id}',
+          description: 'Lấy thông tin chi tiết của sản phẩm',
+          request: 'Path param: id',
           response: `{
   "success": true,
   "data": {
@@ -132,13 +138,13 @@ export function ApiDocumentation() {
     "departments": ["product", "design"],
     "sku": "GEP-1234"
   }
-}`,
+}`
         },
         {
-          name: "Update Product",
-          method: "PUT",
-          endpoint: "/api/products/{id}",
-          description: "Cập nhật thông tin sản phẩm",
+          name: 'Update Product',
+          method: 'PUT',
+          endpoint: '/api/products/{id}',
+          description: 'Cập nhật thông tin sản phẩm',
           request: `{
   "name": "Tên Sản Phẩm Mới",
   "description": "Mô tả sản phẩm mới",
@@ -157,30 +163,30 @@ export function ApiDocumentation() {
     "departments": ["product", "design"],
     "sku": "GEP-1234"
   }
-}`,
+}`
         },
         {
-          name: "Delete Product",
-          method: "DELETE",
-          endpoint: "/api/products/{id}",
-          description: "Xóa sản phẩm",
-          request: "Path param: id",
+          name: 'Delete Product',
+          method: 'DELETE',
+          endpoint: '/api/products/{id}',
+          description: 'Xóa sản phẩm',
+          request: 'Path param: id',
           response: `{
   "success": true,
   "message": "Product deleted successfully"
-}`,
-        },
-      ],
+}`
+        }
+      ]
     },
     {
-      category: "Product Steps",
+      category: 'Product Steps',
       items: [
         {
-          name: "Get Product Steps",
-          method: "GET",
-          endpoint: "/api/products/{id}/steps",
-          description: "Lấy danh sách các bước trong quy trình của sản phẩm",
-          request: "Path param: id",
+          name: 'Get Product Steps',
+          method: 'GET',
+          endpoint: '/api/products/{id}/steps',
+          description: 'Lấy danh sách các bước trong quy trình của sản phẩm',
+          request: 'Path param: id',
           response: `{
   "success": true,
   "data": [
@@ -203,13 +209,13 @@ export function ApiDocumentation() {
       "startedAt": "2023-04-19T00:00:00.000Z"
     }
   ]
-}`,
+}`
         },
         {
-          name: "Update Product Step",
-          method: "POST",
-          endpoint: "/api/products/{id}/steps",
-          description: "Cập nhật trạng thái của bước trong quy trình",
+          name: 'Update Product Step',
+          method: 'POST',
+          endpoint: '/api/products/{id}/steps',
+          description: 'Cập nhật trạng thái của bước trong quy trình',
           request: `{
   "stepId": "step3",
   "status": "completed"
@@ -232,19 +238,19 @@ export function ApiDocumentation() {
       ...
     }
   }
-}`,
-        },
-      ],
+}`
+        }
+      ]
     },
     {
-      category: "Notifications",
+      category: 'Notifications',
       items: [
         {
-          name: "Get Notifications",
-          method: "GET",
-          endpoint: "/api/notifications",
-          description: "Lấy danh sách thông báo",
-          request: "Query params: read, productId, page, limit",
+          name: 'Get Notifications',
+          method: 'GET',
+          endpoint: '/api/notifications',
+          description: 'Lấy danh sách thông báo',
+          request: 'Query params: read, productId, page, limit',
           response: `{
   "success": true,
   "data": [
@@ -264,13 +270,13 @@ export function ApiDocumentation() {
     "limit": 10,
     "pages": 1
   }
-}`,
+}`
         },
         {
-          name: "Create Notification",
-          method: "POST",
-          endpoint: "/api/notifications",
-          description: "Tạo thông báo mới",
+          name: 'Create Notification',
+          method: 'POST',
+          endpoint: '/api/notifications',
+          description: 'Tạo thông báo mới',
           request: `{
   "title": "Thông báo mới",
   "message": "Nội dung thông báo",
@@ -288,13 +294,13 @@ export function ApiDocumentation() {
     "productId": "1",
     "departments": ["product", "design"]
   }
-}`,
+}`
         },
         {
-          name: "Mark Notification as Read",
-          method: "PATCH",
-          endpoint: "/api/notifications/{id}",
-          description: "Đánh dấu thông báo đã đọc",
+          name: 'Mark Notification as Read',
+          method: 'PATCH',
+          endpoint: '/api/notifications/{id}',
+          description: 'Đánh dấu thông báo đã đọc',
           request: `{
   "read": true
 }`,
@@ -309,19 +315,19 @@ export function ApiDocumentation() {
     "productId": "1",
     "departments": ["design"]
   }
-}`,
-        },
-      ],
+}`
+        }
+      ]
     },
     {
-      category: "Reports",
+      category: 'Reports',
       items: [
         {
-          name: "Get Reports",
-          method: "GET",
-          endpoint: "/api/reports",
-          description: "Lấy danh sách báo cáo",
-          request: "Query params: type, page, limit",
+          name: 'Get Reports',
+          method: 'GET',
+          endpoint: '/api/reports',
+          description: 'Lấy danh sách báo cáo',
+          request: 'Query params: type, page, limit',
           response: `{
   "success": true,
   "data": [
@@ -346,13 +352,13 @@ export function ApiDocumentation() {
     "limit": 10,
     "pages": 1
   }
-}`,
+}`
         },
         {
-          name: "Create Report",
-          method: "POST",
-          endpoint: "/api/reports",
-          description: "Tạo báo cáo mới",
+          name: 'Create Report',
+          method: 'POST',
+          endpoint: '/api/reports',
+          description: 'Tạo báo cáo mới',
           request: `{
   "title": "Báo cáo mới",
   "type": "product",
@@ -376,19 +382,19 @@ export function ApiDocumentation() {
       ...
     }
   }
-}`,
-        },
-      ],
+}`
+        }
+      ]
     },
     {
-      category: "Departments",
+      category: 'Departments',
       items: [
         {
-          name: "Get Departments",
-          method: "GET",
-          endpoint: "/api/departments",
-          description: "Lấy danh sách phòng ban",
-          request: "",
+          name: 'Get Departments',
+          method: 'GET',
+          endpoint: '/api/departments',
+          description: 'Lấy danh sách phòng ban',
+          request: '',
           response: `{
   "success": true,
   "data": [
@@ -402,13 +408,13 @@ export function ApiDocumentation() {
     },
     ...
   ]
-}`,
+}`
         },
         {
-          name: "Create Department",
-          method: "POST",
-          endpoint: "/api/departments",
-          description: "Tạo phòng ban mới (chỉ admin)",
+          name: 'Create Department',
+          method: 'POST',
+          endpoint: '/api/departments',
+          description: 'Tạo phòng ban mới (chỉ admin)',
           request: `{
   "id": "research",
   "name": "Phòng Nghiên Cứu",
@@ -426,10 +432,10 @@ export function ApiDocumentation() {
     "members": ["16", "17", "18"],
     "createdAt": "2023-07-01T00:00:00.000Z"
   }
-}`,
-        },
-      ],
-    },
+}`
+        }
+      ]
+    }
   ]
 
   return (
@@ -442,7 +448,11 @@ export function ApiDocumentation() {
         ))}
       </TabsList>
       {endpoints.map((category) => (
-        <TabsContent key={category.category} value={category.category} className="space-y-4">
+        <TabsContent
+          key={category.category}
+          value={category.category}
+          className="space-y-4"
+        >
           {category.items.map((endpoint) => (
             <Card key={endpoint.endpoint}>
               <CardHeader>
@@ -451,15 +461,15 @@ export function ApiDocumentation() {
                     <CardTitle className="flex items-center gap-2">
                       <span
                         className={`inline-block rounded px-2 py-1 text-xs font-semibold text-white ${
-                          endpoint.method === "GET"
-                            ? "bg-blue-500"
-                            : endpoint.method === "POST"
-                              ? "bg-green-500"
-                              : endpoint.method === "PUT"
-                                ? "bg-yellow-500"
-                                : endpoint.method === "PATCH"
-                                  ? "bg-purple-500"
-                                  : "bg-red-500"
+                          endpoint.method === 'GET'
+                            ? 'bg-blue-500'
+                            : endpoint.method === 'POST'
+                              ? 'bg-green-500'
+                              : endpoint.method === 'PUT'
+                                ? 'bg-yellow-500'
+                                : endpoint.method === 'PATCH'
+                                  ? 'bg-purple-500'
+                                  : 'bg-red-500'
                         }`}
                       >
                         {endpoint.method}
@@ -469,11 +479,15 @@ export function ApiDocumentation() {
                     <CardDescription>{endpoint.description}</CardDescription>
                   </div>
                   <div className="flex items-center gap-2">
-                    <code className="rounded bg-muted px-2 py-1 text-sm">{endpoint.endpoint}</code>
+                    <code className="rounded bg-muted px-2 py-1 text-sm">
+                      {endpoint.endpoint}
+                    </code>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => copyToClipboard(endpoint.endpoint, endpoint.endpoint)}
+                      onClick={() =>
+                        copyToClipboard(endpoint.endpoint, endpoint.endpoint)
+                      }
                     >
                       {copiedEndpoint === endpoint.endpoint ? (
                         <CheckIcon className="h-4 w-4 text-green-500" />
@@ -488,11 +502,15 @@ export function ApiDocumentation() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
                     <h4 className="mb-2 text-sm font-medium">Request</h4>
-                    <pre className="overflow-auto rounded-md bg-muted p-4 text-sm">{endpoint.request}</pre>
+                    <pre className="overflow-auto rounded-md bg-muted p-4 text-sm">
+                      {endpoint.request}
+                    </pre>
                   </div>
                   <div>
                     <h4 className="mb-2 text-sm font-medium">Response</h4>
-                    <pre className="overflow-auto rounded-md bg-muted p-4 text-sm">{endpoint.response}</pre>
+                    <pre className="overflow-auto rounded-md bg-muted p-4 text-sm">
+                      {endpoint.response}
+                    </pre>
                   </div>
                 </div>
               </CardContent>

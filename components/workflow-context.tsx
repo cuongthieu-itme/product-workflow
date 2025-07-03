@@ -1,6 +1,12 @@
-"use client"
+'use client'
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode
+} from 'react'
 import {
   collection,
   getDocs,
@@ -11,16 +17,16 @@ import {
   deleteDoc,
   serverTimestamp,
   query,
-  where,
-} from "firebase/firestore"
-import { db } from "@/lib/firebase"
+  where
+} from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 // Định nghĩa kiểu dữ liệu
 export interface WorkflowStep {
   id: string
   name: string
   description: string
-  status: "pending" | "in_progress" | "completed" | "blocked"
+  status: 'pending' | 'in_progress' | 'completed' | 'blocked'
   order: number
   estimatedTime: number // in days
   assignee?: string
@@ -38,7 +44,7 @@ export interface Workflow {
   createdAt: string
   updatedAt: string
   createdBy: string
-  status: "active" | "completed" | "archived"
+  status: 'active' | 'completed' | 'archived'
 }
 
 interface WorkflowContextType {
@@ -46,17 +52,31 @@ interface WorkflowContextType {
   loading: boolean
   error: string | null
   getWorkflow: (id: string) => Promise<Workflow | null>
-  createWorkflow: (workflow: Omit<Workflow, "id" | "createdAt" | "updatedAt">) => Promise<string>
-  updateWorkflow: (id: string, workflow: Partial<Omit<Workflow, "id" | "createdAt" | "updatedAt">>) => Promise<void>
+  createWorkflow: (
+    workflow: Omit<Workflow, 'id' | 'createdAt' | 'updatedAt'>
+  ) => Promise<string>
+  updateWorkflow: (
+    id: string,
+    workflow: Partial<Omit<Workflow, 'id' | 'createdAt' | 'updatedAt'>>
+  ) => Promise<void>
   deleteWorkflow: (id: string) => Promise<void>
-  addStep: (workflowId: string, step: Omit<WorkflowStep, "id">) => Promise<string>
-  updateStep: (workflowId: string, stepId: string, step: Partial<Omit<WorkflowStep, "id">>) => Promise<void>
+  addStep: (
+    workflowId: string,
+    step: Omit<WorkflowStep, 'id'>
+  ) => Promise<string>
+  updateStep: (
+    workflowId: string,
+    stepId: string,
+    step: Partial<Omit<WorkflowStep, 'id'>>
+  ) => Promise<void>
   deleteStep: (workflowId: string, stepId: string) => Promise<void>
   getWorkflowsByProduct: (productId: string) => Promise<Workflow[]>
   refreshWorkflows: () => Promise<void>
 }
 
-const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined)
+const WorkflowContext = createContext<WorkflowContextType | undefined>(
+  undefined
+)
 
 export function WorkflowProvider({ children }: { children: ReactNode }) {
   const [workflows, setWorkflows] = useState<Workflow[]>([])
@@ -72,7 +92,7 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
   const fetchWorkflows = async () => {
     setLoading(true)
     try {
-      const workflowsRef = collection(db, "workflows")
+      const workflowsRef = collection(db, 'workflows')
       const snapshot = await getDocs(workflowsRef)
 
       const workflowsData = await Promise.all(
@@ -80,11 +100,11 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
           const workflowData = doc.data()
 
           // Lấy các bước của quy trình
-          const stepsRef = collection(db, "workflows", doc.id, "steps")
+          const stepsRef = collection(db, 'workflows', doc.id, 'steps')
           const stepsSnapshot = await getDocs(stepsRef)
           const steps = stepsSnapshot.docs.map((stepDoc) => ({
             id: stepDoc.id,
-            ...stepDoc.data(),
+            ...stepDoc.data()
           })) as WorkflowStep[]
 
           // Sắp xếp các bước theo thứ tự
@@ -94,17 +114,21 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
             id: doc.id,
             ...workflowData,
             steps,
-            createdAt: workflowData.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-            updatedAt: workflowData.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+            createdAt:
+              workflowData.createdAt?.toDate?.()?.toISOString() ||
+              new Date().toISOString(),
+            updatedAt:
+              workflowData.updatedAt?.toDate?.()?.toISOString() ||
+              new Date().toISOString()
           } as Workflow
-        }),
+        })
       )
 
       setWorkflows(workflowsData)
       setError(null)
     } catch (err) {
-      console.error("Error fetching workflows:", err)
-      setError("Failed to fetch workflows")
+      console.error('Error fetching workflows:', err)
+      setError('Failed to fetch workflows')
     } finally {
       setLoading(false)
     }
@@ -113,7 +137,7 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
   // Lấy thông tin một quy trình theo ID
   const getWorkflow = async (id: string): Promise<Workflow | null> => {
     try {
-      const workflowRef = doc(db, "workflows", id)
+      const workflowRef = doc(db, 'workflows', id)
       const workflowSnap = await getDoc(workflowRef)
 
       if (!workflowSnap.exists()) {
@@ -123,11 +147,11 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
       const workflowData = workflowSnap.data()
 
       // Lấy các bước của quy trình
-      const stepsRef = collection(db, "workflows", id, "steps")
+      const stepsRef = collection(db, 'workflows', id, 'steps')
       const stepsSnapshot = await getDocs(stepsRef)
       const steps = stepsSnapshot.docs.map((stepDoc) => ({
         id: stepDoc.id,
-        ...stepDoc.data(),
+        ...stepDoc.data()
       })) as WorkflowStep[]
 
       // Sắp xếp các bước theo thứ tự
@@ -137,17 +161,23 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
         id: workflowSnap.id,
         ...workflowData,
         steps,
-        createdAt: workflowData.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-        updatedAt: workflowData.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+        createdAt:
+          workflowData.createdAt?.toDate?.()?.toISOString() ||
+          new Date().toISOString(),
+        updatedAt:
+          workflowData.updatedAt?.toDate?.()?.toISOString() ||
+          new Date().toISOString()
       } as Workflow
     } catch (err) {
-      console.error("Error getting workflow:", err)
+      console.error('Error getting workflow:', err)
       return null
     }
   }
 
   // Tạo quy trình mới
-  const createWorkflow = async (workflow: Omit<Workflow, "id" | "createdAt" | "updatedAt">): Promise<string> => {
+  const createWorkflow = async (
+    workflow: Omit<Workflow, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<string> => {
     try {
       // Tạo quy trình mới trong Firestore
       const workflowData = {
@@ -157,14 +187,17 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
         createdBy: workflow.createdBy,
         status: workflow.status,
         createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       }
 
-      const workflowRef = await addDoc(collection(db, "workflows"), workflowData)
+      const workflowRef = await addDoc(
+        collection(db, 'workflows'),
+        workflowData
+      )
 
       // Thêm các bước của quy trình
       for (const step of workflow.steps) {
-        await addDoc(collection(db, "workflows", workflowRef.id, "steps"), {
+        await addDoc(collection(db, 'workflows', workflowRef.id, 'steps'), {
           name: step.name,
           description: step.description,
           status: step.status,
@@ -173,7 +206,7 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
           assignee: step.assignee,
           startDate: step.startDate,
           dueDate: step.dueDate,
-          completedDate: step.completedDate,
+          completedDate: step.completedDate
         })
       }
 
@@ -182,30 +215,30 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
 
       return workflowRef.id
     } catch (err) {
-      console.error("Error creating workflow:", err)
-      throw new Error("Failed to create workflow")
+      console.error('Error creating workflow:', err)
+      throw new Error('Failed to create workflow')
     }
   }
 
   // Cập nhật quy trình
   const updateWorkflow = async (
     id: string,
-    workflow: Partial<Omit<Workflow, "id" | "createdAt" | "updatedAt">>,
+    workflow: Partial<Omit<Workflow, 'id' | 'createdAt' | 'updatedAt'>>
   ): Promise<void> => {
     try {
-      const workflowRef = doc(db, "workflows", id)
+      const workflowRef = doc(db, 'workflows', id)
 
       // Cập nhật quy trình trong Firestore
       await updateDoc(workflowRef, {
         ...workflow,
-        updatedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       })
 
       // Cập nhật state
       await fetchWorkflows()
     } catch (err) {
-      console.error("Error updating workflow:", err)
-      throw new Error("Failed to update workflow")
+      console.error('Error updating workflow:', err)
+      throw new Error('Failed to update workflow')
     }
   }
 
@@ -213,43 +246,49 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
   const deleteWorkflow = async (id: string): Promise<void> => {
     try {
       // Xóa các bước của quy trình
-      const stepsRef = collection(db, "workflows", id, "steps")
+      const stepsRef = collection(db, 'workflows', id, 'steps')
       const stepsSnapshot = await getDocs(stepsRef)
 
       for (const stepDoc of stepsSnapshot.docs) {
-        await deleteDoc(doc(db, "workflows", id, "steps", stepDoc.id))
+        await deleteDoc(doc(db, 'workflows', id, 'steps', stepDoc.id))
       }
 
       // Xóa quy trình
-      await deleteDoc(doc(db, "workflows", id))
+      await deleteDoc(doc(db, 'workflows', id))
 
       // Cập nhật state
       setWorkflows(workflows.filter((workflow) => workflow.id !== id))
     } catch (err) {
-      console.error("Error deleting workflow:", err)
-      throw new Error("Failed to delete workflow")
+      console.error('Error deleting workflow:', err)
+      throw new Error('Failed to delete workflow')
     }
   }
 
   // Thêm bước vào quy trình
-  const addStep = async (workflowId: string, step: Omit<WorkflowStep, "id">): Promise<string> => {
+  const addStep = async (
+    workflowId: string,
+    step: Omit<WorkflowStep, 'id'>
+  ): Promise<string> => {
     try {
       // Thêm bước vào quy trình trong Firestore
-      const stepRef = await addDoc(collection(db, "workflows", workflowId, "steps"), {
-        name: step.name,
-        description: step.description,
-        status: step.status,
-        order: step.order,
-        estimatedTime: step.estimatedTime,
-        assignee: step.assignee,
-        startDate: step.startDate,
-        dueDate: step.dueDate,
-        completedDate: step.completedDate,
-      })
+      const stepRef = await addDoc(
+        collection(db, 'workflows', workflowId, 'steps'),
+        {
+          name: step.name,
+          description: step.description,
+          status: step.status,
+          order: step.order,
+          estimatedTime: step.estimatedTime,
+          assignee: step.assignee,
+          startDate: step.startDate,
+          dueDate: step.dueDate,
+          completedDate: step.completedDate
+        }
+      )
 
       // Cập nhật thời gian cập nhật của quy trình
-      await updateDoc(doc(db, "workflows", workflowId), {
-        updatedAt: serverTimestamp(),
+      await updateDoc(doc(db, 'workflows', workflowId), {
+        updatedAt: serverTimestamp()
       })
 
       // Cập nhật state
@@ -257,8 +296,8 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
 
       return stepRef.id
     } catch (err) {
-      console.error("Error adding step:", err)
-      throw new Error("Failed to add step")
+      console.error('Error adding step:', err)
+      throw new Error('Failed to add step')
     }
   }
 
@@ -266,49 +305,54 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
   const updateStep = async (
     workflowId: string,
     stepId: string,
-    step: Partial<Omit<WorkflowStep, "id">>,
+    step: Partial<Omit<WorkflowStep, 'id'>>
   ): Promise<void> => {
     try {
       // Cập nhật bước trong Firestore
-      await updateDoc(doc(db, "workflows", workflowId, "steps", stepId), step)
+      await updateDoc(doc(db, 'workflows', workflowId, 'steps', stepId), step)
 
       // Cập nhật thời gian cập nhật của quy trình
-      await updateDoc(doc(db, "workflows", workflowId), {
-        updatedAt: serverTimestamp(),
+      await updateDoc(doc(db, 'workflows', workflowId), {
+        updatedAt: serverTimestamp()
       })
 
       // Cập nhật state
       await fetchWorkflows()
     } catch (err) {
-      console.error("Error updating step:", err)
-      throw new Error("Failed to update step")
+      console.error('Error updating step:', err)
+      throw new Error('Failed to update step')
     }
   }
 
   // Xóa bước khỏi quy trình
-  const deleteStep = async (workflowId: string, stepId: string): Promise<void> => {
+  const deleteStep = async (
+    workflowId: string,
+    stepId: string
+  ): Promise<void> => {
     try {
       // Xóa bước khỏi Firestore
-      await deleteDoc(doc(db, "workflows", workflowId, "steps", stepId))
+      await deleteDoc(doc(db, 'workflows', workflowId, 'steps', stepId))
 
       // Cập nhật thời gian cập nhật của quy trình
-      await updateDoc(doc(db, "workflows", workflowId), {
-        updatedAt: serverTimestamp(),
+      await updateDoc(doc(db, 'workflows', workflowId), {
+        updatedAt: serverTimestamp()
       })
 
       // Cập nhật state
       await fetchWorkflows()
     } catch (err) {
-      console.error("Error deleting step:", err)
-      throw new Error("Failed to delete step")
+      console.error('Error deleting step:', err)
+      throw new Error('Failed to delete step')
     }
   }
 
   // Lấy danh sách quy trình theo sản phẩm
-  const getWorkflowsByProduct = async (productId: string): Promise<Workflow[]> => {
+  const getWorkflowsByProduct = async (
+    productId: string
+  ): Promise<Workflow[]> => {
     try {
-      const workflowsRef = collection(db, "workflows")
-      const q = query(workflowsRef, where("productId", "==", productId))
+      const workflowsRef = collection(db, 'workflows')
+      const q = query(workflowsRef, where('productId', '==', productId))
       const snapshot = await getDocs(q)
 
       const workflowsData = await Promise.all(
@@ -316,11 +360,11 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
           const workflowData = doc.data()
 
           // Lấy các bước của quy trình
-          const stepsRef = collection(db, "workflows", doc.id, "steps")
+          const stepsRef = collection(db, 'workflows', doc.id, 'steps')
           const stepsSnapshot = await getDocs(stepsRef)
           const steps = stepsSnapshot.docs.map((stepDoc) => ({
             id: stepDoc.id,
-            ...stepDoc.data(),
+            ...stepDoc.data()
           })) as WorkflowStep[]
 
           // Sắp xếp các bước theo thứ tự
@@ -330,15 +374,19 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
             id: doc.id,
             ...workflowData,
             steps,
-            createdAt: workflowData.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-            updatedAt: workflowData.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+            createdAt:
+              workflowData.createdAt?.toDate?.()?.toISOString() ||
+              new Date().toISOString(),
+            updatedAt:
+              workflowData.updatedAt?.toDate?.()?.toISOString() ||
+              new Date().toISOString()
           } as Workflow
-        }),
+        })
       )
 
       return workflowsData
     } catch (err) {
-      console.error("Error getting workflows by product:", err)
+      console.error('Error getting workflows by product:', err)
       return []
     }
   }
@@ -360,16 +408,20 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
     updateStep,
     deleteStep,
     getWorkflowsByProduct,
-    refreshWorkflows,
+    refreshWorkflows
   }
 
-  return <WorkflowContext.Provider value={value}>{children}</WorkflowContext.Provider>
+  return (
+    <WorkflowContext.Provider value={value}>
+      {children}
+    </WorkflowContext.Provider>
+  )
 }
 
 export function useWorkflow() {
   const context = useContext(WorkflowContext)
   if (context === undefined) {
-    throw new Error("useWorkflow must be used within a WorkflowProvider")
+    throw new Error('useWorkflow must be used within a WorkflowProvider')
   }
   return context
 }

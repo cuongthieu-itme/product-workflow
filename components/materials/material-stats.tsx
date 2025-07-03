@@ -1,10 +1,10 @@
-"use client"
+'use client'
 
-import { useMaterialContext } from "./material-context"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Package, AlertTriangle, Clock } from "lucide-react"
-import { parseISO, isAfter } from "date-fns"
+import { useMaterialContext } from './material-context'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Package, AlertTriangle, Clock } from 'lucide-react'
+import { parseISO, isAfter } from 'date-fns'
 
 export function MaterialStats() {
   const { materials, materialRequests } = useMaterialContext()
@@ -16,11 +16,16 @@ export function MaterialStats() {
   const outOfStockMaterials = materials.filter((m) => m.quantity === 0).length
 
   // Số lượng đơn yêu cầu đang chờ
-  const pendingRequests = materialRequests.filter((r) => r.status === "pending").length
+  const pendingRequests = materialRequests.filter(
+    (r) => r.status === 'pending'
+  ).length
 
   // Số lượng đơn yêu cầu trễ hạn
   const delayedRequests = materialRequests.filter(
-    (r) => r.status === "delayed" || (r.status !== "completed" && isAfter(new Date(), parseISO(r.expectedDate))),
+    (r) =>
+      r.status === 'delayed' ||
+      (r.status !== 'completed' &&
+        isAfter(new Date(), parseISO(r.expectedDate)))
   ).length
 
   return (
@@ -33,7 +38,8 @@ export function MaterialStats() {
         <CardContent>
           <div className="text-2xl font-bold">{materials.length}</div>
           <p className="text-xs text-muted-foreground">
-            {activeMaterials} đang hoạt động, {materials.length - activeMaterials} đã tắt
+            {activeMaterials} đang hoạt động,{' '}
+            {materials.length - activeMaterials} đã tắt
           </p>
         </CardContent>
       </Card>
@@ -50,7 +56,7 @@ export function MaterialStats() {
                 Cần nhập thêm
               </Badge>
             ) : (
-              "Không có nguyên vật liệu nào hết hàng"
+              'Không có nguyên vật liệu nào hết hàng'
             )}
           </p>
         </CardContent>
@@ -63,7 +69,8 @@ export function MaterialStats() {
         <CardContent>
           <div className="text-2xl font-bold">{materialRequests.length}</div>
           <p className="text-xs text-muted-foreground">
-            {pendingRequests} đang chờ, {materialRequests.length - pendingRequests} đã xử lý
+            {pendingRequests} đang chờ,{' '}
+            {materialRequests.length - pendingRequests} đã xử lý
           </p>
         </CardContent>
       </Card>
@@ -80,7 +87,7 @@ export function MaterialStats() {
                 Cần xử lý gấp
               </Badge>
             ) : (
-              "Không có đơn yêu cầu nào trễ hạn"
+              'Không có đơn yêu cầu nào trễ hạn'
             )}
           </p>
         </CardContent>

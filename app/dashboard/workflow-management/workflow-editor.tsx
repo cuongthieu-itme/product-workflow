@@ -1,29 +1,29 @@
-"use client"
+'use client'
 
-import { useState } from "react"
+import { useState } from 'react'
 import {
   useStandardWorkflow,
-  type StandardWorkflowStep,
-} from "@/components/workflow/standard-workflow-context-firebase"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { StandardWorkflowStepForm } from "@/components/workflow/standard-workflow-step-form"
+  type StandardWorkflowStep
+} from '@/components/workflow/standard-workflow-context-firebase'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { StandardWorkflowStepForm } from '@/components/workflow/standard-workflow-step-form'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useToast } from "@/components/ui/use-toast"
-import { StandardWorkflowForm } from "@/components/workflow/standard-workflow-form"
-import { SubWorkflowList } from "@/components/workflow/sub-workflow-list"
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
+import { useToast } from '@/components/ui/use-toast'
+import { StandardWorkflowForm } from '@/components/workflow/standard-workflow-form'
+import { SubWorkflowList } from '@/components/workflow/sub-workflow-list'
 
 // Thay đổi từ default export sang named export
 export function WorkflowEditor() {
@@ -34,38 +34,44 @@ export function WorkflowEditor() {
     addStandardWorkflowStep,
     updateStandardWorkflowStep,
     deleteStandardWorkflowStep,
-    reorderStandardWorkflowSteps,
+    reorderStandardWorkflowSteps
   } = useStandardWorkflow()
 
-  const [activeTab, setActiveTab] = useState("workflow")
-  const [selectedWorkflowId, setSelectedWorkflowId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState('workflow')
+  const [selectedWorkflowId, setSelectedWorkflowId] = useState<string | null>(
+    null
+  )
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null)
   const [showAddStepDialog, setShowAddStepDialog] = useState(false)
   const [showEditStepDialog, setShowEditStepDialog] = useState(false)
   const [showDeleteStepDialog, setShowDeleteStepDialog] = useState(false)
-  const [newStep, setNewStep] = useState<Omit<StandardWorkflowStep, "id" | "order" | "fields">>({
-    name: "",
-    description: "",
+  const [newStep, setNewStep] = useState<
+    Omit<StandardWorkflowStep, 'id' | 'order' | 'fields'>
+  >({
+    name: '',
+    description: '',
     estimatedDays: 1,
     isRequired: false,
     notifyBeforeDeadline: 1,
-    assigneeRole: "",
-    hasCost: false,
+    assigneeRole: '',
+    hasCost: false
   })
 
   // Lấy bước được chọn
   const getSelectedStep = () => {
     if (!standardWorkflow || !selectedStepId) return null
-    return standardWorkflow.steps.find((step) => step.id === selectedStepId) || null
+    return (
+      standardWorkflow.steps.find((step) => step.id === selectedStepId) || null
+    )
   }
 
   // Xử lý thêm bước mới
   const handleAddStep = () => {
     if (!newStep.name.trim()) {
       toast({
-        title: "Lỗi",
-        description: "Vui lòng nhập tên bước",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Vui lòng nhập tên bước',
+        variant: 'destructive'
       })
       return
     }
@@ -75,56 +81,56 @@ export function WorkflowEditor() {
       ...newStep,
       fields: [
         {
-          id: "assignee",
-          name: "Người đảm nhận",
-          type: "user",
+          id: 'assignee',
+          name: 'Người đảm nhận',
+          type: 'user',
           required: true,
-          description: "Người chịu trách nhiệm thực hiện bước này",
-          isSystem: true,
+          description: 'Người chịu trách nhiệm thực hiện bước này',
+          isSystem: true
         },
         {
-          id: "receiveDate",
-          name: "Thời gian tiếp nhận",
-          type: "date",
+          id: 'receiveDate',
+          name: 'Thời gian tiếp nhận',
+          type: 'date',
           required: true,
-          description: "Ngày tiếp nhận yêu cầu",
-          isSystem: true,
+          description: 'Ngày tiếp nhận yêu cầu',
+          isSystem: true
         },
         {
-          id: "deadline",
-          name: "Thời gian deadline",
-          type: "date",
+          id: 'deadline',
+          name: 'Thời gian deadline',
+          type: 'date',
           required: true,
-          description: "Ngày dự kiến hoàn thành công việc",
-          isSystem: true,
+          description: 'Ngày dự kiến hoàn thành công việc',
+          isSystem: true
         },
         {
-          id: "status",
-          name: "Trạng thái",
-          type: "select",
+          id: 'status',
+          name: 'Trạng thái',
+          type: 'select',
           required: true,
-          description: "Trạng thái hiện tại của bước",
-          options: ["Chưa bắt đầu", "Đang thực hiện", "Hoàn thành", "Quá hạn"],
-          isSystem: true,
-        },
-      ],
+          description: 'Trạng thái hiện tại của bước',
+          options: ['Chưa bắt đầu', 'Đang thực hiện', 'Hoàn thành', 'Quá hạn'],
+          isSystem: true
+        }
+      ]
     })
 
     // Reset form và đóng dialog
     setNewStep({
-      name: "",
-      description: "",
+      name: '',
+      description: '',
       estimatedDays: 1,
       isRequired: false,
       notifyBeforeDeadline: 1,
-      assigneeRole: "",
-      hasCost: false,
+      assigneeRole: '',
+      hasCost: false
     })
     setShowAddStepDialog(false)
 
     // Chuyển đến tab quản lý trường dữ liệu của bước mới
     setSelectedStepId(stepId)
-    setActiveTab("fields")
+    setActiveTab('fields')
   }
 
   // Xử lý cập nhật bước
@@ -134,9 +140,9 @@ export function WorkflowEditor() {
 
     if (!step.name.trim()) {
       toast({
-        title: "Lỗi",
-        description: "Vui lòng nhập tên bước",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Vui lòng nhập tên bước',
+        variant: 'destructive'
       })
       return
     }
@@ -148,7 +154,7 @@ export function WorkflowEditor() {
       isRequired: step.isRequired,
       notifyBeforeDeadline: step.notifyBeforeDeadline,
       assigneeRole: step.assigneeRole,
-      hasCost: step.hasCost,
+      hasCost: step.hasCost
     })
 
     setShowEditStepDialog(false)
@@ -162,7 +168,7 @@ export function WorkflowEditor() {
     if (success) {
       setSelectedStepId(null)
       setShowDeleteStepDialog(false)
-      setActiveTab("general")
+      setActiveTab('general')
     }
   }
 
@@ -179,7 +185,7 @@ export function WorkflowEditor() {
 
   const handleWorkflowSelect = (workflowId: string) => {
     setSelectedWorkflowId(workflowId)
-    setActiveTab("steps")
+    setActiveTab('steps')
   }
 
   if (!standardWorkflow) {
@@ -209,11 +215,15 @@ export function WorkflowEditor() {
             </TabsContent>
 
             <TabsContent value="steps">
-              {standardWorkflow && <StandardWorkflowStepForm workflowId={standardWorkflow.id} />}
+              {standardWorkflow && (
+                <StandardWorkflowStepForm workflowId={standardWorkflow.id} />
+              )}
             </TabsContent>
 
             <TabsContent value="subworkflows">
-              {selectedWorkflowId && <SubWorkflowList parentWorkflowId={selectedWorkflowId} />}
+              {selectedWorkflowId && (
+                <SubWorkflowList parentWorkflowId={selectedWorkflowId} />
+              )}
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -224,7 +234,9 @@ export function WorkflowEditor() {
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Thêm bước mới</DialogTitle>
-            <DialogDescription>Thêm một bước mới vào quy trình chuẩn.</DialogDescription>
+            <DialogDescription>
+              Thêm một bước mới vào quy trình chuẩn.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -234,7 +246,9 @@ export function WorkflowEditor() {
               <Input
                 id="step-name"
                 value={newStep.name}
-                onChange={(e) => setNewStep({ ...newStep, name: e.target.value })}
+                onChange={(e) =>
+                  setNewStep({ ...newStep, name: e.target.value })
+                }
                 placeholder="Nhập tên bước"
               />
             </div>
@@ -243,7 +257,9 @@ export function WorkflowEditor() {
               <Textarea
                 id="step-description"
                 value={newStep.description}
-                onChange={(e) => setNewStep({ ...newStep, description: e.target.value })}
+                onChange={(e) =>
+                  setNewStep({ ...newStep, description: e.target.value })
+                }
                 placeholder="Nhập mô tả bước"
                 rows={3}
               />
@@ -258,13 +274,21 @@ export function WorkflowEditor() {
                 min={1}
                 value={newStep.estimatedDays}
                 onChange={(e) =>
-                  setNewStep({ ...newStep, estimatedDays: Math.max(1, Number.parseInt(e.target.value) || 1) })
+                  setNewStep({
+                    ...newStep,
+                    estimatedDays: Math.max(
+                      1,
+                      Number.parseInt(e.target.value) || 1
+                    )
+                  })
                 }
                 placeholder="Nhập số ngày ước tính"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="step-notify">Thông báo trước deadline (ngày)</Label>
+              <Label htmlFor="step-notify">
+                Thông báo trước deadline (ngày)
+              </Label>
               <Input
                 id="step-notify"
                 type="number"
@@ -273,7 +297,10 @@ export function WorkflowEditor() {
                 onChange={(e) =>
                   setNewStep({
                     ...newStep,
-                    notifyBeforeDeadline: Math.max(0, Number.parseInt(e.target.value) || 0),
+                    notifyBeforeDeadline: Math.max(
+                      0,
+                      Number.parseInt(e.target.value) || 0
+                    )
                   })
                 }
                 placeholder="Nhập số ngày thông báo trước deadline"
@@ -283,8 +310,10 @@ export function WorkflowEditor() {
               <Label htmlFor="step-role">Vai trò người đảm nhiệm</Label>
               <Input
                 id="step-role"
-                value={newStep.assigneeRole || ""}
-                onChange={(e) => setNewStep({ ...newStep, assigneeRole: e.target.value })}
+                value={newStep.assigneeRole || ''}
+                onChange={(e) =>
+                  setNewStep({ ...newStep, assigneeRole: e.target.value })
+                }
                 placeholder="Nhập vai trò người đảm nhiệm"
               />
             </div>
@@ -292,7 +321,9 @@ export function WorkflowEditor() {
               <Checkbox
                 id="step-required"
                 checked={newStep.isRequired}
-                onCheckedChange={(checked) => setNewStep({ ...newStep, isRequired: !!checked })}
+                onCheckedChange={(checked) =>
+                  setNewStep({ ...newStep, isRequired: !!checked })
+                }
               />
               <Label htmlFor="step-required" className="text-sm">
                 Bước bắt buộc (không thể xóa)
@@ -302,7 +333,9 @@ export function WorkflowEditor() {
               <Checkbox
                 id="step-cost"
                 checked={newStep.hasCost}
-                onCheckedChange={(checked) => setNewStep({ ...newStep, hasCost: !!checked })}
+                onCheckedChange={(checked) =>
+                  setNewStep({ ...newStep, hasCost: !!checked })
+                }
               />
               <Label htmlFor="step-cost" className="text-sm">
                 Bước có chi phí
@@ -310,7 +343,10 @@ export function WorkflowEditor() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddStepDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowAddStepDialog(false)}
+            >
               Hủy
             </Button>
             <Button onClick={handleAddStep}>Thêm bước</Button>
@@ -323,7 +359,9 @@ export function WorkflowEditor() {
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Chỉnh sửa bước</DialogTitle>
-            <DialogDescription>Chỉnh sửa thông tin của bước trong quy trình chuẩn.</DialogDescription>
+            <DialogDescription>
+              Chỉnh sửa thông tin của bước trong quy trình chuẩn.
+            </DialogDescription>
           </DialogHeader>
           {getSelectedStep() && (
             <div className="space-y-4 py-4">
@@ -333,11 +371,13 @@ export function WorkflowEditor() {
                 </Label>
                 <Input
                   id="edit-step-name"
-                  value={getSelectedStep()?.name || ""}
+                  value={getSelectedStep()?.name || ''}
                   onChange={(e) => {
                     const step = getSelectedStep()
                     if (step) {
-                      updateStandardWorkflowStep(step.id, { name: e.target.value })
+                      updateStandardWorkflowStep(step.id, {
+                        name: e.target.value
+                      })
                     }
                   }}
                   placeholder="Nhập tên bước"
@@ -347,11 +387,13 @@ export function WorkflowEditor() {
                 <Label htmlFor="edit-step-description">Mô tả</Label>
                 <Textarea
                   id="edit-step-description"
-                  value={getSelectedStep()?.description || ""}
+                  value={getSelectedStep()?.description || ''}
                   onChange={(e) => {
                     const step = getSelectedStep()
                     if (step) {
-                      updateStandardWorkflowStep(step.id, { description: e.target.value })
+                      updateStandardWorkflowStep(step.id, {
+                        description: e.target.value
+                      })
                     }
                   }}
                   placeholder="Nhập mô tả bước"
@@ -371,7 +413,10 @@ export function WorkflowEditor() {
                     const step = getSelectedStep()
                     if (step) {
                       updateStandardWorkflowStep(step.id, {
-                        estimatedDays: Math.max(1, Number.parseInt(e.target.value) || 1),
+                        estimatedDays: Math.max(
+                          1,
+                          Number.parseInt(e.target.value) || 1
+                        )
                       })
                     }
                   }}
@@ -379,7 +424,9 @@ export function WorkflowEditor() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-step-notify">Thông báo trước deadline (ngày)</Label>
+                <Label htmlFor="edit-step-notify">
+                  Thông báo trước deadline (ngày)
+                </Label>
                 <Input
                   id="edit-step-notify"
                   type="number"
@@ -389,7 +436,10 @@ export function WorkflowEditor() {
                     const step = getSelectedStep()
                     if (step) {
                       updateStandardWorkflowStep(step.id, {
-                        notifyBeforeDeadline: Math.max(0, Number.parseInt(e.target.value) || 0),
+                        notifyBeforeDeadline: Math.max(
+                          0,
+                          Number.parseInt(e.target.value) || 0
+                        )
                       })
                     }
                   }}
@@ -400,11 +450,13 @@ export function WorkflowEditor() {
                 <Label htmlFor="edit-step-role">Vai trò người đảm nhiệm</Label>
                 <Input
                   id="edit-step-role"
-                  value={getSelectedStep()?.assigneeRole || ""}
+                  value={getSelectedStep()?.assigneeRole || ''}
                   onChange={(e) => {
                     const step = getSelectedStep()
                     if (step) {
-                      updateStandardWorkflowStep(step.id, { assigneeRole: e.target.value })
+                      updateStandardWorkflowStep(step.id, {
+                        assigneeRole: e.target.value
+                      })
                     }
                   }}
                   placeholder="Nhập vai trò người đảm nhiệm"
@@ -417,7 +469,9 @@ export function WorkflowEditor() {
                   onCheckedChange={(checked) => {
                     const step = getSelectedStep()
                     if (step) {
-                      updateStandardWorkflowStep(step.id, { isRequired: !!checked })
+                      updateStandardWorkflowStep(step.id, {
+                        isRequired: !!checked
+                      })
                     }
                   }}
                 />
@@ -432,7 +486,9 @@ export function WorkflowEditor() {
                   onCheckedChange={(checked) => {
                     const step = getSelectedStep()
                     if (step) {
-                      updateStandardWorkflowStep(step.id, { hasCost: !!checked })
+                      updateStandardWorkflowStep(step.id, {
+                        hasCost: !!checked
+                      })
                     }
                   }}
                 />
@@ -443,7 +499,10 @@ export function WorkflowEditor() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditStepDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowEditStepDialog(false)}
+            >
               Hủy
             </Button>
             <Button onClick={handleUpdateStep}>Lưu thay đổi</Button>
@@ -452,14 +511,23 @@ export function WorkflowEditor() {
       </Dialog>
 
       {/* Dialog xóa bước */}
-      <Dialog open={showDeleteStepDialog} onOpenChange={setShowDeleteStepDialog}>
+      <Dialog
+        open={showDeleteStepDialog}
+        onOpenChange={setShowDeleteStepDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Xóa bước</DialogTitle>
-            <DialogDescription>Bạn có chắc chắn muốn xóa bước này? Hành động này không thể hoàn tác.</DialogDescription>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa bước này? Hành động này không thể hoàn
+              tác.
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteStepDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteStepDialog(false)}
+            >
               Hủy
             </Button>
             <Button variant="destructive" onClick={handleDeleteStep}>

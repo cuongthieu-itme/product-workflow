@@ -1,11 +1,25 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Edit, Trash2, Key, Search, RefreshCw, AlertTriangle } from "lucide-react"
-import { useToast } from "@/components/ui/use-toast"
+import { useState, useEffect } from 'react'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import {
+  Edit,
+  Trash2,
+  Key,
+  Search,
+  RefreshCw,
+  AlertTriangle
+} from 'lucide-react'
+import { useToast } from '@/components/ui/use-toast'
 import {
   Dialog,
   DialogContent,
@@ -13,15 +27,29 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { CheckCircle2 } from "lucide-react"
-import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc, getDoc } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+  DialogTrigger
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { CheckCircle2 } from 'lucide-react'
+import {
+  collection,
+  getDocs,
+  doc,
+  deleteDoc,
+  updateDoc,
+  addDoc,
+  getDoc
+} from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 interface User {
   id: string
@@ -42,12 +70,12 @@ export function UsersList() {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([])
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [resetPasswordUser, setResetPasswordUser] = useState<User | null>(null)
-  const [newPassword, setNewPassword] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterRole, setFilterRole] = useState("all")
-  const [filterDepartment, setFilterDepartment] = useState("all")
+  const [newPassword, setNewPassword] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterRole, setFilterRole] = useState('all')
+  const [filterDepartment, setFilterDepartment] = useState('all')
   const [showSuccess, setShowSuccess] = useState(false)
-  const [successMessage, setSuccessMessage] = useState("")
+  const [successMessage, setSuccessMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [departments, setDepartments] = useState<any[]>([])
   const [userToDelete, setUserToDelete] = useState<User | null>(null)
@@ -58,18 +86,20 @@ export function UsersList() {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const departmentsRef = collection(db, "departments")
+        const departmentsRef = collection(db, 'departments')
         const snapshot = await getDocs(departmentsRef)
         const departmentsData = snapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data(),
+          ...doc.data()
         }))
         setDepartments(departmentsData)
       } catch (error) {
-        console.error("Error fetching departments:", error)
+        console.error('Error fetching departments:', error)
         // Fallback to localStorage if Firebase fails
-        if (typeof window !== "undefined") {
-          const storedDepartments = JSON.parse(localStorage.getItem("departments") || "[]")
+        if (typeof window !== 'undefined') {
+          const storedDepartments = JSON.parse(
+            localStorage.getItem('departments') || '[]'
+          )
           setDepartments(storedDepartments)
         }
       }
@@ -82,22 +112,23 @@ export function UsersList() {
   const fetchUsers = async () => {
     setIsLoading(true)
     try {
-      const usersRef = collection(db, "users")
+      const usersRef = collection(db, 'users')
       const snapshot = await getDocs(usersRef)
       const usersData = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),
+        ...doc.data()
       })) as User[]
-
-      console.log("Fetched users:", usersData.length)
+      console.log('Fetched users:', usersData.length)
       setUsers(usersData)
       setFilteredUsers(usersData)
     } catch (error) {
-      console.error("Error fetching users:", error)
+      console.error('Error fetching users:', error)
       toast({
-        variant: "destructive",
-        title: "Lỗi",
-        description: "Không thể tải danh sách người dùng: " + (error instanceof Error ? error.message : String(error)),
+        variant: 'destructive',
+        title: 'Lỗi',
+        description:
+          'Không thể tải danh sách người dùng: ' +
+          (error instanceof Error ? error.message : String(error))
       })
     } finally {
       setIsLoading(false)
@@ -118,17 +149,17 @@ export function UsersList() {
         (user) =>
           user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           user.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.email?.toLowerCase().includes(searchTerm.toLowerCase()),
+          user.email?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
     // Lọc theo vai trò
-    if (filterRole !== "all") {
+    if (filterRole !== 'all') {
       result = result.filter((user) => user.role === filterRole)
     }
 
     // Lọc theo phòng ban
-    if (filterDepartment !== "all") {
+    if (filterDepartment !== 'all') {
       result = result.filter((user) => user.department === filterDepartment)
     }
 
@@ -147,12 +178,14 @@ export function UsersList() {
       // Kiểm tra email đã tồn tại chưa (nếu đã thay đổi)
       const originalUser = users.find((u) => u.id === editingUser.id)
       if (originalUser && originalUser.email !== editingUser.email) {
-        const emailExists = users.some((u) => u.email === editingUser.email && u.id !== editingUser.id)
+        const emailExists = users.some(
+          (u) => u.email === editingUser.email && u.id !== editingUser.id
+        )
         if (emailExists) {
           toast({
-            variant: "destructive",
-            title: "Lỗi",
-            description: "Email đã được sử dụng bởi tài khoản khác.",
+            variant: 'destructive',
+            title: 'Lỗi',
+            description: 'Email đã được sử dụng bởi tài khoản khác.'
           })
           setIsLoading(false)
           return
@@ -160,7 +193,7 @@ export function UsersList() {
       }
 
       // Cập nhật thông tin người dùng trong Firebase
-      const userRef = doc(db, "users", editingUser.id)
+      const userRef = doc(db, 'users', editingUser.id)
 
       // Kiểm tra xem document có tồn tại không
       const docSnap = await getDoc(userRef)
@@ -174,37 +207,42 @@ export function UsersList() {
         email: editingUser.email,
         role: editingUser.role,
         department: editingUser.department,
-        status: editingUser.status,
+        status: editingUser.status
       }
 
       // Only include phone if it has a value
-      if (editingUser.phone && editingUser.phone.trim() !== "") {
+      if (editingUser.phone && editingUser.phone.trim() !== '') {
         updateData.phone = editingUser.phone
       }
 
       await updateDoc(userRef, updateData)
 
       // Cập nhật state
-      const updatedUsers = users.map((user) => (user.id === editingUser.id ? editingUser : user))
+      const updatedUsers = users.map((user) =>
+        user.id === editingUser.id ? editingUser : user
+      )
       setUsers(updatedUsers)
       setEditingUser(null)
 
       // Hiển thị thông báo thành công
-      setSuccessMessage(`Thông tin người dùng ${editingUser.username} đã được cập nhật.`)
+      setSuccessMessage(
+        `Thông tin người dùng ${editingUser.username} đã được cập nhật.`
+      )
       setShowSuccess(true)
       setTimeout(() => setShowSuccess(false), 3000)
 
       toast({
-        title: "Cập nhật thành công",
-        description: `Thông tin người dùng ${editingUser.username} đã được cập nhật.`,
+        title: 'Cập nhật thành công',
+        description: `Thông tin người dùng ${editingUser.username} đã được cập nhật.`
       })
     } catch (error) {
-      console.error("Error updating user:", error)
+      console.error('Error updating user:', error)
       toast({
-        variant: "destructive",
-        title: "Lỗi",
+        variant: 'destructive',
+        title: 'Lỗi',
         description:
-          "Không thể cập nhật thông tin người dùng: " + (error instanceof Error ? error.message : String(error)),
+          'Không thể cập nhật thông tin người dùng: ' +
+          (error instanceof Error ? error.message : String(error))
       })
     } finally {
       setIsLoading(false)
@@ -223,10 +261,10 @@ export function UsersList() {
     setDeleteError(null)
 
     try {
-      console.log("Deleting user with ID:", userToDelete.id)
+      console.log('Deleting user with ID:', userToDelete.id)
 
       // Kiểm tra xem document có tồn tại không
-      const userRef = doc(db, "users", userToDelete.id)
+      const userRef = doc(db, 'users', userToDelete.id)
       const docSnap = await getDoc(userRef)
 
       if (!docSnap.exists()) {
@@ -235,7 +273,7 @@ export function UsersList() {
 
       // Xóa người dùng khỏi Firebase
       await deleteDoc(userRef)
-      console.log("User deleted successfully")
+      console.log('User deleted successfully')
 
       // Cập nhật state
       const updatedUsers = users.filter((user) => user.id !== userToDelete.id)
@@ -243,21 +281,25 @@ export function UsersList() {
       setDeleteDialogOpen(false)
 
       // Hiển thị thông báo thành công
-      setSuccessMessage(`Tài khoản người dùng ${userToDelete.username} đã được xóa.`)
+      setSuccessMessage(
+        `Tài khoản người dùng ${userToDelete.username} đã được xóa.`
+      )
       setShowSuccess(true)
       setTimeout(() => setShowSuccess(false), 3000)
 
       toast({
-        title: "Xóa thành công",
-        description: "Tài khoản người dùng đã được xóa khỏi hệ thống.",
+        title: 'Xóa thành công',
+        description: 'Tài khoản người dùng đã được xóa khỏi hệ thống.'
       })
     } catch (error) {
-      console.error("Error deleting user:", error)
+      console.error('Error deleting user:', error)
       setDeleteError(error instanceof Error ? error.message : String(error))
       toast({
-        variant: "destructive",
-        title: "Lỗi",
-        description: "Không thể xóa tài khoản người dùng: " + (error instanceof Error ? error.message : String(error)),
+        variant: 'destructive',
+        title: 'Lỗi',
+        description:
+          'Không thể xóa tài khoản người dùng: ' +
+          (error instanceof Error ? error.message : String(error))
       })
     } finally {
       setIsLoading(false)
@@ -266,7 +308,7 @@ export function UsersList() {
 
   const handleResetPassword = (user: User) => {
     setResetPasswordUser(user)
-    setNewPassword("")
+    setNewPassword('')
   }
 
   const handleSaveNewPassword = async () => {
@@ -276,49 +318,57 @@ export function UsersList() {
 
     try {
       // Kiểm tra xem document có tồn tại không
-      const userRef = doc(db, "users", resetPasswordUser.id)
+      const userRef = doc(db, 'users', resetPasswordUser.id)
       const docSnap = await getDoc(userRef)
 
       if (!docSnap.exists()) {
-        throw new Error(`Không tìm thấy người dùng với ID: ${resetPasswordUser.id}`)
+        throw new Error(
+          `Không tìm thấy người dùng với ID: ${resetPasswordUser.id}`
+        )
       }
 
       // Cập nhật mật khẩu trong Firebase
       await updateDoc(userRef, {
-        password: newPassword,
+        password: newPassword
       })
 
       // Lưu lịch sử đặt lại mật khẩu
-      const passwordHistoryRef = collection(db, "passwordHistory")
+      const passwordHistoryRef = collection(db, 'passwordHistory')
       await addDoc(passwordHistoryRef, {
         username: resetPasswordUser.username,
-        changedBy: localStorage.getItem("username") || "admin",
-        changedAt: new Date().toISOString(),
+        changedBy: localStorage.getItem('username') || 'admin',
+        changedAt: new Date().toISOString()
       })
 
       // Cập nhật state
       const updatedUsers = users.map((user) =>
-        user.id === resetPasswordUser.id ? { ...user, password: newPassword } : user,
+        user.id === resetPasswordUser.id
+          ? { ...user, password: newPassword }
+          : user
       )
       setUsers(updatedUsers)
       setResetPasswordUser(null)
-      setNewPassword("")
+      setNewPassword('')
 
       // Hiển thị thông báo thành công
-      setSuccessMessage(`Mật khẩu của người dùng ${resetPasswordUser.username} đã được đặt lại.`)
+      setSuccessMessage(
+        `Mật khẩu của người dùng ${resetPasswordUser.username} đã được đặt lại.`
+      )
       setShowSuccess(true)
       setTimeout(() => setShowSuccess(false), 3000)
 
       toast({
-        title: "Đặt lại mật khẩu thành công",
-        description: `Mật khẩu của người dùng ${resetPasswordUser.username} đã được đặt lại.`,
+        title: 'Đặt lại mật khẩu thành công',
+        description: `Mật khẩu của người dùng ${resetPasswordUser.username} đã được đặt lại.`
       })
     } catch (error) {
-      console.error("Error resetting password:", error)
+      console.error('Error resetting password:', error)
       toast({
-        variant: "destructive",
-        title: "Lỗi",
-        description: "Không thể đặt lại mật khẩu: " + (error instanceof Error ? error.message : String(error)),
+        variant: 'destructive',
+        title: 'Lỗi',
+        description:
+          'Không thể đặt lại mật khẩu: ' +
+          (error instanceof Error ? error.message : String(error))
       })
     } finally {
       setIsLoading(false)
@@ -328,13 +378,13 @@ export function UsersList() {
   const refreshUserList = () => {
     fetchUsers()
     toast({
-      title: "Làm mới thành công",
-      description: "Danh sách người dùng đã được cập nhật.",
+      title: 'Làm mới thành công',
+      description: 'Danh sách người dùng đã được cập nhật.'
     })
   }
 
   const getDepartmentName = (departmentId: string) => {
-    if (!departmentId) return "Không xác định"
+    if (!departmentId) return 'Không xác định'
 
     const department = departments.find((dept) => dept.id === departmentId)
     if (department) {
@@ -343,16 +393,16 @@ export function UsersList() {
 
     // Fallback cho các giá trị cũ
     switch (departmentId) {
-      case "mkt":
-        return "Marketing"
-      case "rd":
-        return "R&D"
-      case "sales":
-        return "Sales"
-      case "bod":
-        return "Ban Giám Đốc"
+      case 'mkt':
+        return 'Marketing'
+      case 'rd':
+        return 'R&D'
+      case 'sales':
+        return 'Sales'
+      case 'bod':
+        return 'Ban Giám Đốc'
       default:
-        return "Không xác định"
+        return 'Không xác định'
     }
   }
 
@@ -362,7 +412,9 @@ export function UsersList() {
         <Alert className="bg-green-50 border-green-200">
           <CheckCircle2 className="h-4 w-4 text-green-600" />
           <AlertTitle className="text-green-800">Thành công!</AlertTitle>
-          <AlertDescription className="text-green-700">{successMessage}</AlertDescription>
+          <AlertDescription className="text-green-700">
+            {successMessage}
+          </AlertDescription>
         </Alert>
       )}
 
@@ -398,7 +450,12 @@ export function UsersList() {
             <SelectItem value="bod">Ban Giám Đốc</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" onClick={refreshUserList} className="w-full md:w-auto" disabled={isLoading}>
+        <Button
+          variant="outline"
+          onClick={refreshUserList}
+          className="w-full md:w-auto"
+          disabled={isLoading}
+        >
           {isLoading ? (
             <>
               <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
@@ -443,23 +500,33 @@ export function UsersList() {
                   <TableCell className="font-medium">{user.username}</TableCell>
                   <TableCell>{user.fullName}</TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.phone || "Chưa cập nhật"}</TableCell>
+                  <TableCell>{user.phone || 'Chưa cập nhật'}</TableCell>
                   <TableCell>
-                    <Badge variant={user.role === "admin" ? "default" : "outline"}>
-                      {user.role === "admin" ? "Admin" : "User"}
+                    <Badge
+                      variant={user.role === 'admin' ? 'default' : 'outline'}
+                    >
+                      {user.role === 'admin' ? 'Admin' : 'User'}
                     </Badge>
                   </TableCell>
                   <TableCell>{getDepartmentName(user.department)}</TableCell>
                   <TableCell>
-                    <Badge variant={user.status === "active" ? "success" : "destructive"}>
-                      {user.status === "active" ? "Hoạt động" : "Vô hiệu hóa"}
+                    <Badge
+                      variant={
+                        user.status === 'active' ? 'success' : 'destructive'
+                      }
+                    >
+                      {user.status === 'active' ? 'Hoạt động' : 'Vô hiệu hóa'}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="outline" size="icon" onClick={() => handleEditUser(user)}>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleEditUser(user)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
@@ -467,23 +534,41 @@ export function UsersList() {
                           <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
                               <DialogTitle>Chỉnh sửa người dùng</DialogTitle>
-                              <DialogDescription>Chỉnh sửa thông tin tài khoản người dùng</DialogDescription>
+                              <DialogDescription>
+                                Chỉnh sửa thông tin tài khoản người dùng
+                              </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
                               <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="username" className="text-right">
+                                <Label
+                                  htmlFor="username"
+                                  className="text-right"
+                                >
                                   Tên đăng nhập
                                 </Label>
-                                <Input id="username" value={editingUser.username} className="col-span-3" disabled />
+                                <Input
+                                  id="username"
+                                  value={editingUser.username}
+                                  className="col-span-3"
+                                  disabled
+                                />
                               </div>
                               <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="fullName" className="text-right">
+                                <Label
+                                  htmlFor="fullName"
+                                  className="text-right"
+                                >
                                   Họ tên
                                 </Label>
                                 <Input
                                   id="fullName"
                                   value={editingUser.fullName}
-                                  onChange={(e) => setEditingUser({ ...editingUser, fullName: e.target.value })}
+                                  onChange={(e) =>
+                                    setEditingUser({
+                                      ...editingUser,
+                                      fullName: e.target.value
+                                    })
+                                  }
                                   className="col-span-3"
                                 />
                               </div>
@@ -494,7 +579,12 @@ export function UsersList() {
                                 <Input
                                   id="email"
                                   value={editingUser.email}
-                                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                                  onChange={(e) =>
+                                    setEditingUser({
+                                      ...editingUser,
+                                      email: e.target.value
+                                    })
+                                  }
                                   className="col-span-3"
                                 />
                               </div>
@@ -505,8 +595,13 @@ export function UsersList() {
                                 <Input
                                   id="phone"
                                   type="tel"
-                                  value={editingUser.phone || ""}
-                                  onChange={(e) => setEditingUser({ ...editingUser, phone: e.target.value })}
+                                  value={editingUser.phone || ''}
+                                  onChange={(e) =>
+                                    setEditingUser({
+                                      ...editingUser,
+                                      phone: e.target.value
+                                    })
+                                  }
                                   className="col-span-3"
                                 />
                               </div>
@@ -516,7 +611,12 @@ export function UsersList() {
                                 </Label>
                                 <Select
                                   value={editingUser.role}
-                                  onValueChange={(value) => setEditingUser({ ...editingUser, role: value })}
+                                  onValueChange={(value) =>
+                                    setEditingUser({
+                                      ...editingUser,
+                                      role: value
+                                    })
+                                  }
                                 >
                                   <SelectTrigger className="col-span-3">
                                     <SelectValue placeholder="Chọn vai trò" />
@@ -528,12 +628,20 @@ export function UsersList() {
                                 </Select>
                               </div>
                               <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="department" className="text-right">
+                                <Label
+                                  htmlFor="department"
+                                  className="text-right"
+                                >
                                   Phòng ban
                                 </Label>
                                 <Select
                                   value={editingUser.department}
-                                  onValueChange={(value) => setEditingUser({ ...editingUser, department: value })}
+                                  onValueChange={(value) =>
+                                    setEditingUser({
+                                      ...editingUser,
+                                      department: value
+                                    })
+                                  }
                                 >
                                   <SelectTrigger className="col-span-3">
                                     <SelectValue placeholder="Chọn phòng ban" />
@@ -541,16 +649,25 @@ export function UsersList() {
                                   <SelectContent>
                                     {departments.length > 0 ? (
                                       departments.map((dept) => (
-                                        <SelectItem key={dept.id} value={dept.id}>
+                                        <SelectItem
+                                          key={dept.id}
+                                          value={dept.id}
+                                        >
                                           {dept.name}
                                         </SelectItem>
                                       ))
                                     ) : (
                                       <>
-                                        <SelectItem value="mkt">Marketing</SelectItem>
+                                        <SelectItem value="mkt">
+                                          Marketing
+                                        </SelectItem>
                                         <SelectItem value="rd">R&D</SelectItem>
-                                        <SelectItem value="sales">Sales</SelectItem>
-                                        <SelectItem value="bod">Ban Giám Đốc</SelectItem>
+                                        <SelectItem value="sales">
+                                          Sales
+                                        </SelectItem>
+                                        <SelectItem value="bod">
+                                          Ban Giám Đốc
+                                        </SelectItem>
                                       </>
                                     )}
                                   </SelectContent>
@@ -562,21 +679,34 @@ export function UsersList() {
                                 </Label>
                                 <Select
                                   value={editingUser.status}
-                                  onValueChange={(value) => setEditingUser({ ...editingUser, status: value })}
+                                  onValueChange={(value) =>
+                                    setEditingUser({
+                                      ...editingUser,
+                                      status: value
+                                    })
+                                  }
                                 >
                                   <SelectTrigger className="col-span-3">
                                     <SelectValue placeholder="Chọn trạng thái" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="active">Hoạt động</SelectItem>
-                                    <SelectItem value="inactive">Vô hiệu hóa</SelectItem>
+                                    <SelectItem value="active">
+                                      Hoạt động
+                                    </SelectItem>
+                                    <SelectItem value="inactive">
+                                      Vô hiệu hóa
+                                    </SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
                             </div>
                             <DialogFooter>
-                              <Button type="submit" onClick={handleUpdateUser} disabled={isLoading}>
-                                {isLoading ? "Đang lưu..." : "Lưu thay đổi"}
+                              <Button
+                                type="submit"
+                                onClick={handleUpdateUser}
+                                disabled={isLoading}
+                              >
+                                {isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
                               </Button>
                             </DialogFooter>
                           </DialogContent>
@@ -585,7 +715,11 @@ export function UsersList() {
 
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="outline" size="icon" onClick={() => handleResetPassword(user)}>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleResetPassword(user)}
+                          >
                             <Key className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
@@ -594,19 +728,25 @@ export function UsersList() {
                             <DialogHeader>
                               <DialogTitle>Đặt lại mật khẩu</DialogTitle>
                               <DialogDescription>
-                                Đặt lại mật khẩu cho người dùng {resetPasswordUser.username}
+                                Đặt lại mật khẩu cho người dùng{' '}
+                                {resetPasswordUser.username}
                               </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
                               <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="new-password" className="text-right">
+                                <Label
+                                  htmlFor="new-password"
+                                  className="text-right"
+                                >
                                   Mật khẩu mới
                                 </Label>
                                 <Input
                                   id="new-password"
                                   type="password"
                                   value={newPassword}
-                                  onChange={(e) => setNewPassword(e.target.value)}
+                                  onChange={(e) =>
+                                    setNewPassword(e.target.value)
+                                  }
                                   className="col-span-3"
                                 />
                               </div>
@@ -617,14 +757,20 @@ export function UsersList() {
                                 onClick={handleSaveNewPassword}
                                 disabled={isLoading || !newPassword}
                               >
-                                {isLoading ? "Đang xử lý..." : "Đặt lại mật khẩu"}
+                                {isLoading
+                                  ? 'Đang xử lý...'
+                                  : 'Đặt lại mật khẩu'}
                               </Button>
                             </DialogFooter>
                           </DialogContent>
                         )}
                       </Dialog>
 
-                      <Button variant="outline" size="icon" onClick={() => openDeleteDialog(user)}>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => openDeleteDialog(user)}
+                      >
                         <Trash2 className="h-4 w-4 text-red-500" />
                       </Button>
                     </div>
@@ -648,7 +794,8 @@ export function UsersList() {
           <DialogHeader>
             <DialogTitle>Xác nhận xóa</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa tài khoản người dùng {userToDelete?.username}? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa tài khoản người dùng{' '}
+              {userToDelete?.username}? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
 
@@ -661,11 +808,19 @@ export function UsersList() {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={isLoading}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isLoading}
+            >
               Hủy
             </Button>
-            <Button variant="destructive" onClick={handleDeleteUser} disabled={isLoading}>
-              {isLoading ? "Đang xử lý..." : "Xóa"}
+            <Button
+              variant="destructive"
+              onClick={handleDeleteUser}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Đang xử lý...' : 'Xóa'}
             </Button>
           </DialogFooter>
         </DialogContent>

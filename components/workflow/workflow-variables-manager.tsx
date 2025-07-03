@@ -1,37 +1,54 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useStandardWorkflow, type AvailableVariable } from "./standard-workflow-context"
-import { Plus, Trash2, Edit } from "lucide-react"
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  useStandardWorkflow,
+  type AvailableVariable
+} from './standard-workflow-context'
+import { Plus, Trash2, Edit } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+  DialogTitle
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
 
 export function WorkflowVariablesManager() {
-  const { availableVariables, addAvailableVariable, updateAvailableVariable, deleteAvailableVariable } =
-    useStandardWorkflow()
+  const {
+    availableVariables,
+    addAvailableVariable,
+    updateAvailableVariable,
+    deleteAvailableVariable
+  } = useStandardWorkflow()
 
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [selectedVariableId, setSelectedVariableId] = useState<string | null>(null)
-  const [newVariable, setNewVariable] = useState<Omit<AvailableVariable, "id">>({
-    name: "",
-    description: "",
-    source: "custom",
-    type: "text",
-  })
+  const [selectedVariableId, setSelectedVariableId] = useState<string | null>(
+    null
+  )
+  const [newVariable, setNewVariable] = useState<Omit<AvailableVariable, 'id'>>(
+    {
+      name: '',
+      description: '',
+      source: 'custom',
+      type: 'text'
+    }
+  )
 
   // Lấy biến được chọn
   const getSelectedVariable = () => {
@@ -49,10 +66,10 @@ export function WorkflowVariablesManager() {
 
     // Reset form
     setNewVariable({
-      name: "",
-      description: "",
-      source: "custom",
-      type: "text",
+      name: '',
+      description: '',
+      source: 'custom',
+      type: 'text'
     })
     setShowAddDialog(false)
   }
@@ -69,7 +86,7 @@ export function WorkflowVariablesManager() {
     updateAvailableVariable(variable.id, {
       name: variable.name,
       description: variable.description,
-      type: variable.type,
+      type: variable.type
     })
 
     setShowEditDialog(false)
@@ -87,16 +104,16 @@ export function WorkflowVariablesManager() {
   // Lấy tên loại biến
   const getVariableTypeName = (type: string) => {
     switch (type) {
-      case "text":
-        return "Văn bản"
-      case "date":
-        return "Ngày tháng"
-      case "user":
-        return "Người dùng"
-      case "number":
-        return "Số"
-      case "select":
-        return "Lựa chọn"
+      case 'text':
+        return 'Văn bản'
+      case 'date':
+        return 'Ngày tháng'
+      case 'user':
+        return 'Người dùng'
+      case 'number':
+        return 'Số'
+      case 'select':
+        return 'Lựa chọn'
       default:
         return type
     }
@@ -105,12 +122,12 @@ export function WorkflowVariablesManager() {
   // Lấy tên nguồn biến
   const getVariableSourceName = (source: string) => {
     switch (source) {
-      case "request":
-        return "Yêu cầu"
-      case "system":
-        return "Hệ thống"
-      case "custom":
-        return "Tùy chỉnh"
+      case 'request':
+        return 'Yêu cầu'
+      case 'system':
+        return 'Hệ thống'
+      case 'custom':
+        return 'Tùy chỉnh'
       default:
         return source
     }
@@ -133,17 +150,29 @@ export function WorkflowVariablesManager() {
           ) : (
             <div className="space-y-2">
               {availableVariables.map((variable) => (
-                <Card key={variable.id} className={variable.source !== "custom" ? "border-blue-200 bg-blue-50/30" : ""}>
+                <Card
+                  key={variable.id}
+                  className={
+                    variable.source !== 'custom'
+                      ? 'border-blue-200 bg-blue-50/30'
+                      : ''
+                  }
+                >
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <h4 className="font-medium">{variable.name}</h4>
-                          <Badge variant="outline" className="text-xs font-normal">
+                          <Badge
+                            variant="outline"
+                            className="text-xs font-normal"
+                          >
                             {getVariableSourceName(variable.source)}
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">{variable.description || "Không có mô tả"}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {variable.description || 'Không có mô tả'}
+                        </p>
                         <div className="flex items-center gap-2 mt-1">
                           <Badge variant="secondary" className="text-xs">
                             {getVariableTypeName(variable.type)}
@@ -158,7 +187,7 @@ export function WorkflowVariablesManager() {
                             setSelectedVariableId(variable.id)
                             setShowEditDialog(true)
                           }}
-                          disabled={variable.source !== "custom"}
+                          disabled={variable.source !== 'custom'}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -170,7 +199,7 @@ export function WorkflowVariablesManager() {
                             setSelectedVariableId(variable.id)
                             setShowDeleteDialog(true)
                           }}
-                          disabled={variable.source !== "custom"}
+                          disabled={variable.source !== 'custom'}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -189,7 +218,9 @@ export function WorkflowVariablesManager() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Thêm biến mới</DialogTitle>
-            <DialogDescription>Thêm một biến tùy chỉnh mới để sử dụng trong quy trình.</DialogDescription>
+            <DialogDescription>
+              Thêm một biến tùy chỉnh mới để sử dụng trong quy trình.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -199,7 +230,9 @@ export function WorkflowVariablesManager() {
               <Input
                 id="variable-name"
                 value={newVariable.name}
-                onChange={(e) => setNewVariable({ ...newVariable, name: e.target.value })}
+                onChange={(e) =>
+                  setNewVariable({ ...newVariable, name: e.target.value })
+                }
                 placeholder="Nhập tên biến"
               />
             </div>
@@ -207,8 +240,13 @@ export function WorkflowVariablesManager() {
               <Label htmlFor="variable-description">Mô tả</Label>
               <Input
                 id="variable-description"
-                value={newVariable.description || ""}
-                onChange={(e) => setNewVariable({ ...newVariable, description: e.target.value })}
+                value={newVariable.description || ''}
+                onChange={(e) =>
+                  setNewVariable({
+                    ...newVariable,
+                    description: e.target.value
+                  })
+                }
                 placeholder="Nhập mô tả biến"
               />
             </div>
@@ -218,7 +256,9 @@ export function WorkflowVariablesManager() {
               </Label>
               <Select
                 value={newVariable.type}
-                onValueChange={(value) => setNewVariable({ ...newVariable, type: value as any })}
+                onValueChange={(value) =>
+                  setNewVariable({ ...newVariable, type: value as any })
+                }
               >
                 <SelectTrigger id="variable-type">
                   <SelectValue placeholder="Chọn loại biến" />
@@ -247,7 +287,9 @@ export function WorkflowVariablesManager() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Chỉnh sửa biến</DialogTitle>
-            <DialogDescription>Chỉnh sửa thông tin của biến tùy chỉnh.</DialogDescription>
+            <DialogDescription>
+              Chỉnh sửa thông tin của biến tùy chỉnh.
+            </DialogDescription>
           </DialogHeader>
           {getSelectedVariable() && (
             <div className="space-y-4 py-4">
@@ -257,11 +299,13 @@ export function WorkflowVariablesManager() {
                 </Label>
                 <Input
                   id="edit-variable-name"
-                  value={getSelectedVariable()?.name || ""}
+                  value={getSelectedVariable()?.name || ''}
                   onChange={(e) => {
                     const variable = getSelectedVariable()
                     if (variable) {
-                      updateAvailableVariable(variable.id, { name: e.target.value })
+                      updateAvailableVariable(variable.id, {
+                        name: e.target.value
+                      })
                     }
                   }}
                   placeholder="Nhập tên biến"
@@ -271,11 +315,13 @@ export function WorkflowVariablesManager() {
                 <Label htmlFor="edit-variable-description">Mô tả</Label>
                 <Input
                   id="edit-variable-description"
-                  value={getSelectedVariable()?.description || ""}
+                  value={getSelectedVariable()?.description || ''}
                   onChange={(e) => {
                     const variable = getSelectedVariable()
                     if (variable) {
-                      updateAvailableVariable(variable.id, { description: e.target.value })
+                      updateAvailableVariable(variable.id, {
+                        description: e.target.value
+                      })
                     }
                   }}
                   placeholder="Nhập mô tả biến"
@@ -286,11 +332,13 @@ export function WorkflowVariablesManager() {
                   Loại biến <span className="text-red-500">*</span>
                 </Label>
                 <Select
-                  value={getSelectedVariable()?.type || "text"}
+                  value={getSelectedVariable()?.type || 'text'}
                   onValueChange={(value) => {
                     const variable = getSelectedVariable()
                     if (variable) {
-                      updateAvailableVariable(variable.id, { type: value as any })
+                      updateAvailableVariable(variable.id, {
+                        type: value as any
+                      })
                     }
                   }}
                 >
@@ -322,10 +370,16 @@ export function WorkflowVariablesManager() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Xóa biến</DialogTitle>
-            <DialogDescription>Bạn có chắc chắn muốn xóa biến này? Hành động này không thể hoàn tác.</DialogDescription>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa biến này? Hành động này không thể hoàn
+              tác.
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
               Hủy
             </Button>
             <Button variant="destructive" onClick={handleDeleteVariable}>

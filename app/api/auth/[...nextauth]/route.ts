@@ -1,19 +1,19 @@
-import NextAuth from "next-auth"
-import type { NextAuthOptions } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import { collection, query, where, getDocs } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import NextAuth from 'next-auth'
+import type { NextAuthOptions } from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import { collection, query, where, getDocs } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 export const authOptions: NextAuthOptions = {
   session: {
-    strategy: "jwt",
+    strategy: 'jwt'
   },
   providers: [
     CredentialsProvider({
-      name: "credentials",
+      name: 'credentials',
       credentials: {
-        username: { label: "Username", type: "text" },
-        password: { label: "Password", type: "password" },
+        username: { label: 'Username', type: 'text' },
+        password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials, req) {
         if (!credentials?.username || !credentials?.password) {
@@ -22,12 +22,12 @@ export const authOptions: NextAuthOptions = {
 
         try {
           // Kiểm tra tài khoản từ Firestore - phân biệt chữ hoa/chữ thường
-          const usersRef = collection(db, "users")
+          const usersRef = collection(db, 'users')
           const userQuery = query(
             usersRef,
-            where("username", "==", credentials.username),
-            where("password", "==", credentials.password),
-            where("status", "==", "active"),
+            where('username', '==', credentials.username),
+            where('password', '==', credentials.password),
+            where('status', '==', 'active')
           )
 
           const userSnapshot = await getDocs(userQuery)
@@ -39,27 +39,30 @@ export const authOptions: NextAuthOptions = {
               name: userData.fullName,
               email: userData.email,
               role: userData.role,
-              department: userData.department,
+              department: userData.department
             }
           }
 
           // Nếu không tìm thấy trong database, kiểm tra tài khoản mặc định
-          if (credentials.username === "admin" && credentials.password === "admin") {
+          if (
+            credentials.username === 'admin' &&
+            credentials.password === 'admin'
+          ) {
             return {
-              id: "admin",
-              name: "Admin",
-              email: "admin@example.com",
-              role: "admin",
-              department: "admin",
+              id: 'admin',
+              name: 'Admin',
+              email: 'admin@example.com',
+              role: 'admin',
+              department: 'admin'
             }
           }
         } catch (error) {
-          console.error("Error checking user credentials:", error)
+          console.error('Error checking user credentials:', error)
         }
 
         return null
-      },
-    }),
+      }
+    })
   ],
   callbacks: {
     async jwt({ token, user }) {
@@ -75,12 +78,12 @@ export const authOptions: NextAuthOptions = {
         session.user.department = token.department as string
       }
       return session
-    },
+    }
   },
   pages: {
-    signIn: "/login",
-    error: "/login?error=true",
-  },
+    signIn: '/login',
+    error: '/login?error=true'
+  }
 }
 
 const handler = NextAuth(authOptions)

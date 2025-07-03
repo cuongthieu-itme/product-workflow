@@ -1,6 +1,12 @@
-"use client"
+'use client'
 
-import { useContext, useState, useEffect, type ReactNode, createContext } from "react"
+import {
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+  createContext
+} from 'react'
 import {
   collection,
   getDocs,
@@ -11,10 +17,10 @@ import {
   deleteDoc,
   serverTimestamp,
   query,
-  onSnapshot,
-} from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { useToast } from "@/components/ui/use-toast"
+  onSnapshot
+} from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+import { useToast } from '@/components/ui/use-toast'
 // Import ProductStatusContext - REMOVED
 // import { ProductStatusContext } from "./product-status-context"
 
@@ -35,61 +41,68 @@ interface ProductStatusContextType {
   productStatuses: ProductStatus[]
   loading: boolean
   error: string | null
-  addProductStatus: (status: Omit<ProductStatus, "id" | "createdAt" | "updatedAt">) => Promise<string>
+  addProductStatus: (
+    status: Omit<ProductStatus, 'id' | 'createdAt' | 'updatedAt'>
+  ) => Promise<string>
   updateProductStatus: (
     id: string,
-    status: Partial<Omit<ProductStatus, "id" | "createdAt" | "updatedAt">>,
+    status: Partial<Omit<ProductStatus, 'id' | 'createdAt' | 'updatedAt'>>
   ) => Promise<void>
   deleteProductStatus: (id: string) => Promise<boolean>
   getProductStatusById: (id: string) => Promise<ProductStatus | null>
   reorderProductStatuses: (statuses: ProductStatus[]) => Promise<void>
   refreshProductStatuses: () => Promise<void>
   isProductStatusNameExists: (name: string, excludeId?: string) => boolean
-  assignWorkflowToStatus: (statusId: string, workflowId: string) => Promise<void>
+  assignWorkflowToStatus: (
+    statusId: string,
+    workflowId: string
+  ) => Promise<void>
   getStandardWorkflowId: () => string // Hàm lấy ID của quy trình chuẩn
 }
 
-const ProductStatusContext = createContext<ProductStatusContextType | undefined>(undefined)
+const ProductStatusContext = createContext<
+  ProductStatusContextType | undefined
+>(undefined)
 
 // Mock data for v0 preview
 const mockProductStatuses: ProductStatus[] = [
   {
-    id: "1",
-    name: "Mới",
-    description: "Sản phẩm mới được tạo",
-    color: "#4f46e5",
+    id: '1',
+    name: 'Mới',
+    description: 'Sản phẩm mới được tạo',
+    color: '#4f46e5',
     order: 0,
     isDefault: true,
-    workflowId: "standard-workflow", // Mặc định sử dụng quy trình chuẩn
+    workflowId: 'standard-workflow', // Mặc định sử dụng quy trình chuẩn
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   },
   {
-    id: "2",
-    name: "Đang phát triển",
-    description: "Sản phẩm đang trong quá trình phát triển",
-    color: "#f59e0b",
+    id: '2',
+    name: 'Đang phát triển',
+    description: 'Sản phẩm đang trong quá trình phát triển',
+    color: '#f59e0b',
     order: 1,
     isDefault: false,
-    workflowId: "standard-workflow", // Mặc định sử dụng quy trình chuẩn
+    workflowId: 'standard-workflow', // Mặc định sử dụng quy trình chuẩn
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   },
   {
-    id: "3",
-    name: "Hoàn thành",
-    description: "Sản phẩm đã hoàn thành",
-    color: "#10b981",
+    id: '3',
+    name: 'Hoàn thành',
+    description: 'Sản phẩm đã hoàn thành',
+    color: '#10b981',
     order: 2,
     isDefault: false,
-    workflowId: "standard-workflow", // Mặc định sử dụng quy trình chuẩn
+    workflowId: 'standard-workflow', // Mặc định sử dụng quy trình chuẩn
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
+    updatedAt: new Date().toISOString()
+  }
 ]
 
 // ID của quy trình chuẩn
-const STANDARD_WORKFLOW_ID = "standard-workflow"
+const STANDARD_WORKFLOW_ID = 'standard-workflow'
 
 export function ProductStatusProvider({ children }: { children: ReactNode }) {
   const [productStatuses, setProductStatuses] = useState<ProductStatus[]>([])
@@ -103,11 +116,11 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
     const checkFirebase = async () => {
       try {
         // Thử truy cập Firestore để kiểm tra kết nối
-        const testQuery = query(collection(db, "test"))
+        const testQuery = query(collection(db, 'test'))
         await getDocs(testQuery)
         setIsFirebaseAvailable(true)
       } catch (err) {
-        console.log("Firebase not available, using mock data:", err)
+        console.log('Firebase not available, using mock data:', err)
         setIsFirebaseAvailable(false)
         // Sử dụng dữ liệu mẫu nếu không thể kết nối Firebase
         setProductStatuses(mockProductStatuses)
@@ -135,7 +148,7 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
 
     setLoading(true)
     try {
-      const statusesRef = collection(db, "productStatuses")
+      const statusesRef = collection(db, 'productStatuses')
 
       // Sử dụng onSnapshot để lắng nghe thay đổi
       const unsubscribe = onSnapshot(
@@ -147,8 +160,12 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
               id: doc.id,
               ...data,
               workflowId: data.workflowId || STANDARD_WORKFLOW_ID, // Mặc định sử dụng quy trình chuẩn
-              createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-              updatedAt: data.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+              createdAt:
+                data.createdAt?.toDate?.()?.toISOString() ||
+                new Date().toISOString(),
+              updatedAt:
+                data.updatedAt?.toDate?.()?.toISOString() ||
+                new Date().toISOString()
             } as ProductStatus
           })
 
@@ -160,19 +177,19 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
           setLoading(false)
         },
         (err) => {
-          console.error("Error fetching product statuses:", err)
-          setError("Failed to fetch product statuses")
+          console.error('Error fetching product statuses:', err)
+          setError('Failed to fetch product statuses')
           setLoading(false)
           // Fallback to mock data
           setProductStatuses(mockProductStatuses)
-        },
+        }
       )
 
       // Cleanup function
       return () => unsubscribe()
     } catch (err) {
-      console.error("Error setting up product statuses listener:", err)
-      setError("Failed to set up product statuses listener")
+      console.error('Error setting up product statuses listener:', err)
+      setError('Failed to set up product statuses listener')
       setLoading(false)
       // Fallback to mock data
       setProductStatuses(mockProductStatuses)
@@ -180,7 +197,9 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
   }
 
   // Thêm trạng thái sản phẩm mới
-  const addProductStatus = async (status: Omit<ProductStatus, "id" | "createdAt" | "updatedAt">): Promise<string> => {
+  const addProductStatus = async (
+    status: Omit<ProductStatus, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<string> => {
     if (!isFirebaseAvailable) {
       // Mock implementation for v0 preview
       const newId = `mock-${Date.now()}`
@@ -189,9 +208,11 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
         ...status,
         workflowId: status.workflowId || STANDARD_WORKFLOW_ID, // Mặc định sử dụng quy trình chuẩn
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       }
-      setProductStatuses((prev) => [...prev, newStatus].sort((a, b) => a.order - b.order))
+      setProductStatuses((prev) =>
+        [...prev, newStatus].sort((a, b) => a.order - b.order)
+      )
       return newId
     }
 
@@ -200,67 +221,76 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
       const statusData = {
         name: status.name,
         description: status.description,
-        color: status.color || "#4f46e5", // Default color
+        color: status.color || '#4f46e5', // Default color
         order: status.order || productStatuses.length, // Default to end of list
         isDefault: status.isDefault || false,
         workflowId: status.workflowId || STANDARD_WORKFLOW_ID, // Mặc định sử dụng quy trình chuẩn
         createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       }
 
-      const statusRef = await addDoc(collection(db, "productStatuses"), statusData)
+      const statusRef = await addDoc(
+        collection(db, 'productStatuses'),
+        statusData
+      )
 
       // Lấy dữ liệu vừa thêm
       const newStatus = {
         id: statusRef.id,
         ...statusData,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       } as ProductStatus
 
       return statusRef.id
     } catch (err) {
-      console.error("Error adding product status:", err)
+      console.error('Error adding product status:', err)
       toast({
-        title: "Lỗi",
-        description: "Không thể thêm trạng thái sản phẩm. Vui lòng thử lại sau.",
-        variant: "destructive",
+        title: 'Lỗi',
+        description:
+          'Không thể thêm trạng thái sản phẩm. Vui lòng thử lại sau.',
+        variant: 'destructive'
       })
-      throw new Error("Failed to add product status")
+      throw new Error('Failed to add product status')
     }
   }
 
   // Cập nhật trạng thái sản phẩm
   const updateProductStatus = async (
     id: string,
-    status: Partial<Omit<ProductStatus, "id" | "createdAt" | "updatedAt">>,
+    status: Partial<Omit<ProductStatus, 'id' | 'createdAt' | 'updatedAt'>>
   ): Promise<void> => {
     if (!isFirebaseAvailable) {
       // Mock implementation for v0 preview
       setProductStatuses((prev) =>
         prev
-          .map((item) => (item.id === id ? { ...item, ...status, updatedAt: new Date().toISOString() } : item))
-          .sort((a, b) => a.order - b.order),
+          .map((item) =>
+            item.id === id
+              ? { ...item, ...status, updatedAt: new Date().toISOString() }
+              : item
+          )
+          .sort((a, b) => a.order - b.order)
       )
       return
     }
 
     try {
-      const statusRef = doc(db, "productStatuses", id)
+      const statusRef = doc(db, 'productStatuses', id)
 
       // Cập nhật trạng thái trong Firestore
       await updateDoc(statusRef, {
         ...status,
-        updatedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       })
     } catch (err) {
-      console.error("Error updating product status:", err)
+      console.error('Error updating product status:', err)
       toast({
-        title: "Lỗi",
-        description: "Không thể cập nhật trạng thái sản phẩm. Vui lòng thử lại sau.",
-        variant: "destructive",
+        title: 'Lỗi',
+        description:
+          'Không thể cập nhật trạng thái sản phẩm. Vui lòng thử lại sau.',
+        variant: 'destructive'
       })
-      throw new Error("Failed to update product status")
+      throw new Error('Failed to update product status')
     }
   }
 
@@ -271,9 +301,9 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
       const statusToDelete = productStatuses.find((s) => s.id === id)
       if (statusToDelete?.isDefault) {
         toast({
-          title: "Không thể xóa",
-          description: "Không thể xóa trạng thái mặc định.",
-          variant: "destructive",
+          title: 'Không thể xóa',
+          description: 'Không thể xóa trạng thái mặc định.',
+          variant: 'destructive'
         })
         return false
       }
@@ -283,14 +313,14 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
 
     try {
       // Kiểm tra xem trạng thái có phải là mặc định không
-      const statusRef = doc(db, "productStatuses", id)
+      const statusRef = doc(db, 'productStatuses', id)
       const statusSnap = await getDoc(statusRef)
 
       if (!statusSnap.exists()) {
         toast({
-          title: "Lỗi",
-          description: "Không tìm thấy trạng thái sản phẩm.",
-          variant: "destructive",
+          title: 'Lỗi',
+          description: 'Không tìm thấy trạng thái sản phẩm.',
+          variant: 'destructive'
         })
         return false
       }
@@ -299,9 +329,9 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
 
       if (statusData.isDefault) {
         toast({
-          title: "Không thể xóa",
-          description: "Không thể xóa trạng thái mặc định.",
-          variant: "destructive",
+          title: 'Không thể xóa',
+          description: 'Không thể xóa trạng thái mặc định.',
+          variant: 'destructive'
         })
         return false
       }
@@ -311,18 +341,20 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
 
       return true
     } catch (err) {
-      console.error("Error deleting product status:", err)
+      console.error('Error deleting product status:', err)
       toast({
-        title: "Lỗi",
-        description: "Không thể xóa trạng thái sản phẩm. Vui lòng thử lại sau.",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Không thể xóa trạng thái sản phẩm. Vui lòng thử lại sau.',
+        variant: 'destructive'
       })
       return false
     }
   }
 
   // Lấy trạng thái sản phẩm theo ID
-  const getProductStatusById = async (id: string): Promise<ProductStatus | null> => {
+  const getProductStatusById = async (
+    id: string
+  ): Promise<ProductStatus | null> => {
     if (!isFirebaseAvailable) {
       // Mock implementation for v0 preview
       const status = mockProductStatuses.find((s) => s.id === id)
@@ -330,7 +362,7 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const statusRef = doc(db, "productStatuses", id)
+      const statusRef = doc(db, 'productStatuses', id)
       const statusSnap = await getDoc(statusRef)
 
       if (!statusSnap.exists()) {
@@ -343,25 +375,29 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
         id: statusSnap.id,
         ...data,
         workflowId: data.workflowId || STANDARD_WORKFLOW_ID, // Mặc định sử dụng quy trình chuẩn
-        createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-        updatedAt: data.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+        createdAt:
+          data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+        updatedAt:
+          data.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString()
       } as ProductStatus
     } catch (err) {
-      console.error("Error getting product status:", err)
+      console.error('Error getting product status:', err)
       return null
     }
   }
 
   // Sắp xếp lại thứ tự các trạng thái
-  const reorderProductStatuses = async (statuses: ProductStatus[]): Promise<void> => {
+  const reorderProductStatuses = async (
+    statuses: ProductStatus[]
+  ): Promise<void> => {
     if (!isFirebaseAvailable) {
       // Mock implementation for v0 preview
       setProductStatuses(
         statuses.map((status, index) => ({
           ...status,
           order: index,
-          updatedAt: new Date().toISOString(),
-        })),
+          updatedAt: new Date().toISOString()
+        }))
       )
       return
     }
@@ -369,20 +405,21 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
     try {
       // Cập nhật thứ tự trong Firestore
       for (const [index, status] of statuses.entries()) {
-        const statusRef = doc(db, "productStatuses", status.id)
+        const statusRef = doc(db, 'productStatuses', status.id)
         await updateDoc(statusRef, {
           order: index,
-          updatedAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
         })
       }
     } catch (err) {
-      console.error("Error reordering product statuses:", err)
+      console.error('Error reordering product statuses:', err)
       toast({
-        title: "Lỗi",
-        description: "Không thể sắp xếp lại trạng thái sản phẩm. Vui lòng thử lại sau.",
-        variant: "destructive",
+        title: 'Lỗi',
+        description:
+          'Không thể sắp xếp lại trạng thái sản phẩm. Vui lòng thử lại sau.',
+        variant: 'destructive'
       })
-      throw new Error("Failed to reorder product statuses")
+      throw new Error('Failed to reorder product statuses')
     }
   }
 
@@ -392,34 +429,46 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
   }
 
   // Kiểm tra xem tên trạng thái đã tồn tại chưa
-  const isProductStatusNameExists = (name: string, excludeId?: string): boolean => {
-    return productStatuses.some((status) => status.name.toLowerCase() === name.toLowerCase() && status.id !== excludeId)
+  const isProductStatusNameExists = (
+    name: string,
+    excludeId?: string
+  ): boolean => {
+    return productStatuses.some(
+      (status) =>
+        status.name.toLowerCase() === name.toLowerCase() &&
+        status.id !== excludeId
+    )
   }
 
   // Cập nhật hàm assignWorkflowToStatus để cập nhật quy trình con
-  const assignWorkflowToStatus = async (statusId: string, workflowId: string): Promise<void> => {
+  const assignWorkflowToStatus = async (
+    statusId: string,
+    workflowId: string
+  ): Promise<void> => {
     if (!isFirebaseAvailable) {
       // Mock implementation for v0 preview
       setProductStatuses((prev) =>
         prev.map((status) =>
-          status.id === statusId ? { ...status, workflowId, updatedAt: new Date().toISOString() } : status,
-        ),
+          status.id === statusId
+            ? { ...status, workflowId, updatedAt: new Date().toISOString() }
+            : status
+        )
       )
       return
     }
 
     try {
-      const statusRef = doc(db, "productStatuses", statusId)
+      const statusRef = doc(db, 'productStatuses', statusId)
 
       // Cập nhật workflowId trong Firestore
       await updateDoc(statusRef, {
         workflowId,
-        updatedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       })
 
       // Cập nhật statusId trong quy trình con nếu workflowId không phải là quy trình chuẩn
       if (workflowId !== STANDARD_WORKFLOW_ID) {
-        const workflowRef = doc(db, "subWorkflows", workflowId)
+        const workflowRef = doc(db, 'subWorkflows', workflowId)
 
         try {
           // Kiểm tra xem quy trình có tồn tại không
@@ -429,29 +478,33 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
             // Cập nhật statusId trong quy trình con
             await updateDoc(workflowRef, {
               statusId: statusId,
-              statusName: productStatuses.find((s) => s.id === statusId)?.name || "",
-              updatedAt: serverTimestamp(),
+              statusName:
+                productStatuses.find((s) => s.id === statusId)?.name || '',
+              updatedAt: serverTimestamp()
             })
-            console.log(`Updated sub-workflow ${workflowId} with status ${statusId}`)
+            console.log(
+              `Updated sub-workflow ${workflowId} with status ${statusId}`
+            )
           }
         } catch (err) {
-          console.error("Error updating sub-workflow with status ID:", err)
+          console.error('Error updating sub-workflow with status ID:', err)
           // Không throw lỗi ở đây để không ảnh hưởng đến việc cập nhật trạng thái
         }
       }
 
       toast({
-        title: "Thành công",
-        description: "Đã gán quy trình cho trạng thái.",
+        title: 'Thành công',
+        description: 'Đã gán quy trình cho trạng thái.'
       })
     } catch (err) {
-      console.error("Error assigning workflow to status:", err)
+      console.error('Error assigning workflow to status:', err)
       toast({
-        title: "Lỗi",
-        description: "Không thể gán quy trình cho trạng thái. Vui lòng thử lại sau.",
-        variant: "destructive",
+        title: 'Lỗi',
+        description:
+          'Không thể gán quy trình cho trạng thái. Vui lòng thử lại sau.',
+        variant: 'destructive'
       })
-      throw new Error("Failed to assign workflow to status")
+      throw new Error('Failed to assign workflow to status')
     }
   }
 
@@ -472,16 +525,22 @@ export function ProductStatusProvider({ children }: { children: ReactNode }) {
     refreshProductStatuses,
     isProductStatusNameExists,
     assignWorkflowToStatus,
-    getStandardWorkflowId,
+    getStandardWorkflowId
   }
 
-  return <ProductStatusContext.Provider value={value}>{children}</ProductStatusContext.Provider>
+  return (
+    <ProductStatusContext.Provider value={value}>
+      {children}
+    </ProductStatusContext.Provider>
+  )
 }
 
 export function useProductStatus() {
   const context = useContext(ProductStatusContext)
   if (context === undefined) {
-    throw new Error("useProductStatus must be used within a ProductStatusProvider")
+    throw new Error(
+      'useProductStatus must be used within a ProductStatusProvider'
+    )
   }
   return context
 }

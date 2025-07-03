@@ -1,16 +1,23 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { useRequest } from "@/components/requests/request-context-firebase"
-import { useStandardWorkflow } from "@/components/workflow/standard-workflow-context-firebase"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Eye, Edit } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
+import { useEffect, useState } from 'react'
+import { useRequest } from '@/components/requests/request-context-firebase'
+import { useStandardWorkflow } from '@/components/workflow/standard-workflow-context-firebase'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Eye, Edit } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { format } from 'date-fns'
+import { vi } from 'date-fns/locale'
 
 interface CustomerRequestsProps {
   customerId: string
@@ -40,17 +47,17 @@ export function CustomerRequests({ customerId }: CustomerRequestsProps) {
   // Hàm lấy trạng thái hiển thị dựa trên status
   const getStatusDisplay = (request: any) => {
     if (!request.status) {
-      return "Chưa bắt đầu"
+      return 'Chưa bắt đầu'
     }
 
     // Ánh xạ trạng thái
     const statusMap: Record<string, string> = {
-      completed: "Hoàn thành",
-      on_hold: "Tạm dừng",
-      in_progress: "Đang xử lý",
-      pending: "Chờ xử lý",
-      rejected: "Đã từ chối",
-      cancelled: "Đã hủy",
+      completed: 'Hoàn thành',
+      on_hold: 'Tạm dừng',
+      in_progress: 'Đang xử lý',
+      pending: 'Chờ xử lý',
+      rejected: 'Đã từ chối',
+      cancelled: 'Đã hủy'
     }
 
     return statusMap[request.status] || request.status
@@ -63,7 +70,9 @@ export function CustomerRequests({ customerId }: CustomerRequestsProps) {
     }
 
     const steps = standardWorkflow.steps.sort((a, b) => a.order - b.order)
-    const currentStepIndex = steps.findIndex((step) => step.id === request.currentStepId)
+    const currentStepIndex = steps.findIndex(
+      (step) => step.id === request.currentStepId
+    )
     const current = currentStepIndex >= 0 ? currentStepIndex + 1 : 0
     const total = steps.length
     const percentage = total > 0 ? Math.round((current / total) * 100) : 0
@@ -80,11 +89,11 @@ export function CustomerRequests({ customerId }: CustomerRequestsProps) {
   }
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return "N/A"
+    if (!dateString) return 'N/A'
     try {
-      return format(new Date(dateString), "dd/MM/yyyy", { locale: vi })
+      return format(new Date(dateString), 'dd/MM/yyyy', { locale: vi })
     } catch (error) {
-      return "Invalid date"
+      return 'Invalid date'
     }
   }
 
@@ -111,7 +120,9 @@ export function CustomerRequests({ customerId }: CustomerRequestsProps) {
       <CardContent>
         {customerRequests.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-muted-foreground">Khách hàng này chưa có yêu cầu nào</p>
+            <p className="text-muted-foreground">
+              Khách hàng này chưa có yêu cầu nào
+            </p>
           </div>
         ) : (
           <div className="rounded-md border">
@@ -131,7 +142,9 @@ export function CustomerRequests({ customerId }: CustomerRequestsProps) {
                   const progress = getProgress(request)
                   return (
                     <TableRow key={request.id}>
-                      <TableCell className="font-medium">{request.code}</TableCell>
+                      <TableCell className="font-medium">
+                        {request.code}
+                      </TableCell>
                       <TableCell>
                         <div>
                           <div className="font-medium">{request.title}</div>
@@ -143,7 +156,9 @@ export function CustomerRequests({ customerId }: CustomerRequestsProps) {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{getStatusDisplay(request)}</Badge>
+                        <Badge variant="outline">
+                          {getStatusDisplay(request)}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
@@ -158,16 +173,26 @@ export function CustomerRequests({ customerId }: CustomerRequestsProps) {
                               {progress.current}/{progress.total}
                             </span>
                           </div>
-                          <div className="text-xs text-muted-foreground">{progress.percentage}%</div>
+                          <div className="text-xs text-muted-foreground">
+                            {progress.percentage}%
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>{formatDate(request.createdAt)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon" onClick={() => handleViewRequest(request.id)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleViewRequest(request.id)}
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleEditRequest(request.id)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditRequest(request.id)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                         </div>

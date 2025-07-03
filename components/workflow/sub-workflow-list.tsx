@@ -1,20 +1,24 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { Search } from "lucide-react"
-import { useState } from "react"
+import { Search } from 'lucide-react'
+import { useState } from 'react'
 
-import { Input } from "@/components/ui/input"
+import { Input } from '@/components/ui/input'
 
 interface SubWorkflowListProps {
   workflows: any[] // Replace 'any' with a more specific type if possible
 }
 
-export const SubWorkflowList: React.FC<SubWorkflowListProps> = ({ workflows }) => {
-  const [search, setSearch] = useState("")
+export const SubWorkflowList: React.FC<SubWorkflowListProps> = ({
+  workflows
+}) => {
+  const [search, setSearch] = useState('')
 
-  const filteredWorkflows = workflows.filter((workflow) => workflow.name.toLowerCase().includes(search.toLowerCase()))
+  const filteredWorkflows = workflows.filter((workflow) =>
+    workflow.name.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
     <div>

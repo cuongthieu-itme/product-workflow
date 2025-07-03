@@ -1,33 +1,39 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { useStandardWorkflow } from "./standard-workflow-context-firebase"
-import { useSubWorkflow } from "./sub-workflow-context-firebase"
-import { useProductStatus } from "@/components/product-status/product-status-context-firebase"
-import { toast } from "@/components/ui/use-toast"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircle } from "lucide-react"
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { useStandardWorkflow } from './standard-workflow-context-firebase'
+import { useSubWorkflow } from './sub-workflow-context-firebase'
+import { useProductStatus } from '@/components/product-status/product-status-context-firebase'
+import { toast } from '@/components/ui/use-toast'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
 
 export function SubWorkflowManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [name, setName] = useState("")
-  const [description, setDescription] = useState("")
-  const [statusId, setStatusId] = useState("")
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [statusId, setStatusId] = useState('')
   const [selectedSteps, setSelectedSteps] = useState<string[]>([])
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -47,13 +53,16 @@ export function SubWorkflowManager() {
         const allSubWorkflows = await getAllSubWorkflows()
 
         // Lấy danh sách statusId đã có quy trình con
-        const statusIdsWithSubWorkflow = allSubWorkflows.map((workflow) => workflow.statusId)
+        const statusIdsWithSubWorkflow = allSubWorkflows.map(
+          (workflow) => workflow.statusId
+        )
 
         // Lọc danh sách trạng thái có thể chọn
         // Chỉ hiển thị trạng thái có workflowId là standard-workflow hoặc không có workflowId
         const filtered = productStatuses.filter((status) => {
           // Kiểm tra xem trạng thái có sử dụng quy trình chuẩn không
-          const isStandardWorkflow = !status.workflowId || status.workflowId === "standard-workflow"
+          const isStandardWorkflow =
+            !status.workflowId || status.workflowId === 'standard-workflow'
 
           if (!isStandardWorkflow) {
             return false
@@ -69,7 +78,7 @@ export function SubWorkflowManager() {
 
         setAvailableStatuses(filtered)
       } catch (error) {
-        console.error("Lỗi khi tải danh sách trạng thái:", error)
+        console.error('Lỗi khi tải danh sách trạng thái:', error)
       }
     }
 
@@ -82,21 +91,23 @@ export function SubWorkflowManager() {
 
     try {
       if (!name.trim()) {
-        setErrorMessage("Vui lòng nhập tên quy trình")
+        setErrorMessage('Vui lòng nhập tên quy trình')
         setIsSubmitting(false)
         return
       }
 
       if (selectedSteps.length === 0) {
-        setErrorMessage("Vui lòng chọn ít nhất một bước")
+        setErrorMessage('Vui lòng chọn ít nhất một bước')
         setIsSubmitting(false)
         return
       }
 
       // Tìm thông tin trạng thái nếu có
-      let statusName = ""
+      let statusName = ''
       if (statusId) {
-        const selectedStatus = productStatuses.find((status) => status.id === statusId)
+        const selectedStatus = productStatuses.find(
+          (status) => status.id === statusId
+        )
         if (selectedStatus) {
           statusName = selectedStatus.name
         }
@@ -106,32 +117,32 @@ export function SubWorkflowManager() {
       await addSubWorkflow({
         name,
         description,
-        statusId: statusId || "", // Cho phép statusId rỗng
+        statusId: statusId || '', // Cho phép statusId rỗng
         statusName,
         visibleSteps: selectedSteps,
-        parentWorkflowId: "standard-workflow",
+        parentWorkflowId: 'standard-workflow'
       })
 
       toast({
-        title: "Thành công",
-        description: "Đã tạo quy trình con mới",
+        title: 'Thành công',
+        description: 'Đã tạo quy trình con mới'
       })
 
       // Đóng dialog và reset form
       setIsDialogOpen(false)
       resetForm()
     } catch (error: any) {
-      console.error("Lỗi khi tạo quy trình con:", error)
-      setErrorMessage(error.message || "Đã xảy ra lỗi khi tạo quy trình con")
+      console.error('Lỗi khi tạo quy trình con:', error)
+      setErrorMessage(error.message || 'Đã xảy ra lỗi khi tạo quy trình con')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   const resetForm = () => {
-    setName("")
-    setDescription("")
-    setStatusId("")
+    setName('')
+    setDescription('')
+    setStatusId('')
     setSelectedSteps([])
     setErrorMessage(null)
   }
@@ -160,7 +171,8 @@ export function SubWorkflowManager() {
           <DialogHeader>
             <DialogTitle>Thêm quy trình con mới</DialogTitle>
             <DialogDescription>
-              Tạo quy trình con cho một trạng thái sản phẩm cụ thể dựa trên quy trình chuẩn.
+              Tạo quy trình con cho một trạng thái sản phẩm cụ thể dựa trên quy
+              trình chuẩn.
             </DialogDescription>
           </DialogHeader>
 
@@ -202,7 +214,9 @@ export function SubWorkflowManager() {
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="status" className="text-right">
                 Trạng thái sản phẩm
-                <span className="text-muted-foreground ml-1 text-xs">(tùy chọn)</span>
+                <span className="text-muted-foreground ml-1 text-xs">
+                  (tùy chọn)
+                </span>
               </Label>
               <Select value={statusId} onValueChange={setStatusId}>
                 <SelectTrigger id="status" className="col-span-3">
@@ -219,7 +233,9 @@ export function SubWorkflowManager() {
             </div>
 
             <div className="grid grid-cols-4 gap-4">
-              <Label className="text-right pt-2">Chọn các bước từ quy trình chuẩn</Label>
+              <Label className="text-right pt-2">
+                Chọn các bước từ quy trình chuẩn
+              </Label>
               <div className="col-span-3">
                 <ScrollArea className="h-[200px] border rounded-md p-4">
                   {workflowLoading ? (
@@ -231,24 +247,33 @@ export function SubWorkflowManager() {
                       {standardWorkflow.steps
                         .sort((a, b) => a.order - b.order)
                         .map((step) => (
-                          <div key={step.id} className="flex items-start space-x-2 pb-2 border-b">
+                          <div
+                            key={step.id}
+                            className="flex items-start space-x-2 pb-2 border-b"
+                          >
                             <Checkbox
                               id={`step-${step.id}`}
                               checked={selectedSteps.includes(step.id)}
                               onCheckedChange={() => toggleStep(step.id)}
                             />
                             <div>
-                              <Label htmlFor={`step-${step.id}`} className="font-medium">
+                              <Label
+                                htmlFor={`step-${step.id}`}
+                                className="font-medium"
+                              >
                                 {step.name}
                               </Label>
-                              <p className="text-sm text-muted-foreground">{step.description}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {step.description}
+                              </p>
                             </div>
                           </div>
                         ))}
                     </div>
                   ) : (
                     <div className="text-center text-muted-foreground">
-                      Không tìm thấy quy trình chuẩn. Vui lòng tạo quy trình chuẩn trước.
+                      Không tìm thấy quy trình chuẩn. Vui lòng tạo quy trình
+                      chuẩn trước.
                     </div>
                   )}
                 </ScrollArea>
@@ -267,7 +292,7 @@ export function SubWorkflowManager() {
                   Đang tạo...
                 </>
               ) : (
-                "Thêm quy trình con"
+                'Thêm quy trình con'
               )}
             </Button>
           </DialogFooter>

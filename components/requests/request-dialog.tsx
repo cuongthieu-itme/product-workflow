@@ -1,22 +1,22 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useState } from "react"
+import { useState } from 'react'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { RequestForm } from "./request-form"
-import { Button } from "@/components/ui/button"
-import { PlusCircle } from "lucide-react"
-import { SubWorkflowProvider } from "@/components/workflow/sub-workflow-context-firebase"
-import { ProductStatusProvider } from "@/components/product-status/product-status-context"
-import { StandardWorkflowProvider } from "@/components/workflow/standard-workflow-context-firebase"
+  DialogTrigger
+} from '@/components/ui/dialog'
+import { RequestForm } from './request-form'
+import { Button } from '@/components/ui/button'
+import { PlusCircle } from 'lucide-react'
+import { SubWorkflowProvider } from '@/components/workflow/sub-workflow-context-firebase'
+import { ProductStatusProvider } from '@/components/product-status/product-status-context'
+import { StandardWorkflowProvider } from '@/components/workflow/standard-workflow-context-firebase'
 
 interface RequestDialogProps {
   trigger?: React.ReactNode
@@ -27,9 +27,9 @@ interface RequestDialogProps {
 
 export function RequestDialog({
   trigger,
-  title = "Tạo yêu cầu mới",
-  description = "Điền thông tin để tạo yêu cầu mới.",
-  onSuccess,
+  title = 'Tạo yêu cầu mới',
+  description = 'Điền thông tin để tạo yêu cầu mới.',
+  onSuccess
 }: RequestDialogProps) {
   const [open, setOpen] = useState(false)
 

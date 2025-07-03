@@ -1,13 +1,13 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useCustomers } from "@/components/customers/customer-context"
-import { CustomerRequests } from "@/components/customers/customer-requests"
-import { CustomerDetail } from "@/components/customers/customer-detail"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
+import { Card, CardContent } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useCustomers } from '@/components/customers/customer-context'
+import { CustomerRequests } from '@/components/customers/customer-requests'
+import { CustomerDetail } from '@/components/customers/customer-detail'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function CustomerDetailPage() {
   const params = useParams()
@@ -37,8 +37,12 @@ export default function CustomerDetailPage() {
         <Card>
           <CardContent className="py-10">
             <div className="text-center">
-              <h2 className="text-xl font-semibold">Không tìm thấy khách hàng</h2>
-              <p className="text-gray-500 mt-2">Khách hàng không tồn tại hoặc đã bị xóa</p>
+              <h2 className="text-xl font-semibold">
+                Không tìm thấy khách hàng
+              </h2>
+              <p className="text-gray-500 mt-2">
+                Khách hàng không tồn tại hoặc đã bị xóa
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -48,7 +52,9 @@ export default function CustomerDetailPage() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <h1 className="text-2xl font-bold">Chi tiết khách hàng: {customer.name}</h1>
+      <h1 className="text-2xl font-bold">
+        Chi tiết khách hàng: {customer.name}
+      </h1>
 
       <Tabs defaultValue="info">
         <TabsList>

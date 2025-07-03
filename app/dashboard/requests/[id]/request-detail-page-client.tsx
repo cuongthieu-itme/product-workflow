@@ -1,12 +1,12 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { RequestDetailNew } from "@/components/requests/request-detail-new"
-import { doc, getDoc } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircle } from "lucide-react"
+import { useEffect, useState } from 'react'
+import { RequestDetailNew } from '@/components/requests/request-detail-new'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
 
 export function RequestDetailPageClient({ id }: { id: string }) {
   const [request, setRequest] = useState<any>(null)
@@ -20,7 +20,7 @@ export function RequestDetailPageClient({ id }: { id: string }) {
     async function fetchRequest() {
       try {
         setLoading(true)
-        const requestDoc = await getDoc(doc(db, "requests", id))
+        const requestDoc = await getDoc(doc(db, 'requests', id))
 
         if (requestDoc.exists()) {
           const requestData = { id: requestDoc.id, ...requestDoc.data() }
@@ -28,57 +28,97 @@ export function RequestDetailPageClient({ id }: { id: string }) {
 
           // Fetch workflow data if workflowProcessId exists
           if (requestData.workflowProcessId) {
-            console.log("Fetching subWorkflow with ID:", requestData.workflowProcessId)
+            console.log(
+              'Fetching subWorkflow with ID:',
+              requestData.workflowProcessId
+            )
             // Get subWorkflow data
-            const subWorkflowDoc = await getDoc(doc(db, "subWorkflows", requestData.workflowProcessId))
+            const subWorkflowDoc = await getDoc(
+              doc(db, 'subWorkflows', requestData.workflowProcessId)
+            )
             if (subWorkflowDoc.exists()) {
-              const subWorkflowData = { id: subWorkflowDoc.id, ...subWorkflowDoc.data() }
-              console.log("SubWorkflow data:", subWorkflowData)
+              const subWorkflowData = {
+                id: subWorkflowDoc.id,
+                ...subWorkflowDoc.data()
+              }
+              console.log('SubWorkflow data:', subWorkflowData)
               setWorkflowData(subWorkflowData)
 
               // Get standard workflow data using parentWorkflowId instead of standardWorkflowId
-              const parentWorkflowId = subWorkflowData.parentWorkflowId || subWorkflowData.standardWorkflowId
+              const parentWorkflowId =
+                subWorkflowData.parentWorkflowId ||
+                subWorkflowData.standardWorkflowId
               if (parentWorkflowId) {
-                console.log("Fetching standard workflow with parentWorkflowId:", parentWorkflowId)
-                const standardWorkflowDoc = await getDoc(doc(db, "standardWorkflows", parentWorkflowId))
+                console.log(
+                  'Fetching standard workflow with parentWorkflowId:',
+                  parentWorkflowId
+                )
+                const standardWorkflowDoc = await getDoc(
+                  doc(db, 'standardWorkflows', parentWorkflowId)
+                )
                 if (standardWorkflowDoc.exists()) {
-                  const standardWorkflowData = { id: standardWorkflowDoc.id, ...standardWorkflowDoc.data() }
-                  console.log("Standard workflow data loaded:", standardWorkflowData)
+                  const standardWorkflowData = {
+                    id: standardWorkflowDoc.id,
+                    ...standardWorkflowDoc.data()
+                  }
+                  console.log(
+                    'Standard workflow data loaded:',
+                    standardWorkflowData
+                  )
                   setStandardWorkflow(standardWorkflowData)
 
                   // Filter visible steps based on visibleSteps from subWorkflow
-                  console.log("SubWorkflow visibleSteps:", subWorkflowData.visibleSteps)
-                  console.log("Standard workflow steps:", standardWorkflowData.steps)
+                  console.log(
+                    'SubWorkflow visibleSteps:',
+                    subWorkflowData.visibleSteps
+                  )
+                  console.log(
+                    'Standard workflow steps:',
+                    standardWorkflowData.steps
+                  )
 
-                  if (subWorkflowData.visibleSteps && standardWorkflowData.steps) {
+                  if (
+                    subWorkflowData.visibleSteps &&
+                    standardWorkflowData.steps
+                  ) {
                     const filteredSteps = standardWorkflowData.steps
-                      .filter((step: any) => subWorkflowData.visibleSteps.includes(step.id))
+                      .filter((step: any) =>
+                        subWorkflowData.visibleSteps.includes(step.id)
+                      )
                       .sort((a: any, b: any) => a.order - b.order)
-                    console.log("Filtered visible steps:", filteredSteps)
+                    console.log('Filtered visible steps:', filteredSteps)
                     setVisibleSteps(filteredSteps)
                   } else {
                     // If no visibleSteps, show all steps
-                    console.log("No visibleSteps found, showing all steps")
+                    console.log('No visibleSteps found, showing all steps')
                     setVisibleSteps(standardWorkflowData.steps || [])
                   }
                 } else {
-                  console.log("Standard workflow document not found with ID:", parentWorkflowId)
+                  console.log(
+                    'Standard workflow document not found with ID:',
+                    parentWorkflowId
+                  )
                 }
               } else {
-                console.log("No parentWorkflowId or standardWorkflowId found in subWorkflow")
+                console.log(
+                  'No parentWorkflowId or standardWorkflowId found in subWorkflow'
+                )
               }
             } else {
-              console.log("SubWorkflow document not found with ID:", requestData.workflowProcessId)
+              console.log(
+                'SubWorkflow document not found with ID:',
+                requestData.workflowProcessId
+              )
             }
           } else {
-            console.log("No workflowProcessId found in request")
+            console.log('No workflowProcessId found in request')
           }
         } else {
-          setError("Không tìm thấy yêu cầu")
+          setError('Không tìm thấy yêu cầu')
         }
       } catch (err) {
-        console.error("Lỗi khi tải yêu cầu:", err)
-        setError("Đã xảy ra lỗi khi tải dữ liệu yêu cầu")
+        console.error('Lỗi khi tải yêu cầu:', err)
+        setError('Đã xảy ra lỗi khi tải dữ liệu yêu cầu')
       } finally {
         setLoading(false)
       }

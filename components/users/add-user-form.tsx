@@ -1,20 +1,33 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/components/ui/use-toast"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { CheckCircle, AlertCircle, Loader2 } from "lucide-react"
-import { collection, addDoc, query, where, getDocs, limit } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { useToast } from '@/components/ui/use-toast'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import {
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+  limit
+} from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 // Danh sách username bị cấm (trừ khi role là admin)
-const RESERVED_USERNAMES = ["admin", "administrator", "root", "system"]
+const RESERVED_USERNAMES = ['admin', 'administrator', 'root', 'system']
 
 interface Department {
   id: string
@@ -29,14 +42,14 @@ interface AddUserFormProps {
 export function AddUserForm({ onUserAdded }: AddUserFormProps) {
   const { toast } = useToast()
   const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-    confirmPassword: "",
-    fullName: "",
-    email: "",
-    phone: "",
-    role: "user",
-    department: "",
+    username: '',
+    password: '',
+    confirmPassword: '',
+    fullName: '',
+    email: '',
+    phone: '',
+    role: 'user',
+    department: ''
   })
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -50,14 +63,14 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
     const checkFirebaseConnection = async () => {
       try {
         // Thử truy cập collection để kiểm tra kết nối
-        const testQuery = collection(db, "users")
+        const testQuery = collection(db, 'users')
         await getDocs(query(testQuery, limit(1)))
-        console.log("Firebase connection successful")
+        console.log('Firebase connection successful')
 
         // Lấy danh sách phòng ban từ Firestore
         await fetchDepartments()
       } catch (error) {
-        console.error("Lỗi kết nối Firebase:", error)
+        console.error('Lỗi kết nối Firebase:', error)
       }
     }
 
@@ -70,12 +83,12 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
     setDepartmentError(null)
 
     try {
-      console.log("Đang lấy danh sách phòng ban từ Firestore...")
-      const departmentsCollection = collection(db, "departments")
+      console.log('Đang lấy danh sách phòng ban từ Firestore...')
+      const departmentsCollection = collection(db, 'departments')
       const departmentsSnapshot = await getDocs(departmentsCollection)
 
       if (departmentsSnapshot.empty) {
-        console.log("Không có phòng ban nào trong Firestore")
+        console.log('Không có phòng ban nào trong Firestore')
         setDepartments([])
       } else {
         // Lấy dữ liệu từ Firestore
@@ -83,30 +96,38 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
           return {
             id: doc.id,
             name: doc.data().name,
-            description: doc.data().description,
+            description: doc.data().description
           } as Department
         })
-        console.log("Đã lấy được", departmentsData.length, "phòng ban từ Firestore")
+        console.log(
+          'Đã lấy được',
+          departmentsData.length,
+          'phòng ban từ Firestore'
+        )
         setDepartments(departmentsData)
       }
     } catch (error) {
-      console.error("Lỗi khi lấy danh sách phòng ban:", error)
-      setDepartmentError(`Lỗi khi lấy danh sách phòng ban: ${error instanceof Error ? error.message : String(error)}`)
+      console.error('Lỗi khi lấy danh sách phòng ban:', error)
+      setDepartmentError(
+        `Lỗi khi lấy danh sách phòng ban: ${error instanceof Error ? error.message : String(error)}`
+      )
 
       // Sử dụng dữ liệu từ localStorage nếu có lỗi
       try {
-        if (typeof window !== "undefined") {
-          const storedDepartments = JSON.parse(localStorage.getItem("departments") || "[]")
+        if (typeof window !== 'undefined') {
+          const storedDepartments = JSON.parse(
+            localStorage.getItem('departments') || '[]'
+          )
           const simplifiedDepartments = storedDepartments.map((dept: any) => ({
             id: dept.id,
             name: dept.name,
-            description: dept.description,
+            description: dept.description
           }))
           setDepartments(simplifiedDepartments)
-          console.log("Đã sử dụng dữ liệu từ localStorage do lỗi Firestore")
+          console.log('Đã sử dụng dữ liệu từ localStorage do lỗi Firestore')
         }
       } catch (localError) {
-        console.error("Lỗi khi lấy dữ liệu từ localStorage:", localError)
+        console.error('Lỗi khi lấy dữ liệu từ localStorage:', localError)
       }
     } finally {
       setLoadingDepartments(false)
@@ -128,16 +149,21 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
     setSuccess(false)
     setError(null)
 
-    console.log("Bắt đầu xử lý thêm người dùng với dữ liệu:", formData)
+    console.log('Bắt đầu xử lý thêm người dùng với dữ liệu:', formData)
 
     try {
       // Kiểm tra username có nằm trong danh sách bị cấm không
-      if (RESERVED_USERNAMES.includes(formData.username.toLowerCase()) && formData.role !== "admin") {
-        setError(`Tên đăng nhập "${formData.username}" đã được đặt trước. Vui lòng chọn tên đăng nhập khác.`)
+      if (
+        RESERVED_USERNAMES.includes(formData.username.toLowerCase()) &&
+        formData.role !== 'admin'
+      ) {
+        setError(
+          `Tên đăng nhập "${formData.username}" đã được đặt trước. Vui lòng chọn tên đăng nhập khác.`
+        )
         toast({
-          variant: "destructive",
-          title: "Lỗi",
-          description: `Tên đăng nhập "${formData.username}" đã được đặt trước. Vui lòng chọn tên đăng nhập khác.`,
+          variant: 'destructive',
+          title: 'Lỗi',
+          description: `Tên đăng nhập "${formData.username}" đã được đặt trước. Vui lòng chọn tên đăng nhập khác.`
         })
         setLoading(false)
         return
@@ -145,59 +171,81 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
 
       // Kiểm tra mật khẩu xác nhận
       if (formData.password !== formData.confirmPassword) {
-        setError("Mật khẩu xác nhận không khớp")
+        setError('Mật khẩu xác nhận không khớp')
         toast({
-          variant: "destructive",
-          title: "Lỗi",
-          description: "Mật khẩu xác nhận không khớp",
+          variant: 'destructive',
+          title: 'Lỗi',
+          description: 'Mật khẩu xác nhận không khớp'
         })
         setLoading(false)
         return
       }
 
-      console.log("Đang kiểm tra username và email...")
+      console.log('Đang kiểm tra username và email...')
 
       // Kiểm tra username đã tồn tại chưa trong Firebase
-      const usersRef = collection(db, "users")
-      const pendingUsersRef = collection(db, "pendingUsers")
+      const usersRef = collection(db, 'users')
+      const pendingUsersRef = collection(db, 'pendingUsers')
 
       // Check if username exists in users collection
-      const usersQuery = query(usersRef, where("username", "==", formData.username.trim()))
+      const usersQuery = query(
+        usersRef,
+        where('username', '==', formData.username.trim())
+      )
       const usersSnapshot = await getDocs(usersQuery)
-      console.log("Kết quả kiểm tra username trong users:", !usersSnapshot.empty)
+      console.log(
+        'Kết quả kiểm tra username trong users:',
+        !usersSnapshot.empty
+      )
 
       // Check if username exists in pendingUsers collection
-      const pendingUsersQuery = query(pendingUsersRef, where("username", "==", formData.username.trim()))
+      const pendingUsersQuery = query(
+        pendingUsersRef,
+        where('username', '==', formData.username.trim())
+      )
       const pendingUsersSnapshot = await getDocs(pendingUsersQuery)
-      console.log("Kết quả kiểm tra username trong pendingUsers:", !pendingUsersSnapshot.empty)
+      console.log(
+        'Kết quả kiểm tra username trong pendingUsers:',
+        !pendingUsersSnapshot.empty
+      )
 
       if (!usersSnapshot.empty || !pendingUsersSnapshot.empty) {
-        setError("Tên đăng nhập đã tồn tại")
+        setError('Tên đăng nhập đã tồn tại')
         toast({
-          variant: "destructive",
-          title: "Lỗi",
-          description: "Tên đăng nhập đã tồn tại. Vui lòng chọn tên đăng nhập khác.",
+          variant: 'destructive',
+          title: 'Lỗi',
+          description:
+            'Tên đăng nhập đã tồn tại. Vui lòng chọn tên đăng nhập khác.'
         })
         setLoading(false)
         return
       }
 
       // Kiểm tra email đã tồn tại chưa
-      const emailQuery = query(usersRef, where("email", "==", formData.email.trim()))
+      const emailQuery = query(
+        usersRef,
+        where('email', '==', formData.email.trim())
+      )
       const emailSnapshot = await getDocs(emailQuery)
-      console.log("Kết quả kiểm tra email trong users:", !emailSnapshot.empty)
+      console.log('Kết quả kiểm tra email trong users:', !emailSnapshot.empty)
 
       // Check if email exists in pendingUsers collection
-      const pendingEmailQuery = query(pendingUsersRef, where("email", "==", formData.email.trim()))
+      const pendingEmailQuery = query(
+        pendingUsersRef,
+        where('email', '==', formData.email.trim())
+      )
       const pendingEmailSnapshot = await getDocs(pendingEmailQuery)
-      console.log("Kết quả kiểm tra email trong pendingUsers:", !pendingEmailSnapshot.empty)
+      console.log(
+        'Kết quả kiểm tra email trong pendingUsers:',
+        !pendingEmailSnapshot.empty
+      )
 
       if (!emailSnapshot.empty || !pendingEmailSnapshot.empty) {
-        setError("Email đã được sử dụng")
+        setError('Email đã được sử dụng')
         toast({
-          variant: "destructive",
-          title: "Lỗi",
-          description: "Email đã được sử dụng. Vui lòng sử dụng email khác.",
+          variant: 'destructive',
+          title: 'Lỗi',
+          description: 'Email đã được sử dụng. Vui lòng sử dụng email khác.'
         })
         setLoading(false)
         return
@@ -209,36 +257,36 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
         password: formData.password,
         fullName: formData.fullName.trim(),
         email: formData.email.trim(),
-        phone: formData.phone?.trim() || "",
+        phone: formData.phone?.trim() || '',
         role: formData.role,
         department: formData.department,
-        status: "active",
-        createdAt: new Date().toISOString(),
+        status: 'active',
+        createdAt: new Date().toISOString()
       }
 
-      console.log("Đang thêm người dùng mới vào users:", newUser)
+      console.log('Đang thêm người dùng mới vào users:', newUser)
 
       // Thêm vào collection users trong Firebase
       const docRef = await addDoc(usersRef, newUser)
-      console.log("Đã thêm người dùng với ID:", docRef.id)
+      console.log('Đã thêm người dùng với ID:', docRef.id)
 
       // Hiển thị thông báo thành công
       setSuccess(true)
       toast({
-        title: "Thành công",
-        description: `Tài khoản ${formData.username} đã được tạo thành công.`,
+        title: 'Thành công',
+        description: `Tài khoản ${formData.username} đã được tạo thành công.`
       })
 
       // Reset form
       setFormData({
-        username: "",
-        password: "",
-        confirmPassword: "",
-        fullName: "",
-        email: "",
-        phone: "",
-        role: "user",
-        department: "",
+        username: '',
+        password: '',
+        confirmPassword: '',
+        fullName: '',
+        email: '',
+        phone: '',
+        role: 'user',
+        department: ''
       })
 
       // Gọi callback nếu có
@@ -246,12 +294,14 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
         onUserAdded()
       }
     } catch (error) {
-      console.error("Lỗi khi tạo người dùng:", error)
-      setError(`Đã xảy ra lỗi: ${error instanceof Error ? error.message : String(error)}`)
+      console.error('Lỗi khi tạo người dùng:', error)
+      setError(
+        `Đã xảy ra lỗi: ${error instanceof Error ? error.message : String(error)}`
+      )
       toast({
-        variant: "destructive",
-        title: "Lỗi",
-        description: "Đã xảy ra lỗi khi tạo người dùng. Vui lòng thử lại sau.",
+        variant: 'destructive',
+        title: 'Lỗi',
+        description: 'Đã xảy ra lỗi khi tạo người dùng. Vui lòng thử lại sau.'
       })
     } finally {
       setLoading(false)
@@ -279,7 +329,9 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
         <Alert className="bg-green-50 border-green-200">
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertTitle className="text-green-800">Thành công!</AlertTitle>
-          <AlertDescription className="text-green-700">Tài khoản đã được tạo thành công.</AlertDescription>
+          <AlertDescription className="text-green-700">
+            Tài khoản đã được tạo thành công.
+          </AlertDescription>
         </Alert>
       )}
 
@@ -342,7 +394,7 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
             <Label htmlFor="role">Vai trò</Label>
             <Select
               value={formData.role}
-              onValueChange={(value) => handleSelectChange(value, "role")}
+              onValueChange={(value) => handleSelectChange(value, 'role')}
               disabled={loading}
             >
               <SelectTrigger id="role">
@@ -359,7 +411,7 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
             <Label htmlFor="department">Phòng ban</Label>
             <Select
               value={formData.department}
-              onValueChange={(value) => handleSelectChange(value, "department")}
+              onValueChange={(value) => handleSelectChange(value, 'department')}
               disabled={loading || loadingDepartments}
             >
               <SelectTrigger id="department">
@@ -412,7 +464,7 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
 
         <div className="flex justify-end">
           <Button type="submit" disabled={loading}>
-            {loading ? "Đang tạo..." : "Tạo người dùng"}
+            {loading ? 'Đang tạo...' : 'Tạo người dùng'}
           </Button>
         </div>
       </form>

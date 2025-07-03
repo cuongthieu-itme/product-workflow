@@ -1,8 +1,17 @@
-"use client"
+'use client'
 
-import { useMemo } from "react"
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { useRequest } from "@/components/requests/request-context-firebase"
+import { useMemo } from 'react'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from 'recharts'
+import { useRequest } from '@/components/requests/request-context-firebase'
 
 export default function RequestStatusChart() {
   const { requests, loading } = useRequest()
@@ -23,7 +32,10 @@ export default function RequestStatusChart() {
       // Lọc requests theo tháng
       const monthRequests = requests.filter((request) => {
         const createdAt = new Date(request.createdAt)
-        return createdAt.getMonth() === date.getMonth() && createdAt.getFullYear() === date.getFullYear()
+        return (
+          createdAt.getMonth() === date.getMonth() &&
+          createdAt.getFullYear() === date.getFullYear()
+        )
       })
 
       // Phân loại theo trạng thái
@@ -34,15 +46,21 @@ export default function RequestStatusChart() {
 
       monthRequests.forEach((request) => {
         if (request.workflowSteps && request.workflowSteps.length > 0) {
-          const allStepsCompleted = request.workflowSteps.every((step) => step.status === "completed")
-          const hasRejectedStep = request.workflowSteps.some((step) => step.status === "skipped")
-          const currentStep = request.workflowSteps.find((step) => step.stepOrder === request.currentStepOrder)
+          const allStepsCompleted = request.workflowSteps.every(
+            (step) => step.status === 'completed'
+          )
+          const hasRejectedStep = request.workflowSteps.some(
+            (step) => step.status === 'skipped'
+          )
+          const currentStep = request.workflowSteps.find(
+            (step) => step.stepOrder === request.currentStepOrder
+          )
 
           if (allStepsCompleted) {
             completed++
           } else if (hasRejectedStep) {
             rejectedOrPostponed++
-          } else if (currentStep && currentStep.status === "in_progress") {
+          } else if (currentStep && currentStep.status === 'in_progress') {
             inProgress++
           } else {
             pending++
@@ -54,9 +72,9 @@ export default function RequestStatusChart() {
 
       months.push({
         name: monthName,
-        "Đang xử lý": inProgress + pending, // Gộp chờ xử lý vào đang xử lý
-        "Hoàn thành": completed,
-        "Từ chối/Tạm hoãn": rejectedOrPostponed,
+        'Đang xử lý': inProgress + pending, // Gộp chờ xử lý vào đang xử lý
+        'Hoàn thành': completed,
+        'Từ chối/Tạm hoãn': rejectedOrPostponed
       })
     }
 

@@ -1,26 +1,46 @@
-"use client"
+'use client'
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo } from 'react'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Progress } from "@/components/ui/progress"
-import { useStandardWorkflow } from "@/components/workflow/standard-workflow-context-firebase"
-import { useProductStatus } from "@/components/product-status/product-status-context-firebase"
-import { useSubWorkflow } from "@/components/workflow/sub-workflow-context-firebase"
-import { CheckCircle, Clock, Info, AlertCircle, FileText, Workflow, LinkIcon } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+  DialogFooter
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Progress } from '@/components/ui/progress'
+import { useStandardWorkflow } from '@/components/workflow/standard-workflow-context-firebase'
+import { useProductStatus } from '@/components/product-status/product-status-context-firebase'
+import { useSubWorkflow } from '@/components/workflow/sub-workflow-context-firebase'
+import {
+  CheckCircle,
+  Clock,
+  Info,
+  AlertCircle,
+  FileText,
+  Workflow,
+  LinkIcon
+} from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 interface ProductStatusDetailProps {
   statusId: string
@@ -28,15 +48,24 @@ interface ProductStatusDetailProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductStatusDetailProps) {
+export function ProductStatusDetail({
+  statusId,
+  open,
+  onOpenChange
+}: ProductStatusDetailProps) {
   const { standardWorkflow, loading: workflowLoading } = useStandardWorkflow()
-  const { subWorkflows, getSubWorkflowById, loading: subWorkflowLoading } = useSubWorkflow()
-  const { productStatuses, assignWorkflowToStatus, getStandardWorkflowId } = useProductStatus()
+  const {
+    subWorkflows,
+    getSubWorkflowById,
+    loading: subWorkflowLoading
+  } = useSubWorkflow()
+  const { productStatuses, assignWorkflowToStatus, getStandardWorkflowId } =
+    useProductStatus()
   const [status, setStatus] = useState<any>(null)
   const [subWorkflow, setSubWorkflow] = useState<any>(null)
   const [workflowSteps, setWorkflowSteps] = useState<any[]>([])
-  const [activeTab, setActiveTab] = useState("info")
-  const [selectedWorkflowId, setSelectedWorkflowId] = useState<string>("")
+  const [activeTab, setActiveTab] = useState('info')
+  const [selectedWorkflowId, setSelectedWorkflowId] = useState<string>('')
   const [isAssigningWorkflow, setIsAssigningWorkflow] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [completedSteps, setCompletedSteps] = useState<number>(0)
@@ -47,7 +76,12 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
 
     // Lấy danh sách ID của các quy trình con đã được gán cho các trạng thái khác
     const assignedWorkflowIds = productStatuses
-      .filter((s) => s.id !== statusId && s.workflowId && s.workflowId !== getStandardWorkflowId())
+      .filter(
+        (s) =>
+          s.id !== statusId &&
+          s.workflowId &&
+          s.workflowId !== getStandardWorkflowId()
+      )
       .map((s) => s.workflowId)
 
     // Lọc ra các quy trình con chưa được gán hoặc đã được gán cho trạng thái hiện tại
@@ -77,7 +111,9 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
           setSubWorkflow(null)
           // Nếu là quy trình chuẩn, hiển thị tất cả các bước từ quy trình chuẩn
           if (standardWorkflow) {
-            setWorkflowSteps(standardWorkflow.steps.sort((a, b) => a.order - b.order))
+            setWorkflowSteps(
+              standardWorkflow.steps.sort((a, b) => a.order - b.order)
+            )
             // Giả lập 3 bước đã hoàn thành
             setCompletedSteps(3)
           }
@@ -86,7 +122,9 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
         setSelectedWorkflowId(getStandardWorkflowId())
         setSubWorkflow(null)
         if (standardWorkflow) {
-          setWorkflowSteps(standardWorkflow.steps.sort((a, b) => a.order - b.order))
+          setWorkflowSteps(
+            standardWorkflow.steps.sort((a, b) => a.order - b.order)
+          )
           // Giả lập 3 bước đã hoàn thành
           setCompletedSteps(3)
         }
@@ -124,13 +162,15 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
         // Fallback về quy trình chuẩn
         setSelectedWorkflowId(getStandardWorkflowId())
         if (standardWorkflow) {
-          setWorkflowSteps(standardWorkflow.steps.sort((a, b) => a.order - b.order))
+          setWorkflowSteps(
+            standardWorkflow.steps.sort((a, b) => a.order - b.order)
+          )
           setCompletedSteps(3)
         }
       }
     } catch (err) {
-      console.error("Error loading sub-workflow:", err)
-      setError("Đã xảy ra lỗi khi tải thông tin quy trình con")
+      console.error('Error loading sub-workflow:', err)
+      setError('Đã xảy ra lỗi khi tải thông tin quy trình con')
       setSubWorkflow(null)
     }
   }
@@ -150,7 +190,9 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
         setSubWorkflow(null)
         // Nếu chọn quy trình chuẩn, hiển thị tất cả các bước từ quy trình chuẩn
         if (standardWorkflow) {
-          setWorkflowSteps(standardWorkflow.steps.sort((a, b) => a.order - b.order))
+          setWorkflowSteps(
+            standardWorkflow.steps.sort((a, b) => a.order - b.order)
+          )
           setCompletedSteps(3)
         }
       } else {
@@ -161,11 +203,11 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
       // Cập nhật status với workflowId mới
       setStatus({
         ...status,
-        workflowId: selectedWorkflowId,
+        workflowId: selectedWorkflowId
       })
     } catch (error: any) {
-      console.error("Error assigning workflow:", error)
-      setError(error.message || "Đã xảy ra lỗi khi gán quy trình")
+      console.error('Error assigning workflow:', error)
+      setError(error.message || 'Đã xảy ra lỗi khi gán quy trình')
     } finally {
       setIsAssigningWorkflow(false)
     }
@@ -176,20 +218,26 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
   const loading = workflowLoading || subWorkflowLoading
 
   // Tính toán tiến độ quy trình
-  const progressPercentage = workflowSteps.length > 0 ? (completedSteps / workflowSteps.length) * 100 : 0
+  const progressPercentage =
+    workflowSteps.length > 0 ? (completedSteps / workflowSteps.length) * 100 : 0
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {status?.name || "Chi tiết trạng thái"}
+            {status?.name || 'Chi tiết trạng thái'}
             {status?.color && (
-              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: status.color }} aria-hidden="true"></div>
+              <div
+                className="w-4 h-4 rounded-full"
+                style={{ backgroundColor: status.color }}
+                aria-hidden="true"
+              ></div>
             )}
           </DialogTitle>
           <DialogDescription>
-            {status?.description || "Thông tin chi tiết về trạng thái sản phẩm và quy trình liên quan"}
+            {status?.description ||
+              'Thông tin chi tiết về trạng thái sản phẩm và quy trình liên quan'}
           </DialogDescription>
         </DialogHeader>
 
@@ -216,7 +264,9 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
                 <div className="space-y-4 p-1">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Thông tin trạng thái</CardTitle>
+                      <CardTitle className="text-lg">
+                        Thông tin trạng thái
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
                       {status ? (
@@ -227,24 +277,27 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
                           </div>
                           <div className="grid grid-cols-[100px_1fr] gap-2">
                             <div className="font-medium">Mô tả:</div>
-                            <div>{status.description || "Không có mô tả"}</div>
+                            <div>{status.description || 'Không có mô tả'}</div>
                           </div>
                           <div className="grid grid-cols-[100px_1fr] gap-2">
                             <div className="font-medium">Màu sắc:</div>
                             <div className="flex items-center gap-2">
                               {status.color ? (
                                 <>
-                                  <div className="w-4 h-4 rounded-full" style={{ backgroundColor: status.color }}></div>
+                                  <div
+                                    className="w-4 h-4 rounded-full"
+                                    style={{ backgroundColor: status.color }}
+                                  ></div>
                                   <span>{status.color}</span>
                                 </>
                               ) : (
-                                "Không có màu"
+                                'Không có màu'
                               )}
                             </div>
                           </div>
                           <div className="grid grid-cols-[100px_1fr] gap-2">
                             <div className="font-medium">Mặc định:</div>
-                            <div>{status.isDefault ? "Có" : "Không"}</div>
+                            <div>{status.isDefault ? 'Có' : 'Không'}</div>
                           </div>
                           <div className="grid grid-cols-[100px_1fr] gap-2">
                             <div className="font-medium">Quy trình:</div>
@@ -252,9 +305,13 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
                               {status.workflowId === getStandardWorkflowId() ? (
                                 <span>Quy trình chuẩn</span>
                               ) : subWorkflow ? (
-                                <span>Quy trình tùy chỉnh: {subWorkflow.name}</span>
+                                <span>
+                                  Quy trình tùy chỉnh: {subWorkflow.name}
+                                </span>
                               ) : (
-                                <span>Quy trình tùy chỉnh (ID: {status.workflowId})</span>
+                                <span>
+                                  Quy trình tùy chỉnh (ID: {status.workflowId})
+                                </span>
                               )}
                               <LinkIcon className="h-4 w-4 text-muted-foreground" />
                             </div>
@@ -270,18 +327,26 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
 
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Thống kê sử dụng</CardTitle>
-                      <CardDescription>Thông tin về việc sử dụng trạng thái này</CardDescription>
+                      <CardTitle className="text-lg">
+                        Thống kê sử dụng
+                      </CardTitle>
+                      <CardDescription>
+                        Thông tin về việc sử dụng trạng thái này
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-2">
                       <div className="grid grid-cols-[1fr_1fr] gap-4">
                         <div className="border rounded-lg p-4 text-center">
                           <div className="text-2xl font-bold">12</div>
-                          <div className="text-sm text-muted-foreground">Sản phẩm đang sử dụng</div>
+                          <div className="text-sm text-muted-foreground">
+                            Sản phẩm đang sử dụng
+                          </div>
                         </div>
                         <div className="border rounded-lg p-4 text-center">
                           <div className="text-2xl font-bold">5</div>
-                          <div className="text-sm text-muted-foreground">Yêu cầu đang xử lý</div>
+                          <div className="text-sm text-muted-foreground">
+                            Yêu cầu đang xử lý
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -298,7 +363,9 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
                       <CardContent className="py-6">
                         <div className="text-center">
                           <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
-                          <div className="mt-2">Đang tải thông tin quy trình...</div>
+                          <div className="mt-2">
+                            Đang tải thông tin quy trình...
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -315,12 +382,24 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
                       <Card>
                         <CardHeader>
                           <div className="flex items-center justify-between">
-                            <CardTitle className="text-lg">Quy trình được gán</CardTitle>
-                            <Badge variant={status?.workflowId !== getStandardWorkflowId() ? "default" : "outline"}>
-                              {status?.workflowId !== getStandardWorkflowId() ? "Tùy chỉnh" : "Mặc định"}
+                            <CardTitle className="text-lg">
+                              Quy trình được gán
+                            </CardTitle>
+                            <Badge
+                              variant={
+                                status?.workflowId !== getStandardWorkflowId()
+                                  ? 'default'
+                                  : 'outline'
+                              }
+                            >
+                              {status?.workflowId !== getStandardWorkflowId()
+                                ? 'Tùy chỉnh'
+                                : 'Mặc định'}
                             </Badge>
                           </div>
-                          <CardDescription>Chọn quy trình áp dụng cho trạng thái này</CardDescription>
+                          <CardDescription>
+                            Chọn quy trình áp dụng cho trạng thái này
+                          </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                           <div className="flex items-end gap-2">
@@ -334,11 +413,17 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
                                   <SelectValue placeholder="Chọn quy trình" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value={getStandardWorkflowId()}>Quy trình chuẩn</SelectItem>
+                                  <SelectItem value={getStandardWorkflowId()}>
+                                    Quy trình chuẩn
+                                  </SelectItem>
                                   {availableSubWorkflows.map((workflow) => (
-                                    <SelectItem key={workflow.id} value={workflow.id}>
+                                    <SelectItem
+                                      key={workflow.id}
+                                      value={workflow.id}
+                                    >
                                       {workflow.name}
-                                      {status?.workflowId === workflow.id && " (đang sử dụng)"}
+                                      {status?.workflowId === workflow.id &&
+                                        ' (đang sử dụng)'}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -346,7 +431,10 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
                             </div>
                             <Button
                               onClick={handleAssignWorkflow}
-                              disabled={isAssigningWorkflow || selectedWorkflowId === status?.workflowId}
+                              disabled={
+                                isAssigningWorkflow ||
+                                selectedWorkflowId === status?.workflowId
+                              }
                             >
                               {isAssigningWorkflow ? (
                                 <>
@@ -354,48 +442,63 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
                                   Đang gán...
                                 </>
                               ) : (
-                                "Gán quy trình"
+                                'Gán quy trình'
                               )}
                             </Button>
                           </div>
 
-                          {availableSubWorkflows.length === 0 && subWorkflows.length > 0 && (
-                            <Alert className="mt-2">
-                              <AlertCircle className="h-4 w-4" />
-                              <AlertTitle>Lưu ý</AlertTitle>
-                              <AlertDescription>
-                                Tất cả các quy trình con đã được gán cho các trạng thái khác. Bạn có thể sử dụng quy
-                                trình chuẩn hoặc tạo quy trình con mới.
-                              </AlertDescription>
-                            </Alert>
-                          )}
+                          {availableSubWorkflows.length === 0 &&
+                            subWorkflows.length > 0 && (
+                              <Alert className="mt-2">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertTitle>Lưu ý</AlertTitle>
+                                <AlertDescription>
+                                  Tất cả các quy trình con đã được gán cho các
+                                  trạng thái khác. Bạn có thể sử dụng quy trình
+                                  chuẩn hoặc tạo quy trình con mới.
+                                </AlertDescription>
+                              </Alert>
+                            )}
 
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <div className="text-sm font-medium">Tiến độ quy trình</div>
+                              <div className="text-sm font-medium">
+                                Tiến độ quy trình
+                              </div>
                               <div className="text-sm text-muted-foreground">
                                 {completedSteps}/{workflowSteps.length} bước
                               </div>
                             </div>
-                            <Progress value={progressPercentage} className="h-2" />
+                            <Progress
+                              value={progressPercentage}
+                              className="h-2"
+                            />
                           </div>
 
                           <div className="space-y-1">
-                            <div className="text-sm font-medium">Thông tin quy trình</div>
+                            <div className="text-sm font-medium">
+                              Thông tin quy trình
+                            </div>
                             <div className="grid grid-cols-2 gap-2 text-sm">
                               <div className="flex items-center gap-1">
                                 <Clock className="h-4 w-4 text-muted-foreground" />
                                 <span>
-                                  Thời gian ước tính:{" "}
+                                  Thời gian ước tính:{' '}
                                   <strong>
-                                    {workflowSteps.reduce((acc, step) => acc + (step.estimatedDays || 0), 0)} ngày
+                                    {workflowSteps.reduce(
+                                      (acc, step) =>
+                                        acc + (step.estimatedDays || 0),
+                                      0
+                                    )}{' '}
+                                    ngày
                                   </strong>
                                 </span>
                               </div>
                               <div className="flex items-center gap-1">
                                 <FileText className="h-4 w-4 text-muted-foreground" />
                                 <span>
-                                  Số bước: <strong>{workflowSteps.length}</strong>
+                                  Số bước:{' '}
+                                  <strong>{workflowSteps.length}</strong>
                                 </span>
                               </div>
                             </div>
@@ -405,11 +508,13 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
 
                       <Card>
                         <CardHeader>
-                          <CardTitle className="text-lg">Các bước trong quy trình</CardTitle>
+                          <CardTitle className="text-lg">
+                            Các bước trong quy trình
+                          </CardTitle>
                           <CardDescription>
                             {subWorkflow
                               ? `Danh sách các bước được chọn cho quy trình "${subWorkflow.name}"`
-                              : "Tất cả các bước trong quy trình chuẩn"}
+                              : 'Tất cả các bước trong quy trình chuẩn'}
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -420,7 +525,10 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
                                 const isCompleted = index < completedSteps
 
                                 return (
-                                  <div key={step.id} className="relative pl-8 pb-4">
+                                  <div
+                                    key={step.id}
+                                    className="relative pl-8 pb-4"
+                                  >
                                     {/* Đường kẻ dọc kết nối các bước */}
                                     {index < workflowSteps.length - 1 && (
                                       <div className="absolute left-3 top-6 bottom-0 w-0.5 bg-muted-foreground/20"></div>
@@ -432,29 +540,47 @@ export function ProductStatusDetail({ statusId, open, onOpenChange }: ProductSta
                                         <CheckCircle className="h-6 w-6 text-green-500" />
                                       ) : (
                                         <div className="h-6 w-6 rounded-full border-2 border-muted-foreground/40 flex items-center justify-center">
-                                          <span className="text-xs font-medium">{index + 1}</span>
+                                          <span className="text-xs font-medium">
+                                            {index + 1}
+                                          </span>
                                         </div>
                                       )}
                                     </div>
 
                                     {/* Nội dung bước */}
-                                    <div className={`border rounded-lg p-3 ${isCompleted ? "bg-muted/30" : ""}`}>
+                                    <div
+                                      className={`border rounded-lg p-3 ${isCompleted ? 'bg-muted/30' : ''}`}
+                                    >
                                       <div className="flex items-center justify-between mb-1">
-                                        <h4 className="font-medium">{step.name}</h4>
-                                        <Badge variant={isCompleted ? "success" : "outline"}>
-                                          {isCompleted ? "Hoàn thành" : "Chưa hoàn thành"}
+                                        <h4 className="font-medium">
+                                          {step.name}
+                                        </h4>
+                                        <Badge
+                                          variant={
+                                            isCompleted ? 'success' : 'outline'
+                                          }
+                                        >
+                                          {isCompleted
+                                            ? 'Hoàn thành'
+                                            : 'Chưa hoàn thành'}
                                         </Badge>
                                       </div>
-                                      <p className="text-sm text-muted-foreground">{step.description}</p>
+                                      <p className="text-sm text-muted-foreground">
+                                        {step.description}
+                                      </p>
 
                                       <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
                                         <div className="flex items-center gap-1">
                                           <Clock className="h-3 w-3" />
-                                          <span>{step.estimatedDays || 1} ngày</span>
+                                          <span>
+                                            {step.estimatedDays || 1} ngày
+                                          </span>
                                         </div>
                                         {step.assigneeRole && (
                                           <div className="flex items-center gap-1">
-                                            <span>Vai trò: {step.assigneeRole}</span>
+                                            <span>
+                                              Vai trò: {step.assigneeRole}
+                                            </span>
                                           </div>
                                         )}
                                         {step.hasCost && (

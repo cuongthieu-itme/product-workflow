@@ -1,4 +1,4 @@
-import { CheckRequestsCollection } from "@/components/requests/check-requests-collection"
+import { CheckRequestsCollection } from '@/components/requests/check-requests-collection'
 
 export default function CheckRequestsCollectionPage() {
   return (

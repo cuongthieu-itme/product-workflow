@@ -1,11 +1,11 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Upload, X } from "lucide-react"
-import Image from "next/image"
+import { useState, useRef } from 'react'
+import { Button } from '@/components/ui/button'
+import { Upload, X } from 'lucide-react'
+import Image from 'next/image'
 
 interface ImageUploadProps {
   initialImage?: string
@@ -13,7 +13,9 @@ interface ImageUploadProps {
 }
 
 export function ImageUpload({ initialImage, onImageChange }: ImageUploadProps) {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(initialImage || null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    initialImage || null
+  )
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,9 +35,9 @@ export function ImageUpload({ initialImage, onImageChange }: ImageUploadProps) {
 
   const handleRemoveImage = () => {
     setPreviewUrl(null)
-    onImageChange("")
+    onImageChange('')
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = ''
     }
   }
 
@@ -44,16 +46,24 @@ export function ImageUpload({ initialImage, onImageChange }: ImageUploadProps) {
       {previewUrl ? (
         <div className="relative w-full h-48">
           <Image
-            src={previewUrl || "/placeholder.svg?height=200&width=200&query=preview"}
+            src={
+              previewUrl ||
+              '/placeholder.svg?height=200&width=200&query=preview'
+            }
             alt="Preview"
             fill
             className="object-contain rounded-md"
             onError={(e) => {
               // Fallback to placeholder if image fails to load
-              e.currentTarget.src = "/generic-preview-screen.png"
+              e.currentTarget.src = '/generic-preview-screen.png'
             }}
           />
-          <Button variant="destructive" size="icon" className="absolute top-2 right-2" onClick={handleRemoveImage}>
+          <Button
+            variant="destructive"
+            size="icon"
+            className="absolute top-2 right-2"
+            onClick={handleRemoveImage}
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -67,7 +77,13 @@ export function ImageUpload({ initialImage, onImageChange }: ImageUploadProps) {
           <p className="text-xs text-gray-400 mt-1">PNG, JPG, GIF tối đa 5MB</p>
         </div>
       )}
-      <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        className="hidden"
+      />
     </div>
   )
 }

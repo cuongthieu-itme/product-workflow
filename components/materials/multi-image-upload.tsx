@@ -1,12 +1,12 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Upload, X, Plus } from "lucide-react"
-import Image from "next/image"
-import { toast } from "@/components/ui/use-toast"
+import { useState, useRef } from 'react'
+import { Button } from '@/components/ui/button'
+import { Upload, X, Plus } from 'lucide-react'
+import Image from 'next/image'
+import { toast } from '@/components/ui/use-toast'
 
 interface MultiImageUploadProps {
   initialImages?: string[]
@@ -21,7 +21,7 @@ export function MultiImageUpload({
   onImagesChange,
   onChange,
   images: propImages,
-  maxImages = 5,
+  maxImages = 5
 }: MultiImageUploadProps) {
   // Sử dụng images từ props nếu có, nếu không thì dùng initialImages
   const [images, setImages] = useState<string[]>(propImages || initialImages)
@@ -42,9 +42,9 @@ export function MultiImageUpload({
     // Kiểm tra số lượng hình ảnh tối đa
     if (images.length + files.length > maxImages) {
       toast({
-        title: "Lỗi",
+        title: 'Lỗi',
         description: `Bạn chỉ có thể tải lên tối đa ${maxImages} hình ảnh`,
-        variant: "destructive",
+        variant: 'destructive'
       })
       return
     }
@@ -61,7 +61,7 @@ export function MultiImageUpload({
 
     // Reset input để có thể chọn lại cùng một file
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = ''
     }
   }
 
@@ -74,15 +74,20 @@ export function MultiImageUpload({
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-4">
         {images.map((image, index) => (
-          <div key={index} className="relative h-32 border rounded-md overflow-hidden">
+          <div
+            key={index}
+            className="relative h-32 border rounded-md overflow-hidden"
+          >
             <Image
-              src={image || "/placeholder.svg?height=200&width=200&query=preview"}
+              src={
+                image || '/placeholder.svg?height=200&width=200&query=preview'
+              }
               alt={`Image ${index + 1}`}
               fill
               className="object-cover"
               onError={(e) => {
                 // Fallback to placeholder if image fails to load
-                e.currentTarget.src = "/generic-preview-screen.png"
+                e.currentTarget.src = '/generic-preview-screen.png'
               }}
             />
             <Button
@@ -124,7 +129,14 @@ export function MultiImageUpload({
         </div>
       )}
 
-      <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" multiple />
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        className="hidden"
+        multiple
+      />
     </div>
   )
 }

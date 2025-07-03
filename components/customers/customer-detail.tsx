@@ -1,14 +1,19 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { useCustomers, type Customer } from "./customer-context"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { CustomerForm } from "./customer-form"
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
-import { Pencil, Phone, Mail, Calendar, User } from "lucide-react"
+import { useEffect, useState } from 'react'
+import { useCustomers, type Customer } from './customer-context'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { CustomerForm } from './customer-form'
+import { format } from 'date-fns'
+import { vi } from 'date-fns/locale'
+import { Pencil, Phone, Mail, Calendar, User } from 'lucide-react'
 
 interface CustomerDetailProps {
   customerId: string
@@ -27,24 +32,24 @@ export function CustomerDetail({ customerId }: CustomerDetailProps) {
   }, [customerId, getCustomerById])
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return "N/A"
+    if (!dateString) return 'N/A'
     try {
-      return format(new Date(dateString), "dd/MM/yyyy", { locale: vi })
+      return format(new Date(dateString), 'dd/MM/yyyy', { locale: vi })
     } catch (error) {
-      return "Invalid date"
+      return 'Invalid date'
     }
   }
 
   const formatGender = (gender?: string) => {
     switch (gender) {
-      case "male":
-        return "Nam"
-      case "female":
-        return "Nữ"
-      case "other":
-        return "Khác"
+      case 'male':
+        return 'Nam'
+      case 'female':
+        return 'Nữ'
+      case 'other':
+        return 'Khác'
       default:
-        return "N/A"
+        return 'N/A'
     }
   }
 
@@ -53,14 +58,22 @@ export function CustomerDetail({ customerId }: CustomerDetailProps) {
   }
 
   if (!customer) {
-    return <div className="text-center py-4">Không tìm thấy thông tin khách hàng</div>
+    return (
+      <div className="text-center py-4">
+        Không tìm thấy thông tin khách hàng
+      </div>
+    )
   }
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Thông tin khách hàng</CardTitle>
-        <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowEditDialog(true)}
+        >
           <Pencil className="mr-2 h-4 w-4" />
           Chỉnh sửa
         </Button>
@@ -81,7 +94,7 @@ export function CustomerDetail({ customerId }: CustomerDetailProps) {
                   {customer.phone}
                 </>
               ) : (
-                "N/A"
+                'N/A'
               )}
             </p>
           </div>
@@ -95,14 +108,14 @@ export function CustomerDetail({ customerId }: CustomerDetailProps) {
                   {customer.email}
                 </>
               ) : (
-                "N/A"
+                'N/A'
               )}
             </p>
           </div>
 
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Nguồn khách hàng</p>
-            <p className="font-medium">{customer.source || "N/A"}</p>
+            <p className="font-medium">{customer.source || 'N/A'}</p>
           </div>
 
           <div className="space-y-1">
@@ -114,7 +127,7 @@ export function CustomerDetail({ customerId }: CustomerDetailProps) {
                   {formatDate(customer.birthDate)}
                 </>
               ) : (
-                "N/A"
+                'N/A'
               )}
             </p>
           </div>
@@ -147,7 +160,10 @@ export function CustomerDetail({ customerId }: CustomerDetailProps) {
           <DialogHeader>
             <DialogTitle>Chỉnh sửa thông tin khách hàng</DialogTitle>
           </DialogHeader>
-          <CustomerForm customerId={customerId} onSuccess={() => setShowEditDialog(false)} />
+          <CustomerForm
+            customerId={customerId}
+            onSuccess={() => setShowEditDialog(false)}
+          />
         </DialogContent>
       </Dialog>
     </Card>

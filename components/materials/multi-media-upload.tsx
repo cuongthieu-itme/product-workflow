@@ -1,19 +1,28 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { X, Upload, ImageIcon, Video, Play, Pause, Volume2, VolumeX } from "lucide-react"
-import { cn } from "@/lib/utils"
-import Image from "next/image"
+import { useState, useRef } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import {
+  X,
+  Upload,
+  ImageIcon,
+  Video,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 interface MediaFile {
   url: string
-  type: "image" | "video"
+  type: 'image' | 'video'
   name?: string
   size?: number
   duration?: number
@@ -35,10 +44,16 @@ export function MultiMediaUpload({
   onMediaChange,
   maxFiles = 10,
   maxFileSize = 50, // 50MB default
-  acceptedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"],
-  acceptedVideoTypes = ["video/mp4", "video/webm", "video/ogg", "video/avi", "video/mov"],
+  acceptedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+  acceptedVideoTypes = [
+    'video/mp4',
+    'video/webm',
+    'video/ogg',
+    'video/avi',
+    'video/mov'
+  ],
   disabled = false,
-  className,
+  className
 }: MultiMediaUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -66,14 +81,14 @@ export function MultiMediaUpload({
     })
   }
 
-  const getMediaType = (file: File): "image" | "video" => {
-    return acceptedImageTypes.includes(file.type) ? "image" : "video"
+  const getMediaType = (file: File): 'image' | 'video' => {
+    return acceptedImageTypes.includes(file.type) ? 'image' : 'video'
   }
 
   const getVideoDuration = (file: File): Promise<number> => {
     return new Promise((resolve) => {
-      const video = document.createElement("video")
-      video.preload = "metadata"
+      const video = document.createElement('video')
+      video.preload = 'metadata'
       video.onloadedmetadata = () => {
         resolve(video.duration)
       }
@@ -112,7 +127,7 @@ export function MultiMediaUpload({
         const type = getMediaType(file)
         let duration: number | undefined
 
-        if (type === "video") {
+        if (type === 'video') {
           duration = await getVideoDuration(file)
         }
 
@@ -121,14 +136,14 @@ export function MultiMediaUpload({
           type,
           name: file.name,
           size: file.size,
-          duration,
+          duration
         })
       }
 
       onMediaChange([...media, ...newMediaFiles])
     } catch (error) {
-      console.error("Error uploading files:", error)
-      alert("Có lỗi xảy ra khi tải file")
+      console.error('Error uploading files:', error)
+      alert('Có lỗi xảy ra khi tải file')
     } finally {
       setUploading(false)
       setUploadProgress(0)
@@ -185,27 +200,31 @@ export function MultiMediaUpload({
   }
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes"
+    if (bytes === 0) return '0 Bytes'
     const k = 1024
-    const sizes = ["Bytes", "KB", "MB", "GB"]
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+    return (
+      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+    )
   }
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = Math.floor(seconds % 60)
-    return `${mins}:${secs.toString().padStart(2, "0")}`
+    return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn('space-y-4', className)}>
       {/* Upload Area */}
       <div
         className={cn(
-          "border-2 border-dashed rounded-lg p-6 text-center transition-colors",
-          dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300",
-          disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-gray-400",
+          'border-2 border-dashed rounded-lg p-6 text-center transition-colors',
+          dragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300',
+          disabled
+            ? 'opacity-50 cursor-not-allowed'
+            : 'cursor-pointer hover:border-gray-400'
         )}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -216,16 +235,19 @@ export function MultiMediaUpload({
           ref={fileInputRef}
           type="file"
           multiple
-          accept={allAcceptedTypes.join(",")}
+          accept={allAcceptedTypes.join(',')}
           onChange={(e) => e.target.files && handleFileSelect(e.target.files)}
           className="hidden"
           disabled={disabled}
         />
 
         <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-        <p className="text-lg font-medium text-gray-900 mb-2">Kéo thả file vào đây hoặc click để chọn</p>
+        <p className="text-lg font-medium text-gray-900 mb-2">
+          Kéo thả file vào đây hoặc click để chọn
+        </p>
         <p className="text-sm text-gray-500 mb-4">
-          Hỗ trợ hình ảnh (JPG, PNG, GIF, WebP) và video (MP4, WebM, OGG, AVI, MOV)
+          Hỗ trợ hình ảnh (JPG, PNG, GIF, WebP) và video (MP4, WebM, OGG, AVI,
+          MOV)
         </p>
         <p className="text-xs text-gray-400">
           Tối đa {maxFiles} file, mỗi file không quá {maxFileSize}MB
@@ -234,7 +256,9 @@ export function MultiMediaUpload({
         {uploading && (
           <div className="mt-4">
             <Progress value={uploadProgress} className="w-full" />
-            <p className="text-sm text-gray-500 mt-2">Đang tải lên... {uploadProgress}%</p>
+            <p className="text-sm text-gray-500 mt-2">
+              Đang tải lên... {uploadProgress}%
+            </p>
           </div>
         )}
       </div>
@@ -245,15 +269,18 @@ export function MultiMediaUpload({
           {media.map((item, index) => (
             <Card key={index} className="relative group overflow-hidden">
               <CardContent className="p-0">
-                {item.type === "image" ? (
+                {item.type === 'image' ? (
                   <div className="relative aspect-square">
                     <Image
-                      src={item.url || "/placeholder.svg"}
+                      src={item.url || '/placeholder.svg'}
                       alt={item.name || `Image ${index + 1}`}
                       fill
                       className="object-cover"
                     />
-                    <Badge variant="secondary" className="absolute top-2 left-2">
+                    <Badge
+                      variant="secondary"
+                      className="absolute top-2 left-2"
+                    >
                       <ImageIcon className="h-3 w-3 mr-1" />
                       IMG
                     </Badge>
@@ -289,12 +316,16 @@ export function MultiMediaUpload({
                           onClick={(e) => {
                             e.stopPropagation()
                             const video = e.currentTarget
-                              .closest(".relative")
-                              ?.querySelector("video") as HTMLVideoElement
+                              .closest('.relative')
+                              ?.querySelector('video') as HTMLVideoElement
                             if (video) toggleVideoPlay(item.url, video)
                           }}
                         >
-                          {playingVideos.has(item.url) ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                          {playingVideos.has(item.url) ? (
+                            <Pause className="h-4 w-4" />
+                          ) : (
+                            <Play className="h-4 w-4" />
+                          )}
                         </Button>
                         <Button
                           size="sm"
@@ -303,8 +334,8 @@ export function MultiMediaUpload({
                           onClick={(e) => {
                             e.stopPropagation()
                             const video = e.currentTarget
-                              .closest(".relative")
-                              ?.querySelector("video") as HTMLVideoElement
+                              .closest('.relative')
+                              ?.querySelector('video') as HTMLVideoElement
                             if (video) toggleVideoMute(item.url, video)
                           }}
                         >
@@ -317,9 +348,12 @@ export function MultiMediaUpload({
                       </div>
                     </div>
 
-                    <Badge variant="secondary" className="absolute top-2 left-2">
+                    <Badge
+                      variant="secondary"
+                      className="absolute top-2 left-2"
+                    >
                       <Video className="h-3 w-3 mr-1" />
-                      {item.duration ? formatDuration(item.duration) : "VIDEO"}
+                      {item.duration ? formatDuration(item.duration) : 'VIDEO'}
                     </Badge>
                   </div>
                 )}
@@ -328,11 +362,18 @@ export function MultiMediaUpload({
                 {(item.name || item.size) && (
                   <div className="p-2 bg-gray-50">
                     {item.name && (
-                      <p className="text-xs font-medium text-gray-900 truncate" title={item.name}>
+                      <p
+                        className="text-xs font-medium text-gray-900 truncate"
+                        title={item.name}
+                      >
                         {item.name}
                       </p>
                     )}
-                    {item.size && <p className="text-xs text-gray-500">{formatFileSize(item.size)}</p>}
+                    {item.size && (
+                      <p className="text-xs text-gray-500">
+                        {formatFileSize(item.size)}
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -361,8 +402,8 @@ export function MultiMediaUpload({
             {media.length} / {maxFiles} file
           </span>
           <span>
-            {media.filter((m) => m.type === "image").length} hình ảnh, {media.filter((m) => m.type === "video").length}{" "}
-            video
+            {media.filter((m) => m.type === 'image').length} hình ảnh,{' '}
+            {media.filter((m) => m.type === 'video').length} video
           </span>
         </div>
       )}

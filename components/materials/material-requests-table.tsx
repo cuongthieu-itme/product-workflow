@@ -1,30 +1,52 @@
-"use client"
+'use client'
 
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
-import { useState } from "react"
-import { useMaterialContext, type MaterialRequest } from "./material-context"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useState } from 'react'
+import { useMaterialContext, type MaterialRequest } from './material-context'
+import { Button } from '@/components/ui/button'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { DatePicker } from "@/components/ui/date-picker"
-import { Edit, Trash2, Plus, CheckCircle, Clock, AlertCircle, Filter, Search } from "lucide-react"
-import { toast } from "@/components/ui/use-toast"
-import { format, parseISO, isAfter } from "date-fns"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
+import { DatePicker } from '@/components/ui/date-picker'
+import {
+  Edit,
+  Trash2,
+  Plus,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Filter,
+  Search
+} from 'lucide-react'
+import { toast } from '@/components/ui/use-toast'
+import { format, parseISO, isAfter } from 'date-fns'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export function MaterialRequestsTable() {
   const {
@@ -34,18 +56,23 @@ export function MaterialRequestsTable() {
     updateMaterialRequest,
     deleteMaterialRequest,
     updateRequestStatus,
-    updateMaterialQuantity,
+    updateMaterialQuantity
   } = useMaterialContext()
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false)
-  const [currentRequest, setCurrentRequest] = useState<MaterialRequest | null>(null)
+  const [currentRequest, setCurrentRequest] = useState<MaterialRequest | null>(
+    null
+  )
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
-  const [selectedStatus, setSelectedStatus] = useState<MaterialRequest["status"]>("pending")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState<MaterialRequest["status"] | "all">("all")
+  const [selectedStatus, setSelectedStatus] =
+    useState<MaterialRequest['status']>('pending')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<
+    MaterialRequest['status'] | 'all'
+  >('all')
   const [formData, setFormData] = useState<{
     materialId: string
     quantity: number
@@ -56,14 +83,14 @@ export function MaterialRequestsTable() {
     importPrice: number | undefined
     requestCode: string
   }>({
-    materialId: "",
+    materialId: '',
     quantity: 0,
     expectedDate: undefined,
-    supplier: "",
-    reason: "",
-    sourceCountry: "",
+    supplier: '',
+    reason: '',
+    sourceCountry: '',
     importPrice: undefined,
-    requestCode: "",
+    requestCode: ''
   })
 
   // Lọc ra các nguyên vật liệu đang hoạt động
@@ -77,7 +104,7 @@ export function MaterialRequestsTable() {
         item.quantity === current.quantity &&
         item.expectedDate === current.expectedDate &&
         item.supplier === current.supplier &&
-        item.requestCode === current.requestCode,
+        item.requestCode === current.requestCode
     )
 
     if (!isDuplicate) {
@@ -88,7 +115,8 @@ export function MaterialRequestsTable() {
 
   // Lọc yêu cầu theo trạng thái và từ khóa tìm kiếm
   const filteredRequests = uniqueRequests.filter((request) => {
-    const matchesStatus = statusFilter === "all" || request.status === statusFilter
+    const matchesStatus =
+      statusFilter === 'all' || request.status === statusFilter
     const matchesSearch =
       request.materialName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       request.supplier?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -100,11 +128,15 @@ export function MaterialRequestsTable() {
 
   // Xử lý thêm đơn yêu cầu mới
   const handleAddRequest = () => {
-    if (!formData.materialId || formData.quantity <= 0 || !formData.expectedDate) {
+    if (
+      !formData.materialId ||
+      formData.quantity <= 0 ||
+      !formData.expectedDate
+    ) {
       toast({
-        title: "Lỗi",
-        description: "Vui lòng điền đầy đủ thông tin bắt buộc",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Vui lòng điền đầy đủ thông tin bắt buộc',
+        variant: 'destructive'
       })
       return
     }
@@ -112,9 +144,9 @@ export function MaterialRequestsTable() {
     const material = materials.find((m) => m.id === formData.materialId)
     if (!material) {
       toast({
-        title: "Lỗi",
-        description: "Không tìm thấy nguyên vật liệu",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Không tìm thấy nguyên vật liệu',
+        variant: 'destructive'
       })
       return
     }
@@ -124,16 +156,16 @@ export function MaterialRequestsTable() {
       quantity: formData.quantity,
       expectedDate: formData.expectedDate.toISOString(),
       supplier: formData.supplier,
-      status: "pending",
+      status: 'pending',
       reason: formData.reason,
       sourceCountry: formData.sourceCountry || material.origin,
       importPrice: formData.importPrice || material.importPrice,
-      requestCode: formData.requestCode,
+      requestCode: formData.requestCode
     })
 
     toast({
-      title: "Thành công",
-      description: "Đã tạo đơn yêu cầu nhập nguyên vật liệu",
+      title: 'Thành công',
+      description: 'Đã tạo đơn yêu cầu nhập nguyên vật liệu'
     })
 
     setIsAddDialogOpen(false)
@@ -142,11 +174,16 @@ export function MaterialRequestsTable() {
 
   // Xử lý cập nhật đơn yêu cầu
   const handleUpdateRequest = () => {
-    if (!currentRequest || !formData.materialId || formData.quantity <= 0 || !formData.expectedDate) {
+    if (
+      !currentRequest ||
+      !formData.materialId ||
+      formData.quantity <= 0 ||
+      !formData.expectedDate
+    ) {
       toast({
-        title: "Lỗi",
-        description: "Vui lòng điền đầy đủ thông tin bắt buộc",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Vui lòng điền đầy đủ thông tin bắt buộc',
+        variant: 'destructive'
       })
       return
     }
@@ -159,12 +196,12 @@ export function MaterialRequestsTable() {
       reason: formData.reason,
       sourceCountry: formData.sourceCountry,
       importPrice: formData.importPrice,
-      requestCode: formData.requestCode,
+      requestCode: formData.requestCode
     })
 
     toast({
-      title: "Thành công",
-      description: "Đã cập nhật thông tin đơn yêu cầu",
+      title: 'Thành công',
+      description: 'Đã cập nhật thông tin đơn yêu cầu'
     })
 
     setIsEditDialogOpen(false)
@@ -178,8 +215,8 @@ export function MaterialRequestsTable() {
     deleteMaterialRequest(currentRequest.id)
 
     toast({
-      title: "Thành công",
-      description: "Đã xóa đơn yêu cầu",
+      title: 'Thành công',
+      description: 'Đã xóa đơn yêu cầu'
     })
 
     setIsDeleteDialogOpen(false)
@@ -192,17 +229,21 @@ export function MaterialRequestsTable() {
     updateRequestStatus(currentRequest.id, selectedStatus, formData.reason)
 
     // Nếu trạng thái là "completed", cập nhật số lượng nguyên vật liệu
-    if (selectedStatus === "completed") {
-      updateMaterialQuantity(currentRequest.materialId, currentRequest.quantity, true)
+    if (selectedStatus === 'completed') {
+      updateMaterialQuantity(
+        currentRequest.materialId,
+        currentRequest.quantity,
+        true
+      )
 
       toast({
-        title: "Thành công",
-        description: `Đã cập nhật trạng thái đơn yêu cầu thành "${getStatusText(selectedStatus)}" và cập nhật số lượng nguyên vật liệu`,
+        title: 'Thành công',
+        description: `Đã cập nhật trạng thái đơn yêu cầu thành "${getStatusText(selectedStatus)}" và cập nhật số lượng nguyên vật liệu`
       })
     } else {
       toast({
-        title: "Thành công",
-        description: `Đã cập nhật trạng thái đơn yêu cầu thành "${getStatusText(selectedStatus)}"`,
+        title: 'Thành công',
+        description: `Đã cập nhật trạng thái đơn yêu cầu thành "${getStatusText(selectedStatus)}"`
       })
     }
 
@@ -217,11 +258,11 @@ export function MaterialRequestsTable() {
       materialId: request.materialId,
       quantity: request.quantity,
       expectedDate: parseISO(request.expectedDate),
-      supplier: request.supplier || "",
-      reason: request.reason || "",
-      sourceCountry: request.sourceCountry || "",
+      supplier: request.supplier || '',
+      reason: request.reason || '',
+      sourceCountry: request.sourceCountry || '',
       importPrice: request.importPrice,
-      requestCode: request.requestCode || "",
+      requestCode: request.requestCode || ''
     })
     setIsEditDialogOpen(true)
   }
@@ -238,14 +279,14 @@ export function MaterialRequestsTable() {
     setSelectedStatus(request.status)
     setFormData({
       ...formData,
-      reason: request.reason || "",
+      reason: request.reason || '',
       materialId: request.materialId,
       quantity: request.quantity,
       expectedDate: parseISO(request.expectedDate),
-      supplier: request.supplier || "",
-      sourceCountry: request.sourceCountry || "",
+      supplier: request.supplier || '',
+      sourceCountry: request.sourceCountry || '',
       importPrice: request.importPrice,
-      requestCode: request.requestCode || "",
+      requestCode: request.requestCode || ''
     })
     setIsStatusDialogOpen(true)
   }
@@ -253,62 +294,69 @@ export function MaterialRequestsTable() {
   // Reset form
   const resetForm = () => {
     setFormData({
-      materialId: "",
+      materialId: '',
       quantity: 0,
       expectedDate: undefined,
-      supplier: "",
-      reason: "",
-      sourceCountry: "",
+      supplier: '',
+      reason: '',
+      sourceCountry: '',
       importPrice: undefined,
-      requestCode: "",
+      requestCode: ''
     })
     setSelectedDate(undefined)
-    setSelectedStatus("pending")
+    setSelectedStatus('pending')
     setCurrentRequest(null)
   }
 
   // Lấy text hiển thị cho trạng thái
-  const getStatusText = (status: MaterialRequest["status"]) => {
+  const getStatusText = (status: MaterialRequest['status']) => {
     switch (status) {
-      case "pending":
-        return "Đang chờ"
-      case "approved":
-        return "Đã duyệt"
-      case "completed":
-        return "Đã nhập thành công"
-      case "delayed":
-        return "Đã trễ"
+      case 'pending':
+        return 'Đang chờ'
+      case 'approved':
+        return 'Đã duyệt'
+      case 'completed':
+        return 'Đã nhập thành công'
+      case 'delayed':
+        return 'Đã trễ'
       default:
         return status
     }
   }
 
   // Lấy màu cho badge trạng thái
-  const getStatusVariant = (status: MaterialRequest["status"]) => {
+  const getStatusVariant = (status: MaterialRequest['status']) => {
     switch (status) {
-      case "pending":
-        return "secondary"
-      case "approved":
-        return "default"
-      case "completed":
-        return "success"
-      case "delayed":
-        return "destructive"
+      case 'pending':
+        return 'secondary'
+      case 'approved':
+        return 'default'
+      case 'completed':
+        return 'success'
+      case 'delayed':
+        return 'destructive'
       default:
-        return "default"
+        return 'default'
     }
   }
 
   // Kiểm tra xem đơn yêu cầu có trễ không
   const isRequestDelayed = (request: MaterialRequest) => {
-    if (request.status === "completed" || request.status === "delayed") return false
+    if (request.status === 'completed' || request.status === 'delayed')
+      return false
     return isAfter(new Date(), parseISO(request.expectedDate))
   }
 
   // Nhóm yêu cầu theo trạng thái
-  const pendingRequests = filteredRequests.filter((req) => req.status === "pending" || req.status === "approved")
-  const completedRequests = filteredRequests.filter((req) => req.status === "completed")
-  const delayedRequests = filteredRequests.filter((req) => req.status === "delayed" || isRequestDelayed(req))
+  const pendingRequests = filteredRequests.filter(
+    (req) => req.status === 'pending' || req.status === 'approved'
+  )
+  const completedRequests = filteredRequests.filter(
+    (req) => req.status === 'completed'
+  )
+  const delayedRequests = filteredRequests.filter(
+    (req) => req.status === 'delayed' || isRequestDelayed(req)
+  )
 
   // Hiển thị bảng yêu cầu
   const renderRequestsTable = (requests: MaterialRequest[]) => (
@@ -329,7 +377,10 @@ export function MaterialRequestsTable() {
       <TableBody>
         {requests.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={9} className="text-center py-4 text-muted-foreground">
+            <TableCell
+              colSpan={9}
+              className="text-center py-4 text-muted-foreground"
+            >
               Không có đơn yêu cầu nào
             </TableCell>
           </TableRow>
@@ -337,35 +388,62 @@ export function MaterialRequestsTable() {
           requests.map((request) => (
             <TableRow
               key={request.id}
-              className={isRequestDelayed(request) && request.status !== "delayed" ? "bg-red-50" : ""}
+              className={
+                isRequestDelayed(request) && request.status !== 'delayed'
+                  ? 'bg-red-50'
+                  : ''
+              }
             >
               <TableCell>{request.materialName}</TableCell>
               <TableCell>{request.quantity}</TableCell>
-              <TableCell>{format(parseISO(request.expectedDate), "dd/MM/yyyy")}</TableCell>
-              <TableCell>{request.supplier || "Không có"}</TableCell>
-              <TableCell>{request.sourceCountry || "Không có"}</TableCell>
-              <TableCell>{request.importPrice ? `${request.importPrice.toLocaleString()}` : "Không có"}</TableCell>
-              <TableCell>{request.requestCode || "Không có"}</TableCell>
               <TableCell>
-                <Badge variant={getStatusVariant(request.status) as any}>{getStatusText(request.status)}</Badge>
-                {isRequestDelayed(request) && request.status !== "delayed" && (
-                  <Badge variant="outline" className="ml-2 bg-red-50 text-red-500 border-red-200">
+                {format(parseISO(request.expectedDate), 'dd/MM/yyyy')}
+              </TableCell>
+              <TableCell>{request.supplier || 'Không có'}</TableCell>
+              <TableCell>{request.sourceCountry || 'Không có'}</TableCell>
+              <TableCell>
+                {request.importPrice
+                  ? `${request.importPrice.toLocaleString()}`
+                  : 'Không có'}
+              </TableCell>
+              <TableCell>{request.requestCode || 'Không có'}</TableCell>
+              <TableCell>
+                <Badge variant={getStatusVariant(request.status) as any}>
+                  {getStatusText(request.status)}
+                </Badge>
+                {isRequestDelayed(request) && request.status !== 'delayed' && (
+                  <Badge
+                    variant="outline"
+                    className="ml-2 bg-red-50 text-red-500 border-red-200"
+                  >
                     Trễ hạn
                   </Badge>
                 )}
               </TableCell>
               <TableCell>
                 <div className="flex space-x-2">
-                  <Button variant="outline" size="icon" onClick={() => openEditDialog(request)}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => openEditDialog(request)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="icon" onClick={() => openDeleteDialog(request)}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => openDeleteDialog(request)}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="icon" onClick={() => openStatusDialog(request)}>
-                    {request.status === "completed" ? (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => openStatusDialog(request)}
+                  >
+                    {request.status === 'completed' ? (
                       <CheckCircle className="h-4 w-4 text-green-500" />
-                    ) : request.status === "delayed" ? (
+                    ) : request.status === 'delayed' ? (
                       <AlertCircle className="h-4 w-4 text-red-500" />
                     ) : (
                       <Clock className="h-4 w-4" />
@@ -407,7 +485,9 @@ export function MaterialRequestsTable() {
             <div className="w-full sm:w-[200px]">
               <Select
                 value={statusFilter}
-                onValueChange={(value: MaterialRequest["status"] | "all") => setStatusFilter(value)}
+                onValueChange={(value: MaterialRequest['status'] | 'all') =>
+                  setStatusFilter(value)
+                }
               >
                 <SelectTrigger>
                   <Filter className="mr-2 h-4 w-4" />
@@ -428,9 +508,15 @@ export function MaterialRequestsTable() {
 
       <Tabs defaultValue="pending" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="pending">Đang xử lý ({pendingRequests.length})</TabsTrigger>
-          <TabsTrigger value="completed">Đã hoàn thành ({completedRequests.length})</TabsTrigger>
-          <TabsTrigger value="delayed">Trễ hạn ({delayedRequests.length})</TabsTrigger>
+          <TabsTrigger value="pending">
+            Đang xử lý ({pendingRequests.length})
+          </TabsTrigger>
+          <TabsTrigger value="completed">
+            Đã hoàn thành ({completedRequests.length})
+          </TabsTrigger>
+          <TabsTrigger value="delayed">
+            Trễ hạn ({delayedRequests.length})
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="pending" className="rounded-md border mt-4">
           {renderRequestsTable(pendingRequests)}
@@ -448,7 +534,9 @@ export function MaterialRequestsTable() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Tạo đơn yêu cầu nhập nguyên vật liệu</DialogTitle>
-            <DialogDescription>Nhập thông tin đơn yêu cầu mới vào form dưới đây.</DialogDescription>
+            <DialogDescription>
+              Nhập thông tin đơn yêu cầu mới vào form dưới đây.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
@@ -462,8 +550,8 @@ export function MaterialRequestsTable() {
                   setFormData({
                     ...formData,
                     materialId: value,
-                    sourceCountry: material?.origin || "",
-                    importPrice: material?.importPrice,
+                    sourceCountry: material?.origin || '',
+                    importPrice: material?.importPrice
                   })
                 }}
               >
@@ -487,7 +575,9 @@ export function MaterialRequestsTable() {
                 id="quantity"
                 type="number"
                 value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: Number(e.target.value) })}
+                onChange={(e) =>
+                  setFormData({ ...formData, quantity: Number(e.target.value) })
+                }
                 className="col-span-3"
               />
             </div>
@@ -498,7 +588,9 @@ export function MaterialRequestsTable() {
               <div className="col-span-3">
                 <DatePicker
                   date={formData.expectedDate}
-                  setDate={(date) => setFormData({ ...formData, expectedDate: date })}
+                  setDate={(date) =>
+                    setFormData({ ...formData, expectedDate: date })
+                  }
                 />
               </div>
             </div>
@@ -509,7 +601,9 @@ export function MaterialRequestsTable() {
               <Input
                 id="supplier"
                 value={formData.supplier}
-                onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, supplier: e.target.value })
+                }
                 className="col-span-3"
               />
             </div>
@@ -520,7 +614,9 @@ export function MaterialRequestsTable() {
               <Input
                 id="sourceCountry"
                 value={formData.sourceCountry}
-                onChange={(e) => setFormData({ ...formData, sourceCountry: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, sourceCountry: e.target.value })
+                }
                 className="col-span-3"
               />
             </div>
@@ -531,9 +627,14 @@ export function MaterialRequestsTable() {
               <Input
                 id="importPrice"
                 type="number"
-                value={formData.importPrice || ""}
+                value={formData.importPrice || ''}
                 onChange={(e) =>
-                  setFormData({ ...formData, importPrice: e.target.value ? Number(e.target.value) : undefined })
+                  setFormData({
+                    ...formData,
+                    importPrice: e.target.value
+                      ? Number(e.target.value)
+                      : undefined
+                  })
                 }
                 className="col-span-3"
               />
@@ -545,7 +646,9 @@ export function MaterialRequestsTable() {
               <Input
                 id="requestCode"
                 value={formData.requestCode}
-                onChange={(e) => setFormData({ ...formData, requestCode: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, requestCode: e.target.value })
+                }
                 className="col-span-3"
                 placeholder="Nhập mã yêu cầu liên quan (nếu có)"
               />
@@ -557,7 +660,9 @@ export function MaterialRequestsTable() {
               <Textarea
                 id="reason"
                 value={formData.reason}
-                onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, reason: e.target.value })
+                }
                 className="col-span-3"
               />
             </div>
@@ -576,7 +681,9 @@ export function MaterialRequestsTable() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Chỉnh sửa đơn yêu cầu</DialogTitle>
-            <DialogDescription>Cập nhật thông tin đơn yêu cầu nhập nguyên vật liệu.</DialogDescription>
+            <DialogDescription>
+              Cập nhật thông tin đơn yêu cầu nhập nguyên vật liệu.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
@@ -591,7 +698,7 @@ export function MaterialRequestsTable() {
                     ...formData,
                     materialId: value,
                     sourceCountry: material?.origin || formData.sourceCountry,
-                    importPrice: formData.importPrice || material?.importPrice,
+                    importPrice: formData.importPrice || material?.importPrice
                   })
                 }}
               >
@@ -615,7 +722,9 @@ export function MaterialRequestsTable() {
                 id="edit-quantity"
                 type="number"
                 value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: Number(e.target.value) })}
+                onChange={(e) =>
+                  setFormData({ ...formData, quantity: Number(e.target.value) })
+                }
                 className="col-span-3"
               />
             </div>
@@ -626,7 +735,9 @@ export function MaterialRequestsTable() {
               <div className="col-span-3">
                 <DatePicker
                   date={formData.expectedDate}
-                  setDate={(date) => setFormData({ ...formData, expectedDate: date })}
+                  setDate={(date) =>
+                    setFormData({ ...formData, expectedDate: date })
+                  }
                 />
               </div>
             </div>
@@ -637,7 +748,9 @@ export function MaterialRequestsTable() {
               <Input
                 id="edit-supplier"
                 value={formData.supplier}
-                onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, supplier: e.target.value })
+                }
                 className="col-span-3"
               />
             </div>
@@ -648,7 +761,9 @@ export function MaterialRequestsTable() {
               <Input
                 id="edit-sourceCountry"
                 value={formData.sourceCountry}
-                onChange={(e) => setFormData({ ...formData, sourceCountry: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, sourceCountry: e.target.value })
+                }
                 className="col-span-3"
               />
             </div>
@@ -659,9 +774,14 @@ export function MaterialRequestsTable() {
               <Input
                 id="edit-importPrice"
                 type="number"
-                value={formData.importPrice || ""}
+                value={formData.importPrice || ''}
                 onChange={(e) =>
-                  setFormData({ ...formData, importPrice: e.target.value ? Number(e.target.value) : undefined })
+                  setFormData({
+                    ...formData,
+                    importPrice: e.target.value
+                      ? Number(e.target.value)
+                      : undefined
+                  })
                 }
                 className="col-span-3"
               />
@@ -673,7 +793,9 @@ export function MaterialRequestsTable() {
               <Input
                 id="edit-requestCode"
                 value={formData.requestCode}
-                onChange={(e) => setFormData({ ...formData, requestCode: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, requestCode: e.target.value })
+                }
                 className="col-span-3"
                 placeholder="Nhập mã yêu cầu liên quan (nếu có)"
               />
@@ -685,13 +807,18 @@ export function MaterialRequestsTable() {
               <Textarea
                 id="edit-reason"
                 value={formData.reason}
-                onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, reason: e.target.value })
+                }
                 className="col-span-3"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditDialogOpen(false)}
+            >
               Hủy
             </Button>
             <Button onClick={handleUpdateRequest}>Lưu thay đổi</Button>
@@ -705,11 +832,15 @@ export function MaterialRequestsTable() {
           <DialogHeader>
             <DialogTitle>Xác nhận xóa</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa đơn yêu cầu nhập nguyên vật liệu này không? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa đơn yêu cầu nhập nguyên vật liệu này
+              không? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
               Hủy
             </Button>
             <Button variant="destructive" onClick={handleDeleteRequest}>
@@ -724,7 +855,9 @@ export function MaterialRequestsTable() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Cập nhật trạng thái</DialogTitle>
-            <DialogDescription>Cập nhật trạng thái đơn yêu cầu nhập nguyên vật liệu.</DialogDescription>
+            <DialogDescription>
+              Cập nhật trạng thái đơn yêu cầu nhập nguyên vật liệu.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
@@ -733,7 +866,9 @@ export function MaterialRequestsTable() {
               </Label>
               <Select
                 value={selectedStatus}
-                onValueChange={(value: MaterialRequest["status"]) => setSelectedStatus(value)}
+                onValueChange={(value: MaterialRequest['status']) =>
+                  setSelectedStatus(value)
+                }
               >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Chọn trạng thái" />
@@ -746,7 +881,7 @@ export function MaterialRequestsTable() {
                 </SelectContent>
               </Select>
             </div>
-            {selectedStatus === "delayed" && (
+            {selectedStatus === 'delayed' && (
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="reason" className="text-right">
                   Lý do
@@ -754,20 +889,22 @@ export function MaterialRequestsTable() {
                 <Textarea
                   id="reason"
                   value={formData.reason}
-                  onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, reason: e.target.value })
+                  }
                   className="col-span-3"
                 />
               </div>
             )}
-            {selectedStatus === "completed" && (
+            {selectedStatus === 'completed' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <div className="col-span-4">
                     <Alert>
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription>
-                        Khi chuyển trạng thái thành "Đã nhập thành công", số lượng nguyên vật liệu sẽ được cập nhật tự
-                        động.
+                        Khi chuyển trạng thái thành "Đã nhập thành công", số
+                        lượng nguyên vật liệu sẽ được cập nhật tự động.
                       </AlertDescription>
                     </Alert>
                   </div>
@@ -776,7 +913,10 @@ export function MaterialRequestsTable() {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsStatusDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsStatusDialogOpen(false)}
+            >
               Hủy
             </Button>
             <Button onClick={handleUpdateStatus}>Cập nhật</Button>

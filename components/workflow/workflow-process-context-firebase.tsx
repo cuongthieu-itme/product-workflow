@@ -1,7 +1,13 @@
-"use client"
+'use client'
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { useProductStatus } from "../product-status/product-status-context-firebase"
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode
+} from 'react'
+import { useProductStatus } from '../product-status/product-status-context-firebase'
 import {
   collection,
   addDoc,
@@ -12,15 +18,15 @@ import {
   query,
   where,
   serverTimestamp,
-  Timestamp,
-} from "firebase/firestore"
-import { db } from "@/lib/firebase"
+  Timestamp
+} from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 // Định nghĩa kiểu dữ liệu cho trường tùy chỉnh trong bước quy trình
 export interface StepField {
   id: string
   name: string
-  type: "text" | "date" | "select" | "user" | "checkbox" | "number" | "currency"
+  type: 'text' | 'date' | 'select' | 'user' | 'checkbox' | 'number' | 'currency'
   required: boolean
   description?: string
   options?: string[]
@@ -54,38 +60,65 @@ export interface WorkflowProcess {
 
 interface WorkflowProcessContextType {
   workflowProcesses: WorkflowProcess[]
-  addWorkflowProcess: (process: Omit<WorkflowProcess, "id" | "createdAt" | "updatedAt">) => Promise<void>
+  addWorkflowProcess: (
+    process: Omit<WorkflowProcess, 'id' | 'createdAt' | 'updatedAt'>
+  ) => Promise<void>
   updateWorkflowProcess: (
     id: string,
-    updates: Partial<Omit<WorkflowProcess, "id" | "createdAt" | "updatedAt">>,
+    updates: Partial<Omit<WorkflowProcess, 'id' | 'createdAt' | 'updatedAt'>>
   ) => Promise<void>
   deleteWorkflowProcess: (id: string) => Promise<void>
-  isWorkflowProcessNameExists: (name: string, excludeId?: string) => Promise<boolean>
-  getWorkflowProcessByStatusId: (statusId: string) => WorkflowProcess | undefined
-  addWorkflowStep: (processId: string, step: Omit<WorkflowStep, "id" | "order" | "fields">) => Promise<WorkflowStep>
-  updateWorkflowStep: (processId: string, stepId: string, updates: Partial<Omit<WorkflowStep, "id">>) => Promise<void>
+  isWorkflowProcessNameExists: (
+    name: string,
+    excludeId?: string
+  ) => Promise<boolean>
+  getWorkflowProcessByStatusId: (
+    statusId: string
+  ) => WorkflowProcess | undefined
+  addWorkflowStep: (
+    processId: string,
+    step: Omit<WorkflowStep, 'id' | 'order' | 'fields'>
+  ) => Promise<WorkflowStep>
+  updateWorkflowStep: (
+    processId: string,
+    stepId: string,
+    updates: Partial<Omit<WorkflowStep, 'id'>>
+  ) => Promise<void>
   deleteWorkflowStep: (processId: string, stepId: string) => Promise<boolean>
-  reorderWorkflowSteps: (processId: string, steps: WorkflowStep[]) => Promise<void>
-  addStepField: (processId: string, stepId: string, field: Omit<StepField, "id">) => Promise<void>
+  reorderWorkflowSteps: (
+    processId: string,
+    steps: WorkflowStep[]
+  ) => Promise<void>
+  addStepField: (
+    processId: string,
+    stepId: string,
+    field: Omit<StepField, 'id'>
+  ) => Promise<void>
   updateStepField: (
     processId: string,
     stepId: string,
     fieldId: string,
-    updates: Partial<Omit<StepField, "id">>,
+    updates: Partial<Omit<StepField, 'id'>>
   ) => Promise<void>
-  deleteStepField: (processId: string, stepId: string, fieldId: string) => Promise<boolean>
+  deleteStepField: (
+    processId: string,
+    stepId: string,
+    fieldId: string
+  ) => Promise<boolean>
   isSystemField: (fieldId: string) => boolean
   loading: boolean
 }
 
-const WorkflowProcessContext = createContext<WorkflowProcessContextType | undefined>(undefined)
+const WorkflowProcessContext = createContext<
+  WorkflowProcessContextType | undefined
+>(undefined)
 
 // Danh sách ID của các trường hệ thống không được xóa
 const SYSTEM_FIELD_IDS = [
-  "assignee", // Người đảm nhận
-  "receiveDate", // Thời gian tiếp nhận
-  "deadline", // Thời gian deadline
-  "status", // Trạng thái
+  'assignee', // Người đảm nhận
+  'receiveDate', // Thời gian tiếp nhận
+  'deadline', // Thời gian deadline
+  'status' // Trạng thái
 ]
 
 // Chuyển đổi Firestore timestamp sang Date
@@ -96,7 +129,7 @@ const convertTimestampToDate = (data: any) => {
     return data.toDate()
   }
 
-  if (typeof data === "object") {
+  if (typeof data === 'object') {
     if (Array.isArray(data)) {
       return data.map((item) => convertTimestampToDate(item))
     }
@@ -119,7 +152,7 @@ const convertDateToTimestamp = (data: any) => {
     return Timestamp.fromDate(data)
   }
 
-  if (typeof data === "object") {
+  if (typeof data === 'object') {
     if (Array.isArray(data)) {
       return data.map((item) => convertDateToTimestamp(item))
     }
@@ -136,7 +169,9 @@ const convertDateToTimestamp = (data: any) => {
 
 export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
   const { productStatuses } = useProductStatus()
-  const [workflowProcesses, setWorkflowProcesses] = useState<WorkflowProcess[]>([])
+  const [workflowProcesses, setWorkflowProcesses] = useState<WorkflowProcess[]>(
+    []
+  )
   const [loading, setLoading] = useState(true)
 
   // Tải dữ liệu từ Firestore khi component được mount
@@ -145,139 +180,162 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
       setLoading(true)
       try {
         // Lấy dữ liệu workflowProcesses
-        const workflowProcessesSnapshot = await getDocs(collection(db, "workflowProcesses"))
-        const workflowProcessesData = workflowProcessesSnapshot.docs.map((doc) => {
-          const data = doc.data()
-          return {
-            ...data,
-            id: doc.id,
-            createdAt: data.createdAt?.toDate() || new Date(),
-            updatedAt: data.updatedAt?.toDate() || new Date(),
-          } as WorkflowProcess
-        })
+        const workflowProcessesSnapshot = await getDocs(
+          collection(db, 'workflowProcesses')
+        )
+        const workflowProcessesData = workflowProcessesSnapshot.docs.map(
+          (doc) => {
+            const data = doc.data()
+            return {
+              ...data,
+              id: doc.id,
+              createdAt: data.createdAt?.toDate() || new Date(),
+              updatedAt: data.updatedAt?.toDate() || new Date()
+            } as WorkflowProcess
+          }
+        )
         setWorkflowProcesses(workflowProcessesData)
 
         // Nếu không có workflowProcesses, thêm dữ liệu mẫu
         if (workflowProcessesData.length === 0 && productStatuses.length > 0) {
-          const defaultProcess: Omit<WorkflowProcess, "id" | "createdAt" | "updatedAt"> = {
-            name: "Quy trình phát triển sản phẩm mới",
-            description: "Quy trình xử lý yêu cầu phát triển sản phẩm mới",
-            statusId: productStatuses[0]?.id || "1",
+          const defaultProcess: Omit<
+            WorkflowProcess,
+            'id' | 'createdAt' | 'updatedAt'
+          > = {
+            name: 'Quy trình phát triển sản phẩm mới',
+            description: 'Quy trình xử lý yêu cầu phát triển sản phẩm mới',
+            statusId: productStatuses[0]?.id || '1',
             steps: [
               {
-                id: "step1",
-                name: "Tiếp nhận yêu cầu",
-                description: "Tiếp nhận và phân tích yêu cầu từ khách hàng",
+                id: 'step1',
+                name: 'Tiếp nhận yêu cầu',
+                description: 'Tiếp nhận và phân tích yêu cầu từ khách hàng',
                 estimatedDays: 3,
                 order: 0,
                 isRequired: true,
                 fields: [
                   {
-                    id: "assignee",
-                    name: "Người đảm nhận",
-                    type: "user",
+                    id: 'assignee',
+                    name: 'Người đảm nhận',
+                    type: 'user',
                     required: true,
-                    description: "Người chịu trách nhiệm tiếp nhận yêu cầu",
-                    isSystem: true,
+                    description: 'Người chịu trách nhiệm tiếp nhận yêu cầu',
+                    isSystem: true
                   },
                   {
-                    id: "receiveDate",
-                    name: "Thời gian tiếp nhận",
-                    type: "date",
+                    id: 'receiveDate',
+                    name: 'Thời gian tiếp nhận',
+                    type: 'date',
                     required: true,
-                    description: "Ngày tiếp nhận yêu cầu",
-                    isSystem: true,
+                    description: 'Ngày tiếp nhận yêu cầu',
+                    isSystem: true
                   },
                   {
-                    id: "deadline",
-                    name: "Thời gian deadline",
-                    type: "date",
+                    id: 'deadline',
+                    name: 'Thời gian deadline',
+                    type: 'date',
                     required: true,
-                    description: "Ngày dự kiến hoàn thành công việc",
-                    isSystem: true,
+                    description: 'Ngày dự kiến hoàn thành công việc',
+                    isSystem: true
                   },
                   {
-                    id: "status",
-                    name: "Trạng thái",
-                    type: "select",
+                    id: 'status',
+                    name: 'Trạng thái',
+                    type: 'select',
                     required: true,
-                    description: "Trạng thái hiện tại của bước",
-                    options: ["Chưa bắt đầu", "Đang thực hiện", "Hoàn thành", "Quá hạn"],
-                    isSystem: true,
-                  },
+                    description: 'Trạng thái hiện tại của bước',
+                    options: [
+                      'Chưa bắt đầu',
+                      'Đang thực hiện',
+                      'Hoàn thành',
+                      'Quá hạn'
+                    ],
+                    isSystem: true
+                  }
                 ],
-                notifyBeforeDeadline: 1,
+                notifyBeforeDeadline: 1
               },
               {
-                id: "step2",
-                name: "Thiết kế sản phẩm",
-                description: "Thiết kế và phát triển mẫu sản phẩm",
+                id: 'step2',
+                name: 'Thiết kế sản phẩm',
+                description: 'Thiết kế và phát triển mẫu sản phẩm',
                 estimatedDays: 7,
                 order: 1,
                 fields: [
                   {
-                    id: "assignee",
-                    name: "Người đảm nhận",
-                    type: "user",
+                    id: 'assignee',
+                    name: 'Người đảm nhận',
+                    type: 'user',
                     required: true,
-                    description: "Người chịu trách nhiệm thiết kế sản phẩm",
-                    isSystem: true,
+                    description: 'Người chịu trách nhiệm thiết kế sản phẩm',
+                    isSystem: true
                   },
                   {
-                    id: "receiveDate",
-                    name: "Thời gian tiếp nhận",
-                    type: "date",
+                    id: 'receiveDate',
+                    name: 'Thời gian tiếp nhận',
+                    type: 'date',
                     required: true,
-                    description: "Ngày tiếp nhận yêu cầu",
-                    isSystem: true,
+                    description: 'Ngày tiếp nhận yêu cầu',
+                    isSystem: true
                   },
                   {
-                    id: "deadline",
-                    name: "Thời gian deadline",
-                    type: "date",
+                    id: 'deadline',
+                    name: 'Thời gian deadline',
+                    type: 'date',
                     required: true,
-                    description: "Ngày dự kiến hoàn thành công việc",
-                    isSystem: true,
+                    description: 'Ngày dự kiến hoàn thành công việc',
+                    isSystem: true
                   },
                   {
-                    id: "status",
-                    name: "Trạng thái",
-                    type: "select",
+                    id: 'status',
+                    name: 'Trạng thái',
+                    type: 'select',
                     required: true,
-                    description: "Trạng thái hiện tại của bước",
-                    options: ["Chưa bắt đầu", "Đang thực hiện", "Hoàn thành", "Quá hạn"],
-                    isSystem: true,
-                  },
+                    description: 'Trạng thái hiện tại của bước',
+                    options: [
+                      'Chưa bắt đầu',
+                      'Đang thực hiện',
+                      'Hoàn thành',
+                      'Quá hạn'
+                    ],
+                    isSystem: true
+                  }
                 ],
-                notifyBeforeDeadline: 2,
-              },
-            ],
+                notifyBeforeDeadline: 2
+              }
+            ]
           }
 
           // Chuyển đổi Date sang Timestamp trước khi lưu vào Firestore
           const firestoreData = {
             ...defaultProcess,
             createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
           }
 
-          const docRef = await addDoc(collection(db, "workflowProcesses"), firestoreData)
+          const docRef = await addDoc(
+            collection(db, 'workflowProcesses'),
+            firestoreData
+          )
 
           // Lấy lại dữ liệu sau khi thêm
-          const updatedWorkflowProcessesSnapshot = await getDocs(collection(db, "workflowProcesses"))
-          const updatedWorkflowProcessesData = updatedWorkflowProcessesSnapshot.docs.map((doc) => {
-            const data = doc.data()
-            return {
-              ...data,
-              id: doc.id,
-              createdAt: data.createdAt?.toDate() || new Date(),
-              updatedAt: data.updatedAt?.toDate() || new Date(),
-            } as WorkflowProcess
-          })
+          const updatedWorkflowProcessesSnapshot = await getDocs(
+            collection(db, 'workflowProcesses')
+          )
+          const updatedWorkflowProcessesData =
+            updatedWorkflowProcessesSnapshot.docs.map((doc) => {
+              const data = doc.data()
+              return {
+                ...data,
+                id: doc.id,
+                createdAt: data.createdAt?.toDate() || new Date(),
+                updatedAt: data.updatedAt?.toDate() || new Date()
+              } as WorkflowProcess
+            })
           setWorkflowProcesses(updatedWorkflowProcessesData)
         }
       } catch (error) {
-        console.error("Lỗi khi tải dữ liệu từ Firestore:", error)
+        console.error('Lỗi khi tải dữ liệu từ Firestore:', error)
       } finally {
         setLoading(false)
       }
@@ -286,48 +344,53 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
     fetchData()
   }, [productStatuses])
 
-  const addWorkflowProcess = async (process: Omit<WorkflowProcess, "id" | "createdAt" | "updatedAt">) => {
+  const addWorkflowProcess = async (
+    process: Omit<WorkflowProcess, 'id' | 'createdAt' | 'updatedAt'>
+  ) => {
     try {
       const now = new Date()
 
       const newProcess = {
         ...process,
         createdAt: now,
-        updatedAt: now,
+        updatedAt: now
       }
 
       // Chuyển đổi Date sang Timestamp trước khi lưu vào Firestore
       const firestoreData = convertDateToTimestamp(newProcess)
 
-      const docRef = await addDoc(collection(db, "workflowProcesses"), firestoreData)
+      const docRef = await addDoc(
+        collection(db, 'workflowProcesses'),
+        firestoreData
+      )
 
       // Cập nhật state
       const addedProcess = {
         ...newProcess,
-        id: docRef.id,
+        id: docRef.id
       } as WorkflowProcess
 
       setWorkflowProcesses((prev) => [...prev, addedProcess])
 
       return addedProcess
     } catch (error) {
-      console.error("Lỗi khi thêm quy trình:", error)
+      console.error('Lỗi khi thêm quy trình:', error)
       throw error
     }
   }
 
   const updateWorkflowProcess = async (
     id: string,
-    updates: Partial<Omit<WorkflowProcess, "id" | "createdAt" | "updatedAt">>,
+    updates: Partial<Omit<WorkflowProcess, 'id' | 'createdAt' | 'updatedAt'>>
   ) => {
     try {
-      const processRef = doc(db, "workflowProcesses", id)
+      const processRef = doc(db, 'workflowProcesses', id)
 
       const now = new Date()
 
       const updatedProcess = {
         ...updates,
-        updatedAt: now,
+        updatedAt: now
       }
 
       // Chuyển đổi Date sang Timestamp trước khi lưu vào Firestore
@@ -337,29 +400,41 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
 
       // Cập nhật state
       setWorkflowProcesses((prev) =>
-        prev.map((process) => (process.id === id ? { ...process, ...updates, updatedAt: now } : process)),
+        prev.map((process) =>
+          process.id === id
+            ? { ...process, ...updates, updatedAt: now }
+            : process
+        )
       )
     } catch (error) {
-      console.error("Lỗi khi cập nhật quy trình:", error)
+      console.error('Lỗi khi cập nhật quy trình:', error)
       throw error
     }
   }
 
   const deleteWorkflowProcess = async (id: string) => {
     try {
-      await deleteDoc(doc(db, "workflowProcesses", id))
+      await deleteDoc(doc(db, 'workflowProcesses', id))
 
       // Cập nhật state
-      setWorkflowProcesses((prev) => prev.filter((process) => process.id !== id))
+      setWorkflowProcesses((prev) =>
+        prev.filter((process) => process.id !== id)
+      )
     } catch (error) {
-      console.error("Lỗi khi xóa quy trình:", error)
+      console.error('Lỗi khi xóa quy trình:', error)
       throw error
     }
   }
 
-  const isWorkflowProcessNameExists = async (name: string, excludeId?: string) => {
+  const isWorkflowProcessNameExists = async (
+    name: string,
+    excludeId?: string
+  ) => {
     try {
-      const q = query(collection(db, "workflowProcesses"), where("name", "==", name))
+      const q = query(
+        collection(db, 'workflowProcesses'),
+        where('name', '==', name)
+      )
       const querySnapshot = await getDocs(q)
 
       if (querySnapshot.empty) return false
@@ -371,7 +446,7 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
 
       return true
     } catch (error) {
-      console.error("Lỗi khi kiểm tra tên quy trình:", error)
+      console.error('Lỗi khi kiểm tra tên quy trình:', error)
       return false
     }
   }
@@ -380,9 +455,12 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
     return workflowProcesses.find((process) => process.statusId === statusId)
   }
 
-  const addWorkflowStep = async (processId: string, step: Omit<WorkflowStep, "id" | "order" | "fields">) => {
+  const addWorkflowStep = async (
+    processId: string,
+    step: Omit<WorkflowStep, 'id' | 'order' | 'fields'>
+  ) => {
     try {
-      const processRef = doc(db, "workflowProcesses", processId)
+      const processRef = doc(db, 'workflowProcesses', processId)
       const process = workflowProcesses.find((p) => p.id === processId)
 
       if (!process) {
@@ -396,40 +474,45 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
         order: process.steps.length,
         fields: [
           {
-            id: "assignee",
-            name: "Người đảm nhận",
-            type: "user",
+            id: 'assignee',
+            name: 'Người đảm nhận',
+            type: 'user',
             required: true,
-            description: "Người chịu trách nhiệm cho bước này",
-            isSystem: true,
+            description: 'Người chịu trách nhiệm cho bước này',
+            isSystem: true
           },
           {
-            id: "receiveDate",
-            name: "Thời gian tiếp nhận",
-            type: "date",
+            id: 'receiveDate',
+            name: 'Thời gian tiếp nhận',
+            type: 'date',
             required: true,
-            description: "Ngày tiếp nhận yêu cầu",
-            isSystem: true,
+            description: 'Ngày tiếp nhận yêu cầu',
+            isSystem: true
           },
           {
-            id: "deadline",
-            name: "Thời gian deadline",
-            type: "date",
+            id: 'deadline',
+            name: 'Thời gian deadline',
+            type: 'date',
             required: true,
-            description: "Ngày dự kiến hoàn thành công việc",
-            isSystem: true,
+            description: 'Ngày dự kiến hoàn thành công việc',
+            isSystem: true
           },
           {
-            id: "status",
-            name: "Trạng thái",
-            type: "select",
+            id: 'status',
+            name: 'Trạng thái',
+            type: 'select',
             required: true,
-            description: "Trạng thái hiện tại của bước",
-            options: ["Chưa bắt đầu", "Đang thực hiện", "Hoàn thành", "Quá hạn"],
-            isSystem: true,
-          },
+            description: 'Trạng thái hiện tại của bước',
+            options: [
+              'Chưa bắt đầu',
+              'Đang thực hiện',
+              'Hoàn thành',
+              'Quá hạn'
+            ],
+            isSystem: true
+          }
         ],
-        notifyBeforeDeadline: 1,
+        notifyBeforeDeadline: 1
       }
 
       const updatedSteps = [...process.steps, newStep]
@@ -438,7 +521,7 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
       // Chuyển đổi Date sang Timestamp trước khi lưu vào Firestore
       const firestoreData = {
         steps: updatedSteps,
-        updatedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       }
 
       await updateDoc(processRef, firestoreData)
@@ -450,37 +533,43 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
             return {
               ...p,
               steps: updatedSteps,
-              updatedAt: now,
+              updatedAt: now
             }
           }
           return p
-        }),
+        })
       )
 
       return newStep
     } catch (error) {
-      console.error("Lỗi khi thêm bước quy trình:", error)
+      console.error('Lỗi khi thêm bước quy trình:', error)
       throw error
     }
   }
 
-  const updateWorkflowStep = async (processId: string, stepId: string, updates: Partial<Omit<WorkflowStep, "id">>) => {
+  const updateWorkflowStep = async (
+    processId: string,
+    stepId: string,
+    updates: Partial<Omit<WorkflowStep, 'id'>>
+  ) => {
     try {
-      const processRef = doc(db, "workflowProcesses", processId)
+      const processRef = doc(db, 'workflowProcesses', processId)
       const process = workflowProcesses.find((p) => p.id === processId)
 
       if (!process) {
         throw new Error(`Không tìm thấy quy trình với ID: ${processId}`)
       }
 
-      const updatedSteps = process.steps.map((step) => (step.id === stepId ? { ...step, ...updates } : step))
+      const updatedSteps = process.steps.map((step) =>
+        step.id === stepId ? { ...step, ...updates } : step
+      )
 
       const now = new Date()
 
       // Chuyển đổi Date sang Timestamp trước khi lưu vào Firestore
       const firestoreData = {
         steps: updatedSteps,
-        updatedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       }
 
       await updateDoc(processRef, firestoreData)
@@ -492,21 +581,21 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
             return {
               ...p,
               steps: updatedSteps,
-              updatedAt: now,
+              updatedAt: now
             }
           }
           return p
-        }),
+        })
       )
     } catch (error) {
-      console.error("Lỗi khi cập nhật bước quy trình:", error)
+      console.error('Lỗi khi cập nhật bước quy trình:', error)
       throw error
     }
   }
 
   const deleteWorkflowStep = async (processId: string, stepId: string) => {
     try {
-      const processRef = doc(db, "workflowProcesses", processId)
+      const processRef = doc(db, 'workflowProcesses', processId)
       const process = workflowProcesses.find((p) => p.id === processId)
 
       if (!process) {
@@ -527,7 +616,7 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
       const filteredSteps = process.steps.filter((s) => s.id !== stepId)
       const reorderedSteps = filteredSteps.map((step, index) => ({
         ...step,
-        order: index,
+        order: index
       }))
 
       const now = new Date()
@@ -535,7 +624,7 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
       // Chuyển đổi Date sang Timestamp trước khi lưu vào Firestore
       const firestoreData = {
         steps: reorderedSteps,
-        updatedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       }
 
       await updateDoc(processRef, firestoreData)
@@ -547,27 +636,30 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
             return {
               ...p,
               steps: reorderedSteps,
-              updatedAt: now,
+              updatedAt: now
             }
           }
           return p
-        }),
+        })
       )
 
       return true // Xóa thành công
     } catch (error) {
-      console.error("Lỗi khi xóa bước quy trình:", error)
+      console.error('Lỗi khi xóa bước quy trình:', error)
       return false
     }
   }
 
-  const reorderWorkflowSteps = async (processId: string, steps: WorkflowStep[]) => {
+  const reorderWorkflowSteps = async (
+    processId: string,
+    steps: WorkflowStep[]
+  ) => {
     try {
-      const processRef = doc(db, "workflowProcesses", processId)
+      const processRef = doc(db, 'workflowProcesses', processId)
 
       const reorderedSteps = steps.map((step, index) => ({
         ...step,
-        order: index,
+        order: index
       }))
 
       const now = new Date()
@@ -575,7 +667,7 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
       // Chuyển đổi Date sang Timestamp trước khi lưu vào Firestore
       const firestoreData = {
         steps: reorderedSteps,
-        updatedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       }
 
       await updateDoc(processRef, firestoreData)
@@ -587,14 +679,14 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
             return {
               ...p,
               steps: reorderedSteps,
-              updatedAt: now,
+              updatedAt: now
             }
           }
           return p
-        }),
+        })
       )
     } catch (error) {
-      console.error("Lỗi khi sắp xếp lại các bước quy trình:", error)
+      console.error('Lỗi khi sắp xếp lại các bước quy trình:', error)
       throw error
     }
   }
@@ -604,9 +696,13 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
     return SYSTEM_FIELD_IDS.includes(fieldId)
   }
 
-  const addStepField = async (processId: string, stepId: string, field: Omit<StepField, "id">) => {
+  const addStepField = async (
+    processId: string,
+    stepId: string,
+    field: Omit<StepField, 'id'>
+  ) => {
     try {
-      const processRef = doc(db, "workflowProcesses", processId)
+      const processRef = doc(db, 'workflowProcesses', processId)
       const process = workflowProcesses.find((p) => p.id === processId)
 
       if (!process) {
@@ -617,12 +713,12 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
         if (step.id === stepId) {
           const newField: StepField = {
             ...field,
-            id: Math.random().toString(36).substring(2, 9),
+            id: Math.random().toString(36).substring(2, 9)
           }
 
           return {
             ...step,
-            fields: [...step.fields, newField],
+            fields: [...step.fields, newField]
           }
         }
         return step
@@ -633,7 +729,7 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
       // Chuyển đổi Date sang Timestamp trước khi lưu vào Firestore
       const firestoreData = {
         steps: updatedSteps,
-        updatedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       }
 
       await updateDoc(processRef, firestoreData)
@@ -645,14 +741,14 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
             return {
               ...p,
               steps: updatedSteps,
-              updatedAt: now,
+              updatedAt: now
             }
           }
           return p
-        }),
+        })
       )
     } catch (error) {
-      console.error("Lỗi khi thêm trường vào bước quy trình:", error)
+      console.error('Lỗi khi thêm trường vào bước quy trình:', error)
       throw error
     }
   }
@@ -661,10 +757,10 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
     processId: string,
     stepId: string,
     fieldId: string,
-    updates: Partial<Omit<StepField, "id">>,
+    updates: Partial<Omit<StepField, 'id'>>
   ) => {
     try {
-      const processRef = doc(db, "workflowProcesses", processId)
+      const processRef = doc(db, 'workflowProcesses', processId)
       const process = workflowProcesses.find((p) => p.id === processId)
 
       if (!process) {
@@ -675,7 +771,9 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
         if (step.id === stepId) {
           return {
             ...step,
-            fields: step.fields.map((field) => (field.id === fieldId ? { ...field, ...updates } : field)),
+            fields: step.fields.map((field) =>
+              field.id === fieldId ? { ...field, ...updates } : field
+            )
           }
         }
         return step
@@ -686,7 +784,7 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
       // Chuyển đổi Date sang Timestamp trước khi lưu vào Firestore
       const firestoreData = {
         steps: updatedSteps,
-        updatedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       }
 
       await updateDoc(processRef, firestoreData)
@@ -698,26 +796,30 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
             return {
               ...p,
               steps: updatedSteps,
-              updatedAt: now,
+              updatedAt: now
             }
           }
           return p
-        }),
+        })
       )
     } catch (error) {
-      console.error("Lỗi khi cập nhật trường trong bước quy trình:", error)
+      console.error('Lỗi khi cập nhật trường trong bước quy trình:', error)
       throw error
     }
   }
 
-  const deleteStepField = async (processId: string, stepId: string, fieldId: string) => {
+  const deleteStepField = async (
+    processId: string,
+    stepId: string,
+    fieldId: string
+  ) => {
     try {
       // Kiểm tra xem trường có phải là trường hệ thống không
       if (isSystemField(fieldId)) {
         return false // Không thể xóa trường hệ thống
       }
 
-      const processRef = doc(db, "workflowProcesses", processId)
+      const processRef = doc(db, 'workflowProcesses', processId)
       const process = workflowProcesses.find((p) => p.id === processId)
 
       if (!process) {
@@ -728,7 +830,7 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
         if (step.id === stepId) {
           return {
             ...step,
-            fields: step.fields.filter((field) => field.id !== fieldId),
+            fields: step.fields.filter((field) => field.id !== fieldId)
           }
         }
         return step
@@ -739,7 +841,7 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
       // Chuyển đổi Date sang Timestamp trước khi lưu vào Firestore
       const firestoreData = {
         steps: updatedSteps,
-        updatedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       }
 
       await updateDoc(processRef, firestoreData)
@@ -751,16 +853,16 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
             return {
               ...p,
               steps: updatedSteps,
-              updatedAt: now,
+              updatedAt: now
             }
           }
           return p
-        }),
+        })
       )
 
       return true // Xóa thành công
     } catch (error) {
-      console.error("Lỗi khi xóa trường khỏi bước quy trình:", error)
+      console.error('Lỗi khi xóa trường khỏi bước quy trình:', error)
       return false
     }
   }
@@ -782,7 +884,7 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
         updateStepField,
         deleteStepField,
         isSystemField,
-        loading,
+        loading
       }}
     >
       {children}
@@ -793,7 +895,9 @@ export function WorkflowProcessProvider({ children }: { children: ReactNode }) {
 export function useWorkflowProcess() {
   const context = useContext(WorkflowProcessContext)
   if (context === undefined) {
-    throw new Error("useWorkflowProcess must be used within a WorkflowProcessProvider")
+    throw new Error(
+      'useWorkflowProcess must be used within a WorkflowProcessProvider'
+    )
   }
   return context
 }

@@ -1,18 +1,18 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { DepartmentsTable } from "@/components/departments/departments-table"
-import { AddDepartmentForm } from "@/components/departments/add-department-form"
-import { Button } from "@/components/ui/button"
-import { PlusCircle } from "lucide-react"
+import { useState } from 'react'
+import { DepartmentsTable } from '@/components/departments/departments-table'
+import { AddDepartmentForm } from '@/components/departments/add-department-form'
+import { Button } from '@/components/ui/button'
+import { PlusCircle } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+  DialogTrigger
+} from '@/components/ui/dialog'
 
 export default function DepartmentsPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -31,9 +31,12 @@ export default function DepartmentsPage() {
     <div className="space-y-6 p-6 pb-16">
       <div className="flex flex-col space-y-4 md:flex-row md:justify-between md:space-y-0">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Quản lý phòng ban</h2>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Quản lý phòng ban
+          </h2>
           <p className="text-muted-foreground">
-            Quản lý các phòng ban trong hệ thống, phân quyền và phân công nhân sự.
+            Quản lý các phòng ban trong hệ thống, phân quyền và phân công nhân
+            sự.
           </p>
         </div>
 
@@ -48,7 +51,8 @@ export default function DepartmentsPage() {
             <DialogHeader>
               <DialogTitle>Tạo phòng ban mới</DialogTitle>
               <DialogDescription>
-                Điền thông tin để tạo phòng ban mới. Nhấn nút Tạo phòng ban khi hoàn tất.
+                Điền thông tin để tạo phòng ban mới. Nhấn nút Tạo phòng ban khi
+                hoàn tất.
               </DialogDescription>
             </DialogHeader>
             <AddDepartmentForm onDepartmentAdded={handleDepartmentAdded} />

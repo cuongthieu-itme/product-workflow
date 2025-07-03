@@ -1,7 +1,7 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -9,13 +9,18 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Shuffle, User } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { collection, getDocs } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+  SelectValue
+} from '@/components/ui/select'
+import { Shuffle, User } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 interface UserSelectorProps {
   selectedUser: UserType | null
@@ -38,11 +43,11 @@ export function UserSelector({
   onSelectUser,
   allowedUsers = [],
   assigneeRole,
-  placeholder = "Chọn người đảm nhiệm",
+  placeholder = 'Chọn người đảm nhiệm'
 }: UserSelectorProps) {
   // Thêm vào đầu component UserSelector
-  console.log("🔍 UserSelector received allowedUsers:", allowedUsers)
-  console.log("🔍 UserSelector received assigneeRole:", assigneeRole)
+  console.log('🔍 UserSelector received allowedUsers:', allowedUsers)
+  console.log('🔍 UserSelector received assigneeRole:', assigneeRole)
 
   const [users, setUsers] = useState<UserType[]>([])
   const [filteredUsers, setFilteredUsers] = useState<UserType[]>([])
@@ -54,7 +59,7 @@ export function UserSelector({
     const fetchUsers = async () => {
       setLoading(true)
       try {
-        const usersRef = collection(db, "users")
+        const usersRef = collection(db, 'users')
         const snapshot = await getDocs(usersRef)
 
         const usersData = snapshot.docs.map((doc) => {
@@ -62,21 +67,41 @@ export function UserSelector({
           return {
             id: doc.id,
             name:
-              data.fullName || data.fullname || data.displayName || data.name || data.email || "Người dùng không tên",
-            department: data.department || data.phongBan || "",
-            position: data.position || data.chucVu || "",
-            email: data.email || "",
+              data.fullName ||
+              data.fullname ||
+              data.displayName ||
+              data.name ||
+              data.email ||
+              'Người dùng không tên',
+            department: data.department || data.phongBan || '',
+            position: data.position || data.chucVu || '',
+            email: data.email || ''
           } as UserType
         })
 
         setUsers(usersData)
       } catch (error) {
-        console.error("Lỗi khi lấy danh sách người dùng:", error)
+        console.error('Lỗi khi lấy danh sách người dùng:', error)
         // Fallback data nếu Firebase lỗi
         const sampleUsers: UserType[] = [
-          { id: "FHq19DvZunFcXbTLftMp", name: "Nguyễn Văn A", department: "R&D", position: "Nhân viên tiếp nhận" },
-          { id: "5FRPzXfxyDipfZUb6hbX", name: "Trần Thị B", department: "QC", position: "Nhân viên kiểm tra" },
-          { id: "MYelzq3eNurFLB9xxn8c", name: "Lê Văn C", department: "Design", position: "Nhân viên thiết kế" },
+          {
+            id: 'FHq19DvZunFcXbTLftMp',
+            name: 'Nguyễn Văn A',
+            department: 'R&D',
+            position: 'Nhân viên tiếp nhận'
+          },
+          {
+            id: '5FRPzXfxyDipfZUb6hbX',
+            name: 'Trần Thị B',
+            department: 'QC',
+            position: 'Nhân viên kiểm tra'
+          },
+          {
+            id: 'MYelzq3eNurFLB9xxn8c',
+            name: 'Lê Văn C',
+            department: 'Design',
+            position: 'Nhân viên thiết kế'
+          }
         ]
         setUsers(sampleUsers)
       } finally {
@@ -90,24 +115,26 @@ export function UserSelector({
   // Lọc users theo allowedUsers - CHỈ hiển thị những người trong allowedUsers
   useEffect(() => {
     console.log(
-      "🔍 All users:",
-      users.map((u) => `${u.id}: ${u.name}`),
+      '🔍 All users:',
+      users.map((u) => `${u.id}: ${u.name}`)
     )
-    console.log("🔍 AllowedUsers array:", allowedUsers)
+    console.log('🔍 AllowedUsers array:', allowedUsers)
 
     if (allowedUsers.length > 0) {
       const filtered = users.filter((user) => {
         const isAllowed = allowedUsers.includes(user.id)
-        console.log(`🔍 User ${user.name} (${user.id}): ${isAllowed ? "ALLOWED" : "NOT ALLOWED"}`)
+        console.log(
+          `🔍 User ${user.name} (${user.id}): ${isAllowed ? 'ALLOWED' : 'NOT ALLOWED'}`
+        )
         return isAllowed
       })
       console.log(
         `🔍 Final filtered users:`,
-        filtered.map((u) => u.name),
+        filtered.map((u) => u.name)
       )
       setFilteredUsers(filtered)
     } else {
-      console.log("⚠️ No allowedUsers provided")
+      console.log('⚠️ No allowedUsers provided')
       setFilteredUsers([])
     }
   }, [users, allowedUsers])
@@ -139,7 +166,7 @@ export function UserSelector({
       onSelectUser(finalUser)
       setIsRandomizing(false)
 
-      console.log("🎲 Randomly selected user:", finalUser.name)
+      console.log('🎲 Randomly selected user:', finalUser.name)
     }, stepDelay)
   }
 
@@ -147,7 +174,9 @@ export function UserSelector({
     return (
       <div className="flex items-center space-x-2 p-2 border rounded-md">
         <User className="h-4 w-4 animate-pulse" />
-        <span className="text-sm text-muted-foreground">Đang tải danh sách người dùng...</span>
+        <span className="text-sm text-muted-foreground">
+          Đang tải danh sách người dùng...
+        </span>
       </div>
     )
   }
@@ -157,9 +186,9 @@ export function UserSelector({
       <div className="flex items-center gap-2">
         <div className="flex-1">
           <Select
-            value={selectedUser?.id || "none"} // Updated value prop to be a non-empty string
+            value={selectedUser?.id || 'none'} // Updated value prop to be a non-empty string
             onValueChange={(value) => {
-              if (!value || value === "none") {
+              if (!value || value === 'none') {
                 onSelectUser(null)
               } else {
                 const user = filteredUsers.find((u) => u.id === value)
@@ -168,7 +197,7 @@ export function UserSelector({
             }}
             disabled={loading || isRandomizing}
           >
-            <SelectTrigger className={isRandomizing ? "animate-pulse" : ""}>
+            <SelectTrigger className={isRandomizing ? 'animate-pulse' : ''}>
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent>
@@ -181,7 +210,9 @@ export function UserSelector({
 
               {filteredUsers.length > 0 ? (
                 <SelectGroup>
-                  <SelectLabel>Danh sách người thực hiện ({filteredUsers.length} người)</SelectLabel>
+                  <SelectLabel>
+                    Danh sách người thực hiện ({filteredUsers.length} người)
+                  </SelectLabel>
                   {filteredUsers.map((user) => (
                     <SelectItem key={user.id} value={user.id}>
                       <div className="flex items-center space-x-2">
@@ -189,7 +220,8 @@ export function UserSelector({
                         <div className="flex flex-col">
                           <span className="font-medium">{user.name}</span>
                           <span className="text-xs text-muted-foreground">
-                            {user.position} {user.department ? `• ${user.department}` : ""}
+                            {user.position}{' '}
+                            {user.department ? `• ${user.department}` : ''}
                           </span>
                         </div>
                       </div>
@@ -202,7 +234,8 @@ export function UserSelector({
                 </div>
               ) : (
                 <div className="py-2 px-2 text-center text-sm text-muted-foreground">
-                  Không tìm thấy nhân viên nào trong danh sách được phép thực hiện
+                  Không tìm thấy nhân viên nào trong danh sách được phép thực
+                  hiện
                 </div>
               )}
             </SelectContent>
@@ -218,10 +251,14 @@ export function UserSelector({
                   variant="outline"
                   size="icon"
                   onClick={handleRandomSelect}
-                  disabled={loading || isRandomizing || filteredUsers.length === 0}
+                  disabled={
+                    loading || isRandomizing || filteredUsers.length === 0
+                  }
                   className="px-2"
                 >
-                  <Shuffle className={`h-4 w-4 ${isRandomizing ? "animate-spin" : ""}`} />
+                  <Shuffle
+                    className={`h-4 w-4 ${isRandomizing ? 'animate-spin' : ''}`}
+                  />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -239,9 +276,12 @@ export function UserSelector({
           <div className="flex-1">
             <div className="font-medium text-blue-900">{selectedUser.name}</div>
             <div className="text-xs text-blue-600">
-              {selectedUser.position} {selectedUser.department ? `• ${selectedUser.department}` : ""}
+              {selectedUser.position}{' '}
+              {selectedUser.department ? `• ${selectedUser.department}` : ''}
             </div>
-            {selectedUser.email && <div className="text-xs text-blue-500">{selectedUser.email}</div>}
+            {selectedUser.email && (
+              <div className="text-xs text-blue-500">{selectedUser.email}</div>
+            )}
           </div>
           {isRandomizing && (
             <Badge variant="secondary" className="animate-pulse">
@@ -264,7 +304,9 @@ export function UserSelector({
       {/* Display filter info */}
       {allowedUsers.length > 0 && (
         <div className="text-xs text-muted-foreground">
-          <span>Có {filteredUsers.length} người được phép thực hiện bước này</span>
+          <span>
+            Có {filteredUsers.length} người được phép thực hiện bước này
+          </span>
         </div>
       )}
     </div>

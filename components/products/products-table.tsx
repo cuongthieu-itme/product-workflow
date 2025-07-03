@@ -1,12 +1,28 @@
-"use client"
+'use client'
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Eye, CheckCircle2, FileEdit, Palette, ShoppingCart, Megaphone, Rocket, Loader2 } from "lucide-react"
-import Link from "next/link"
+import type React from 'react'
+import { useState, useEffect } from 'react'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import {
+  Eye,
+  CheckCircle2,
+  FileEdit,
+  Palette,
+  ShoppingCart,
+  Megaphone,
+  Rocket,
+  Loader2
+} from 'lucide-react'
+import Link from 'next/link'
 
 interface Product {
   id: string
@@ -18,47 +34,50 @@ interface Product {
   sku?: string
 }
 
-const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+const statusConfig: Record<
+  string,
+  { label: string; color: string; icon: React.ReactNode }
+> = {
   draft: {
-    label: "Bản Nháp",
-    color: "bg-slate-500",
-    icon: <FileEdit className="h-4 w-4" />,
+    label: 'Bản Nháp',
+    color: 'bg-slate-500',
+    icon: <FileEdit className="h-4 w-4" />
   },
   review: {
-    label: "Đang Xem Xét",
-    color: "bg-yellow-500",
-    icon: <Eye className="h-4 w-4" />,
+    label: 'Đang Xem Xét',
+    color: 'bg-yellow-500',
+    icon: <Eye className="h-4 w-4" />
   },
   design: {
-    label: "Thiết Kế",
-    color: "bg-purple-500",
-    icon: <Palette className="h-4 w-4" />,
+    label: 'Thiết Kế',
+    color: 'bg-purple-500',
+    icon: <Palette className="h-4 w-4" />
   },
   approved: {
-    label: "Đã Phê Duyệt",
-    color: "bg-green-500",
-    icon: <CheckCircle2 className="h-4 w-4" />,
+    label: 'Đã Phê Duyệt',
+    color: 'bg-green-500',
+    icon: <CheckCircle2 className="h-4 w-4" />
   },
   production: {
-    label: "Sản Xuất",
-    color: "bg-blue-500",
-    icon: <ShoppingCart className="h-4 w-4" />,
+    label: 'Sản Xuất',
+    color: 'bg-blue-500',
+    icon: <ShoppingCart className="h-4 w-4" />
   },
   marketing: {
-    label: "Marketing",
-    color: "bg-pink-500",
-    icon: <Megaphone className="h-4 w-4" />,
+    label: 'Marketing',
+    color: 'bg-pink-500',
+    icon: <Megaphone className="h-4 w-4" />
   },
   launch: {
-    label: "Ra Mắt",
-    color: "bg-orange-500",
-    icon: <Rocket className="h-4 w-4" />,
+    label: 'Ra Mắt',
+    color: 'bg-orange-500',
+    icon: <Rocket className="h-4 w-4" />
   },
   completed: {
-    label: "Hoàn Thành",
-    color: "bg-green-700",
-    icon: <CheckCircle2 className="h-4 w-4" />,
-  },
+    label: 'Hoàn Thành',
+    color: 'bg-green-700',
+    icon: <CheckCircle2 className="h-4 w-4" />
+  }
 }
 
 export function ProductsTable() {
@@ -73,9 +92,9 @@ export function ProductsTable() {
   const fetchProducts = async () => {
     try {
       setLoading(true)
-      const response = await fetch("/api/products")
+      const response = await fetch('/api/products')
       if (!response.ok) {
-        throw new Error("Failed to fetch products")
+        throw new Error('Failed to fetch products')
       }
       const result = await response.json()
 
@@ -86,17 +105,17 @@ export function ProductsTable() {
         setProducts([])
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
     }
   }
 
   const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
+    return new Intl.DateTimeFormat('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
     }).format(new Date(dateString))
   }
 
@@ -143,22 +162,28 @@ export function ProductsTable() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium truncate">{product.name}</h3>
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{product.description}</p>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                      {product.description}
+                    </p>
                   </div>
-                  <Badge className={`${status.color} text-white flex gap-1 items-center ml-2 flex-shrink-0`}>
+                  <Badge
+                    className={`${status.color} text-white flex gap-1 items-center ml-2 flex-shrink-0`}
+                  >
                     {status.icon}
                     <span className="hidden sm:inline">{status.label}</span>
                   </Badge>
                 </div>
 
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <span>SKU: {product.sku || "Chưa có"}</span>
+                  <span>SKU: {product.sku || 'Chưa có'}</span>
                   <span>{formatDate(product.updatedAt)}</span>
                 </div>
 
                 <div className="flex justify-end">
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/products/${product.id}`}>Xem Chi Tiết</Link>
+                    <Link href={`/dashboard/products/${product.id}`}>
+                      Xem Chi Tiết
+                    </Link>
                   </Button>
                 </div>
               </div>
@@ -187,20 +212,26 @@ export function ProductsTable() {
                   <TableCell className="font-medium">
                     <div className="flex flex-col">
                       <span>{product.name}</span>
-                      <span className="text-xs text-muted-foreground">{product.description}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {product.description}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={`${status.color} text-white flex gap-1 items-center w-fit`}>
+                    <Badge
+                      className={`${status.color} text-white flex gap-1 items-center w-fit`}
+                    >
                       {status.icon}
                       {status.label}
                     </Badge>
                   </TableCell>
-                  <TableCell>{product.sku || "Chưa có"}</TableCell>
+                  <TableCell>{product.sku || 'Chưa có'}</TableCell>
                   <TableCell>{formatDate(product.updatedAt)}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/dashboard/products/${product.id}`}>Xem Chi Tiết</Link>
+                      <Link href={`/dashboard/products/${product.id}`}>
+                        Xem Chi Tiết
+                      </Link>
                     </Button>
                   </TableCell>
                 </TableRow>

@@ -1,27 +1,60 @@
-"use client"
+'use client'
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { useMaterialContext, type Material } from "../materials/material-context-firebase"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
-import { Plus, Trash2, AlertCircle, Info, Calendar, Loader2 } from "lucide-react"
-import { cn } from "@/lib/utils"
-import type { MaterialWithImport } from "./request-context"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Textarea } from "@/components/ui/textarea"
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Switch } from "@/components/ui/switch"
-import { toast } from "@/components/ui/use-toast"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import type React from 'react'
+import { useState, useEffect } from 'react'
+import {
+  useMaterialContext,
+  type Material
+} from '../materials/material-context-firebase'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter
+} from '@/components/ui/dialog'
+import {
+  Plus,
+  Trash2,
+  AlertCircle,
+  Info,
+  Calendar,
+  Loader2
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import type { MaterialWithImport } from './request-context'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Textarea } from '@/components/ui/textarea'
+import { format } from 'date-fns'
+import { vi } from 'date-fns/locale'
+import { Calendar as CalendarComponent } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
+import { Switch } from '@/components/ui/switch'
+import { toast } from '@/components/ui/use-toast'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 interface MaterialSelectorProps {
   selectedMaterials: MaterialWithImport[]
@@ -29,49 +62,64 @@ interface MaterialSelectorProps {
   requestCode: string
 }
 
-export function MaterialSelector({ selectedMaterials, onSelectMaterials, requestCode }: MaterialSelectorProps) {
+export function MaterialSelector({
+  selectedMaterials,
+  onSelectMaterials,
+  requestCode
+}: MaterialSelectorProps) {
   const { materials, addMaterial, loading, error } = useMaterialContext()
   const [showDialog, setShowDialog] = useState(false)
   const [showNewMaterialDialog, setShowNewMaterialDialog] = useState(false)
-  const [searchValue, setSearchValue] = useState("")
-  const [selectedMaterialType, setSelectedMaterialType] = useState<"material" | "accessory">("material")
-  const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null)
+  const [searchValue, setSearchValue] = useState('')
+  const [selectedMaterialType, setSelectedMaterialType] = useState<
+    'material' | 'accessory'
+  >('material')
+  const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(
+    null
+  )
   const [quantity, setQuantity] = useState<number>(1)
   const [showImportForm, setShowImportForm] = useState<string | null>(null)
   const [importQuantity, setImportQuantity] = useState<number>(0)
-  const [importSupplier, setImportSupplier] = useState<string>("")
-  const [importReason, setImportReason] = useState<string>("")
-  const [importDate, setImportDate] = useState<Date>(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)) // Mặc định 7 ngày
+  const [importSupplier, setImportSupplier] = useState<string>('')
+  const [importReason, setImportReason] = useState<string>('')
+  const [importDate, setImportDate] = useState<Date>(
+    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  ) // Mặc định 7 ngày
   const [importPrice, setImportPrice] = useState<number | undefined>(undefined)
-  const [sourceCountry, setSourceCountry] = useState<string>("")
+  const [sourceCountry, setSourceCountry] = useState<string>('')
   const [datePickerOpen, setDatePickerOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState("basic")
+  const [activeTab, setActiveTab] = useState('basic')
 
   // State cho form thêm nguyên vật liệu mới
-  const [newMaterialName, setNewMaterialName] = useState("")
-  const [newMaterialCode, setNewMaterialCode] = useState("")
-  const [newMaterialUnit, setNewMaterialUnit] = useState("")
-  const [newMaterialDescription, setNewMaterialDescription] = useState("")
-  const [newMaterialOrigin, setNewMaterialOrigin] = useState("Việt Nam")
-  const [newMaterialImportPrice, setNewMaterialImportPrice] = useState<number | undefined>(undefined)
-  const [newMaterialMinQuantity, setNewMaterialMinQuantity] = useState<number>(10)
-  const [createImportRequestForNew, setCreateImportRequestForNew] = useState(true)
-  const [newMaterialImportQuantity, setNewMaterialImportQuantity] = useState<number>(0)
+  const [newMaterialName, setNewMaterialName] = useState('')
+  const [newMaterialCode, setNewMaterialCode] = useState('')
+  const [newMaterialUnit, setNewMaterialUnit] = useState('')
+  const [newMaterialDescription, setNewMaterialDescription] = useState('')
+  const [newMaterialOrigin, setNewMaterialOrigin] = useState('Việt Nam')
+  const [newMaterialImportPrice, setNewMaterialImportPrice] = useState<
+    number | undefined
+  >(undefined)
+  const [newMaterialMinQuantity, setNewMaterialMinQuantity] =
+    useState<number>(10)
+  const [createImportRequestForNew, setCreateImportRequestForNew] =
+    useState(true)
+  const [newMaterialImportQuantity, setNewMaterialImportQuantity] =
+    useState<number>(0)
   const [newMaterialImportDate, setNewMaterialImportDate] = useState<Date>(
-    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
   )
-  const [newMaterialImportSupplier, setNewMaterialImportSupplier] = useState("")
-  const [newMaterialImportReason, setNewMaterialImportReason] = useState("")
+  const [newMaterialImportSupplier, setNewMaterialImportSupplier] = useState('')
+  const [newMaterialImportReason, setNewMaterialImportReason] = useState('')
   const [isSubmittingNewMaterial, setIsSubmittingNewMaterial] = useState(false)
 
   // Tạo mã nguyên vật liệu tự động
   useEffect(() => {
     if (showNewMaterialDialog && !newMaterialCode) {
       const timestamp = Date.now().toString().slice(-6)
-      const prefix = "NVL"
+      const prefix = 'NVL'
       const randomCode = Math.floor(Math.random() * 1000)
         .toString()
-        .padStart(3, "0")
+        .padStart(3, '0')
       setNewMaterialCode(`${prefix}${timestamp}${randomCode}`)
     }
   }, [showNewMaterialDialog, newMaterialCode])
@@ -79,7 +127,9 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
   // Lọc danh sách nguyên vật liệu theo từ khóa tìm kiếm và loại
   const filteredMaterials = (materials || []).filter((material) => {
     // Lọc theo loại nguyên vật liệu
-    const typeMatch = material.type === selectedMaterialType || (!material.type && selectedMaterialType === "material")
+    const typeMatch =
+      material.type === selectedMaterialType ||
+      (!material.type && selectedMaterialType === 'material')
 
     if (!typeMatch) return false
 
@@ -89,23 +139,31 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
     const searchLower = searchValue.toLowerCase()
     const nameLower = material.name.toLowerCase()
     const codeLower = material.code.toLowerCase()
-    const descLower = material.description ? material.description.toLowerCase() : ""
+    const descLower = material.description
+      ? material.description.toLowerCase()
+      : ''
 
-    return nameLower.includes(searchLower) || codeLower.includes(searchLower) || descLower.includes(searchLower)
+    return (
+      nameLower.includes(searchLower) ||
+      codeLower.includes(searchLower) ||
+      descLower.includes(searchLower)
+    )
   })
 
   // Xử lý thêm nguyên vật liệu vào danh sách đã chọn
   const handleAddMaterial = () => {
     if (selectedMaterial && quantity > 0) {
       // Kiểm tra xem nguyên vật liệu đã được chọn chưa
-      const existingIndex = selectedMaterials.findIndex((m) => m.id === selectedMaterial.id)
+      const existingIndex = selectedMaterials.findIndex(
+        (m) => m.id === selectedMaterial.id
+      )
 
       if (existingIndex >= 0) {
         // Nếu đã có, cập nhật số lượng
         const updatedMaterials = [...selectedMaterials]
         updatedMaterials[existingIndex] = {
           ...updatedMaterials[existingIndex],
-          quantity: quantity,
+          quantity: quantity
         }
         onSelectMaterials(updatedMaterials)
       } else {
@@ -114,8 +172,8 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
           ...selectedMaterials,
           {
             ...selectedMaterial,
-            quantity: quantity,
-          },
+            quantity: quantity
+          }
         ])
       }
 
@@ -123,22 +181,26 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
       setSelectedMaterial(null)
       setQuantity(1)
       setShowDialog(false)
-      setSearchValue("")
+      setSearchValue('')
 
       toast({
-        title: "Thành công",
-        description: `Đã thêm ${selectedMaterial.name} vào danh sách`,
+        title: 'Thành công',
+        description: `Đã thêm ${selectedMaterial.name} vào danh sách`
       })
     }
   }
 
   // Xử lý thêm nguyên vật liệu mới
   const handleAddNewMaterial = async () => {
-    if (!newMaterialName.trim() || !newMaterialCode.trim() || !newMaterialUnit.trim()) {
+    if (
+      !newMaterialName.trim() ||
+      !newMaterialCode.trim() ||
+      !newMaterialUnit.trim()
+    ) {
       toast({
-        title: "Lỗi",
-        description: "Vui lòng điền đầy đủ thông tin bắt buộc",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Vui lòng điền đầy đủ thông tin bắt buộc',
+        variant: 'destructive'
       })
       return
     }
@@ -157,7 +219,7 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
         images: [],
         importPrice: newMaterialImportPrice,
         minQuantity: newMaterialMinQuantity,
-        type: selectedMaterialType, // Thêm type dựa trên lựa chọn hiện tại
+        type: selectedMaterialType // Thêm type dựa trên lựa chọn hiện tại
       }
 
       const newMaterialId = await addMaterial(newMaterialData)
@@ -166,7 +228,7 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
       const newMaterial: MaterialWithImport = {
         id: newMaterialId,
         ...newMaterialData,
-        isActive: true,
+        isActive: true
       }
 
       // Nếu người dùng chọn tạo yêu cầu nhập
@@ -175,7 +237,8 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
         newMaterial.importQuantity = newMaterialImportQuantity || 10
         newMaterial.importDate = newMaterialImportDate.toISOString()
         newMaterial.importSupplier = newMaterialImportSupplier
-        newMaterial.importReason = newMaterialImportReason || `Nguyên vật liệu mới: ${newMaterialName}`
+        newMaterial.importReason =
+          newMaterialImportReason || `Nguyên vật liệu mới: ${newMaterialName}`
         newMaterial.sourceCountry = newMaterialOrigin
         newMaterial.importPrice = newMaterialImportPrice
       }
@@ -183,29 +246,29 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
       onSelectMaterials([...selectedMaterials, newMaterial])
 
       toast({
-        title: "Thành công",
-        description: "Đã thêm nguyên vật liệu mới",
+        title: 'Thành công',
+        description: 'Đã thêm nguyên vật liệu mới'
       })
 
       // Reset form
-      setNewMaterialName("")
-      setNewMaterialCode("")
-      setNewMaterialUnit("")
-      setNewMaterialDescription("")
-      setNewMaterialOrigin("Việt Nam")
+      setNewMaterialName('')
+      setNewMaterialCode('')
+      setNewMaterialUnit('')
+      setNewMaterialDescription('')
+      setNewMaterialOrigin('Việt Nam')
       setNewMaterialImportPrice(undefined)
       setNewMaterialMinQuantity(10)
       setCreateImportRequestForNew(true)
       setNewMaterialImportQuantity(0)
-      setNewMaterialImportSupplier("")
-      setNewMaterialImportReason("")
+      setNewMaterialImportSupplier('')
+      setNewMaterialImportReason('')
       setShowNewMaterialDialog(false)
     } catch (error) {
-      console.error("Lỗi khi thêm nguyên vật liệu mới:", error)
+      console.error('Lỗi khi thêm nguyên vật liệu mới:', error)
       toast({
-        title: "Lỗi",
-        description: "Đã xảy ra lỗi khi thêm nguyên vật liệu mới",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Đã xảy ra lỗi khi thêm nguyên vật liệu mới',
+        variant: 'destructive'
       })
     } finally {
       setIsSubmittingNewMaterial(false)
@@ -220,7 +283,7 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
   // Xử lý tạo yêu cầu nhập nguyên vật liệu
   const handleCreateImportRequest = (materialId: string) => {
     if (importQuantity <= 0) {
-      alert("Số lượng nhập phải lớn hơn 0")
+      alert('Số lượng nhập phải lớn hơn 0')
       return
     }
 
@@ -234,7 +297,7 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
           importReason: importReason,
           importDate: importDate.toISOString(),
           importPrice: importPrice,
-          sourceCountry: sourceCountry || m.origin,
+          sourceCountry: sourceCountry || m.origin
         }
       }
       return m
@@ -243,11 +306,11 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
     onSelectMaterials(updatedMaterials)
     setShowImportForm(null)
     setImportQuantity(0)
-    setImportSupplier("")
-    setImportReason("")
+    setImportSupplier('')
+    setImportReason('')
     setImportDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000))
     setImportPrice(undefined)
-    setSourceCountry("")
+    setSourceCountry('')
   }
 
   // Xử lý hủy yêu cầu nhập nguyên vật liệu
@@ -276,17 +339,21 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
   const handleShowImportForm = (material: MaterialWithImport) => {
     setShowImportForm(material.id)
     setImportQuantity(material.quantity)
-    setImportSupplier(material.importSupplier || "")
-    setImportReason(material.importReason || "")
-    setImportDate(material.importDate ? new Date(material.importDate) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000))
+    setImportSupplier(material.importSupplier || '')
+    setImportReason(material.importReason || '')
+    setImportDate(
+      material.importDate
+        ? new Date(material.importDate)
+        : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    )
     setImportPrice(material.importPrice || undefined)
-    setSourceCountry(material.sourceCountry || material.origin || "")
+    setSourceCountry(material.sourceCountry || material.origin || '')
   }
 
   // Reset selected material when changing material type
   useEffect(() => {
     setSelectedMaterial(null)
-    setSearchValue("")
+    setSearchValue('')
   }, [selectedMaterialType])
 
   const handleMaterialSelect = (material: Material) => {
@@ -319,7 +386,9 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
               {error && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>Lỗi khi tải dữ liệu: {error}</AlertDescription>
+                  <AlertDescription>
+                    Lỗi khi tải dữ liệu: {error}
+                  </AlertDescription>
                 </Alert>
               )}
 
@@ -327,7 +396,9 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                 <RadioGroup
                   value={selectedMaterialType}
                   className="flex flex-col space-y-1.5"
-                  onValueChange={(value) => setSelectedMaterialType(value as "material" | "accessory")}
+                  onValueChange={(value) =>
+                    setSelectedMaterialType(value as 'material' | 'accessory')
+                  }
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="material" id="material" />
@@ -362,8 +433,10 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                         <div
                           key={material.id}
                           className={cn(
-                            "p-3 cursor-pointer hover:bg-gray-100 transition-colors",
-                            selectedMaterial?.id === material.id ? "bg-blue-50 border-l-4 border-blue-500" : "",
+                            'p-3 cursor-pointer hover:bg-gray-100 transition-colors',
+                            selectedMaterial?.id === material.id
+                              ? 'bg-blue-50 border-l-4 border-blue-500'
+                              : ''
                           )}
                           onClick={() => handleMaterialSelect(material)}
                         >
@@ -374,21 +447,29 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                                 Mã: {material.code} | Đơn vị: {material.unit}
                               </div>
                               {material.description && (
-                                <div className="text-xs text-gray-400 mt-1">{material.description}</div>
+                                <div className="text-xs text-gray-400 mt-1">
+                                  {material.description}
+                                </div>
                               )}
                               <div className="text-xs text-gray-400 mt-1">
-                                Xuất xứ: {material.origin} | Loại:{" "}
-                                {material.type === "accessory" ? "Phụ kiện" : "Nguyên liệu"}
+                                Xuất xứ: {material.origin} | Loại:{' '}
+                                {material.type === 'accessory'
+                                  ? 'Phụ kiện'
+                                  : 'Nguyên liệu'}
                               </div>
                             </div>
                             <div className="text-right">
                               <div
                                 className={cn(
-                                  "text-sm font-medium",
-                                  material.quantity > 0 ? "text-green-600" : "text-red-600",
+                                  'text-sm font-medium',
+                                  material.quantity > 0
+                                    ? 'text-green-600'
+                                    : 'text-red-600'
                                 )}
                               >
-                                {material.quantity > 0 ? "Còn hàng" : "Hết hàng"}
+                                {material.quantity > 0
+                                  ? 'Còn hàng'
+                                  : 'Hết hàng'}
                               </div>
                               <div className="text-xs text-gray-500">
                                 SL: {material.quantity} {material.unit}
@@ -401,17 +482,20 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                   ) : (
                     <div className="text-center py-8 text-gray-500">
                       {searchValue
-                        ? `Không tìm thấy ${selectedMaterialType === "material" ? "nguyên liệu" : "phụ kiện"} phù hợp`
-                        : `Không có ${selectedMaterialType === "material" ? "nguyên liệu" : "phụ kiện"} nào`}
+                        ? `Không tìm thấy ${selectedMaterialType === 'material' ? 'nguyên liệu' : 'phụ kiện'} phù hợp`
+                        : `Không có ${selectedMaterialType === 'material' ? 'nguyên liệu' : 'phụ kiện'} nào`}
                     </div>
                   )}
                 </div>
 
                 {selectedMaterial && (
                   <div className="p-3 bg-blue-50 rounded-md border">
-                    <div className="text-sm font-medium text-blue-900">Đã chọn: {selectedMaterial.name}</div>
+                    <div className="text-sm font-medium text-blue-900">
+                      Đã chọn: {selectedMaterial.name}
+                    </div>
                     <div className="text-xs text-blue-700 mt-1">
-                      Mã: {selectedMaterial.code} | Đơn vị: {selectedMaterial.unit} | Tồn kho:{" "}
+                      Mã: {selectedMaterial.code} | Đơn vị:{' '}
+                      {selectedMaterial.unit} | Tồn kho:{' '}
                       {selectedMaterial.quantity}
                     </div>
                   </div>
@@ -428,16 +512,28 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                       onChange={handleQuantityChange}
                       className="w-32"
                     />
-                    {selectedMaterial && <span className="text-sm text-gray-500">{selectedMaterial.unit}</span>}
+                    {selectedMaterial && (
+                      <span className="text-sm text-gray-500">
+                        {selectedMaterial.unit}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setShowDialog(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowDialog(false)}
+                >
                   Hủy
                 </Button>
-                <Button type="button" onClick={handleAddMaterial} disabled={!selectedMaterial || quantity <= 0}>
+                <Button
+                  type="button"
+                  onClick={handleAddMaterial}
+                  disabled={!selectedMaterial || quantity <= 0}
+                >
                   Thêm vào danh sách
                 </Button>
               </DialogFooter>
@@ -445,7 +541,10 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
           </Dialog>
 
           {/* Dialog tạo nguyên vật liệu mới */}
-          <Dialog open={showNewMaterialDialog} onOpenChange={setShowNewMaterialDialog}>
+          <Dialog
+            open={showNewMaterialDialog}
+            onOpenChange={setShowNewMaterialDialog}
+          >
             <DialogTrigger asChild>
               <Button type="button" variant="secondary" className="shrink-0">
                 <Plus className="h-4 w-4 mr-1" /> Thêm nguyên vật liệu mới
@@ -456,7 +555,11 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                 <DialogTitle>Thêm nguyên vật liệu mới</DialogTitle>
               </DialogHeader>
 
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="w-full"
+              >
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="basic">Thông tin cơ bản</TabsTrigger>
                   <TabsTrigger value="import" disabled={!newMaterialName}>
@@ -468,7 +571,8 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                   <div className="space-y-3">
                     <div className="space-y-1">
                       <Label htmlFor="newMaterialName">
-                        Tên nguyên vật liệu <span className="text-red-500">*</span>
+                        Tên nguyên vật liệu{' '}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="newMaterialName"
@@ -517,13 +621,19 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="newMaterialImportPrice">Giá nhập (VNĐ)</Label>
+                        <Label htmlFor="newMaterialImportPrice">
+                          Giá nhập (VNĐ)
+                        </Label>
                         <Input
                           id="newMaterialImportPrice"
                           type="number"
-                          value={newMaterialImportPrice || ""}
+                          value={newMaterialImportPrice || ''}
                           onChange={(e) =>
-                            setNewMaterialImportPrice(e.target.value ? Number(e.target.value) : undefined)
+                            setNewMaterialImportPrice(
+                              e.target.value
+                                ? Number(e.target.value)
+                                : undefined
+                            )
                           }
                           placeholder="Giá nhập"
                         />
@@ -535,7 +645,9 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                       <Textarea
                         id="newMaterialDescription"
                         value={newMaterialDescription}
-                        onChange={(e) => setNewMaterialDescription(e.target.value)}
+                        onChange={(e) =>
+                          setNewMaterialDescription(e.target.value)
+                        }
                         placeholder="Mô tả chi tiết"
                         rows={2}
                       />
@@ -547,11 +659,18 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                         checked={createImportRequestForNew}
                         onCheckedChange={setCreateImportRequestForNew}
                       />
-                      <Label htmlFor="createImportRequest">Tạo yêu cầu nhập</Label>
+                      <Label htmlFor="createImportRequest">
+                        Tạo yêu cầu nhập
+                      </Label>
                     </div>
 
                     {createImportRequestForNew && (
-                      <Button type="button" variant="outline" className="w-full" onClick={() => setActiveTab("import")}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => setActiveTab('import')}
+                      >
                         Tiếp tục thiết lập yêu cầu nhập →
                       </Button>
                     )}
@@ -564,35 +683,51 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
                           <Label htmlFor="newMaterialImportQuantity">
-                            Số lượng nhập <span className="text-red-500">*</span>
+                            Số lượng nhập{' '}
+                            <span className="text-red-500">*</span>
                           </Label>
                           <div className="flex items-center gap-1">
                             <Input
                               id="newMaterialImportQuantity"
                               type="number"
                               min="1"
-                              value={newMaterialImportQuantity || ""}
-                              onChange={(e) => setNewMaterialImportQuantity(Number(e.target.value))}
+                              value={newMaterialImportQuantity || ''}
+                              onChange={(e) =>
+                                setNewMaterialImportQuantity(
+                                  Number(e.target.value)
+                                )
+                              }
                               placeholder="Số lượng"
                               required
                             />
-                            <span className="text-sm text-muted-foreground w-8">{newMaterialUnit}</span>
+                            <span className="text-sm text-muted-foreground w-8">
+                              {newMaterialUnit}
+                            </span>
                           </div>
                         </div>
                         <div className="space-y-1">
-                          <Label htmlFor="newMaterialImportDate">Ngày dự kiến</Label>
+                          <Label htmlFor="newMaterialImportDate">
+                            Ngày dự kiến
+                          </Label>
                           <Popover>
                             <PopoverTrigger asChild>
-                              <Button variant="outline" className="w-full justify-start text-left font-normal text-sm">
+                              <Button
+                                variant="outline"
+                                className="w-full justify-start text-left font-normal text-sm"
+                              >
                                 <Calendar className="mr-2 h-3 w-3" />
-                                {format(newMaterialImportDate, "dd/MM/yyyy", { locale: vi })}
+                                {format(newMaterialImportDate, 'dd/MM/yyyy', {
+                                  locale: vi
+                                })}
                               </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0">
                               <CalendarComponent
                                 mode="single"
                                 selected={newMaterialImportDate}
-                                onSelect={(date) => setNewMaterialImportDate(date || new Date())}
+                                onSelect={(date) =>
+                                  setNewMaterialImportDate(date || new Date())
+                                }
                                 initialFocus
                               />
                             </PopoverContent>
@@ -601,27 +736,40 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                       </div>
 
                       <div className="space-y-1">
-                        <Label htmlFor="newMaterialImportSupplier">Nhà cung cấp</Label>
+                        <Label htmlFor="newMaterialImportSupplier">
+                          Nhà cung cấp
+                        </Label>
                         <Input
                           id="newMaterialImportSupplier"
                           value={newMaterialImportSupplier}
-                          onChange={(e) => setNewMaterialImportSupplier(e.target.value)}
+                          onChange={(e) =>
+                            setNewMaterialImportSupplier(e.target.value)
+                          }
                           placeholder="Tên nhà cung cấp"
                         />
                       </div>
 
                       <div className="space-y-1">
-                        <Label htmlFor="newMaterialImportReason">Lý do nhập</Label>
+                        <Label htmlFor="newMaterialImportReason">
+                          Lý do nhập
+                        </Label>
                         <Textarea
                           id="newMaterialImportReason"
                           value={newMaterialImportReason}
-                          onChange={(e) => setNewMaterialImportReason(e.target.value)}
+                          onChange={(e) =>
+                            setNewMaterialImportReason(e.target.value)
+                          }
                           placeholder="Lý do nhập nguyên vật liệu"
                           rows={2}
                         />
                       </div>
 
-                      <Button type="button" variant="outline" className="w-full" onClick={() => setActiveTab("basic")}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => setActiveTab('basic')}
+                      >
                         ← Quay lại thông tin cơ bản
                       </Button>
                     </div>
@@ -630,15 +778,26 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
               </Tabs>
 
               <DialogFooter className="mt-4">
-                <Button type="button" variant="outline" onClick={() => setShowNewMaterialDialog(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowNewMaterialDialog(false)}
+                >
                   Hủy
                 </Button>
                 <Button
                   type="button"
                   onClick={handleAddNewMaterial}
-                  disabled={isSubmittingNewMaterial || !newMaterialName || !newMaterialCode || !newMaterialUnit}
+                  disabled={
+                    isSubmittingNewMaterial ||
+                    !newMaterialName ||
+                    !newMaterialCode ||
+                    !newMaterialUnit
+                  }
                 >
-                  {isSubmittingNewMaterial ? "Đang xử lý..." : "Thêm nguyên vật liệu"}
+                  {isSubmittingNewMaterial
+                    ? 'Đang xử lý...'
+                    : 'Thêm nguyên vật liệu'}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -684,34 +843,49 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <div className="text-xs text-blue-500 cursor-help">Chi tiết</div>
+                              <div className="text-xs text-blue-500 cursor-help">
+                                Chi tiết
+                              </div>
                             </TooltipTrigger>
                             <TooltipContent className="w-64">
                               <div className="space-y-1 text-xs">
                                 <p>
-                                  <span className="font-medium">Số lượng:</span> {material.importQuantity}{" "}
-                                  {material.unit}
+                                  <span className="font-medium">Số lượng:</span>{' '}
+                                  {material.importQuantity} {material.unit}
                                 </p>
                                 <p>
-                                  <span className="font-medium">Ngày dự kiến:</span>{" "}
-                                  {format(new Date(material.importDate!), "dd/MM/yyyy")}
+                                  <span className="font-medium">
+                                    Ngày dự kiến:
+                                  </span>{' '}
+                                  {format(
+                                    new Date(material.importDate!),
+                                    'dd/MM/yyyy'
+                                  )}
                                 </p>
                                 <p>
-                                  <span className="font-medium">Nhà cung cấp:</span>{" "}
-                                  {material.importSupplier || "Chưa xác định"}
+                                  <span className="font-medium">
+                                    Nhà cung cấp:
+                                  </span>{' '}
+                                  {material.importSupplier || 'Chưa xác định'}
                                 </p>
                                 <p>
-                                  <span className="font-medium">Xuất xứ:</span>{" "}
-                                  {material.sourceCountry || material.origin || "Chưa xác định"}
+                                  <span className="font-medium">Xuất xứ:</span>{' '}
+                                  {material.sourceCountry ||
+                                    material.origin ||
+                                    'Chưa xác định'}
                                 </p>
                                 {material.importPrice && (
                                   <p>
-                                    <span className="font-medium">Giá nhập:</span>{" "}
-                                    {material.importPrice.toLocaleString()} VNĐ/{material.unit}
+                                    <span className="font-medium">
+                                      Giá nhập:
+                                    </span>{' '}
+                                    {material.importPrice.toLocaleString()} VNĐ/
+                                    {material.unit}
                                   </p>
                                 )}
                                 <p>
-                                  <span className="font-medium">Lý do:</span> {material.importReason || "Không có"}
+                                  <span className="font-medium">Lý do:</span>{' '}
+                                  {material.importReason || 'Không có'}
                                 </p>
                               </div>
                             </TooltipContent>
@@ -729,7 +903,10 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                     ) : showImportForm === material.id ? (
                       <div className="flex flex-col gap-2 p-2 border rounded-md">
                         <div className="space-y-2">
-                          <Label htmlFor={`import-quantity-${material.id}`} className="text-xs">
+                          <Label
+                            htmlFor={`import-quantity-${material.id}`}
+                            className="text-xs"
+                          >
                             Số lượng
                           </Label>
                           <div className="flex items-center gap-1">
@@ -738,7 +915,9 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                               type="number"
                               min="1"
                               value={importQuantity}
-                              onChange={(e) => setImportQuantity(Number(e.target.value))}
+                              onChange={(e) =>
+                                setImportQuantity(Number(e.target.value))
+                              }
                               className="h-7"
                             />
                             <span className="text-xs">{material.unit}</span>
@@ -746,17 +925,29 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor={`import-date-${material.id}`} className="text-xs">
+                          <Label
+                            htmlFor={`import-date-${material.id}`}
+                            className="text-xs"
+                          >
                             Ngày dự kiến
                           </Label>
-                          <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                          <Popover
+                            open={datePickerOpen}
+                            onOpenChange={setDatePickerOpen}
+                          >
                             <PopoverTrigger asChild>
                               <Button
                                 variant="outline"
                                 className="w-full justify-start text-left font-normal h-7 text-xs"
                               >
                                 <Calendar className="mr-2 h-3 w-3" />
-                                {importDate ? format(importDate, "dd/MM/yyyy", { locale: vi }) : <span>Chọn ngày</span>}
+                                {importDate ? (
+                                  format(importDate, 'dd/MM/yyyy', {
+                                    locale: vi
+                                  })
+                                ) : (
+                                  <span>Chọn ngày</span>
+                                )}
                               </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0">
@@ -774,7 +965,10 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor={`import-supplier-${material.id}`} className="text-xs">
+                          <Label
+                            htmlFor={`import-supplier-${material.id}`}
+                            className="text-xs"
+                          >
                             Nhà cung cấp
                           </Label>
                           <Input
@@ -787,7 +981,10 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor={`source-country-${material.id}`} className="text-xs">
+                          <Label
+                            htmlFor={`source-country-${material.id}`}
+                            className="text-xs"
+                          >
                             Quốc gia nguồn nhập
                           </Label>
                           <Input
@@ -800,21 +997,33 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor={`import-price-${material.id}`} className="text-xs">
+                          <Label
+                            htmlFor={`import-price-${material.id}`}
+                            className="text-xs"
+                          >
                             Giá nhập (VNĐ/{material.unit})
                           </Label>
                           <Input
                             id={`import-price-${material.id}`}
                             type="number"
-                            value={importPrice || ""}
-                            onChange={(e) => setImportPrice(e.target.value ? Number(e.target.value) : undefined)}
+                            value={importPrice || ''}
+                            onChange={(e) =>
+                              setImportPrice(
+                                e.target.value
+                                  ? Number(e.target.value)
+                                  : undefined
+                              )
+                            }
                             placeholder="Nhập giá nhập"
                             className="h-7 text-xs"
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor={`import-reason-${material.id}`} className="text-xs">
+                          <Label
+                            htmlFor={`import-reason-${material.id}`}
+                            className="text-xs"
+                          >
                             Lý do
                           </Label>
                           <Textarea
@@ -831,7 +1040,9 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                             variant="outline"
                             size="sm"
                             className="h-6 text-xs"
-                            onClick={() => handleCreateImportRequest(material.id)}
+                            onClick={() =>
+                              handleCreateImportRequest(material.id)
+                            }
                           >
                             Tạo
                           </Button>
@@ -846,7 +1057,12 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
                         </div>
                       </div>
                     ) : (
-                      <Button variant="ghost" size="sm" className="h-7" onClick={() => handleShowImportForm(material)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7"
+                        onClick={() => handleShowImportForm(material)}
+                      >
                         Tạo yêu cầu
                       </Button>
                     )}
@@ -872,11 +1088,14 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
         </div>
       )}
 
-      {selectedMaterials.some((m) => m.quantity <= 0 && !m.createImportRequest) && (
+      {selectedMaterials.some(
+        (m) => m.quantity <= 0 && !m.createImportRequest
+      ) && (
         <Alert variant="warning" className="mt-2">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Có nguyên vật liệu đang hết hàng. Vui lòng tạo yêu cầu nhập nguyên vật liệu.
+            Có nguyên vật liệu đang hết hàng. Vui lòng tạo yêu cầu nhập nguyên
+            vật liệu.
           </AlertDescription>
         </Alert>
       )}
@@ -892,8 +1111,8 @@ export function MaterialSelector({ selectedMaterials, onSelectMaterials, request
             </TooltipTrigger>
             <TooltipContent>
               <p>
-                Yêu cầu nhập nguyên vật liệu sẽ được tạo khi bạn lưu yêu cầu này. Mã yêu cầu:{" "}
-                {requestCode || "[Chưa có]"}
+                Yêu cầu nhập nguyên vật liệu sẽ được tạo khi bạn lưu yêu cầu
+                này. Mã yêu cầu: {requestCode || '[Chưa có]'}
               </p>
             </TooltipContent>
           </Tooltip>

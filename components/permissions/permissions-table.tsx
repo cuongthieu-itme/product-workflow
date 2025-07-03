@@ -1,16 +1,37 @@
-"use client"
+'use client'
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import type { WorkflowArea, PermissionType, AllPermissions } from "@/components/permissions-context"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
+import type {
+  WorkflowArea,
+  PermissionType,
+  AllPermissions
+} from '@/components/permissions-context'
 
 interface PermissionsTableProps {
   departments: { id: string; name: string }[]
   workflowAreas: { id: WorkflowArea; name: string }[]
   permissionTypes: { id: PermissionType; name: string; description: string }[]
   permissions: AllPermissions
-  onUpdatePermission: (department: string, area: WorkflowArea, permission: PermissionType) => void
+  onUpdatePermission: (
+    department: string,
+    area: WorkflowArea,
+    permission: PermissionType
+  ) => void
 }
 
 export function PermissionsTable({
@@ -18,19 +39,19 @@ export function PermissionsTable({
   workflowAreas,
   permissionTypes,
   permissions,
-  onUpdatePermission,
+  onUpdatePermission
 }: PermissionsTableProps) {
   // Lấy badge variant dựa trên loại quyền
   const getPermissionBadgeVariant = (permission: PermissionType) => {
     switch (permission) {
-      case "edit":
-        return "default"
-      case "view":
-        return "outline"
-      case "hide":
-        return "destructive"
+      case 'edit':
+        return 'default'
+      case 'view':
+        return 'outline'
+      case 'hide':
+        return 'destructive'
       default:
-        return "outline"
+        return 'outline'
     }
   }
 
@@ -50,18 +71,31 @@ export function PermissionsTable({
             <TableRow key={department.id}>
               <TableCell className="font-medium">{department.name}</TableCell>
               {workflowAreas.map((area) => {
-                const currentPermission = permissions[department.id]?.[area.id] || "hide"
+                const currentPermission =
+                  permissions[department.id]?.[area.id] || 'hide'
 
                 return (
                   <TableCell key={area.id}>
                     <Select
                       value={currentPermission}
-                      onValueChange={(value) => onUpdatePermission(department.id, area.id, value as PermissionType)}
+                      onValueChange={(value) =>
+                        onUpdatePermission(
+                          department.id,
+                          area.id,
+                          value as PermissionType
+                        )
+                      }
                     >
                       <SelectTrigger className="w-[120px]">
                         <SelectValue placeholder="Chọn quyền">
-                          <Badge variant={getPermissionBadgeVariant(currentPermission)}>
-                            {permissionTypes.find((p) => p.id === currentPermission)?.name || "Ẩn"}
+                          <Badge
+                            variant={getPermissionBadgeVariant(
+                              currentPermission
+                            )}
+                          >
+                            {permissionTypes.find(
+                              (p) => p.id === currentPermission
+                            )?.name || 'Ẩn'}
                           </Badge>
                         </SelectValue>
                       </SelectTrigger>
@@ -70,7 +104,9 @@ export function PermissionsTable({
                           <SelectItem key={permission.id} value={permission.id}>
                             <div className="flex flex-col">
                               <span>{permission.name}</span>
-                              <span className="text-xs text-muted-foreground">{permission.description}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {permission.description}
+                              </span>
                             </div>
                           </SelectItem>
                         ))}

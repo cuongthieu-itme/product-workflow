@@ -1,18 +1,18 @@
-"use client"
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CustomerForm } from "@/components/customers/customer-form"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CustomerForm } from '@/components/customers/customer-form'
+import { Button } from '@/components/ui/button'
+import { ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function NewCustomerPage() {
   const router = useRouter()
 
   const handleSuccess = () => {
-    console.log("✅ Customer added successfully, redirecting...")
-    router.push("/dashboard/customers")
+    console.log('✅ Customer added successfully, redirecting...')
+    router.push('/dashboard/customers')
   }
 
   return (
@@ -25,7 +25,9 @@ export default function NewCustomerPage() {
           </Link>
         </Button>
         <h1 className="text-3xl font-bold">Thêm khách hàng mới</h1>
-        <p className="text-muted-foreground">Điền thông tin để thêm khách hàng mới vào hệ thống</p>
+        <p className="text-muted-foreground">
+          Điền thông tin để thêm khách hàng mới vào hệ thống
+        </p>
       </div>
 
       <Card className="max-w-2xl">

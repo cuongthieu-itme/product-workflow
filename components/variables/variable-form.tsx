@@ -1,17 +1,26 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useState, useEffect } from "react"
-import { useAvailableVariables, type AvailableVariable } from "./available-variables-context"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { X, Plus } from "lucide-react"
+import { useState, useEffect } from 'react'
+import {
+  useAvailableVariables,
+  type AvailableVariable
+} from './available-variables-context'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
+import { X, Plus } from 'lucide-react'
 
 interface VariableFormProps {
   variable?: AvailableVariable
@@ -19,31 +28,36 @@ interface VariableFormProps {
   onCancel: () => void
 }
 
-export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProps) {
-  const { addVariable, updateVariable, isVariableNameExists } = useAvailableVariables()
+export function VariableForm({
+  variable,
+  onSuccess,
+  onCancel
+}: VariableFormProps) {
+  const { addVariable, updateVariable, isVariableNameExists } =
+    useAvailableVariables()
   const [loading, setLoading] = useState(false)
-  const [nameError, setNameError] = useState("")
+  const [nameError, setNameError] = useState('')
 
   const [formData, setFormData] = useState({
-    name: variable?.name || "",
-    description: variable?.description || "",
-    source: variable?.source || ("custom" as const),
-    type: variable?.type || ("text" as const),
+    name: variable?.name || '',
+    description: variable?.description || '',
+    source: variable?.source || ('custom' as const),
+    type: variable?.type || ('text' as const),
     options: variable?.options || [],
-    defaultValue: variable?.defaultValue || "",
+    defaultValue: variable?.defaultValue || '',
     isRequired: variable?.isRequired || false,
-    userSource: variable?.userSource || "users", // Thêm trường userSource
+    userSource: variable?.userSource || 'users' // Thêm trường userSource
   })
 
-  const [newOption, setNewOption] = useState("")
+  const [newOption, setNewOption] = useState('')
 
   // Kiểm tra tên trùng lặp
   useEffect(() => {
     if (formData.name.trim()) {
       const exists = isVariableNameExists(formData.name.trim(), variable?.id)
-      setNameError(exists ? "Tên trường dữ liệu đã tồn tại" : "")
+      setNameError(exists ? 'Tên trường dữ liệu đã tồn tại' : '')
     } else {
-      setNameError("")
+      setNameError('')
     }
   }, [formData.name, isVariableNameExists, variable?.id])
 
@@ -51,7 +65,7 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
   const handleChange = (field: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: value,
+      [field]: value
     }))
   }
 
@@ -60,9 +74,9 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
     if (newOption.trim() && !formData.options.includes(newOption.trim())) {
       setFormData((prev) => ({
         ...prev,
-        options: [...prev.options, newOption.trim()],
+        options: [...prev.options, newOption.trim()]
       }))
-      setNewOption("")
+      setNewOption('')
     }
   }
 
@@ -70,7 +84,7 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
   const removeOption = (index: number) => {
     setFormData((prev) => ({
       ...prev,
-      options: prev.options.filter((_, i) => i !== index),
+      options: prev.options.filter((_, i) => i !== index)
     }))
   }
 
@@ -79,7 +93,7 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
     e.preventDefault()
 
     if (!formData.name.trim()) {
-      setNameError("Vui lòng nhập tên trường dữ liệu")
+      setNameError('Vui lòng nhập tên trường dữ liệu')
       return
     }
 
@@ -87,8 +101,11 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
       return
     }
 
-    if ((formData.type === "select" || formData.type === "multiselect") && formData.options.length === 0) {
-      alert("Vui lòng thêm ít nhất một tùy chọn cho trường lựa chọn")
+    if (
+      (formData.type === 'select' || formData.type === 'multiselect') &&
+      formData.options.length === 0
+    ) {
+      alert('Vui lòng thêm ít nhất một tùy chọn cho trường lựa chọn')
       return
     }
 
@@ -100,21 +117,28 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
         description: formData.description.trim(),
         source: formData.source,
         type: formData.type,
-        isRequired: formData.isRequired,
+        isRequired: formData.isRequired
       }
 
       // Chỉ thêm options nếu là type select hoặc multiselect và có giá trị
-      if ((formData.type === "select" || formData.type === "multiselect") && formData.options.length > 0) {
+      if (
+        (formData.type === 'select' || formData.type === 'multiselect') &&
+        formData.options.length > 0
+      ) {
         data.options = formData.options
       }
 
       // Chỉ thêm defaultValue nếu có giá trị
-      if (formData.defaultValue !== "" && formData.defaultValue !== null && formData.defaultValue !== undefined) {
+      if (
+        formData.defaultValue !== '' &&
+        formData.defaultValue !== null &&
+        formData.defaultValue !== undefined
+      ) {
         data.defaultValue = formData.defaultValue
       }
 
       // Chỉ thêm userSource nếu là type user
-      if (formData.type === "user") {
+      if (formData.type === 'user') {
         data.userSource = formData.userSource
       }
 
@@ -143,9 +167,9 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
           <Input
             id="name"
             value={formData.name}
-            onChange={(e) => handleChange("name", e.target.value)}
+            onChange={(e) => handleChange('name', e.target.value)}
             placeholder="Nhập tên trường dữ liệu"
-            className={nameError ? "border-red-500" : ""}
+            className={nameError ? 'border-red-500' : ''}
           />
           {nameError && <p className="text-sm text-red-500">{nameError}</p>}
         </div>
@@ -156,7 +180,7 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
           <Textarea
             id="description"
             value={formData.description}
-            onChange={(e) => handleChange("description", e.target.value)}
+            onChange={(e) => handleChange('description', e.target.value)}
             placeholder="Nhập mô tả cho trường dữ liệu"
             rows={3}
           />
@@ -167,7 +191,7 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
           <Label htmlFor="source">Nguồn dữ liệu</Label>
           <Select
             value={formData.source}
-            onValueChange={(value) => handleChange("source", value)}
+            onValueChange={(value) => handleChange('source', value)}
             disabled={!!variable} // Không cho phép thay đổi nguồn khi chỉnh sửa
           >
             <SelectTrigger>
@@ -186,7 +210,10 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
           <Label htmlFor="type">
             Loại dữ liệu <span className="text-red-500">*</span>
           </Label>
-          <Select value={formData.type} onValueChange={(value) => handleChange("type", value)}>
+          <Select
+            value={formData.type}
+            onValueChange={(value) => handleChange('type', value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Chọn loại dữ liệu" />
             </SelectTrigger>
@@ -205,12 +232,15 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
         </div>
 
         {/* Nguồn người dùng - chỉ hiển thị khi type là user */}
-        {formData.type === "user" && (
+        {formData.type === 'user' && (
           <div className="space-y-2">
             <Label htmlFor="userSource">
               Nguồn người dùng <span className="text-red-500">*</span>
             </Label>
-            <Select value={formData.userSource} onValueChange={(value) => handleChange("userSource", value)}>
+            <Select
+              value={formData.userSource}
+              onValueChange={(value) => handleChange('userSource', value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Chọn nguồn người dùng" />
               </SelectTrigger>
@@ -220,15 +250,15 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
               </SelectContent>
             </Select>
             <p className="text-sm text-muted-foreground">
-              {formData.userSource === "users"
-                ? "Dữ liệu sẽ được lấy từ bảng users (nhân viên, quản trị viên)"
-                : "Dữ liệu sẽ được lấy từ bảng customers (khách hàng)"}
+              {formData.userSource === 'users'
+                ? 'Dữ liệu sẽ được lấy từ bảng users (nhân viên, quản trị viên)'
+                : 'Dữ liệu sẽ được lấy từ bảng customers (khách hàng)'}
             </p>
           </div>
         )}
 
         {/* Tùy chọn cho select và multiselect */}
-        {(formData.type === "select" || formData.type === "multiselect") && (
+        {(formData.type === 'select' || formData.type === 'multiselect') && (
           <div className="space-y-2">
             <Label>Các tùy chọn</Label>
             <div className="space-y-2">
@@ -238,7 +268,7 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
                   onChange={(e) => setNewOption(e.target.value)}
                   placeholder="Nhập tùy chọn mới"
                   onKeyPress={(e) => {
-                    if (e.key === "Enter") {
+                    if (e.key === 'Enter') {
                       e.preventDefault()
                       addOption()
                     }
@@ -250,9 +280,17 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
               </div>
               <div className="flex flex-wrap gap-2">
                 {formData.options.map((option, index) => (
-                  <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
                     {option}
-                    <button type="button" onClick={() => removeOption(index)} className="ml-1 hover:text-red-500">
+                    <button
+                      type="button"
+                      onClick={() => removeOption(index)}
+                      className="ml-1 hover:text-red-500"
+                    >
                       <X className="h-3 w-3" />
                     </button>
                   </Badge>
@@ -265,10 +303,10 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
         {/* Giá trị mặc định */}
         <div className="space-y-2">
           <Label htmlFor="defaultValue">Giá trị mặc định</Label>
-          {formData.type === "select" ? (
+          {formData.type === 'select' ? (
             <Select
               value={formData.defaultValue as string}
-              onValueChange={(value) => handleChange("defaultValue", value)}
+              onValueChange={(value) => handleChange('defaultValue', value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Chọn giá trị mặc định" />
@@ -281,23 +319,35 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
                 ))}
               </SelectContent>
             </Select>
-          ) : formData.type === "multiselect" ? (
+          ) : formData.type === 'multiselect' ? (
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Chọn các giá trị mặc định:</p>
+              <p className="text-sm text-muted-foreground">
+                Chọn các giá trị mặc định:
+              </p>
               <div className="space-y-2">
                 {formData.options.map((option) => (
                   <div key={option} className="flex items-center space-x-2">
                     <Checkbox
                       id={`default-${option}`}
-                      checked={Array.isArray(formData.defaultValue) && formData.defaultValue.includes(option)}
+                      checked={
+                        Array.isArray(formData.defaultValue) &&
+                        formData.defaultValue.includes(option)
+                      }
                       onCheckedChange={(checked) => {
-                        const currentDefaults = Array.isArray(formData.defaultValue) ? formData.defaultValue : []
+                        const currentDefaults = Array.isArray(
+                          formData.defaultValue
+                        )
+                          ? formData.defaultValue
+                          : []
                         if (checked) {
-                          handleChange("defaultValue", [...currentDefaults, option])
+                          handleChange('defaultValue', [
+                            ...currentDefaults,
+                            option
+                          ])
                         } else {
                           handleChange(
-                            "defaultValue",
-                            currentDefaults.filter((v) => v !== option),
+                            'defaultValue',
+                            currentDefaults.filter((v) => v !== option)
                           )
                         }
                       }}
@@ -309,25 +359,25 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
                 ))}
               </div>
             </div>
-          ) : formData.type === "user" ? (
+          ) : formData.type === 'user' ? (
             <div className="text-sm text-muted-foreground p-2 bg-muted rounded">
-              Giá trị mặc định cho trường người dùng sẽ được thiết lập tự động dựa trên người dùng hiện tại hoặc có thể
-              để trống.
+              Giá trị mặc định cho trường người dùng sẽ được thiết lập tự động
+              dựa trên người dùng hiện tại hoặc có thể để trống.
             </div>
           ) : (
             <Input
               id="defaultValue"
               type={
-                formData.type === "number"
-                  ? "number"
-                  : formData.type === "date"
-                    ? "date"
-                    : formData.type === "datetime"
-                      ? "datetime-local"
-                      : "text"
+                formData.type === 'number'
+                  ? 'number'
+                  : formData.type === 'date'
+                    ? 'date'
+                    : formData.type === 'datetime'
+                      ? 'datetime-local'
+                      : 'text'
               }
               value={formData.defaultValue as string}
-              onChange={(e) => handleChange("defaultValue", e.target.value)}
+              onChange={(e) => handleChange('defaultValue', e.target.value)}
               placeholder="Nhập giá trị mặc định"
             />
           )}
@@ -338,7 +388,7 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
           <Checkbox
             id="isRequired"
             checked={formData.isRequired}
-            onCheckedChange={(checked) => handleChange("isRequired", checked)}
+            onCheckedChange={(checked) => handleChange('isRequired', checked)}
           />
           <Label htmlFor="isRequired" className="text-sm">
             Trường bắt buộc
@@ -351,8 +401,11 @@ export function VariableForm({ variable, onSuccess, onCancel }: VariableFormProp
             <Button type="button" variant="outline" onClick={onCancel}>
               Hủy
             </Button>
-            <Button type="submit" disabled={loading || !!nameError || !formData.name.trim()}>
-              {loading ? "Đang xử lý..." : variable ? "Cập nhật" : "Thêm mới"}
+            <Button
+              type="submit"
+              disabled={loading || !!nameError || !formData.name.trim()}
+            >
+              {loading ? 'Đang xử lý...' : variable ? 'Cập nhật' : 'Thêm mới'}
             </Button>
           </div>
         </div>

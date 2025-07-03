@@ -1,27 +1,40 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { useToast } from "@/components/ui/use-toast"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Loader2, AlertCircle, CheckCircle } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { useToast } from '@/components/ui/use-toast'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Loader2, AlertCircle, CheckCircle } from 'lucide-react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 
 export default function RegisterPageClient() {
   const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-    confirmPassword: "",
-    fullName: "",
-    email: "",
-    department: "",
+    username: '',
+    password: '',
+    confirmPassword: '',
+    fullName: '',
+    email: '',
+    department: ''
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,7 +45,7 @@ export default function RegisterPageClient() {
   const handleInputChange = (name: string, value: string) => {
     setFormData({
       ...formData,
-      [name]: value,
+      [name]: value
     })
   }
 
@@ -43,36 +56,38 @@ export default function RegisterPageClient() {
     setSuccess(null)
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Mật khẩu và xác nhận mật khẩu không khớp.")
+      setError('Mật khẩu và xác nhận mật khẩu không khớp.')
       setIsLoading(false)
       return
     }
 
     try {
-      const response = await fetch("/api/register", {
-        method: "POST",
+      const response = await fetch('/api/register', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData)
       })
 
       const data = await response.json()
 
       if (response.ok) {
-        setSuccess("Đăng ký thành công! Bạn sẽ được chuyển hướng đến trang đăng nhập.")
+        setSuccess(
+          'Đăng ký thành công! Bạn sẽ được chuyển hướng đến trang đăng nhập.'
+        )
         toast({
-          title: "Đăng ký thành công",
-          description: "Bạn sẽ được chuyển hướng đến trang đăng nhập.",
+          title: 'Đăng ký thành công',
+          description: 'Bạn sẽ được chuyển hướng đến trang đăng nhập.'
         })
         setTimeout(() => {
-          router.push("/login")
+          router.push('/login')
         }, 2000)
       } else {
-        setError(data.message || "Đã xảy ra lỗi khi đăng ký.")
+        setError(data.message || 'Đã xảy ra lỗi khi đăng ký.')
       }
     } catch (err: any) {
-      setError(err.message || "Đã xảy ra lỗi khi đăng ký.")
+      setError(err.message || 'Đã xảy ra lỗi khi đăng ký.')
     } finally {
       setIsLoading(false)
     }
@@ -83,7 +98,9 @@ export default function RegisterPageClient() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Đăng ký</CardTitle>
-          <CardDescription>Tạo tài khoản mới để truy cập hệ thống</CardDescription>
+          <CardDescription>
+            Tạo tài khoản mới để truy cập hệ thống
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {error && (
@@ -108,7 +125,9 @@ export default function RegisterPageClient() {
                   id="username"
                   placeholder="Nhập tên đăng nhập"
                   value={formData.username}
-                  onChange={(e) => handleInputChange("username", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange('username', e.target.value)
+                  }
                   required
                 />
               </div>
@@ -119,7 +138,9 @@ export default function RegisterPageClient() {
                   type="password"
                   placeholder="Nhập mật khẩu"
                   value={formData.password}
-                  onChange={(e) => handleInputChange("password", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange('password', e.target.value)
+                  }
                   required
                 />
               </div>
@@ -130,7 +151,9 @@ export default function RegisterPageClient() {
                   type="password"
                   placeholder="Nhập lại mật khẩu"
                   value={formData.confirmPassword}
-                  onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange('confirmPassword', e.target.value)
+                  }
                   required
                 />
               </div>
@@ -140,7 +163,9 @@ export default function RegisterPageClient() {
                   id="fullName"
                   placeholder="Nhập họ và tên"
                   value={formData.fullName}
-                  onChange={(e) => handleInputChange("fullName", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange('fullName', e.target.value)
+                  }
                   required
                 />
               </div>
@@ -151,13 +176,18 @@ export default function RegisterPageClient() {
                   type="email"
                   placeholder="Nhập email"
                   value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="department">Phòng ban</Label>
-                <Select value={formData.department} onValueChange={(value) => handleInputChange("department", value)}>
+                <Select
+                  value={formData.department}
+                  onValueChange={(value) =>
+                    handleInputChange('department', value)
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Chọn phòng ban" />
                   </SelectTrigger>
@@ -173,10 +203,11 @@ export default function RegisterPageClient() {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang đăng ký...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang đăng
+                    ký...
                   </>
                 ) : (
-                  "Đăng ký"
+                  'Đăng ký'
                 )}
               </Button>
             </div>
@@ -184,7 +215,7 @@ export default function RegisterPageClient() {
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <div className="text-center text-sm text-muted-foreground">
-            Đã có tài khoản?{" "}
+            Đã có tài khoản?{' '}
             <Link href="/login" className="text-primary hover:underline">
               Đăng nhập
             </Link>

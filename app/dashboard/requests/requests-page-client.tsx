@@ -1,17 +1,17 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import RequestsList from "@/components/requests/requests-list"
-import { useToast } from "@/hooks/use-toast"
-import { RequestProvider } from "@/components/requests/request-context"
-import { WorkflowProcessProvider } from "@/components/workflow/workflow-process-context"
-import { SubWorkflowProvider } from "@/components/workflow/sub-workflow-context-firebase"
-import { ProductStatusProvider } from "@/components/product-status/product-status-context"
-import { StandardWorkflowProvider } from "@/components/workflow/standard-workflow-context-firebase"
-import { MaterialProvider } from "@/components/materials/material-context"
-import { WorkflowProvider } from "@/components/workflow-context"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { RequestKanban } from "@/components/requests/request-kanban"
+import { useState, useEffect } from 'react'
+import RequestsList from '@/components/requests/requests-list'
+import { useToast } from '@/hooks/use-toast'
+import { RequestProvider } from '@/components/requests/request-context'
+import { WorkflowProcessProvider } from '@/components/workflow/workflow-process-context'
+import { SubWorkflowProvider } from '@/components/workflow/sub-workflow-context-firebase'
+import { ProductStatusProvider } from '@/components/product-status/product-status-context'
+import { StandardWorkflowProvider } from '@/components/workflow/standard-workflow-context-firebase'
+import { MaterialProvider } from '@/components/materials/material-context'
+import { WorkflowProvider } from '@/components/workflow-context'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { RequestKanban } from '@/components/requests/request-kanban'
 
 export function RequestsPageClient() {
   const { toast } = useToast()
@@ -20,32 +20,32 @@ export function RequestsPageClient() {
 
   // Giả định thông tin người dùng đăng nhập
   const currentUser = {
-    id: "user1",
-    name: "Nguyễn Văn A",
+    id: 'user1',
+    name: 'Nguyễn Văn A'
   }
 
   useEffect(() => {
-    const requestJustAdded = localStorage.getItem("requestJustAdded")
-    const lastId = localStorage.getItem("lastCreatedRequestId")
+    const requestJustAdded = localStorage.getItem('requestJustAdded')
+    const lastId = localStorage.getItem('lastCreatedRequestId')
 
-    if (requestJustAdded === "true") {
+    if (requestJustAdded === 'true') {
       setJustAdded(true)
       if (lastId) {
         setLastCreatedId(lastId)
       }
-      localStorage.removeItem("requestJustAdded")
+      localStorage.removeItem('requestJustAdded')
 
       toast({
-        title: "Thành công",
-        description: "Đã tạo yêu cầu mới thành công",
+        title: 'Thành công',
+        description: 'Đã tạo yêu cầu mới thành công'
       })
     }
   }, [toast])
 
   const handleSuccess = () => {
     toast({
-      title: "Thành công",
-      description: "Đã tạo yêu cầu mới thành công",
+      title: 'Thành công',
+      description: 'Đã tạo yêu cầu mới thành công'
     })
     setJustAdded(true)
   }

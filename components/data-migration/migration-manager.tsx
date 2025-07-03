@@ -1,36 +1,109 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Progress } from "@/components/ui/progress"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import { migrateToFirestore, clearFirestoreCollection, checkFirestoreCollection } from "@/lib/migrate-to-firebase"
-import { AlertCircle, CheckCircle2, XCircle } from "lucide-react"
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Progress } from '@/components/ui/progress'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import {
+  migrateToFirestore,
+  clearFirestoreCollection,
+  checkFirestoreCollection
+} from '@/lib/migrate-to-firebase'
+import { AlertCircle, CheckCircle2, XCircle } from 'lucide-react'
 
 interface MigrationStatus {
   key: string
   name: string
-  status: "pending" | "in_progress" | "completed" | "failed"
+  status: 'pending' | 'in_progress' | 'completed' | 'failed'
   message: string
   count: number
 }
 
 export function MigrationManager() {
-  const [migrationStatuses, setMigrationStatuses] = useState<MigrationStatus[]>([
-    { key: "workflows", name: "Quy trình làm việc", status: "pending", message: "", count: 0 },
-    { key: "productStatuses", name: "Trạng thái sản phẩm", status: "pending", message: "", count: 0 },
-    { key: "standardWorkflow", name: "Quy trình chuẩn", status: "pending", message: "", count: 0 },
-    { key: "subWorkflows", name: "Quy trình con", status: "pending", message: "", count: 0 },
-    { key: "materials", name: "Nguyên vật liệu", status: "pending", message: "", count: 0 },
-    { key: "materialRequests", name: "Yêu cầu nguyên vật liệu", status: "pending", message: "", count: 0 },
-    { key: "requests", name: "Yêu cầu", status: "pending", message: "", count: 0 },
-    { key: "dataSources", name: "Nguồn dữ liệu", status: "pending", message: "", count: 0 },
-    { key: "users", name: "Người dùng", status: "pending", message: "", count: 0 },
-    { key: "departments", name: "Phòng ban", status: "pending", message: "", count: 0 },
-  ])
+  const [migrationStatuses, setMigrationStatuses] = useState<MigrationStatus[]>(
+    [
+      {
+        key: 'workflows',
+        name: 'Quy trình làm việc',
+        status: 'pending',
+        message: '',
+        count: 0
+      },
+      {
+        key: 'productStatuses',
+        name: 'Trạng thái sản phẩm',
+        status: 'pending',
+        message: '',
+        count: 0
+      },
+      {
+        key: 'standardWorkflow',
+        name: 'Quy trình chuẩn',
+        status: 'pending',
+        message: '',
+        count: 0
+      },
+      {
+        key: 'subWorkflows',
+        name: 'Quy trình con',
+        status: 'pending',
+        message: '',
+        count: 0
+      },
+      {
+        key: 'materials',
+        name: 'Nguyên vật liệu',
+        status: 'pending',
+        message: '',
+        count: 0
+      },
+      {
+        key: 'materialRequests',
+        name: 'Yêu cầu nguyên vật liệu',
+        status: 'pending',
+        message: '',
+        count: 0
+      },
+      {
+        key: 'requests',
+        name: 'Yêu cầu',
+        status: 'pending',
+        message: '',
+        count: 0
+      },
+      {
+        key: 'dataSources',
+        name: 'Nguồn dữ liệu',
+        status: 'pending',
+        message: '',
+        count: 0
+      },
+      {
+        key: 'users',
+        name: 'Người dùng',
+        status: 'pending',
+        message: '',
+        count: 0
+      },
+      {
+        key: 'departments',
+        name: 'Phòng ban',
+        status: 'pending',
+        message: '',
+        count: 0
+      }
+    ]
+  )
 
   const [overallProgress, setOverallProgress] = useState(0)
   const [isMigrating, setIsMigrating] = useState(false)
@@ -50,9 +123,9 @@ export function MigrationManager() {
         if (result.exists) {
           newStatuses[i] = {
             ...status,
-            status: "completed",
+            status: 'completed',
             message: `Đã tồn tại ${result.count} bản ghi trong Firestore`,
-            count: result.count,
+            count: result.count
           }
         }
       }
@@ -66,7 +139,7 @@ export function MigrationManager() {
 
   // Cập nhật tiến trình tổng thể
   const updateProgress = (statuses: MigrationStatus[]) => {
-    const completed = statuses.filter((s) => s.status === "completed").length
+    const completed = statuses.filter((s) => s.status === 'completed').length
     setOverallProgress((completed / statuses.length) * 100)
 
     if (completed === statuses.length) {
@@ -86,12 +159,16 @@ export function MigrationManager() {
         const status = newStatuses[i]
 
         // Bỏ qua các collection đã hoàn thành trừ khi người dùng chọn xóa trước
-        if (status.status === "completed" && !clearBeforeMigrate) {
+        if (status.status === 'completed' && !clearBeforeMigrate) {
           continue
         }
 
         // Cập nhật trạng thái
-        newStatuses[i] = { ...status, status: "in_progress", message: "Đang xử lý..." }
+        newStatuses[i] = {
+          ...status,
+          status: 'in_progress',
+          message: 'Đang xử lý...'
+        }
         setMigrationStatuses([...newStatuses])
 
         // Xóa dữ liệu hiện có nếu được chọn
@@ -105,11 +182,11 @@ export function MigrationManager() {
           const newItem = { ...item }
 
           // Chuyển đổi các trường ngày thành timestamp
-          if (newItem.createdAt && typeof newItem.createdAt === "string") {
+          if (newItem.createdAt && typeof newItem.createdAt === 'string') {
             newItem.createdAt = new Date(newItem.createdAt)
           }
 
-          if (newItem.updatedAt && typeof newItem.updatedAt === "string") {
+          if (newItem.updatedAt && typeof newItem.updatedAt === 'string') {
             newItem.updatedAt = new Date(newItem.updatedAt)
           }
 
@@ -119,14 +196,18 @@ export function MigrationManager() {
         }
 
         // Di chuyển dữ liệu
-        const result = await migrateToFirestore(status.key, status.key, transform)
+        const result = await migrateToFirestore(
+          status.key,
+          status.key,
+          transform
+        )
 
         // Cập nhật trạng thái
         newStatuses[i] = {
           ...status,
-          status: result.success ? "completed" : "failed",
+          status: result.success ? 'completed' : 'failed',
           message: result.message,
-          count: result.count,
+          count: result.count
         }
 
         setMigrationStatuses([...newStatuses])
@@ -144,7 +225,8 @@ export function MigrationManager() {
       <CardHeader>
         <CardTitle>Di chuyển dữ liệu từ localStorage sang Firebase</CardTitle>
         <CardDescription>
-          Công cụ này sẽ di chuyển tất cả dữ liệu từ localStorage sang Firestore Database
+          Công cụ này sẽ di chuyển tất cả dữ liệu từ localStorage sang Firestore
+          Database
         </CardDescription>
       </CardHeader>
 
@@ -162,21 +244,28 @@ export function MigrationManager() {
             <Checkbox
               id="clearBeforeMigrate"
               checked={clearBeforeMigrate}
-              onCheckedChange={(checked) => setClearBeforeMigrate(checked as boolean)}
+              onCheckedChange={(checked) =>
+                setClearBeforeMigrate(checked as boolean)
+              }
               disabled={isMigrating}
             />
-            <Label htmlFor="clearBeforeMigrate">Xóa dữ liệu hiện có trong Firestore trước khi di chuyển</Label>
+            <Label htmlFor="clearBeforeMigrate">
+              Xóa dữ liệu hiện có trong Firestore trước khi di chuyển
+            </Label>
           </div>
           <p className="text-sm text-muted-foreground">
-            Chọn tùy chọn này nếu bạn muốn xóa tất cả dữ liệu hiện có trong Firestore trước khi di chuyển. Điều này hữu
-            ích khi bạn muốn đồng bộ lại dữ liệu.
+            Chọn tùy chọn này nếu bạn muốn xóa tất cả dữ liệu hiện có trong
+            Firestore trước khi di chuyển. Điều này hữu ích khi bạn muốn đồng bộ
+            lại dữ liệu.
           </p>
         </div>
 
         <div className="space-y-4">
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-lg font-medium">Tiến trình tổng thể</h3>
-            <span className="text-sm font-medium">{Math.round(overallProgress)}%</span>
+            <span className="text-sm font-medium">
+              {Math.round(overallProgress)}%
+            </span>
           </div>
 
           <Progress value={overallProgress} className="h-2 mb-6" />
@@ -196,15 +285,19 @@ export function MigrationManager() {
                   <tr key={status.key} className="border-b">
                     <td className="px-4 py-2">{status.name}</td>
                     <td className="px-4 py-2">
-                      {status.status === "pending" && <span className="text-gray-500">Chưa xử lý</span>}
-                      {status.status === "in_progress" && <span className="text-blue-500">Đang xử lý</span>}
-                      {status.status === "completed" && (
+                      {status.status === 'pending' && (
+                        <span className="text-gray-500">Chưa xử lý</span>
+                      )}
+                      {status.status === 'in_progress' && (
+                        <span className="text-blue-500">Đang xử lý</span>
+                      )}
+                      {status.status === 'completed' && (
                         <span className="text-green-500 flex items-center">
                           <CheckCircle2 className="h-4 w-4 mr-1" />
                           Hoàn thành
                         </span>
                       )}
-                      {status.status === "failed" && (
+                      {status.status === 'failed' && (
                         <span className="text-red-500 flex items-center">
                           <XCircle className="h-4 w-4 mr-1" />
                           Thất bại
@@ -222,12 +315,23 @@ export function MigrationManager() {
       </CardContent>
 
       <CardFooter className="flex justify-between">
-        <Button variant="outline" onClick={() => (window.location.href = "/dashboard")} disabled={isMigrating}>
+        <Button
+          variant="outline"
+          onClick={() => (window.location.href = '/dashboard')}
+          disabled={isMigrating}
+        >
           Quay lại Dashboard
         </Button>
 
-        <Button onClick={startMigration} disabled={isMigrating || migrationComplete}>
-          {isMigrating ? "Đang di chuyển dữ liệu..." : migrationComplete ? "Đã hoàn thành" : "Bắt đầu di chuyển"}
+        <Button
+          onClick={startMigration}
+          disabled={isMigrating || migrationComplete}
+        >
+          {isMigrating
+            ? 'Đang di chuyển dữ liệu...'
+            : migrationComplete
+              ? 'Đã hoàn thành'
+              : 'Bắt đầu di chuyển'}
         </Button>
       </CardFooter>
     </Card>

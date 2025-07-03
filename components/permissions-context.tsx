@@ -1,21 +1,27 @@
-"use client"
+'use client'
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode
+} from 'react'
 
 // Các loại quyền truy cập
-export type PermissionType = "edit" | "view" | "hide"
+export type PermissionType = 'edit' | 'view' | 'hide'
 
 // Các khu vực trong quy trình
 export type WorkflowArea =
-  | "request"
-  | "review"
-  | "design"
-  | "production"
-  | "marketing"
-  | "launch"
-  | "reports"
-  | "users"
-  | "settings"
+  | 'request'
+  | 'review'
+  | 'design'
+  | 'production'
+  | 'marketing'
+  | 'launch'
+  | 'reports'
+  | 'users'
+  | 'settings'
 
 // Cấu trúc quyền truy cập cho một phòng ban
 export interface DepartmentPermissions {
@@ -29,7 +35,11 @@ export interface AllPermissions {
 
 interface PermissionsContextType {
   permissions: AllPermissions
-  updatePermission: (department: string, area: WorkflowArea, permission: PermissionType) => void
+  updatePermission: (
+    department: string,
+    area: WorkflowArea,
+    permission: PermissionType
+  ) => void
   getUserPermission: (department: string, area: WorkflowArea) => PermissionType
   hasEditPermission: (department: string, area: WorkflowArea) => boolean
   hasViewPermission: (department: string, area: WorkflowArea) => boolean
@@ -38,87 +48,90 @@ interface PermissionsContextType {
 // Quyền mặc định
 const defaultPermissions: AllPermissions = {
   product: {
-    request: "edit",
-    review: "edit",
-    design: "view",
-    production: "view",
-    marketing: "view",
-    launch: "view",
-    reports: "view",
-    users: "hide",
-    settings: "hide",
+    request: 'edit',
+    review: 'edit',
+    design: 'view',
+    production: 'view',
+    marketing: 'view',
+    launch: 'view',
+    reports: 'view',
+    users: 'hide',
+    settings: 'hide'
   },
   design: {
-    request: "view",
-    review: "view",
-    design: "edit",
-    production: "view",
-    marketing: "view",
-    launch: "view",
-    reports: "view",
-    users: "hide",
-    settings: "hide",
+    request: 'view',
+    review: 'view',
+    design: 'edit',
+    production: 'view',
+    marketing: 'view',
+    launch: 'view',
+    reports: 'view',
+    users: 'hide',
+    settings: 'hide'
   },
   marketing: {
-    request: "view",
-    review: "view",
-    design: "view",
-    production: "view",
-    marketing: "edit",
-    launch: "view",
-    reports: "view",
-    users: "hide",
-    settings: "hide",
+    request: 'view',
+    review: 'view',
+    design: 'view',
+    production: 'view',
+    marketing: 'edit',
+    launch: 'view',
+    reports: 'view',
+    users: 'hide',
+    settings: 'hide'
   },
   sales: {
-    request: "view",
-    review: "view",
-    design: "view",
-    production: "view",
-    marketing: "view",
-    launch: "edit",
-    reports: "view",
-    users: "hide",
-    settings: "hide",
+    request: 'view',
+    review: 'view',
+    design: 'view',
+    production: 'view',
+    marketing: 'view',
+    launch: 'edit',
+    reports: 'view',
+    users: 'hide',
+    settings: 'hide'
   },
   operations: {
-    request: "view",
-    review: "view",
-    design: "view",
-    production: "edit",
-    marketing: "view",
-    launch: "view",
-    reports: "view",
-    users: "hide",
-    settings: "hide",
+    request: 'view',
+    review: 'view',
+    design: 'view',
+    production: 'edit',
+    marketing: 'view',
+    launch: 'view',
+    reports: 'view',
+    users: 'hide',
+    settings: 'hide'
   },
   admin: {
-    request: "edit",
-    review: "edit",
-    design: "edit",
-    production: "edit",
-    marketing: "edit",
-    launch: "edit",
-    reports: "edit",
-    users: "edit",
-    settings: "edit",
-  },
+    request: 'edit',
+    review: 'edit',
+    design: 'edit',
+    production: 'edit',
+    marketing: 'edit',
+    launch: 'edit',
+    reports: 'edit',
+    users: 'edit',
+    settings: 'edit'
+  }
 }
 
-const PermissionsContext = createContext<PermissionsContextType | undefined>(undefined)
+const PermissionsContext = createContext<PermissionsContextType | undefined>(
+  undefined
+)
 
 export function PermissionsProvider({ children }: { children: ReactNode }) {
-  const [permissions, setPermissions] = useState<AllPermissions>(defaultPermissions)
+  const [permissions, setPermissions] =
+    useState<AllPermissions>(defaultPermissions)
 
   // Tải quyền từ localStorage khi component được mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedPermissions = localStorage.getItem("departmentPermissions")
+    if (typeof window !== 'undefined') {
+      const savedPermissions = localStorage.getItem('departmentPermissions')
       if (savedPermissions) {
         try {
           setPermissions(JSON.parse(savedPermissions))
         } catch (error) {
-          console.error("Error parsing permissions:", error)
+          console.error('Error parsing permissions:', error)
           // Nếu có lỗi, sử dụng quyền mặc định
           setPermissions(defaultPermissions)
         }
@@ -127,19 +140,26 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
   }, [])
 
   // Cập nhật quyền cho một phòng ban và khu vực
-  const updatePermission = (department: string, area: WorkflowArea, permission: PermissionType) => {
+  const updatePermission = (
+    department: string,
+    area: WorkflowArea,
+    permission: PermissionType
+  ) => {
     setPermissions((prevPermissions) => {
       const newPermissions = {
         ...prevPermissions,
         [department]: {
           ...prevPermissions[department],
-          [area]: permission,
-        },
+          [area]: permission
+        }
       }
 
       // Lưu vào localStorage
-      if (typeof window !== "undefined") {
-        localStorage.setItem("departmentPermissions", JSON.stringify(newPermissions))
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(
+          'departmentPermissions',
+          JSON.stringify(newPermissions)
+        )
       }
 
       return newPermissions
@@ -147,23 +167,32 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
   }
 
   // Lấy quyền của người dùng dựa trên phòng ban và khu vực
-  const getUserPermission = (department: string, area: WorkflowArea): PermissionType => {
+  const getUserPermission = (
+    department: string,
+    area: WorkflowArea
+  ): PermissionType => {
     if (!permissions[department]) {
-      return "hide" // Mặc định ẩn nếu không tìm thấy phòng ban
+      return 'hide' // Mặc định ẩn nếu không tìm thấy phòng ban
     }
 
-    return permissions[department][area] || "hide"
+    return permissions[department][area] || 'hide'
   }
 
   // Kiểm tra xem người dùng có quyền chỉnh sửa không
-  const hasEditPermission = (department: string, area: WorkflowArea): boolean => {
-    return getUserPermission(department, area) === "edit"
+  const hasEditPermission = (
+    department: string,
+    area: WorkflowArea
+  ): boolean => {
+    return getUserPermission(department, area) === 'edit'
   }
 
   // Kiểm tra xem người dùng có quyền xem không
-  const hasViewPermission = (department: string, area: WorkflowArea): boolean => {
+  const hasViewPermission = (
+    department: string,
+    area: WorkflowArea
+  ): boolean => {
     const permission = getUserPermission(department, area)
-    return permission === "edit" || permission === "view"
+    return permission === 'edit' || permission === 'view'
   }
 
   return (
@@ -173,7 +202,7 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
         updatePermission,
         getUserPermission,
         hasEditPermission,
-        hasViewPermission,
+        hasViewPermission
       }}
     >
       {children}
@@ -184,7 +213,7 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
 export function usePermissions() {
   const context = useContext(PermissionsContext)
   if (context === undefined) {
-    throw new Error("usePermissions must be used within a PermissionsProvider")
+    throw new Error('usePermissions must be used within a PermissionsProvider')
   }
   return context
 }

@@ -1,48 +1,53 @@
-"use client"
+'use client'
 
-import type React from "react"
-import type { Step } from "@/interfaces/workflow"
-import { UserSelector } from "../requests/user-selector"
+import type React from 'react'
+import type { Step } from '@/interfaces/workflow'
+import { UserSelector } from '../requests/user-selector'
 
 interface WorkflowPreviewProps {
   currentStep: Step | undefined
   onFieldChange: (fieldId: string, value: any) => void
 }
 
-export const WorkflowPreview: React.FC<WorkflowPreviewProps> = ({ currentStep, onFieldChange }) => {
+export const WorkflowPreview: React.FC<WorkflowPreviewProps> = ({
+  currentStep,
+  onFieldChange
+}) => {
   const renderField = (field: any, value: any) => {
     switch (field.type) {
-      case "text":
+      case 'text':
         return (
           <input
             type="text"
-            value={value || ""}
+            value={value || ''}
             onChange={(e) => onFieldChange(field.id, e.target.value)}
             placeholder={field.name}
           />
         )
-      case "number":
+      case 'number':
         return (
           <input
             type="number"
-            value={value || ""}
+            value={value || ''}
             onChange={(e) => onFieldChange(field.id, Number(e.target.value))}
             placeholder={field.name}
           />
         )
-      case "date":
+      case 'date':
         return (
           <input
             type="date"
-            value={value || ""}
+            value={value || ''}
             onChange={(e) => onFieldChange(field.id, e.target.value)}
             placeholder={field.name}
           />
         )
-      case "user":
+      case 'user':
         return (
           <UserSelector
-            selectedUser={typeof value === "object" && value !== null ? value : null}
+            selectedUser={
+              typeof value === 'object' && value !== null ? value : null
+            }
             onSelectUser={(user) => onFieldChange(field.id, user)}
             allowedUsers={currentStep?.allowedUsers || []}
             assigneeRole={currentStep?.assigneeRole}
@@ -61,7 +66,10 @@ export const WorkflowPreview: React.FC<WorkflowPreviewProps> = ({ currentStep, o
         currentStep.fields.map((field) => (
           <div key={field.id}>
             <label htmlFor={field.id}>{field.name}:</label>
-            {renderField(field, currentStep.values ? currentStep.values[field.id] : null)}
+            {renderField(
+              field,
+              currentStep.values ? currentStep.values[field.id] : null
+            )}
           </div>
         ))}
     </div>

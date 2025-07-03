@@ -1,17 +1,23 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { RequestForm } from "@/components/requests/request-form"
-import { RequestProvider } from "@/components/requests/request-context"
-import { WorkflowProcessProvider } from "@/components/workflow/workflow-process-context"
-import { ProductStatusProvider } from "@/components/product-status/product-status-context"
-import { MaterialProvider } from "@/components/materials/material-context"
-import { WorkflowProvider } from "@/components/workflow-context"
-import { SubWorkflowProvider } from "@/components/workflow/sub-workflow-context-firebase"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useState } from 'react'
+import { RequestForm } from '@/components/requests/request-form'
+import { RequestProvider } from '@/components/requests/request-context'
+import { WorkflowProcessProvider } from '@/components/workflow/workflow-process-context'
+import { ProductStatusProvider } from '@/components/product-status/product-status-context'
+import { MaterialProvider } from '@/components/materials/material-context'
+import { WorkflowProvider } from '@/components/workflow-context'
+import { SubWorkflowProvider } from '@/components/workflow/sub-workflow-context-firebase'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export function EditRequestPageClient({ id }: { id: string }) {
   const router = useRouter()
@@ -27,10 +33,17 @@ export function EditRequestPageClient({ id }: { id: string }) {
                 <div className="container mx-auto py-6">
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h1 className="text-3xl font-bold tracking-tight">Chỉnh sửa yêu cầu</h1>
-                      <p className="text-muted-foreground">Cập nhật thông tin yêu cầu phát triển sản phẩm</p>
+                      <h1 className="text-3xl font-bold tracking-tight">
+                        Chỉnh sửa yêu cầu
+                      </h1>
+                      <p className="text-muted-foreground">
+                        Cập nhật thông tin yêu cầu phát triển sản phẩm
+                      </p>
                     </div>
-                    <Button variant="outline" onClick={() => router.push(`/dashboard/requests/${id}`)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => router.push(`/dashboard/requests/${id}`)}
+                    >
                       <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại chi tiết
                     </Button>
                   </div>
@@ -39,7 +52,9 @@ export function EditRequestPageClient({ id }: { id: string }) {
                     <Card>
                       <CardHeader>
                         <CardTitle>Lỗi</CardTitle>
-                        <CardDescription>Không thể chỉnh sửa yêu cầu</CardDescription>
+                        <CardDescription>
+                          Không thể chỉnh sửa yêu cầu
+                        </CardDescription>
                       </CardHeader>
                       <CardContent>
                         <p>{error}</p>

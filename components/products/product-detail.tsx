@@ -1,13 +1,19 @@
-"use client"
+'use client'
 
-import { Input } from "@/components/ui/input"
-import { useState, useEffect } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Loader2, Edit, FileUp, MessageSquare } from "lucide-react"
+import { Input } from '@/components/ui/input'
+import { useState, useEffect } from 'react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { Loader2, Edit, FileUp, MessageSquare } from 'lucide-react'
 
 // Định nghĩa kiểu dữ liệu cho sản phẩm
 interface Product {
@@ -32,7 +38,7 @@ export function ProductDetail({ id }: { id: string }) {
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState("overview")
+  const [activeTab, setActiveTab] = useState('overview')
 
   useEffect(() => {
     fetchProduct()
@@ -43,7 +49,7 @@ export function ProductDetail({ id }: { id: string }) {
       setLoading(true)
       const response = await fetch(`/api/products/${id}`)
       if (!response.ok) {
-        throw new Error("Product not found")
+        throw new Error('Product not found')
       }
       const result = await response.json()
 
@@ -51,10 +57,10 @@ export function ProductDetail({ id }: { id: string }) {
       if (result.success && result.data) {
         setProduct(result.data)
       } else {
-        throw new Error("Product data not found")
+        throw new Error('Product data not found')
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
     }
@@ -62,10 +68,10 @@ export function ProductDetail({ id }: { id: string }) {
 
   // Hàm định dạng ngày tháng
   const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
+    return new Intl.DateTimeFormat('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
     }).format(new Date(dateString))
   }
 
@@ -81,7 +87,7 @@ export function ProductDetail({ id }: { id: string }) {
   if (error || !product) {
     return (
       <div className="flex items-center justify-center p-8 text-red-500">
-        <span>Lỗi: {error || "Không tìm thấy sản phẩm"}</span>
+        <span>Lỗi: {error || 'Không tìm thấy sản phẩm'}</span>
       </div>
     )
   }
@@ -91,7 +97,9 @@ export function ProductDetail({ id }: { id: string }) {
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold tracking-tight">{product.name}</h2>
+            <h2 className="text-2xl font-bold tracking-tight">
+              {product.name}
+            </h2>
             <Badge variant="outline">{product.status}</Badge>
           </div>
           <p className="text-muted-foreground">{product.description}</p>
@@ -105,7 +113,11 @@ export function ProductDetail({ id }: { id: string }) {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <TabsList>
           <TabsTrigger value="overview">Tổng Quan</TabsTrigger>
           <TabsTrigger value="files">Tệp & Thiết Kế</TabsTrigger>
@@ -122,7 +134,7 @@ export function ProductDetail({ id }: { id: string }) {
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <h4 className="mb-2 text-sm font-medium">Mã SKU</h4>
-                  <p>{product.sku || "Chưa có"}</p>
+                  <p>{product.sku || 'Chưa có'}</p>
                 </div>
                 <div>
                   <h4 className="mb-2 text-sm font-medium">Trạng Thái</h4>
@@ -133,7 +145,9 @@ export function ProductDetail({ id }: { id: string }) {
                   <p>{formatDate(product.createdAt)}</p>
                 </div>
                 <div>
-                  <h4 className="mb-2 text-sm font-medium">Cập Nhật Gần Nhất</h4>
+                  <h4 className="mb-2 text-sm font-medium">
+                    Cập Nhật Gần Nhất
+                  </h4>
                   <p>{formatDate(product.updatedAt)}</p>
                 </div>
               </div>
@@ -141,8 +155,12 @@ export function ProductDetail({ id }: { id: string }) {
                 <>
                   <Separator />
                   <div>
-                    <h4 className="mb-2 text-sm font-medium">Thông Số Kỹ Thuật</h4>
-                    <pre className="whitespace-pre-wrap rounded-md bg-muted p-4 text-sm">{product.specifications}</pre>
+                    <h4 className="mb-2 text-sm font-medium">
+                      Thông Số Kỹ Thuật
+                    </h4>
+                    <pre className="whitespace-pre-wrap rounded-md bg-muted p-4 text-sm">
+                      {product.specifications}
+                    </pre>
                   </div>
                 </>
               )}
@@ -170,13 +188,17 @@ export function ProductDetail({ id }: { id: string }) {
                       <div className="aspect-square w-full bg-muted"></div>
                       <div className="mt-2">
                         <p className="font-medium">{file}</p>
-                        <p className="text-xs text-muted-foreground">{formatDate(product.updatedAt)}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(product.updatedAt)}
+                        </p>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground">Chưa có tệp thiết kế nào</p>
+                <p className="text-muted-foreground">
+                  Chưa có tệp thiết kế nào
+                </p>
               )}
             </CardContent>
           </Card>
@@ -186,14 +208,18 @@ export function ProductDetail({ id }: { id: string }) {
           <Card>
             <CardHeader>
               <CardTitle>Bình Luận</CardTitle>
-              <CardDescription>Các bình luận và thảo luận về sản phẩm</CardDescription>
+              <CardDescription>
+                Các bình luận và thảo luận về sản phẩm
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {product.comments && product.comments.length > 0 ? (
                 product.comments.map((comment, index) => (
                   <div key={index} className="rounded-md border p-4">
                     <div className="flex items-center justify-between">
-                      <div className="font-medium">{comment.user || "Người dùng"}</div>
+                      <div className="font-medium">
+                        {comment.user || 'Người dùng'}
+                      </div>
                       <div className="text-sm text-muted-foreground">
                         {formatDate(comment.createdAt || product.updatedAt)}
                       </div>
@@ -219,7 +245,9 @@ export function ProductDetail({ id }: { id: string }) {
           <Card>
             <CardHeader>
               <CardTitle>Lịch Sử Hoạt Động</CardTitle>
-              <CardDescription>Lịch sử các hoạt động và thay đổi của sản phẩm</CardDescription>
+              <CardDescription>
+                Lịch sử các hoạt động và thay đổi của sản phẩm
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -230,9 +258,13 @@ export function ProductDetail({ id }: { id: string }) {
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <div className="font-medium">Sản phẩm được tạo</div>
-                      <div className="text-sm text-muted-foreground">{formatDate(product.createdAt)}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {formatDate(product.createdAt)}
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">Sản phẩm {product.name} đã được tạo trong hệ thống</p>
+                    <p className="text-sm text-muted-foreground">
+                      Sản phẩm {product.name} đã được tạo trong hệ thống
+                    </p>
                   </div>
                 </div>
               </div>

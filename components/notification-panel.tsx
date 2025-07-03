@@ -1,11 +1,15 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useWorkflow } from "@/components/workflow-context"
-import { Bell } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
+import { useState } from 'react'
+import { useWorkflow } from '@/components/workflow-context'
+import { Bell } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
 
 export default function NotificationPanel() {
   const { products, markNotificationAsRead } = useWorkflow()
@@ -16,13 +20,13 @@ export default function NotificationPanel() {
     product.notifications.map((notification) => ({
       ...notification,
       productId: product.id,
-      productName: product.name,
-    })),
+      productName: product.name
+    }))
   )
 
   // Sắp xếp theo thời gian, mới nhất lên đầu
   const sortedNotifications = [...allNotifications].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   )
 
   // Đếm số thông báo chưa đọc
@@ -50,10 +54,10 @@ export default function NotificationPanel() {
     }
 
     // Ngày tháng đầy đủ
-    return new Intl.DateTimeFormat("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
+    return new Intl.DateTimeFormat('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
     }).format(date)
   }
 
@@ -79,27 +83,45 @@ export default function NotificationPanel() {
         </div>
         <div className="max-h-[300px] overflow-y-auto">
           {sortedNotifications.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground">Không có thông báo nào</div>
+            <div className="p-4 text-center text-muted-foreground">
+              Không có thông báo nào
+            </div>
           ) : (
             <div className="divide-y">
               {sortedNotifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={cn("p-4 hover:bg-muted/50 transition-colors", !notification.read && "bg-muted/20")}
+                  className={cn(
+                    'p-4 hover:bg-muted/50 transition-colors',
+                    !notification.read && 'bg-muted/20'
+                  )}
                 >
                   <div className="flex justify-between items-start">
-                    <h4 className="font-medium text-sm">{notification.title}</h4>
-                    <span className="text-xs text-muted-foreground">{formatTime(notification.date)}</span>
+                    <h4 className="font-medium text-sm">
+                      {notification.title}
+                    </h4>
+                    <span className="text-xs text-muted-foreground">
+                      {formatTime(notification.date)}
+                    </span>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {notification.message}
+                  </p>
                   <div className="mt-2 flex justify-between items-center">
-                    <span className="text-xs text-muted-foreground">{notification.productName}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {notification.productName}
+                    </span>
                     {!notification.read && (
                       <Button
                         variant="ghost"
                         size="sm"
                         className="text-xs h-7"
-                        onClick={() => handleMarkAsRead(notification.productId, notification.id)}
+                        onClick={() =>
+                          handleMarkAsRead(
+                            notification.productId,
+                            notification.id
+                          )
+                        }
                       >
                         Đánh dấu đã đọc
                       </Button>

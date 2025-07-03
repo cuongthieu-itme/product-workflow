@@ -1,11 +1,11 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Search, Plus, Eye, Edit, Trash2 } from "lucide-react"
-import Link from "next/link"
-import { useCustomers } from "./customer-context"
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Search, Plus, Eye, Edit, Trash2 } from 'lucide-react'
+import Link from 'next/link'
+import { useCustomers } from './customer-context'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,14 +15,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { useToast } from "@/hooks/use-toast"
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog'
+import { useToast } from '@/hooks/use-toast'
 
 export function CustomerList() {
-  const { customers, loading, error, refreshData, deleteCustomer } = useCustomers()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [deletingId, setDeletingId] = useState("")
+  const { customers, loading, error, refreshData, deleteCustomer } =
+    useCustomers()
+  const [searchTerm, setSearchTerm] = useState('')
+  const [deletingId, setDeletingId] = useState('')
   const { toast } = useToast()
 
   useEffect(() => {
@@ -33,15 +34,15 @@ export function CustomerList() {
     (customer) =>
       customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.phone?.toLowerCase().includes(searchTerm.toLowerCase()),
+      customer.phone?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return "N/A"
+    if (!dateString) return 'N/A'
     try {
-      return new Date(dateString).toLocaleDateString("vi-VN")
+      return new Date(dateString).toLocaleDateString('vi-VN')
     } catch {
-      return "N/A"
+      return 'N/A'
     }
   }
 
@@ -51,19 +52,19 @@ export function CustomerList() {
       console.log(`🗑️ Deleting customer: ${name} (${id})`)
       await deleteCustomer(id)
       toast({
-        title: "Xóa thành công",
-        description: `Đã xóa khách hàng ${name}`,
+        title: 'Xóa thành công',
+        description: `Đã xóa khách hàng ${name}`
       })
       await refreshData()
     } catch (error) {
-      console.error("❌ Error deleting customer:", error)
+      console.error('❌ Error deleting customer:', error)
       toast({
-        title: "Lỗi",
-        description: "Không thể xóa khách hàng. Vui lòng thử lại sau.",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Không thể xóa khách hàng. Vui lòng thử lại sau.',
+        variant: 'destructive'
       })
     } finally {
-      setDeletingId("")
+      setDeletingId('')
     }
   }
 
@@ -73,7 +74,8 @@ export function CustomerList() {
         <div>
           <h1 className="text-2xl font-bold">Danh sách khách hàng</h1>
           <p className="text-muted-foreground">
-            Quản lý thông tin khách hàng từ Firebase ({customers.length} khách hàng)
+            Quản lý thông tin khách hàng từ Firebase ({customers.length} khách
+            hàng)
           </p>
         </div>
         <Button asChild>
@@ -94,7 +96,12 @@ export function CustomerList() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button variant="outline" className="ml-2" onClick={refreshData} disabled={loading}>
+        <Button
+          variant="outline"
+          className="ml-2"
+          onClick={refreshData}
+          disabled={loading}
+        >
           Làm mới
         </Button>
       </div>
@@ -129,32 +136,42 @@ export function CustomerList() {
               {filteredCustomers.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center p-8">
-                    {searchTerm ? "Không tìm thấy khách hàng nào" : "Chưa có khách hàng nào"}
+                    {searchTerm
+                      ? 'Không tìm thấy khách hàng nào'
+                      : 'Chưa có khách hàng nào'}
                   </td>
                 </tr>
               ) : (
                 filteredCustomers.map((customer) => (
                   <tr key={customer.id} className="border-b hover:bg-muted/50">
                     <td className="p-3">
-                      <div className="font-medium">{customer.name || "N/A"}</div>
+                      <div className="font-medium">
+                        {customer.name || 'N/A'}
+                      </div>
                     </td>
                     <td className="p-3">
                       <div className="space-y-1">
-                        {customer.phone && <div className="flex items-center text-sm">{customer.phone}</div>}
+                        {customer.phone && (
+                          <div className="flex items-center text-sm">
+                            {customer.phone}
+                          </div>
+                        )}
                         {customer.email && (
-                          <div className="flex items-center text-sm text-muted-foreground">{customer.email}</div>
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            {customer.email}
+                          </div>
                         )}
                       </div>
                     </td>
-                    <td className="p-3">{customer.source || "N/A"}</td>
+                    <td className="p-3">{customer.source || 'N/A'}</td>
                     <td className="p-3">
-                      {customer.gender === "male"
-                        ? "Nam"
-                        : customer.gender === "female"
-                          ? "Nữ"
-                          : customer.gender === "other"
-                            ? "Khác"
-                            : "Không xác định"}
+                      {customer.gender === 'male'
+                        ? 'Nam'
+                        : customer.gender === 'female'
+                          ? 'Nữ'
+                          : customer.gender === 'other'
+                            ? 'Khác'
+                            : 'Không xác định'}
                     </td>
                     <td className="p-3">{formatDate(customer.birthDate)}</td>
                     <td className="p-3">{formatDate(customer.createdAt)}</td>
@@ -167,7 +184,9 @@ export function CustomerList() {
                           </Link>
                         </Button>
                         <Button variant="ghost" size="icon" asChild>
-                          <Link href={`/dashboard/customers/${customer.id}/edit`}>
+                          <Link
+                            href={`/dashboard/customers/${customer.id}/edit`}
+                          >
                             <Edit className="h-4 w-4" />
                             <span className="sr-only">Sửa</span>
                           </Link>
@@ -175,7 +194,11 @@ export function CustomerList() {
 
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" disabled={deletingId === customer.id}>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={deletingId === customer.id}
+                            >
                               {deletingId === customer.id ? (
                                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
                               ) : (
@@ -186,16 +209,24 @@ export function CustomerList() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Xác nhận xóa khách hàng</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Xác nhận xóa khách hàng
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Bạn có chắc chắn muốn xóa khách hàng <strong>{customer.name}</strong>? Hành động này
+                                Bạn có chắc chắn muốn xóa khách hàng{' '}
+                                <strong>{customer.name}</strong>? Hành động này
                                 không thể hoàn tác.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Hủy</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => handleDeleteCustomer(customer.id, customer.name || "")}
+                                onClick={() =>
+                                  handleDeleteCustomer(
+                                    customer.id,
+                                    customer.name || ''
+                                  )
+                                }
                                 className="bg-red-600 hover:bg-red-700"
                               >
                                 Xóa

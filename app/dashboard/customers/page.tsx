@@ -1,11 +1,11 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Search, Plus, Eye, Edit, Trash2 } from "lucide-react"
-import Link from "next/link"
-import { useCustomers } from "@/components/customers/customer-context"
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Search, Plus, Eye, Edit, Trash2 } from 'lucide-react'
+import Link from 'next/link'
+import { useCustomers } from '@/components/customers/customer-context'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,17 +14,21 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { useToast } from "@/hooks/use-toast"
-import { CustomerProvider } from "@/components/customers/customer-context"
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
+import { useToast } from '@/hooks/use-toast'
+import { CustomerProvider } from '@/components/customers/customer-context'
 
 function CustomersPageClient() {
-  const { customers, loading, error, refreshData, deleteCustomer } = useCustomers()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [deletingId, setDeletingId] = useState("")
+  const { customers, loading, error, refreshData, deleteCustomer } =
+    useCustomers()
+  const [searchTerm, setSearchTerm] = useState('')
+  const [deletingId, setDeletingId] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [customerToDelete, setCustomerToDelete] = useState<{ id: string; name: string } | null>(null)
+  const [customerToDelete, setCustomerToDelete] = useState<{
+    id: string
+    name: string
+  } | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -35,57 +39,61 @@ function CustomersPageClient() {
     (customer) =>
       customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.phone?.toLowerCase().includes(searchTerm.toLowerCase()),
+      customer.phone?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   // Sửa hàm formatDate để hiển thị đúng format dd/mm/yyyy
   const formatDate = (dateString?: string) => {
-    if (!dateString) return "N/A"
+    if (!dateString) return 'N/A'
     try {
       const date = new Date(dateString)
       // Kiểm tra nếu date không hợp lệ
-      if (isNaN(date.getTime())) return "N/A"
+      if (isNaN(date.getTime())) return 'N/A'
 
-      const day = date.getDate().toString().padStart(2, "0")
-      const month = (date.getMonth() + 1).toString().padStart(2, "0")
+      const day = date.getDate().toString().padStart(2, '0')
+      const month = (date.getMonth() + 1).toString().padStart(2, '0')
       const year = date.getFullYear()
 
       return `${day}/${month}/${year}`
     } catch {
-      return "N/A"
+      return 'N/A'
     }
   }
 
   const handleDeleteClick = (id: string, name: string) => {
-    console.log("🔘 Delete button clicked for:", name, id)
+    console.log('🔘 Delete button clicked for:', name, id)
     setCustomerToDelete({ id, name })
     setDialogOpen(true)
   }
 
   const handleConfirmDelete = async () => {
     if (!customerToDelete) {
-      console.error("❌ No customer selected for deletion")
+      console.error('❌ No customer selected for deletion')
       return
     }
 
     try {
       setDeletingId(customerToDelete.id)
-      console.log("🔴 Confirm delete clicked for:", customerToDelete.name, customerToDelete.id)
+      console.log(
+        '🔴 Confirm delete clicked for:',
+        customerToDelete.name,
+        customerToDelete.id
+      )
 
       await deleteCustomer(customerToDelete.id)
 
-      console.log("✅ Delete completed successfully")
+      console.log('✅ Delete completed successfully')
       setDialogOpen(false)
       setCustomerToDelete(null)
     } catch (error) {
-      console.error("❌ Error in handleConfirmDelete:", error)
+      console.error('❌ Error in handleConfirmDelete:', error)
     } finally {
-      setDeletingId("")
+      setDeletingId('')
     }
   }
 
   const handleCancelDelete = () => {
-    console.log("❌ Delete cancelled")
+    console.log('❌ Delete cancelled')
     setDialogOpen(false)
     setCustomerToDelete(null)
   }
@@ -120,7 +128,8 @@ function CustomersPageClient() {
         <div>
           <h1 className="text-2xl font-bold">Danh sách khách hàng</h1>
           <p className="text-muted-foreground">
-            Quản lý thông tin khách hàng từ Firebase ({customers.length} khách hàng)
+            Quản lý thông tin khách hàng từ Firebase ({customers.length} khách
+            hàng)
           </p>
         </div>
         <Button asChild>
@@ -141,7 +150,12 @@ function CustomersPageClient() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button variant="outline" className="ml-2" onClick={refreshData} disabled={loading}>
+        <Button
+          variant="outline"
+          className="ml-2"
+          onClick={refreshData}
+          disabled={loading}
+        >
           Làm mới
         </Button>
       </div>
@@ -163,32 +177,40 @@ function CustomersPageClient() {
             {filteredCustomers.length === 0 ? (
               <tr>
                 <td colSpan={7} className="text-center p-8">
-                  {searchTerm ? "Không tìm thấy khách hàng nào" : "Chưa có khách hàng nào"}
+                  {searchTerm
+                    ? 'Không tìm thấy khách hàng nào'
+                    : 'Chưa có khách hàng nào'}
                 </td>
               </tr>
             ) : (
               filteredCustomers.map((customer) => (
                 <tr key={customer.id} className="border-b hover:bg-muted/50">
                   <td className="p-3">
-                    <div className="font-medium">{customer.name || "N/A"}</div>
+                    <div className="font-medium">{customer.name || 'N/A'}</div>
                   </td>
                   <td className="p-3">
                     <div className="space-y-1">
-                      {customer.phone && <div className="flex items-center text-sm">{customer.phone}</div>}
+                      {customer.phone && (
+                        <div className="flex items-center text-sm">
+                          {customer.phone}
+                        </div>
+                      )}
                       {customer.email && (
-                        <div className="flex items-center text-sm text-muted-foreground">{customer.email}</div>
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          {customer.email}
+                        </div>
                       )}
                     </div>
                   </td>
-                  <td className="p-3">{customer.source || "N/A"}</td>
+                  <td className="p-3">{customer.source || 'N/A'}</td>
                   <td className="p-3">
-                    {customer.gender === "male"
-                      ? "Nam"
-                      : customer.gender === "female"
-                        ? "Nữ"
-                        : customer.gender === "other"
-                          ? "Khác"
-                          : "Không xác định"}
+                    {customer.gender === 'male'
+                      ? 'Nam'
+                      : customer.gender === 'female'
+                        ? 'Nữ'
+                        : customer.gender === 'other'
+                          ? 'Khác'
+                          : 'Không xác định'}
                   </td>
                   <td className="p-3">{formatDate(customer.birthDate)}</td>
                   <td className="p-3">{formatDate(customer.createdAt)}</td>
@@ -211,7 +233,9 @@ function CustomersPageClient() {
                         variant="ghost"
                         size="icon"
                         disabled={deletingId === customer.id}
-                        onClick={() => handleDeleteClick(customer.id, customer.name || "")}
+                        onClick={() =>
+                          handleDeleteClick(customer.id, customer.name || '')
+                        }
                       >
                         {deletingId === customer.id ? (
                           <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
@@ -235,19 +259,22 @@ function CustomersPageClient() {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xóa khách hàng</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa khách hàng <strong>{customerToDelete?.name}</strong>?
+              Bạn có chắc chắn muốn xóa khách hàng{' '}
+              <strong>{customerToDelete?.name}</strong>?
               <br />
               Hành động này không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelDelete}>Hủy</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleCancelDelete}>
+              Hủy
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-red-600 hover:bg-red-700 text-white"
               disabled={!!deletingId}
             >
-              {deletingId ? "Đang xóa..." : "Xóa"}
+              {deletingId ? 'Đang xóa...' : 'Xóa'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

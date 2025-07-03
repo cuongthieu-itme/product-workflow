@@ -1,43 +1,60 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useAvailableVariables, type AvailableVariable } from "./available-variables-context"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useState } from 'react'
+import {
+  useAvailableVariables,
+  type AvailableVariable
+} from './available-variables-context'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Plus, Search, MoreHorizontal, Edit, Trash2, Eye } from "lucide-react"
-import { VariableForm } from "./variable-form"
-import { VariableDetail } from "./variable-detail"
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Plus, Search, MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react'
+import { VariableForm } from './variable-form'
+import { VariableDetail } from './variable-detail'
 
 export function VariablesTable() {
   const { variables, loading, deleteVariable } = useAvailableVariables()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [sourceFilter, setSourceFilter] = useState<string>("all")
-  const [typeFilter, setTypeFilter] = useState<string>("all")
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sourceFilter, setSourceFilter] = useState<string>('all')
+  const [typeFilter, setTypeFilter] = useState<string>('all')
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showDetailDialog, setShowDetailDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [selectedVariable, setSelectedVariable] = useState<AvailableVariable | null>(null)
+  const [selectedVariable, setSelectedVariable] =
+    useState<AvailableVariable | null>(null)
 
   // Lọc dữ liệu
   const filteredVariables = variables.filter((variable) => {
     const matchesSearch =
       variable.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       variable.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesSource = sourceFilter === "all" || variable.source === sourceFilter
-    const matchesType = typeFilter === "all" || variable.type === typeFilter
+    const matchesSource =
+      sourceFilter === 'all' || variable.source === sourceFilter
+    const matchesType = typeFilter === 'all' || variable.type === typeFilter
 
     return matchesSearch && matchesSource && matchesType
   })
@@ -45,12 +62,12 @@ export function VariablesTable() {
   // Lấy tên hiển thị cho nguồn
   const getSourceName = (source: string) => {
     switch (source) {
-      case "request":
-        return "Yêu cầu"
-      case "system":
-        return "Hệ thống"
-      case "custom":
-        return "Tùy chỉnh"
+      case 'request':
+        return 'Yêu cầu'
+      case 'system':
+        return 'Hệ thống'
+      case 'custom':
+        return 'Tùy chỉnh'
       default:
         return source
     }
@@ -59,24 +76,24 @@ export function VariablesTable() {
   // Lấy tên hiển thị cho loại
   const getTypeName = (type: string) => {
     switch (type) {
-      case "text":
-        return "Văn bản"
-      case "date":
-        return "Ngày tháng"
-      case "datetime":
-        return "Ngày giờ"
-      case "user":
-        return "Người dùng"
-      case "number":
-        return "Số"
-      case "select":
-        return "Lựa chọn đơn"
-      case "multiselect":
-        return "Lựa chọn nhiều"
-      case "currency":
-        return "Tiền tệ"
-      case "checkbox":
-        return "Hộp kiểm"
+      case 'text':
+        return 'Văn bản'
+      case 'date':
+        return 'Ngày tháng'
+      case 'datetime':
+        return 'Ngày giờ'
+      case 'user':
+        return 'Người dùng'
+      case 'number':
+        return 'Số'
+      case 'select':
+        return 'Lựa chọn đơn'
+      case 'multiselect':
+        return 'Lựa chọn nhiều'
+      case 'currency':
+        return 'Tiền tệ'
+      case 'checkbox':
+        return 'Hộp kiểm'
       default:
         return type
     }
@@ -85,14 +102,14 @@ export function VariablesTable() {
   // Lấy màu badge cho nguồn
   const getSourceBadgeVariant = (source: string) => {
     switch (source) {
-      case "system":
-        return "default"
-      case "request":
-        return "secondary"
-      case "custom":
-        return "outline"
+      case 'system':
+        return 'default'
+      case 'request':
+        return 'secondary'
+      case 'custom':
+        return 'outline'
       default:
-        return "outline"
+        return 'outline'
     }
   }
 
@@ -184,24 +201,35 @@ export function VariablesTable() {
               <TableBody>
                 {filteredVariables.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      {searchTerm || sourceFilter !== "all" || typeFilter !== "all"
-                        ? "Không tìm thấy trường dữ liệu nào phù hợp"
-                        : "Chưa có trường dữ liệu nào"}
+                    <TableCell
+                      colSpan={7}
+                      className="text-center py-8 text-muted-foreground"
+                    >
+                      {searchTerm ||
+                      sourceFilter !== 'all' ||
+                      typeFilter !== 'all'
+                        ? 'Không tìm thấy trường dữ liệu nào phù hợp'
+                        : 'Chưa có trường dữ liệu nào'}
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredVariables.map((variable) => (
                     <TableRow key={variable.id}>
-                      <TableCell className="font-medium">{variable.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {variable.name}
+                      </TableCell>
                       <TableCell className="max-w-[200px] truncate">
-                        {variable.description || "Không có mô tả"}
+                        {variable.description || 'Không có mô tả'}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getSourceBadgeVariant(variable.source)}>{getSourceName(variable.source)}</Badge>
+                        <Badge variant={getSourceBadgeVariant(variable.source)}>
+                          {getSourceName(variable.source)}
+                        </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary">{getTypeName(variable.type)}</Badge>
+                        <Badge variant="secondary">
+                          {getTypeName(variable.type)}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         {variable.isRequired ? (
@@ -210,7 +238,9 @@ export function VariablesTable() {
                           <Badge variant="outline">Tùy chọn</Badge>
                         )}
                       </TableCell>
-                      <TableCell>{variable.createdAt.toLocaleDateString("vi-VN")}</TableCell>
+                      <TableCell>
+                        {variable.createdAt.toLocaleDateString('vi-VN')}
+                      </TableCell>
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -233,7 +263,10 @@ export function VariablesTable() {
                                 setSelectedVariable(variable)
                                 setShowEditDialog(true)
                               }}
-                              disabled={variable.source === "system" || variable.source === "request"}
+                              disabled={
+                                variable.source === 'system' ||
+                                variable.source === 'request'
+                              }
                             >
                               <Edit className="h-4 w-4 mr-2" />
                               Chỉnh sửa
@@ -243,7 +276,10 @@ export function VariablesTable() {
                                 setSelectedVariable(variable)
                                 setShowDeleteDialog(true)
                               }}
-                              disabled={variable.source === "system" || variable.source === "request"}
+                              disabled={
+                                variable.source === 'system' ||
+                                variable.source === 'request'
+                              }
                               className="text-destructive"
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
@@ -261,7 +297,8 @@ export function VariablesTable() {
 
           {/* Thống kê */}
           <div className="mt-4 text-sm text-muted-foreground">
-            Hiển thị {filteredVariables.length} / {variables.length} trường dữ liệu
+            Hiển thị {filteredVariables.length} / {variables.length} trường dữ
+            liệu
           </div>
         </CardContent>
       </Card>
@@ -271,9 +308,14 @@ export function VariablesTable() {
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle>Thêm trường dữ liệu mới</DialogTitle>
-            <DialogDescription>Tạo một trường dữ liệu mới để sử dụng trong các quy trình.</DialogDescription>
+            <DialogDescription>
+              Tạo một trường dữ liệu mới để sử dụng trong các quy trình.
+            </DialogDescription>
           </DialogHeader>
-          <VariableForm onSuccess={() => setShowAddDialog(false)} onCancel={() => setShowAddDialog(false)} />
+          <VariableForm
+            onSuccess={() => setShowAddDialog(false)}
+            onCancel={() => setShowAddDialog(false)}
+          />
         </DialogContent>
       </Dialog>
 
@@ -282,7 +324,9 @@ export function VariablesTable() {
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle>Chỉnh sửa trường dữ liệu</DialogTitle>
-            <DialogDescription>Cập nhật thông tin của trường dữ liệu.</DialogDescription>
+            <DialogDescription>
+              Cập nhật thông tin của trường dữ liệu.
+            </DialogDescription>
           </DialogHeader>
           {selectedVariable && (
             <VariableForm
@@ -310,11 +354,15 @@ export function VariablesTable() {
           <DialogHeader>
             <DialogTitle>Xác nhận xóa</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa trường dữ liệu "{selectedVariable?.name}"? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa trường dữ liệu "{selectedVariable?.name}
+              "? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
               Hủy
             </Button>
             <Button variant="destructive" onClick={handleDelete}>

@@ -1,11 +1,13 @@
-import { AccountSettings } from "@/components/settings/account-settings"
+import { AccountSettings } from '@/components/settings/account-settings'
 
 export default function SettingsPage() {
   return (
     <div className="container mx-auto py-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Cài Đặt</h1>
-        <p className="text-muted-foreground">Quản lý cài đặt tài khoản và hệ thống</p>
+        <p className="text-muted-foreground">
+          Quản lý cài đặt tài khoản và hệ thống
+        </p>
       </div>
 
       <div className="mb-6">

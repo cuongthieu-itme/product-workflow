@@ -1,18 +1,25 @@
-"use client"
+'use client'
 
-import { useMemo } from "react"
-import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip } from "recharts"
-import { useRequest } from "@/components/requests/request-context-firebase"
+import { useMemo } from 'react'
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+  Tooltip
+} from 'recharts'
+import { useRequest } from '@/components/requests/request-context-firebase'
 
 const COLORS = [
-  "#3b82f6", // Blue
-  "#10b981", // Green
-  "#f59e0b", // Orange
-  "#8b5cf6", // Purple
-  "#ef4444", // Red
-  "#06b6d4", // Cyan
-  "#84cc16", // Lime
-  "#f97316", // Orange-600
+  '#3b82f6', // Blue
+  '#10b981', // Green
+  '#f59e0b', // Orange
+  '#8b5cf6', // Purple
+  '#ef4444', // Red
+  '#06b6d4', // Cyan
+  '#84cc16', // Lime
+  '#f97316' // Orange-600
 ]
 
 export function DepartmentActivity() {
@@ -27,7 +34,8 @@ export function DepartmentActivity() {
     const departmentCounts: Record<string, number> = {}
 
     requests.forEach((request) => {
-      const department = request.creator?.department || request.department || "Không xác định"
+      const department =
+        request.creator?.department || request.department || 'Không xác định'
       departmentCounts[department] = (departmentCounts[department] || 0) + 1
     })
 
@@ -36,7 +44,7 @@ export function DepartmentActivity() {
       .map(([name, value], index) => ({
         name,
         value,
-        color: COLORS[index % COLORS.length],
+        color: COLORS[index % COLORS.length]
       }))
       .sort((a, b) => b.value - a.value) // Sắp xếp theo số lượng giảm dần
 
@@ -70,7 +78,9 @@ export function DepartmentActivity() {
           outerRadius={80}
           fill="#8884d8"
           dataKey="value"
-          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+          label={({ name, percent }) =>
+            `${name} ${(percent * 100).toFixed(0)}%`
+          }
         >
           {chartData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={entry.color} />

@@ -1,17 +1,29 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Plus } from "lucide-react"
-import { DatePicker } from "../ui/date-picker"
-import { useCustomers } from "./customer-context"
-import { useRouter } from "next/navigation"
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
+import { Plus } from 'lucide-react'
+import { DatePicker } from '../ui/date-picker'
+import { useCustomers } from './customer-context'
+import { useRouter } from 'next/navigation'
 
 interface CustomerFormProps {
   onSuccess?: () => void
@@ -26,30 +38,30 @@ export function CustomerForm({ onSuccess, customerId }: CustomerFormProps) {
     customerSources,
     addCustomerSource,
     checkPhoneExists,
-    checkEmailExists,
+    checkEmailExists
   } = useCustomers()
   const router = useRouter()
 
   const initialCustomer = customerId ? getCustomerById(customerId) : null
 
-  const [name, setName] = useState(initialCustomer?.name || "")
-  const [phone, setPhone] = useState(initialCustomer?.phone || "")
-  const [email, setEmail] = useState(initialCustomer?.email || "")
-  const [source, setSource] = useState(initialCustomer?.source || "")
-  const [gender, setGender] = useState(initialCustomer?.gender || "")
+  const [name, setName] = useState(initialCustomer?.name || '')
+  const [phone, setPhone] = useState(initialCustomer?.phone || '')
+  const [email, setEmail] = useState(initialCustomer?.email || '')
+  const [source, setSource] = useState(initialCustomer?.source || '')
+  const [gender, setGender] = useState(initialCustomer?.gender || '')
   const [birthDate, setBirthDate] = useState<Date | undefined>(
-    initialCustomer?.birthDate ? new Date(initialCustomer.birthDate) : undefined,
+    initialCustomer?.birthDate ? new Date(initialCustomer.birthDate) : undefined
   )
-  const [newSource, setNewSource] = useState("")
+  const [newSource, setNewSource] = useState('')
   const [showSourceDialog, setShowSourceDialog] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string>("")
+  const [error, setError] = useState<string>('')
 
   const handleAddSource = () => {
     if (newSource.trim()) {
       addCustomerSource(newSource.trim())
       setSource(newSource.trim())
-      setNewSource("")
+      setNewSource('')
       setShowSourceDialog(false)
     }
   }
@@ -57,10 +69,17 @@ export function CustomerForm({ onSuccess, customerId }: CustomerFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    setError("")
+    setError('')
 
     try {
-      console.log("🚀 Submitting customer data:", { name, phone, email, source, gender, birthDate })
+      console.log('🚀 Submitting customer data:', {
+        name,
+        phone,
+        email,
+        source,
+        gender,
+        birthDate
+      })
 
       // Kiểm tra trùng số điện thoại
       if (!customerId) {
@@ -100,24 +119,24 @@ export function CustomerForm({ onSuccess, customerId }: CustomerFormProps) {
         email,
         source,
         gender,
-        birthDate: birthDate ? birthDate.toISOString() : undefined,
+        birthDate: birthDate ? birthDate.toISOString() : undefined
       }
 
       if (customerId) {
         await updateCustomer(customerId, customerData)
-        console.log("✅ Customer updated successfully")
+        console.log('✅ Customer updated successfully')
       } else {
         await addCustomer(customerData)
-        console.log("✅ Customer added successfully")
+        console.log('✅ Customer added successfully')
       }
 
       // Reset form nếu là thêm mới
       if (!customerId) {
-        setName("")
-        setPhone("")
-        setEmail("")
-        setSource("")
-        setGender("")
+        setName('')
+        setPhone('')
+        setEmail('')
+        setSource('')
+        setGender('')
         setBirthDate(undefined)
       }
 
@@ -125,11 +144,15 @@ export function CustomerForm({ onSuccess, customerId }: CustomerFormProps) {
         onSuccess()
       } else if (!customerId) {
         // Điều hướng về danh sách khách hàng sau khi thêm thành công
-        router.push("/dashboard/customers")
+        router.push('/dashboard/customers')
       }
     } catch (error) {
-      console.error("❌ Error saving customer:", error)
-      setError(error instanceof Error ? error.message : "Có lỗi xảy ra khi lưu khách hàng")
+      console.error('❌ Error saving customer:', error)
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Có lỗi xảy ra khi lưu khách hàng'
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -238,10 +261,18 @@ export function CustomerForm({ onSuccess, customerId }: CustomerFormProps) {
         <DatePicker date={birthDate} setDate={setBirthDate} />
       </div>
 
-      {error && <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">{error}</div>}
+      {error && (
+        <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">
+          {error}
+        </div>
+      )}
 
       <Button type="submit" disabled={isSubmitting} className="w-full">
-        {isSubmitting ? "Đang xử lý..." : customerId ? "Cập nhật" : "Thêm khách hàng"}
+        {isSubmitting
+          ? 'Đang xử lý...'
+          : customerId
+            ? 'Cập nhật'
+            : 'Thêm khách hàng'}
       </Button>
     </form>
   )

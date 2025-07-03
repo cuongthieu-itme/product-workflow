@@ -1,15 +1,15 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "../auth/[...nextauth]/route"
+import { type NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../auth/[...nextauth]/route'
 
 // Mô phỏng cơ sở dữ liệu
 const reports = [
   {
-    id: "1",
-    title: "Báo cáo tiến độ phát triển sản phẩm Q2/2023",
-    type: "product",
-    createdAt: "2023-06-30T00:00:00.000Z",
-    createdBy: "1",
+    id: '1',
+    title: 'Báo cáo tiến độ phát triển sản phẩm Q2/2023',
+    type: 'product',
+    createdAt: '2023-06-30T00:00:00.000Z',
+    createdBy: '1',
     data: {
       totalProducts: 24,
       newProducts: 8,
@@ -20,7 +20,7 @@ const reports = [
         design: 18,
         marketing: 10,
         sales: 6,
-        operations: 8,
+        operations: 8
       },
       byStatus: {
         draft: 4,
@@ -29,16 +29,16 @@ const reports = [
         production: 4,
         marketing: 4,
         launch: 2,
-        completed: 2,
-      },
-    },
+        completed: 2
+      }
+    }
   },
   {
-    id: "2",
-    title: "Báo cáo hiệu quả marketing Q2/2023",
-    type: "marketing",
-    createdAt: "2023-06-30T00:00:00.000Z",
-    createdBy: "3",
+    id: '2',
+    title: 'Báo cáo hiệu quả marketing Q2/2023',
+    type: 'marketing',
+    createdAt: '2023-06-30T00:00:00.000Z',
+    createdBy: '3',
     data: {
       totalCampaigns: 12,
       activeCampaigns: 5,
@@ -50,16 +50,16 @@ const reports = [
         social: 5,
         email: 3,
         website: 2,
-        offline: 2,
-      },
-    },
+        offline: 2
+      }
+    }
   },
   {
-    id: "3",
-    title: "Báo cáo hiệu suất sản phẩm Q2/2023",
-    type: "product",
-    createdAt: "2023-06-30T00:00:00.000Z",
-    createdBy: "1",
+    id: '3',
+    title: 'Báo cáo hiệu suất sản phẩm Q2/2023',
+    type: 'product',
+    createdAt: '2023-06-30T00:00:00.000Z',
+    createdBy: '1',
     data: {
       totalProducts: 10,
       averageDevelopmentTime: 45, // days
@@ -69,10 +69,10 @@ const reports = [
       byCategory: {
         furniture: 4,
         electronics: 3,
-        accessories: 3,
-      },
-    },
-  },
+        accessories: 3
+      }
+    }
+  }
 ]
 
 // GET /api/reports - Lấy danh sách báo cáo
@@ -80,12 +80,12 @@ export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions)
 
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   // Lọc báo cáo theo query params
   const { searchParams } = new URL(request.url)
-  const type = searchParams.get("type")
+  const type = searchParams.get('type')
 
   let filteredReports = [...reports]
 
@@ -94,11 +94,13 @@ export async function GET(request: NextRequest) {
   }
 
   // Sắp xếp theo thời gian, mới nhất lên đầu
-  filteredReports.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  filteredReports.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  )
 
   // Phân trang
-  const page = Number.parseInt(searchParams.get("page") || "1")
-  const limit = Number.parseInt(searchParams.get("limit") || "10")
+  const page = Number.parseInt(searchParams.get('page') || '1')
+  const limit = Number.parseInt(searchParams.get('limit') || '10')
   const startIndex = (page - 1) * limit
   const endIndex = page * limit
 
@@ -111,8 +113,8 @@ export async function GET(request: NextRequest) {
       total: filteredReports.length,
       page,
       limit,
-      pages: Math.ceil(filteredReports.length / limit),
-    },
+      pages: Math.ceil(filteredReports.length / limit)
+    }
   })
 }
 
@@ -121,7 +123,7 @@ export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
 
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
@@ -129,7 +131,10 @@ export async function POST(request: NextRequest) {
 
     // Validate dữ liệu đầu vào
     if (!body.title || !body.type || !body.data) {
-      return NextResponse.json({ success: false, message: "Missing required fields" }, { status: 400 })
+      return NextResponse.json(
+        { success: false, message: 'Missing required fields' },
+        { status: 400 }
+      )
     }
 
     // Tạo báo cáo mới
@@ -139,7 +144,7 @@ export async function POST(request: NextRequest) {
       type: body.type,
       createdAt: new Date().toISOString(),
       createdBy: session.user.id,
-      data: body.data,
+      data: body.data
     }
 
     reports.push(newReport)
@@ -147,11 +152,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        data: newReport,
+        data: newReport
       },
-      { status: 201 },
+      { status: 201 }
     )
   } catch (error) {
-    return NextResponse.json({ success: false, message: "Invalid request body" }, { status: 400 })
+    return NextResponse.json(
+      { success: false, message: 'Invalid request body' },
+      { status: 400 }
+    )
   }
 }

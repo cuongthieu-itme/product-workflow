@@ -1,62 +1,88 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { useWorkflow, type Product, type ProductStatus } from "@/components/workflow-context"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Checkbox } from "@/components/ui/checkbox"
-import { AlertCircle, CheckCircle, FileUp, Info, Loader2, Megaphone, Palette, Rocket, ShoppingCart } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useState, useEffect } from 'react'
+import {
+  useWorkflow,
+  type Product,
+  type ProductStatus
+} from '@/components/workflow-context'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  AlertCircle,
+  CheckCircle,
+  FileUp,
+  Info,
+  Loader2,
+  Megaphone,
+  Palette,
+  Rocket,
+  ShoppingCart
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 // Các bước trong quy trình
 const workflowSteps = [
   {
-    id: "request",
-    title: "Khởi Tạo Yêu Cầu",
-    description: "Nhập thông tin yêu cầu phát triển sản phẩm",
+    id: 'request',
+    title: 'Khởi Tạo Yêu Cầu',
+    description: 'Nhập thông tin yêu cầu phát triển sản phẩm',
     icon: <Info className="h-5 w-5" />,
-    status: "draft" as ProductStatus,
+    status: 'draft' as ProductStatus
   },
   {
-    id: "review",
-    title: "Kiểm Tra Phát Triển",
-    description: "Kiểm tra thông tin và yêu cầu bổ sung nếu cần",
+    id: 'review',
+    title: 'Kiểm Tra Phát Triển',
+    description: 'Kiểm tra thông tin và yêu cầu bổ sung nếu cần',
     icon: <AlertCircle className="h-5 w-5" />,
-    status: "review" as ProductStatus,
+    status: 'review' as ProductStatus
   },
   {
-    id: "design",
-    title: "Thiết Kế & Xác Nhận",
-    description: "Tải lên thiết kế và phê duyệt sản phẩm",
+    id: 'design',
+    title: 'Thiết Kế & Xác Nhận',
+    description: 'Tải lên thiết kế và phê duyệt sản phẩm',
     icon: <Palette className="h-5 w-5" />,
-    status: "design" as ProductStatus,
+    status: 'design' as ProductStatus
   },
   {
-    id: "production",
-    title: "Cập Nhật SKU & Thông Tin",
-    description: "Tạo mã SKU và cập nhật thông tin sản phẩm",
+    id: 'production',
+    title: 'Cập Nhật SKU & Thông Tin',
+    description: 'Tạo mã SKU và cập nhật thông tin sản phẩm',
     icon: <ShoppingCart className="h-5 w-5" />,
-    status: "production" as ProductStatus,
+    status: 'production' as ProductStatus
   },
   {
-    id: "marketing",
-    title: "Truyền Thông Marketing",
-    description: "Tạo và theo dõi chiến dịch marketing",
+    id: 'marketing',
+    title: 'Truyền Thông Marketing',
+    description: 'Tạo và theo dõi chiến dịch marketing',
     icon: <Megaphone className="h-5 w-5" />,
-    status: "marketing" as ProductStatus,
+    status: 'marketing' as ProductStatus
   },
   {
-    id: "launch",
-    title: "Ra Mắt & Hoạt Động Sau Ra Mắt",
-    description: "Theo dõi tình trạng sản phẩm sau khi ra mắt",
+    id: 'launch',
+    title: 'Ra Mắt & Hoạt Động Sau Ra Mắt',
+    description: 'Theo dõi tình trạng sản phẩm sau khi ra mắt',
     icon: <Rocket className="h-5 w-5" />,
-    status: "launch" as ProductStatus,
-  },
+    status: 'launch' as ProductStatus
+  }
 ]
 
 interface WorkflowStepsProps {
@@ -65,18 +91,25 @@ interface WorkflowStepsProps {
   onComplete: () => void
 }
 
-export default function WorkflowSteps({ productId, onClose, onComplete }: WorkflowStepsProps) {
-  const { products, addProduct, updateProduct, generateSKU, addNotification } = useWorkflow()
+export default function WorkflowSteps({
+  productId,
+  onClose,
+  onComplete
+}: WorkflowStepsProps) {
+  const { products, addProduct, updateProduct, generateSKU, addNotification } =
+    useWorkflow()
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState<Partial<Product>>({
-    name: "",
-    description: "",
-    status: "draft",
+    name: '',
+    description: '',
+    status: 'draft',
     currentStep: 0,
-    departments: ["product"],
+    departments: ['product']
   })
   const [loading, setLoading] = useState(false)
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({})
 
   // Nếu đang chỉnh sửa sản phẩm hiện có
   useEffect(() => {
@@ -85,7 +118,9 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
       if (product) {
         setFormData({ ...product })
         // Tìm index của bước hiện tại dựa trên trạng thái
-        const stepIndex = workflowSteps.findIndex((step) => step.status === product.status)
+        const stepIndex = workflowSteps.findIndex(
+          (step) => step.status === product.status
+        )
         setCurrentStep(stepIndex >= 0 ? stepIndex : 0)
       }
     }
@@ -96,13 +131,14 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
 
     switch (currentStep) {
       case 0: // Khởi tạo yêu cầu
-        if (!formData.name?.trim()) errors.name = "Vui lòng nhập tên sản phẩm"
-        if (!formData.description?.trim()) errors.description = "Vui lòng nhập mô tả sản phẩm"
+        if (!formData.name?.trim()) errors.name = 'Vui lòng nhập tên sản phẩm'
+        if (!formData.description?.trim())
+          errors.description = 'Vui lòng nhập mô tả sản phẩm'
         break
       case 1: // Kiểm tra phát triển
         // Kiểm tra các trường bắt buộc đã được điền
         if (!formData.departments || formData.departments.length === 0) {
-          errors.departments = "Vui lòng chọn ít nhất một phòng ban liên quan"
+          errors.departments = 'Vui lòng chọn ít nhất một phòng ban liên quan'
         }
         break
       // Thêm validation cho các bước khác nếu cần
@@ -123,15 +159,16 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
       const nextStep = currentStep + 1
       const updatedData = {
         ...formData,
-        status: workflowSteps[nextStep]?.status || workflowSteps[currentStep].status,
-        currentStep: nextStep,
+        status:
+          workflowSteps[nextStep]?.status || workflowSteps[currentStep].status,
+        currentStep: nextStep
       }
 
       setFormData(updatedData)
 
       // Nếu đang ở bước 3 (index 2) và chuyển sang bước 4, tạo SKU
       if (currentStep === 2 && !formData.sku) {
-        const sku = generateSKU(formData.name || "")
+        const sku = generateSKU(formData.name || '')
         setFormData((prev) => ({ ...prev, sku }))
         updatedData.sku = sku
       }
@@ -144,13 +181,13 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
         addNotification(productId, {
           title: `Cập nhật trạng thái: ${workflowSteps[nextStep]?.title}`,
           message: `Sản phẩm "${formData.name}" đã chuyển sang bước ${workflowSteps[nextStep]?.title}`,
-          departments: formData.departments || [],
+          departments: formData.departments || []
         })
       } else if (nextStep === workflowSteps.length) {
         // Nếu là bước cuối cùng và là sản phẩm mới, thêm sản phẩm với trạng thái hoàn thành
         addProduct({
           ...updatedData,
-          status: "completed",
+          status: 'completed'
         })
       }
 
@@ -188,7 +225,9 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
       const currentDepts = prev.departments || []
       return {
         ...prev,
-        departments: checked ? [...currentDepts, department as any] : currentDepts.filter((d) => d !== department),
+        departments: checked
+          ? [...currentDepts, department as any]
+          : currentDepts.filter((d) => d !== department)
       }
     })
   }
@@ -202,30 +241,38 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
               <Label htmlFor="name">Tên Sản Phẩm</Label>
               <Input
                 id="name"
-                value={formData.name || ""}
-                onChange={(e) => handleInputChange("name", e.target.value)}
-                className={validationErrors.name ? "border-red-500" : ""}
+                value={formData.name || ''}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                className={validationErrors.name ? 'border-red-500' : ''}
               />
-              {validationErrors.name && <p className="text-sm text-red-500">{validationErrors.name}</p>}
+              {validationErrors.name && (
+                <p className="text-sm text-red-500">{validationErrors.name}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="description">Mô Tả Sản Phẩm</Label>
               <Textarea
                 id="description"
-                value={formData.description || ""}
-                onChange={(e) => handleInputChange("description", e.target.value)}
-                className={validationErrors.description ? "border-red-500" : ""}
+                value={formData.description || ''}
+                onChange={(e) =>
+                  handleInputChange('description', e.target.value)
+                }
+                className={validationErrors.description ? 'border-red-500' : ''}
               />
-              {validationErrors.description && <p className="text-sm text-red-500">{validationErrors.description}</p>}
+              {validationErrors.description && (
+                <p className="text-sm text-red-500">
+                  {validationErrors.description}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="category">Danh Mục Sản Phẩm</Label>
               <RadioGroup
                 id="category"
-                value={formData.category || "furniture"}
-                onValueChange={(value) => handleInputChange("category", value)}
+                value={formData.category || 'furniture'}
+                onValueChange={(value) => handleInputChange('category', value)}
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="furniture" id="furniture" />
@@ -257,10 +304,13 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                   <AlertCircle className="h-5 w-5 text-amber-400" />
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-amber-800">Kiểm tra thông tin</h3>
+                  <h3 className="text-sm font-medium text-amber-800">
+                    Kiểm tra thông tin
+                  </h3>
                   <div className="mt-2 text-sm text-amber-700">
                     <p>
-                      Vui lòng kiểm tra lại thông tin sản phẩm và chọn các phòng ban liên quan để tiếp tục quy trình.
+                      Vui lòng kiểm tra lại thông tin sản phẩm và chọn các phòng
+                      ban liên quan để tiếp tục quy trình.
                     </p>
                   </div>
                 </div>
@@ -277,14 +327,14 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                   <strong>Mô tả:</strong> {formData.description}
                 </p>
                 <p>
-                  <strong>Danh mục:</strong>{" "}
-                  {formData.category === "furniture"
-                    ? "Nội Thất"
-                    : formData.category === "electronics"
-                      ? "Điện Tử"
-                      : formData.category === "accessories"
-                        ? "Phụ Kiện"
-                        : "Khác"}
+                  <strong>Danh mục:</strong>{' '}
+                  {formData.category === 'furniture'
+                    ? 'Nội Thất'
+                    : formData.category === 'electronics'
+                      ? 'Điện Tử'
+                      : formData.category === 'accessories'
+                        ? 'Phụ Kiện'
+                        : 'Khác'}
                 </p>
               </div>
             </div>
@@ -295,45 +345,59 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="product"
-                    checked={formData.departments?.includes("product")}
-                    onCheckedChange={(checked) => handleDepartmentChange("product", !!checked)}
+                    checked={formData.departments?.includes('product')}
+                    onCheckedChange={(checked) =>
+                      handleDepartmentChange('product', !!checked)
+                    }
                   />
                   <Label htmlFor="product">Phòng Sản Phẩm</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="design"
-                    checked={formData.departments?.includes("design")}
-                    onCheckedChange={(checked) => handleDepartmentChange("design", !!checked)}
+                    checked={formData.departments?.includes('design')}
+                    onCheckedChange={(checked) =>
+                      handleDepartmentChange('design', !!checked)
+                    }
                   />
                   <Label htmlFor="design">Phòng Thiết Kế</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="marketing"
-                    checked={formData.departments?.includes("marketing")}
-                    onCheckedChange={(checked) => handleDepartmentChange("marketing", !!checked)}
+                    checked={formData.departments?.includes('marketing')}
+                    onCheckedChange={(checked) =>
+                      handleDepartmentChange('marketing', !!checked)
+                    }
                   />
                   <Label htmlFor="marketing">Phòng Marketing</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="sales"
-                    checked={formData.departments?.includes("sales")}
-                    onCheckedChange={(checked) => handleDepartmentChange("sales", !!checked)}
+                    checked={formData.departments?.includes('sales')}
+                    onCheckedChange={(checked) =>
+                      handleDepartmentChange('sales', !!checked)
+                    }
                   />
                   <Label htmlFor="sales">Phòng Kinh Doanh</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="operations"
-                    checked={formData.departments?.includes("operations")}
-                    onCheckedChange={(checked) => handleDepartmentChange("operations", !!checked)}
+                    checked={formData.departments?.includes('operations')}
+                    onCheckedChange={(checked) =>
+                      handleDepartmentChange('operations', !!checked)
+                    }
                   />
                   <Label htmlFor="operations">Phòng Vận Hành</Label>
                 </div>
               </div>
-              {validationErrors.departments && <p className="text-sm text-red-500">{validationErrors.departments}</p>}
+              {validationErrors.departments && (
+                <p className="text-sm text-red-500">
+                  {validationErrors.departments}
+                </p>
+              )}
             </div>
           </div>
         )
@@ -348,8 +412,12 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                   <div className="mb-4 rounded-full bg-primary/10 p-2">
                     <FileUp className="h-6 w-6 text-primary" />
                   </div>
-                  <p className="mb-2 text-sm font-medium">Kéo thả hoặc nhấp để tải lên</p>
-                  <p className="text-xs text-muted-foreground">PNG, JPG hoặc PDF (tối đa 10MB)</p>
+                  <p className="mb-2 text-sm font-medium">
+                    Kéo thả hoặc nhấp để tải lên
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    PNG, JPG hoặc PDF (tối đa 10MB)
+                  </p>
                   <Button variant="outline" size="sm" className="mt-4">
                     Chọn Tệp
                   </Button>
@@ -360,7 +428,10 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                     <h4 className="mb-2 text-sm font-medium">Tệp đã tải lên</h4>
                     <ul className="space-y-2 text-sm">
                       {formData.designFiles.map((file, index) => (
-                        <li key={index} className="flex items-center justify-between">
+                        <li
+                          key={index}
+                          className="flex items-center justify-between"
+                        >
                           <span>{file}</span>
                           <Button variant="ghost" size="sm">
                             Xóa
@@ -371,7 +442,9 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                   </div>
                 ) : (
                   <div className="flex items-center justify-center rounded-md border p-8 text-center">
-                    <p className="text-sm text-muted-foreground">Chưa có tệp thiết kế nào được tải lên</p>
+                    <p className="text-sm text-muted-foreground">
+                      Chưa có tệp thiết kế nào được tải lên
+                    </p>
                   </div>
                 )}
               </div>
@@ -382,16 +455,20 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
               <Textarea
                 id="designNotes"
                 placeholder="Nhập các ghi chú về thiết kế sản phẩm..."
-                value={formData.designNotes || ""}
-                onChange={(e) => handleInputChange("designNotes", e.target.value)}
+                value={formData.designNotes || ''}
+                onChange={(e) =>
+                  handleInputChange('designNotes', e.target.value)
+                }
               />
             </div>
 
             <div className="space-y-2">
               <Label>Trạng Thái Phê Duyệt</Label>
               <RadioGroup
-                value={formData.approvalStatus || "pending"}
-                onValueChange={(value) => handleInputChange("approvalStatus", value)}
+                value={formData.approvalStatus || 'pending'}
+                onValueChange={(value) =>
+                  handleInputChange('approvalStatus', value)
+                }
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="pending" id="pending" />
@@ -419,9 +496,14 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                   <CheckCircle className="h-5 w-5 text-green-400" />
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-green-800">Thiết kế đã được phê duyệt</h3>
+                  <h3 className="text-sm font-medium text-green-800">
+                    Thiết kế đã được phê duyệt
+                  </h3>
                   <div className="mt-2 text-sm text-green-700">
-                    <p>Thiết kế sản phẩm đã được phê duyệt. Vui lòng cập nhật thông tin sản phẩm và mã SKU.</p>
+                    <p>
+                      Thiết kế sản phẩm đã được phê duyệt. Vui lòng cập nhật
+                      thông tin sản phẩm và mã SKU.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -432,11 +514,16 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
               <div className="flex space-x-2">
                 <Input
                   id="sku"
-                  value={formData.sku || ""}
-                  onChange={(e) => handleInputChange("sku", e.target.value)}
+                  value={formData.sku || ''}
+                  onChange={(e) => handleInputChange('sku', e.target.value)}
                   placeholder="Mã SKU sản phẩm"
                 />
-                <Button variant="outline" onClick={() => handleInputChange("sku", generateSKU(formData.name || ""))}>
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    handleInputChange('sku', generateSKU(formData.name || ''))
+                  }
+                >
                   Tạo Mã
                 </Button>
               </div>
@@ -447,8 +534,8 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
               <Input
                 id="price"
                 type="number"
-                value={formData.price || ""}
-                onChange={(e) => handleInputChange("price", e.target.value)}
+                value={formData.price || ''}
+                onChange={(e) => handleInputChange('price', e.target.value)}
                 placeholder="Nhập giá sản phẩm"
               />
             </div>
@@ -458,8 +545,8 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
               <Input
                 id="inventory"
                 type="number"
-                value={formData.inventory || ""}
-                onChange={(e) => handleInputChange("inventory", e.target.value)}
+                value={formData.inventory || ''}
+                onChange={(e) => handleInputChange('inventory', e.target.value)}
                 placeholder="Nhập số lượng tồn kho"
               />
             </div>
@@ -468,8 +555,10 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
               <Label htmlFor="specifications">Thông Số Kỹ Thuật</Label>
               <Textarea
                 id="specifications"
-                value={formData.specifications || ""}
-                onChange={(e) => handleInputChange("specifications", e.target.value)}
+                value={formData.specifications || ''}
+                onChange={(e) =>
+                  handleInputChange('specifications', e.target.value)
+                }
                 placeholder="Nhập thông số kỹ thuật của sản phẩm"
               />
             </div>
@@ -486,19 +575,27 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                   <div className="mb-4 rounded-full bg-primary/10 p-2">
                     <FileUp className="h-6 w-6 text-primary" />
                   </div>
-                  <p className="mb-2 text-sm font-medium">Kéo thả hoặc nhấp để tải lên</p>
-                  <p className="text-xs text-muted-foreground">PNG, JPG hoặc PDF (tối đa 10MB)</p>
+                  <p className="mb-2 text-sm font-medium">
+                    Kéo thả hoặc nhấp để tải lên
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    PNG, JPG hoặc PDF (tối đa 10MB)
+                  </p>
                   <Button variant="outline" size="sm" className="mt-4">
                     Chọn Tệp
                   </Button>
                 </div>
 
-                {formData.marketingFiles && formData.marketingFiles.length > 0 ? (
+                {formData.marketingFiles &&
+                formData.marketingFiles.length > 0 ? (
                   <div className="rounded-md border p-4">
                     <h4 className="mb-2 text-sm font-medium">Tệp đã tải lên</h4>
                     <ul className="space-y-2 text-sm">
                       {formData.marketingFiles.map((file, index) => (
-                        <li key={index} className="flex items-center justify-between">
+                        <li
+                          key={index}
+                          className="flex items-center justify-between"
+                        >
                           <span>{file}</span>
                           <Button variant="ghost" size="sm">
                             Xóa
@@ -509,7 +606,9 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                   </div>
                 ) : (
                   <div className="flex items-center justify-center rounded-md border p-8 text-center">
-                    <p className="text-sm text-muted-foreground">Chưa có tệp marketing nào được tải lên</p>
+                    <p className="text-sm text-muted-foreground">
+                      Chưa có tệp marketing nào được tải lên
+                    </p>
                   </div>
                 )}
               </div>
@@ -519,8 +618,10 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
               <Label htmlFor="marketingDescription">Mô Tả Marketing</Label>
               <Textarea
                 id="marketingDescription"
-                value={formData.marketingDescription || ""}
-                onChange={(e) => handleInputChange("marketingDescription", e.target.value)}
+                value={formData.marketingDescription || ''}
+                onChange={(e) =>
+                  handleInputChange('marketingDescription', e.target.value)
+                }
                 placeholder="Nhập mô tả marketing cho sản phẩm"
               />
             </div>
@@ -530,8 +631,14 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
               <Input
                 id="launchDate"
                 type="date"
-                value={formData.launchDate ? new Date(formData.launchDate).toISOString().split("T")[0] : ""}
-                onChange={(e) => handleInputChange("launchDate", new Date(e.target.value))}
+                value={
+                  formData.launchDate
+                    ? new Date(formData.launchDate).toISOString().split('T')[0]
+                    : ''
+                }
+                onChange={(e) =>
+                  handleInputChange('launchDate', new Date(e.target.value))
+                }
               />
             </div>
 
@@ -541,12 +648,14 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="social"
-                    checked={formData.marketingChannels?.includes("social")}
+                    checked={formData.marketingChannels?.includes('social')}
                     onCheckedChange={(checked) => {
                       const current = formData.marketingChannels || []
                       handleInputChange(
-                        "marketingChannels",
-                        checked ? [...current, "social"] : current.filter((c) => c !== "social"),
+                        'marketingChannels',
+                        checked
+                          ? [...current, 'social']
+                          : current.filter((c) => c !== 'social')
                       )
                     }}
                   />
@@ -555,12 +664,14 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="email"
-                    checked={formData.marketingChannels?.includes("email")}
+                    checked={formData.marketingChannels?.includes('email')}
                     onCheckedChange={(checked) => {
                       const current = formData.marketingChannels || []
                       handleInputChange(
-                        "marketingChannels",
-                        checked ? [...current, "email"] : current.filter((c) => c !== "email"),
+                        'marketingChannels',
+                        checked
+                          ? [...current, 'email']
+                          : current.filter((c) => c !== 'email')
                       )
                     }}
                   />
@@ -569,12 +680,14 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="website"
-                    checked={formData.marketingChannels?.includes("website")}
+                    checked={formData.marketingChannels?.includes('website')}
                     onCheckedChange={(checked) => {
                       const current = formData.marketingChannels || []
                       handleInputChange(
-                        "marketingChannels",
-                        checked ? [...current, "website"] : current.filter((c) => c !== "website"),
+                        'marketingChannels',
+                        checked
+                          ? [...current, 'website']
+                          : current.filter((c) => c !== 'website')
                       )
                     }}
                   />
@@ -583,12 +696,14 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="offline"
-                    checked={formData.marketingChannels?.includes("offline")}
+                    checked={formData.marketingChannels?.includes('offline')}
                     onCheckedChange={(checked) => {
                       const current = formData.marketingChannels || []
                       handleInputChange(
-                        "marketingChannels",
-                        checked ? [...current, "offline"] : current.filter((c) => c !== "offline"),
+                        'marketingChannels',
+                        checked
+                          ? [...current, 'offline']
+                          : current.filter((c) => c !== 'offline')
                       )
                     }}
                   />
@@ -608,10 +723,13 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                   <Rocket className="h-5 w-5 text-green-400" />
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-green-800">Sẵn sàng ra mắt</h3>
+                  <h3 className="text-sm font-medium text-green-800">
+                    Sẵn sàng ra mắt
+                  </h3>
                   <div className="mt-2 text-sm text-green-700">
                     <p>
-                      Sản phẩm đã sẵn sàng để ra mắt. Vui lòng xác nhận thông tin ra mắt và các hoạt động sau ra mắt.
+                      Sản phẩm đã sẵn sàng để ra mắt. Vui lòng xác nhận thông
+                      tin ra mắt và các hoạt động sau ra mắt.
                     </p>
                   </div>
                 </div>
@@ -631,14 +749,19 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                   <strong>SKU:</strong> {formData.sku}
                 </p>
                 <p>
-                  <strong>Giá:</strong> {formData.price ? `${formData.price.toLocaleString()} VNĐ` : "Chưa có"}
+                  <strong>Giá:</strong>{' '}
+                  {formData.price
+                    ? `${formData.price.toLocaleString()} VNĐ`
+                    : 'Chưa có'}
                 </p>
                 <p>
-                  <strong>Tồn kho:</strong> {formData.inventory || "Chưa có"}
+                  <strong>Tồn kho:</strong> {formData.inventory || 'Chưa có'}
                 </p>
                 <p>
-                  <strong>Ngày ra mắt:</strong>{" "}
-                  {formData.launchDate ? new Date(formData.launchDate).toLocaleDateString("vi-VN") : "Chưa có"}
+                  <strong>Ngày ra mắt:</strong>{' '}
+                  {formData.launchDate
+                    ? new Date(formData.launchDate).toLocaleDateString('vi-VN')
+                    : 'Chưa có'}
                 </p>
               </div>
             </div>
@@ -647,8 +770,10 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
               <Label htmlFor="launchNotes">Ghi Chú Ra Mắt</Label>
               <Textarea
                 id="launchNotes"
-                value={formData.launchNotes || ""}
-                onChange={(e) => handleInputChange("launchNotes", e.target.value)}
+                value={formData.launchNotes || ''}
+                onChange={(e) =>
+                  handleInputChange('launchNotes', e.target.value)
+                }
                 placeholder="Nhập ghi chú về việc ra mắt sản phẩm"
               />
             </div>
@@ -659,26 +784,36 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="customerFeedback"
-                    checked={formData.postLaunchActivities?.includes("customerFeedback")}
+                    checked={formData.postLaunchActivities?.includes(
+                      'customerFeedback'
+                    )}
                     onCheckedChange={(checked) => {
                       const current = formData.postLaunchActivities || []
                       handleInputChange(
-                        "postLaunchActivities",
-                        checked ? [...current, "customerFeedback"] : current.filter((c) => c !== "customerFeedback"),
+                        'postLaunchActivities',
+                        checked
+                          ? [...current, 'customerFeedback']
+                          : current.filter((c) => c !== 'customerFeedback')
                       )
                     }}
                   />
-                  <Label htmlFor="customerFeedback">Thu Thập Phản Hồi Khách Hàng</Label>
+                  <Label htmlFor="customerFeedback">
+                    Thu Thập Phản Hồi Khách Hàng
+                  </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="salesTracking"
-                    checked={formData.postLaunchActivities?.includes("salesTracking")}
+                    checked={formData.postLaunchActivities?.includes(
+                      'salesTracking'
+                    )}
                     onCheckedChange={(checked) => {
                       const current = formData.postLaunchActivities || []
                       handleInputChange(
-                        "postLaunchActivities",
-                        checked ? [...current, "salesTracking"] : current.filter((c) => c !== "salesTracking"),
+                        'postLaunchActivities',
+                        checked
+                          ? [...current, 'salesTracking']
+                          : current.filter((c) => c !== 'salesTracking')
                       )
                     }}
                   />
@@ -687,44 +822,58 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="marketingEffectiveness"
-                    checked={formData.postLaunchActivities?.includes("marketingEffectiveness")}
+                    checked={formData.postLaunchActivities?.includes(
+                      'marketingEffectiveness'
+                    )}
                     onCheckedChange={(checked) => {
                       const current = formData.postLaunchActivities || []
                       handleInputChange(
-                        "postLaunchActivities",
+                        'postLaunchActivities',
                         checked
-                          ? [...current, "marketingEffectiveness"]
-                          : current.filter((c) => c !== "marketingEffectiveness"),
+                          ? [...current, 'marketingEffectiveness']
+                          : current.filter(
+                              (c) => c !== 'marketingEffectiveness'
+                            )
                       )
                     }}
                   />
-                  <Label htmlFor="marketingEffectiveness">Đánh Giá Hiệu Quả Marketing</Label>
+                  <Label htmlFor="marketingEffectiveness">
+                    Đánh Giá Hiệu Quả Marketing
+                  </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="productImprovements"
-                    checked={formData.postLaunchActivities?.includes("productImprovements")}
+                    checked={formData.postLaunchActivities?.includes(
+                      'productImprovements'
+                    )}
                     onCheckedChange={(checked) => {
                       const current = formData.postLaunchActivities || []
                       handleInputChange(
-                        "postLaunchActivities",
+                        'postLaunchActivities',
                         checked
-                          ? [...current, "productImprovements"]
-                          : current.filter((c) => c !== "productImprovements"),
+                          ? [...current, 'productImprovements']
+                          : current.filter((c) => c !== 'productImprovements')
                       )
                     }}
                   />
-                  <Label htmlFor="productImprovements">Lên Kế Hoạch Cải Tiến Sản Phẩm</Label>
+                  <Label htmlFor="productImprovements">
+                    Lên Kế Hoạch Cải Tiến Sản Phẩm
+                  </Label>
                 </div>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="successMetrics">Tiêu Chí Đánh Giá Thành Công</Label>
+              <Label htmlFor="successMetrics">
+                Tiêu Chí Đánh Giá Thành Công
+              </Label>
               <Textarea
                 id="successMetrics"
-                value={formData.successMetrics || ""}
-                onChange={(e) => handleInputChange("successMetrics", e.target.value)}
+                value={formData.successMetrics || ''}
+                onChange={(e) =>
+                  handleInputChange('successMetrics', e.target.value)
+                }
                 placeholder="Nhập các tiêu chí đánh giá thành công của sản phẩm"
               />
             </div>
@@ -741,7 +890,9 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
         <DialogHeader>
           <DialogTitle>
-            {productId ? `Cập Nhật Sản Phẩm: ${formData.name}` : "Tạo Quy Trình Phát Triển Sản Phẩm Mới"}
+            {productId
+              ? `Cập Nhật Sản Phẩm: ${formData.name}`
+              : 'Tạo Quy Trình Phát Triển Sản Phẩm Mới'}
           </DialogTitle>
         </DialogHeader>
 
@@ -755,18 +906,28 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                 const isCompleted = index < currentStep
 
                 return (
-                  <li key={step.id} className="flex items-center justify-center">
+                  <li
+                    key={step.id}
+                    className="flex items-center justify-center"
+                  >
                     <div
                       className={cn(
-                        "flex h-10 w-10 items-center justify-center rounded-full border-2 bg-background",
-                        isActive ? "border-primary" : isCompleted ? "border-primary bg-primary" : "border-muted",
+                        'flex h-10 w-10 items-center justify-center rounded-full border-2 bg-background',
+                        isActive
+                          ? 'border-primary'
+                          : isCompleted
+                            ? 'border-primary bg-primary'
+                            : 'border-muted'
                       )}
                     >
                       {isCompleted ? (
                         <CheckCircle className="h-5 w-5 text-white" />
                       ) : (
                         <span
-                          className={cn("text-sm font-medium", isActive ? "text-primary" : "text-muted-foreground")}
+                          className={cn(
+                            'text-sm font-medium',
+                            isActive ? 'text-primary' : 'text-muted-foreground'
+                          )}
                         >
                           {index + 1}
                         </span>
@@ -783,7 +944,12 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
             {workflowSteps.map((step, index) => (
               <div
                 key={step.id}
-                className={cn("truncate", index === currentStep ? "font-medium text-primary" : "text-muted-foreground")}
+                className={cn(
+                  'truncate',
+                  index === currentStep
+                    ? 'font-medium text-primary'
+                    : 'text-muted-foreground'
+                )}
               >
                 {step.title}
               </div>
@@ -797,16 +963,24 @@ export default function WorkflowSteps({ productId, onClose, onComplete }: Workfl
                 {workflowSteps[currentStep].icon}
                 {workflowSteps[currentStep].title}
               </CardTitle>
-              <CardDescription>{workflowSteps[currentStep].description}</CardDescription>
+              <CardDescription>
+                {workflowSteps[currentStep].description}
+              </CardDescription>
             </CardHeader>
             <CardContent>{renderStepContent()}</CardContent>
             <CardFooter className="flex justify-between">
-              <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 0}>
+              <Button
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={currentStep === 0}
+              >
                 Quay Lại
               </Button>
               <Button onClick={handleNext} disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {currentStep < workflowSteps.length - 1 ? "Tiếp Theo" : "Hoàn Thành"}
+                {currentStep < workflowSteps.length - 1
+                  ? 'Tiếp Theo'
+                  : 'Hoàn Thành'}
               </Button>
             </CardFooter>
           </Card>

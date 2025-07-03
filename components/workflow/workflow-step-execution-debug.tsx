@@ -1,17 +1,20 @@
-"use client"
+'use client'
 
-import { useEffect } from "react"
+import { useEffect } from 'react'
 
 interface WorkflowStepExecutionDebugProps {
   currentStep: any
   workflowSteps: any[]
 }
 
-export function WorkflowStepExecutionDebug({ currentStep, workflowSteps }: WorkflowStepExecutionDebugProps) {
+export function WorkflowStepExecutionDebug({
+  currentStep,
+  workflowSteps
+}: WorkflowStepExecutionDebugProps) {
   useEffect(() => {
-    console.log("🔍 Current step data:", currentStep)
-    console.log("🔍 Current step allowedUsers:", currentStep?.allowedUsers)
-    console.log("🔍 All workflow steps:", workflowSteps)
+    console.log('🔍 Current step data:', currentStep)
+    console.log('🔍 Current step allowedUsers:', currentStep?.allowedUsers)
+    console.log('🔍 All workflow steps:', workflowSteps)
   }, [currentStep, workflowSteps])
 
   return (

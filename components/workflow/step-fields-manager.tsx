@@ -1,8 +1,17 @@
-"use client"
+'use client'
 
-import { Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label } from "@/components/ui"
-import { DateTimePicker } from "../variables/date-time-picker"
-import { MultiSelect } from "../variables/multi-select"
+import {
+  Checkbox,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Label
+} from '@/components/ui'
+import { DateTimePicker } from '../variables/date-time-picker'
+import { MultiSelect } from '../variables/multi-select'
 
 type StepField = {
   id: string
@@ -17,7 +26,11 @@ interface StepFieldsManagerProps {
   onFieldChange: (fieldId: string, value: any) => void
 }
 
-export function StepFieldsManager({ fields, fieldValues, onFieldChange }: StepFieldsManagerProps) {
+export function StepFieldsManager({
+  fields,
+  fieldValues,
+  onFieldChange
+}: StepFieldsManagerProps) {
   const getFieldValue = (fieldId: string) => {
     return fieldValues[fieldId]
   }
@@ -30,16 +43,16 @@ export function StepFieldsManager({ fields, fieldValues, onFieldChange }: StepFi
     const fieldValue = getFieldValue(field.id)
 
     switch (field.type) {
-      case "text":
+      case 'text':
         return (
           <Input
-            value={fieldValue || ""}
+            value={fieldValue || ''}
             onChange={(e) => handleFieldChange(field.id, e.target.value)}
             placeholder={`Nhập ${field.name.toLowerCase()}`}
           />
         )
 
-      case "date":
+      case 'date':
         return (
           <DateTimePicker
             value={fieldValue}
@@ -49,7 +62,7 @@ export function StepFieldsManager({ fields, fieldValues, onFieldChange }: StepFi
           />
         )
 
-      case "datetime":
+      case 'datetime':
         return (
           <DateTimePicker
             value={fieldValue}
@@ -59,9 +72,12 @@ export function StepFieldsManager({ fields, fieldValues, onFieldChange }: StepFi
           />
         )
 
-      case "select":
+      case 'select':
         return (
-          <Select value={fieldValue || ""} onValueChange={(value) => handleFieldChange(field.id, value)}>
+          <Select
+            value={fieldValue || ''}
+            onValueChange={(value) => handleFieldChange(field.id, value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder={`Chọn ${field.name.toLowerCase()}`} />
             </SelectTrigger>
@@ -75,7 +91,7 @@ export function StepFieldsManager({ fields, fieldValues, onFieldChange }: StepFi
           </Select>
         )
 
-      case "multiselect":
+      case 'multiselect':
         return (
           <MultiSelect
             options={field.options || []}
@@ -85,41 +101,55 @@ export function StepFieldsManager({ fields, fieldValues, onFieldChange }: StepFi
           />
         )
 
-      case "checkbox":
+      case 'checkbox':
         return (
           <div className="flex items-center space-x-2">
-            <Checkbox checked={!!fieldValue} onCheckedChange={(checked) => handleFieldChange(field.id, !!checked)} />
+            <Checkbox
+              checked={!!fieldValue}
+              onCheckedChange={(checked) =>
+                handleFieldChange(field.id, !!checked)
+              }
+            />
             <Label className="text-sm">{field.name}</Label>
           </div>
         )
 
-      case "number":
+      case 'number':
         return (
           <Input
             type="number"
-            value={fieldValue || ""}
-            onChange={(e) => handleFieldChange(field.id, e.target.valueAsNumber)}
+            value={fieldValue || ''}
+            onChange={(e) =>
+              handleFieldChange(field.id, e.target.valueAsNumber)
+            }
             placeholder={`Nhập ${field.name.toLowerCase()}`}
           />
         )
 
-      case "currency":
+      case 'currency':
         return (
           <div className="relative">
             <Input
               type="number"
-              value={fieldValue || ""}
-              onChange={(e) => handleFieldChange(field.id, e.target.valueAsNumber)}
+              value={fieldValue || ''}
+              onChange={(e) =>
+                handleFieldChange(field.id, e.target.valueAsNumber)
+              }
               placeholder={`Nhập ${field.name.toLowerCase()}`}
               className="pl-12"
             />
-            <div className="absolute inset-y-0 left-0 flex items-center px-3 pointer-events-none border-r">VND</div>
+            <div className="absolute inset-y-0 left-0 flex items-center px-3 pointer-events-none border-r">
+              VND
+            </div>
           </div>
         )
 
-      case "user":
+      case 'user':
         return (
-          <Select value={fieldValue || ""} onValueChange={(value) => handleFieldChange(field.id, value)}>
+          <Select
+            value={fieldValue || ''}
+            onValueChange={(value) => handleFieldChange(field.id, value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder={`Chọn ${field.name.toLowerCase()}`} />
             </SelectTrigger>
@@ -134,7 +164,7 @@ export function StepFieldsManager({ fields, fieldValues, onFieldChange }: StepFi
       default:
         return (
           <Input
-            value={fieldValue || ""}
+            value={fieldValue || ''}
             onChange={(e) => handleFieldChange(field.id, e.target.value)}
             placeholder={`Nhập ${field.name.toLowerCase()}`}
           />
@@ -146,7 +176,10 @@ export function StepFieldsManager({ fields, fieldValues, onFieldChange }: StepFi
     <div>
       {fields.map((field) => (
         <div key={field.id} className="mb-4">
-          <Label htmlFor={field.id} className="block text-sm font-medium text-gray-700">
+          <Label
+            htmlFor={field.id}
+            className="block text-sm font-medium text-gray-700"
+          >
             {field.name}
           </Label>
           {renderFieldInput(field)}

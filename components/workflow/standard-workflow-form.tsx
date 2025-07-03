@@ -1,25 +1,35 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useStandardWorkflow } from "./standard-workflow-context-firebase"
-import { useToast } from "@/components/ui/use-toast"
-import { Plus, Save, X, Trash2, Calendar, DollarSign, User, GripVertical, Edit } from "lucide-react"
-import { Checkbox } from "@/components/ui/checkbox"
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useStandardWorkflow } from './standard-workflow-context-firebase'
+import { useToast } from '@/components/ui/use-toast'
+import {
+  Plus,
+  Save,
+  X,
+  Trash2,
+  Calendar,
+  DollarSign,
+  User,
+  GripVertical,
+  Edit
+} from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Badge } from '@/components/ui/badge'
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
 interface StandardWorkflowFormProps {
   onSelect?: (workflowId: string) => void
@@ -35,24 +45,24 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
     deleteStandardWorkflowStep,
     reorderStandardWorkflowSteps,
     availableVariables,
-    loading,
+    loading
   } = useStandardWorkflow()
 
   const [isEditing, setIsEditing] = useState(false)
-  const [workflowName, setWorkflowName] = useState("")
-  const [workflowDescription, setWorkflowDescription] = useState("")
+  const [workflowName, setWorkflowName] = useState('')
+  const [workflowDescription, setWorkflowDescription] = useState('')
   const [showAddStepDialog, setShowAddStepDialog] = useState(false)
   const [showEditStepDialog, setShowEditStepDialog] = useState(false)
   const [showDeleteStepDialog, setShowDeleteStepDialog] = useState(false)
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null)
-  const [newStep, setNewStep] = useState<Omit<any, "id" | "order" | "fields">>({
-    name: "",
-    description: "",
+  const [newStep, setNewStep] = useState<Omit<any, 'id' | 'order' | 'fields'>>({
+    name: '',
+    description: '',
     estimatedDays: 1,
     isRequired: false,
     notifyBeforeDeadline: 1,
-    assigneeRole: "",
-    hasCost: false,
+    assigneeRole: '',
+    hasCost: false
   })
 
   // Khởi tạo state từ quy trình chuẩn
@@ -66,29 +76,31 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
   // Lấy bước được chọn
   const getSelectedStep = () => {
     if (!standardWorkflow || !selectedStepId) return null
-    return standardWorkflow.steps.find((step) => step.id === selectedStepId) || null
+    return (
+      standardWorkflow.steps.find((step) => step.id === selectedStepId) || null
+    )
   }
 
   // Xử lý lưu chỉnh sửa quy trình chuẩn
   const handleSaveWorkflow = () => {
     if (!workflowName.trim()) {
       toast({
-        title: "Lỗi",
-        description: "Vui lòng nhập tên quy trình chuẩn",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Vui lòng nhập tên quy trình chuẩn',
+        variant: 'destructive'
       })
       return
     }
 
     updateStandardWorkflow({
       name: workflowName,
-      description: workflowDescription,
+      description: workflowDescription
     })
 
     setIsEditing(false)
     toast({
-      title: "Thành công",
-      description: "Đã cập nhật thông tin quy trình chuẩn",
+      title: 'Thành công',
+      description: 'Đã cập nhật thông tin quy trình chuẩn'
     })
   }
 
@@ -96,18 +108,18 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
   const handleAddStep = () => {
     if (!newStep.name.trim()) {
       toast({
-        title: "Lỗi",
-        description: "Vui lòng nhập tên bước",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Vui lòng nhập tên bước',
+        variant: 'destructive'
       })
       return
     }
 
     if (newStep.estimatedDays < 1) {
       toast({
-        title: "Lỗi",
-        description: "Số ngày ước tính phải lớn hơn hoặc bằng 1",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Số ngày ước tính phải lớn hơn hoặc bằng 1',
+        variant: 'destructive'
       })
       return
     }
@@ -122,50 +134,50 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
       hasCost: newStep.hasCost,
       fields: [
         {
-          id: "assignee",
-          name: "Người đảm nhận",
-          type: "user",
+          id: 'assignee',
+          name: 'Người đảm nhận',
+          type: 'user',
           required: true,
-          description: "Người chịu trách nhiệm cho bước này",
-          isSystem: true,
+          description: 'Người chịu trách nhiệm cho bước này',
+          isSystem: true
         },
         {
-          id: "receiveDate",
-          name: "Thời gian tiếp nhận",
-          type: "date",
+          id: 'receiveDate',
+          name: 'Thời gian tiếp nhận',
+          type: 'date',
           required: true,
-          description: "Ngày tiếp nhận yêu cầu",
-          isSystem: true,
+          description: 'Ngày tiếp nhận yêu cầu',
+          isSystem: true
         },
         {
-          id: "deadline",
-          name: "Thời gian deadline",
-          type: "date",
+          id: 'deadline',
+          name: 'Thời gian deadline',
+          type: 'date',
           required: true,
-          description: "Ngày dự kiến hoàn thành công việc",
-          isSystem: true,
+          description: 'Ngày dự kiến hoàn thành công việc',
+          isSystem: true
         },
         {
-          id: "status",
-          name: "Trạng thái",
-          type: "select",
+          id: 'status',
+          name: 'Trạng thái',
+          type: 'select',
           required: true,
-          description: "Trạng thái hiện tại của bước",
-          options: ["Chưa bắt đầu", "Đang thực hiện", "Hoàn thành", "Quá hạn"],
-          isSystem: true,
-        },
-      ],
+          description: 'Trạng thái hiện tại của bước',
+          options: ['Chưa bắt đầu', 'Đang thực hiện', 'Hoàn thành', 'Quá hạn'],
+          isSystem: true
+        }
+      ]
     })
 
     // Reset form
     setNewStep({
-      name: "",
-      description: "",
+      name: '',
+      description: '',
       estimatedDays: 1,
       isRequired: false,
       notifyBeforeDeadline: 1,
-      assigneeRole: "",
-      hasCost: false,
+      assigneeRole: '',
+      hasCost: false
     })
     setShowAddStepDialog(false)
   }
@@ -177,18 +189,18 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
 
     if (!selectedStep.name.trim()) {
       toast({
-        title: "Lỗi",
-        description: "Vui lòng nhập tên bước",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Vui lòng nhập tên bước',
+        variant: 'destructive'
       })
       return
     }
 
     if (selectedStep.estimatedDays < 1) {
       toast({
-        title: "Lỗi",
-        description: "Số ngày ước tính phải lớn hơn hoặc bằng 1",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Số ngày ước tính phải lớn hơn hoặc bằng 1',
+        variant: 'destructive'
       })
       return
     }
@@ -200,7 +212,7 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
       isRequired: selectedStep.isRequired,
       notifyBeforeDeadline: selectedStep.notifyBeforeDeadline,
       assigneeRole: selectedStep.assigneeRole,
-      hasCost: selectedStep.hasCost,
+      hasCost: selectedStep.hasCost
     })
 
     setShowEditStepDialog(false)
@@ -228,7 +240,7 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
     // Cập nhật lại thứ tự (order) cho mỗi bước
     const reorderedSteps = steps.map((step, index) => ({
       ...step,
-      order: index,
+      order: index
     }))
 
     reorderStandardWorkflowSteps(reorderedSteps)
@@ -270,7 +282,8 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
           <div>
             <CardTitle>Quy trình chuẩn</CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              Phiên bản: {standardWorkflow.version} | Cập nhật lần cuối: {standardWorkflow.updatedAt.toLocaleString()}
+              Phiên bản: {standardWorkflow.version} | Cập nhật lần cuối:{' '}
+              {standardWorkflow.updatedAt.toLocaleString()}
             </p>
           </div>
           <div className="flex gap-2">
@@ -279,7 +292,11 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
                 <Button variant="outline" onClick={() => setIsEditing(true)}>
                   Chỉnh sửa
                 </Button>
-                <Button onClick={() => handleSelectWorkflow(standardWorkflow.id)}>Quản lý bước</Button>
+                <Button
+                  onClick={() => handleSelectWorkflow(standardWorkflow.id)}
+                >
+                  Quản lý bước
+                </Button>
               </>
             ) : (
               <div className="flex gap-2">
@@ -304,7 +321,9 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
                 placeholder="Nhập tên quy trình chuẩn"
               />
             ) : (
-              <div className="p-2 border rounded-md bg-muted/30">{standardWorkflow.name}</div>
+              <div className="p-2 border rounded-md bg-muted/30">
+                {standardWorkflow.name}
+              </div>
             )}
           </div>
 
@@ -320,7 +339,7 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
               />
             ) : (
               <div className="p-2 border rounded-md bg-muted/30 min-h-[80px] whitespace-pre-line">
-                {standardWorkflow.description || "Không có mô tả"}
+                {standardWorkflow.description || 'Không có mô tả'}
               </div>
             )}
           </div>
@@ -337,10 +356,16 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="steps">
           {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+            <div
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              className="space-y-4"
+            >
               {standardWorkflow.steps.length === 0 ? (
                 <div className="text-center py-10 border rounded-md bg-muted/30">
-                  <p className="text-muted-foreground">Chưa có bước nào trong quy trình</p>
+                  <p className="text-muted-foreground">
+                    Chưa có bước nào trong quy trình
+                  </p>
                 </div>
               ) : (
                 standardWorkflow.steps.map((step, index) => (
@@ -349,7 +374,7 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
                       <Card
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        className={step.isRequired ? "border-primary/50" : ""}
+                        className={step.isRequired ? 'border-primary/50' : ''}
                       >
                         <CardHeader className="flex flex-row items-center justify-between py-3">
                           <div className="flex items-center gap-2">
@@ -361,19 +386,28 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
                               <GripVertical className="h-5 w-5 text-gray-400" />
                             </div>
                             <div className="flex flex-col items-center justify-center bg-primary/10 rounded-full w-8 h-8">
-                              <span className="text-sm font-medium">{index + 1}</span>
+                              <span className="text-sm font-medium">
+                                {index + 1}
+                              </span>
                             </div>
                             <div>
                               <CardTitle className="text-base flex items-center gap-2">
                                 {step.name}
                                 {step.isRequired && (
-                                  <Badge variant="outline" className="text-xs font-normal">
+                                  <Badge
+                                    variant="outline"
+                                    className="text-xs font-normal"
+                                  >
                                     Bắt buộc
                                   </Badge>
                                 )}
                                 {step.hasCost && (
-                                  <Badge variant="outline" className="text-xs font-normal bg-green-50">
-                                    <DollarSign className="h-3 w-3 mr-1" /> Chi phí
+                                  <Badge
+                                    variant="outline"
+                                    className="text-xs font-normal bg-green-50"
+                                  >
+                                    <DollarSign className="h-3 w-3 mr-1" /> Chi
+                                    phí
                                   </Badge>
                                 )}
                               </CardTitle>
@@ -407,20 +441,30 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
                         <CardContent className="py-2">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="space-y-1">
-                              <p className="text-xs text-muted-foreground">Mô tả</p>
-                              <p className="text-sm">{step.description || "Không có mô tả"}</p>
+                              <p className="text-xs text-muted-foreground">
+                                Mô tả
+                              </p>
+                              <p className="text-sm">
+                                {step.description || 'Không có mô tả'}
+                              </p>
                             </div>
                             <div className="space-y-1">
                               <p className="text-xs text-muted-foreground flex items-center">
-                                <Calendar className="h-3 w-3 mr-1" /> Thời gian ước tính
+                                <Calendar className="h-3 w-3 mr-1" /> Thời gian
+                                ước tính
                               </p>
-                              <p className="text-sm">{step.estimatedDays} ngày</p>
+                              <p className="text-sm">
+                                {step.estimatedDays} ngày
+                              </p>
                             </div>
                             <div className="space-y-1">
                               <p className="text-xs text-muted-foreground flex items-center">
-                                <User className="h-3 w-3 mr-1" /> Người đảm nhiệm
+                                <User className="h-3 w-3 mr-1" /> Người đảm
+                                nhiệm
                               </p>
-                              <p className="text-sm">{step.assigneeRole || "Chưa xác định"}</p>
+                              <p className="text-sm">
+                                {step.assigneeRole || 'Chưa xác định'}
+                              </p>
                             </div>
                           </div>
                         </CardContent>
@@ -441,7 +485,8 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
           <DialogHeader>
             <DialogTitle>Thêm bước mới vào quy trình</DialogTitle>
             <DialogDescription>
-              Thêm một bước mới vào quy trình chuẩn. Các bước sẽ được thực hiện theo thứ tự.
+              Thêm một bước mới vào quy trình chuẩn. Các bước sẽ được thực hiện
+              theo thứ tự.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -452,7 +497,9 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
               <Input
                 id="step-name"
                 value={newStep.name}
-                onChange={(e) => setNewStep({ ...newStep, name: e.target.value })}
+                onChange={(e) =>
+                  setNewStep({ ...newStep, name: e.target.value })
+                }
                 placeholder="Nhập tên bước"
               />
             </div>
@@ -461,7 +508,9 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
               <Textarea
                 id="step-description"
                 value={newStep.description}
-                onChange={(e) => setNewStep({ ...newStep, description: e.target.value })}
+                onChange={(e) =>
+                  setNewStep({ ...newStep, description: e.target.value })
+                }
                 placeholder="Nhập mô tả chi tiết về bước này"
                 rows={3}
               />
@@ -476,18 +525,28 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
                   type="number"
                   min={1}
                   value={newStep.estimatedDays}
-                  onChange={(e) => setNewStep({ ...newStep, estimatedDays: Number.parseInt(e.target.value) || 1 })}
+                  onChange={(e) =>
+                    setNewStep({
+                      ...newStep,
+                      estimatedDays: Number.parseInt(e.target.value) || 1
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="step-notify">Thông báo trước deadline (ngày)</Label>
+                <Label htmlFor="step-notify">
+                  Thông báo trước deadline (ngày)
+                </Label>
                 <Input
                   id="step-notify"
                   type="number"
                   min={0}
                   value={newStep.notifyBeforeDeadline}
                   onChange={(e) =>
-                    setNewStep({ ...newStep, notifyBeforeDeadline: Number.parseInt(e.target.value) || 0 })
+                    setNewStep({
+                      ...newStep,
+                      notifyBeforeDeadline: Number.parseInt(e.target.value) || 0
+                    })
                   }
                 />
               </div>
@@ -497,7 +556,9 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
               <Input
                 id="step-assignee"
                 value={newStep.assigneeRole}
-                onChange={(e) => setNewStep({ ...newStep, assigneeRole: e.target.value })}
+                onChange={(e) =>
+                  setNewStep({ ...newStep, assigneeRole: e.target.value })
+                }
                 placeholder="Nhập vai trò người đảm nhiệm (ví dụ: Nhân viên kỹ thuật)"
               />
             </div>
@@ -505,7 +566,9 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
               <Checkbox
                 id="step-required"
                 checked={newStep.isRequired}
-                onCheckedChange={(checked) => setNewStep({ ...newStep, isRequired: !!checked })}
+                onCheckedChange={(checked) =>
+                  setNewStep({ ...newStep, isRequired: !!checked })
+                }
               />
               <Label htmlFor="step-required" className="text-sm">
                 Bước bắt buộc (không thể xóa)
@@ -515,7 +578,9 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
               <Checkbox
                 id="step-cost"
                 checked={newStep.hasCost}
-                onCheckedChange={(checked) => setNewStep({ ...newStep, hasCost: !!checked })}
+                onCheckedChange={(checked) =>
+                  setNewStep({ ...newStep, hasCost: !!checked })
+                }
               />
               <Label htmlFor="step-cost" className="text-sm">
                 Bước có chi phí
@@ -523,7 +588,10 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddStepDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowAddStepDialog(false)}
+            >
               Hủy
             </Button>
             <Button onClick={handleAddStep}>Thêm bước</Button>
@@ -536,7 +604,9 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Chỉnh sửa bước</DialogTitle>
-            <DialogDescription>Chỉnh sửa thông tin của bước trong quy trình chuẩn.</DialogDescription>
+            <DialogDescription>
+              Chỉnh sửa thông tin của bước trong quy trình chuẩn.
+            </DialogDescription>
           </DialogHeader>
           {getSelectedStep() && (
             <div className="space-y-4 py-4">
@@ -546,11 +616,13 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
                 </Label>
                 <Input
                   id="edit-step-name"
-                  value={getSelectedStep()?.name || ""}
+                  value={getSelectedStep()?.name || ''}
                   onChange={(e) => {
                     const step = getSelectedStep()
                     if (step) {
-                      updateStandardWorkflowStep(step.id, { name: e.target.value })
+                      updateStandardWorkflowStep(step.id, {
+                        name: e.target.value
+                      })
                     }
                   }}
                   placeholder="Nhập tên bước"
@@ -560,11 +632,13 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
                 <Label htmlFor="edit-step-description">Mô tả</Label>
                 <Textarea
                   id="edit-step-description"
-                  value={getSelectedStep()?.description || ""}
+                  value={getSelectedStep()?.description || ''}
                   onChange={(e) => {
                     const step = getSelectedStep()
                     if (step) {
-                      updateStandardWorkflowStep(step.id, { description: e.target.value })
+                      updateStandardWorkflowStep(step.id, {
+                        description: e.target.value
+                      })
                     }
                   }}
                   placeholder="Nhập mô tả chi tiết về bước này"
@@ -584,13 +658,17 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
                     onChange={(e) => {
                       const step = getSelectedStep()
                       if (step) {
-                        updateStandardWorkflowStep(step.id, { estimatedDays: Number.parseInt(e.target.value) || 1 })
+                        updateStandardWorkflowStep(step.id, {
+                          estimatedDays: Number.parseInt(e.target.value) || 1
+                        })
                       }
                     }}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-step-notify">Thông báo trước deadline (ngày)</Label>
+                  <Label htmlFor="edit-step-notify">
+                    Thông báo trước deadline (ngày)
+                  </Label>
                   <Input
                     id="edit-step-notify"
                     type="number"
@@ -600,7 +678,8 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
                       const step = getSelectedStep()
                       if (step) {
                         updateStandardWorkflowStep(step.id, {
-                          notifyBeforeDeadline: Number.parseInt(e.target.value) || 0,
+                          notifyBeforeDeadline:
+                            Number.parseInt(e.target.value) || 0
                         })
                       }
                     }}
@@ -608,14 +687,18 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-step-assignee">Vai trò người đảm nhiệm</Label>
+                <Label htmlFor="edit-step-assignee">
+                  Vai trò người đảm nhiệm
+                </Label>
                 <Input
                   id="edit-step-assignee"
-                  value={getSelectedStep()?.assigneeRole || ""}
+                  value={getSelectedStep()?.assigneeRole || ''}
                   onChange={(e) => {
                     const step = getSelectedStep()
                     if (step) {
-                      updateStandardWorkflowStep(step.id, { assigneeRole: e.target.value })
+                      updateStandardWorkflowStep(step.id, {
+                        assigneeRole: e.target.value
+                      })
                     }
                   }}
                   placeholder="Nhập vai trò người đảm nhiệm (ví dụ: Nhân viên kỹ thuật)"
@@ -628,7 +711,9 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
                   onCheckedChange={(checked) => {
                     const step = getSelectedStep()
                     if (step) {
-                      updateStandardWorkflowStep(step.id, { isRequired: !!checked })
+                      updateStandardWorkflowStep(step.id, {
+                        isRequired: !!checked
+                      })
                     }
                   }}
                 />
@@ -643,7 +728,9 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
                   onCheckedChange={(checked) => {
                     const step = getSelectedStep()
                     if (step) {
-                      updateStandardWorkflowStep(step.id, { hasCost: !!checked })
+                      updateStandardWorkflowStep(step.id, {
+                        hasCost: !!checked
+                      })
                     }
                   }}
                 />
@@ -654,7 +741,10 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditStepDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowEditStepDialog(false)}
+            >
               Hủy
             </Button>
             <Button onClick={handleUpdateStep}>Lưu thay đổi</Button>
@@ -663,16 +753,23 @@ export function StandardWorkflowForm({ onSelect }: StandardWorkflowFormProps) {
       </Dialog>
 
       {/* Dialog xóa bước */}
-      <Dialog open={showDeleteStepDialog} onOpenChange={setShowDeleteStepDialog}>
+      <Dialog
+        open={showDeleteStepDialog}
+        onOpenChange={setShowDeleteStepDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Xóa bước</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa bước này khỏi quy trình chuẩn? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa bước này khỏi quy trình chuẩn? Hành động
+              này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteStepDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteStepDialog(false)}
+            >
               Hủy
             </Button>
             <Button variant="destructive" onClick={handleDeleteStep}>

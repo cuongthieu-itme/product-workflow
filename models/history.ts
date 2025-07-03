@@ -1,4 +1,4 @@
-import type { Timestamp } from "firebase/firestore"
+import type { Timestamp } from 'firebase/firestore'
 
 // Định nghĩa kiểu dữ liệu cho một thay đổi
 export interface Change {
@@ -24,8 +24,15 @@ export interface HistoryEntry {
   userEmail?: string
   userAvatar?: string
   timestamp: Date | Timestamp
-  action: "create" | "update" | "delete" | "revert" | "complete" | "reject" | "hold"
-  entityType: "request" | "workflow" | "step" | "material" | "comment"
+  action:
+    | 'create'
+    | 'update'
+    | 'delete'
+    | 'revert'
+    | 'complete'
+    | 'reject'
+    | 'hold'
+  entityType: 'request' | 'workflow' | 'step' | 'material' | 'comment'
   entityId: string
   changes?: Change[]
   details?: string

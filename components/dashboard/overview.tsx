@@ -1,8 +1,17 @@
-"use client"
+'use client'
 
-import { useMemo } from "react"
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { useRequest } from "@/components/requests/request-context-firebase"
+import { useMemo } from 'react'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from 'recharts'
+import { useRequest } from '@/components/requests/request-context-firebase'
 
 export function Overview() {
   const { requests, loading } = useRequest()
@@ -23,9 +32,9 @@ export function Overview() {
         name: monthName,
         month: date.getMonth() + 1,
         year: date.getFullYear(),
-        "Đang xử lý": 0,
-        "Hoàn thành": 0,
-        "Từ chối/Tạm hoãn": 0,
+        'Đang xử lý': 0,
+        'Hoàn thành': 0,
+        'Từ chối/Tạm hoãn': 0
       })
     }
 
@@ -35,22 +44,28 @@ export function Overview() {
       const requestMonth = createdDate.getMonth() + 1
       const requestYear = createdDate.getFullYear()
 
-      const monthData = months.find((m) => m.month === requestMonth && m.year === requestYear)
+      const monthData = months.find(
+        (m) => m.month === requestMonth && m.year === requestYear
+      )
       if (monthData) {
         // Xác định trạng thái dựa trên workflow steps
         if (request.workflowSteps && request.workflowSteps.length > 0) {
-          const allStepsCompleted = request.workflowSteps.every((step) => step.status === "completed")
-          const hasRejectedStep = request.workflowSteps.some((step) => step.status === "skipped")
+          const allStepsCompleted = request.workflowSteps.every(
+            (step) => step.status === 'completed'
+          )
+          const hasRejectedStep = request.workflowSteps.some(
+            (step) => step.status === 'skipped'
+          )
 
           if (allStepsCompleted) {
-            monthData["Hoàn thành"]++
+            monthData['Hoàn thành']++
           } else if (hasRejectedStep) {
-            monthData["Từ chối/Tạm hoãn"]++
+            monthData['Từ chối/Tạm hoãn']++
           } else {
-            monthData["Đang xử lý"]++
+            monthData['Đang xử lý']++
           }
         } else {
-          monthData["Đang xử lý"]++
+          monthData['Đang xử lý']++
         }
       }
     })

@@ -1,4 +1,4 @@
-import { MigrationManager } from "@/components/data-migration/migration-manager"
+import { MigrationManager } from '@/components/data-migration/migration-manager'
 
 export default function DataMigrationPage() {
   return (

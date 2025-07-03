@@ -1,18 +1,41 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Check, ChevronsUpDown, Plus } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { useRequest, type DataSource } from "./request-context"
-import { collection, getDocs } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from '@/components/ui/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
+import { Check, ChevronsUpDown, Plus } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { useRequest, type DataSource } from './request-context'
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 interface Department {
   id: string
@@ -28,14 +51,19 @@ interface DataSourceSelectorProps {
   onSelectDataSource: (dataSource: DataSource) => void
 }
 
-export function DataSourceSelector({ selectedDataSource, onSelectDataSource }: DataSourceSelectorProps) {
+export function DataSourceSelector({
+  selectedDataSource,
+  onSelectDataSource
+}: DataSourceSelectorProps) {
   const { dataSources, addDataSource } = useRequest()
   const [showDialog, setShowDialog] = useState(false)
-  const [newDataSourceName, setNewDataSourceName] = useState("")
-  const [newDataSourceType, setNewDataSourceType] = useState<"customer" | "department" | "other">("customer")
-  const [newSpecificSource, setNewSpecificSource] = useState("")
+  const [newDataSourceName, setNewDataSourceName] = useState('')
+  const [newDataSourceType, setNewDataSourceType] = useState<
+    'customer' | 'department' | 'other'
+  >('customer')
+  const [newSpecificSource, setNewSpecificSource] = useState('')
   const [open, setOpen] = useState(false)
-  const [searchValue, setSearchValue] = useState("")
+  const [searchValue, setSearchValue] = useState('')
   const [departments, setDepartments] = useState<Department[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -44,15 +72,15 @@ export function DataSourceSelector({ selectedDataSource, onSelectDataSource }: D
     const fetchDepartments = async () => {
       setLoading(true)
       try {
-        const departmentsRef = collection(db, "departments")
+        const departmentsRef = collection(db, 'departments')
         const snapshot = await getDocs(departmentsRef)
         const departmentsData = snapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data(),
+          ...doc.data()
         })) as Department[]
         setDepartments(departmentsData)
       } catch (error) {
-        console.error("Lỗi khi lấy danh sách phòng ban:", error)
+        console.error('Lỗi khi lấy danh sách phòng ban:', error)
       } finally {
         setLoading(false)
       }
@@ -65,18 +93,18 @@ export function DataSourceSelector({ selectedDataSource, onSelectDataSource }: D
   const handleAddDataSource = () => {
     if (newDataSourceName.trim()) {
       // Kiểm tra nếu là loại "other" thì phải có nguồn cụ thể
-      if (newDataSourceType === "other" && !newSpecificSource.trim()) {
+      if (newDataSourceType === 'other' && !newSpecificSource.trim()) {
         alert("Vui lòng nhập nguồn cụ thể cho loại 'Khác'")
         return
       }
 
-      const newDataSource: Omit<DataSource, "id"> = {
+      const newDataSource: Omit<DataSource, 'id'> = {
         type: newDataSourceType,
-        name: newDataSourceName.trim(),
+        name: newDataSourceName.trim()
       }
 
       // Thêm specificSource nếu là loại "other"
-      if (newDataSourceType === "other") {
+      if (newDataSourceType === 'other') {
         newDataSource.specificSource = newSpecificSource.trim()
       }
 
@@ -85,11 +113,11 @@ export function DataSourceSelector({ selectedDataSource, onSelectDataSource }: D
       // Tự động chọn nguồn dữ liệu vừa thêm
       onSelectDataSource({
         ...newDataSource,
-        id: newId,
+        id: newId
       })
 
-      setNewDataSourceName("")
-      setNewSpecificSource("")
+      setNewDataSourceName('')
+      setNewSpecificSource('')
       setShowDialog(false)
     }
   }
@@ -97,36 +125,59 @@ export function DataSourceSelector({ selectedDataSource, onSelectDataSource }: D
   // Chuyển đổi phòng ban thành nguồn dữ liệu
   const departmentDataSources: DataSource[] = departments.map((dept) => ({
     id: `dept_${dept.id}`,
-    type: "department",
-    name: dept.name,
+    type: 'department',
+    name: dept.name
   }))
 
   // Kết hợp nguồn dữ liệu từ cơ sở dữ liệu và phòng ban
   const allDataSources = [...(dataSources || []), ...departmentDataSources]
 
   // Phân loại nguồn dữ liệu
-  const customerSources = allDataSources.filter((source) => source.type === "customer")
-  const departmentSources = allDataSources.filter((source) => source.type === "department")
-  const otherSources = allDataSources.filter((source) => source.type === "other")
+  const customerSources = allDataSources.filter(
+    (source) => source.type === 'customer'
+  )
+  const departmentSources = allDataSources.filter(
+    (source) => source.type === 'department'
+  )
+  const otherSources = allDataSources.filter(
+    (source) => source.type === 'other'
+  )
 
   return (
     <div className="flex gap-2">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between">
-            {selectedDataSource ? selectedDataSource.name : "Chọn nguồn dữ liệu"}
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between"
+          >
+            {selectedDataSource
+              ? selectedDataSource.name
+              : 'Chọn nguồn dữ liệu'}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
           <Command>
-            <CommandInput placeholder="Tìm nguồn dữ liệu..." value={searchValue} onValueChange={setSearchValue} />
+            <CommandInput
+              placeholder="Tìm nguồn dữ liệu..."
+              value={searchValue}
+              onValueChange={setSearchValue}
+            />
             <CommandList>
-              <CommandEmpty>{loading ? "Đang tải..." : "Không tìm thấy nguồn dữ liệu"}</CommandEmpty>
+              <CommandEmpty>
+                {loading ? 'Đang tải...' : 'Không tìm thấy nguồn dữ liệu'}
+              </CommandEmpty>
               {customerSources.length > 0 && (
                 <CommandGroup heading="Khách hàng">
                   {customerSources
-                    .filter((source) => source.name.toLowerCase().includes(searchValue.toLowerCase()))
+                    .filter((source) =>
+                      source.name
+                        .toLowerCase()
+                        .includes(searchValue.toLowerCase())
+                    )
                     .map((source) => (
                       <CommandItem
                         key={source.id}
@@ -138,8 +189,10 @@ export function DataSourceSelector({ selectedDataSource, onSelectDataSource }: D
                       >
                         <Check
                           className={cn(
-                            "mr-2 h-4 w-4",
-                            selectedDataSource?.id === source.id ? "opacity-100" : "opacity-0",
+                            'mr-2 h-4 w-4',
+                            selectedDataSource?.id === source.id
+                              ? 'opacity-100'
+                              : 'opacity-0'
                           )}
                         />
                         {source.name}
@@ -150,7 +203,11 @@ export function DataSourceSelector({ selectedDataSource, onSelectDataSource }: D
               {departmentSources.length > 0 && (
                 <CommandGroup heading="Phòng ban">
                   {departmentSources
-                    .filter((source) => source.name.toLowerCase().includes(searchValue.toLowerCase()))
+                    .filter((source) =>
+                      source.name
+                        .toLowerCase()
+                        .includes(searchValue.toLowerCase())
+                    )
                     .map((source) => (
                       <CommandItem
                         key={source.id}
@@ -162,8 +219,10 @@ export function DataSourceSelector({ selectedDataSource, onSelectDataSource }: D
                       >
                         <Check
                           className={cn(
-                            "mr-2 h-4 w-4",
-                            selectedDataSource?.id === source.id ? "opacity-100" : "opacity-0",
+                            'mr-2 h-4 w-4',
+                            selectedDataSource?.id === source.id
+                              ? 'opacity-100'
+                              : 'opacity-0'
                           )}
                         />
                         {source.name}
@@ -174,7 +233,11 @@ export function DataSourceSelector({ selectedDataSource, onSelectDataSource }: D
               {otherSources.length > 0 && (
                 <CommandGroup heading="Khác">
                   {otherSources
-                    .filter((source) => source.name.toLowerCase().includes(searchValue.toLowerCase()))
+                    .filter((source) =>
+                      source.name
+                        .toLowerCase()
+                        .includes(searchValue.toLowerCase())
+                    )
                     .map((source) => (
                       <CommandItem
                         key={source.id}
@@ -186,13 +249,17 @@ export function DataSourceSelector({ selectedDataSource, onSelectDataSource }: D
                       >
                         <Check
                           className={cn(
-                            "mr-2 h-4 w-4",
-                            selectedDataSource?.id === source.id ? "opacity-100" : "opacity-0",
+                            'mr-2 h-4 w-4',
+                            selectedDataSource?.id === source.id
+                              ? 'opacity-100'
+                              : 'opacity-0'
                           )}
                         />
                         {source.name}
                         {source.specificSource && (
-                          <span className="ml-2 text-xs text-muted-foreground">({source.specificSource})</span>
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            ({source.specificSource})
+                          </span>
                         )}
                       </CommandItem>
                     ))}
@@ -216,7 +283,10 @@ export function DataSourceSelector({ selectedDataSource, onSelectDataSource }: D
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="newDataSourceType">Loại nguồn</Label>
-              <Select value={newDataSourceType} onValueChange={(value) => setNewDataSourceType(value as any)}>
+              <Select
+                value={newDataSourceType}
+                onValueChange={(value) => setNewDataSourceType(value as any)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn loại nguồn" />
                 </SelectTrigger>
@@ -236,7 +306,7 @@ export function DataSourceSelector({ selectedDataSource, onSelectDataSource }: D
                 placeholder="Nhập tên nguồn dữ liệu"
               />
             </div>
-            {newDataSourceType === "other" && (
+            {newDataSourceType === 'other' && (
               <div className="space-y-2">
                 <Label htmlFor="newSpecificSource">Nguồn cụ thể</Label>
                 <Input

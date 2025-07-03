@@ -1,11 +1,11 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { User, RefreshCw, AlertCircle } from "lucide-react"
-import { collection, getDocs } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { useState, useEffect } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { User, RefreshCw, AlertCircle } from 'lucide-react'
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 interface AutoUserSelectorProps {
   allowedUsers: string[] // Mảng ID của những người được phép thực hiện
@@ -26,7 +26,7 @@ export function AutoUserSelector({
   allowedUsers,
   onUserAssigned,
   assigneeRole,
-  showReassignButton = true,
+  showReassignButton = true
 }: AutoUserSelectorProps) {
   const [assignedUser, setAssignedUser] = useState<UserType | null>(null)
   const [users, setUsers] = useState<UserType[]>([])
@@ -37,7 +37,7 @@ export function AutoUserSelector({
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const usersRef = collection(db, "users")
+        const usersRef = collection(db, 'users')
         const snapshot = await getDocs(usersRef)
 
         const usersData = snapshot.docs.map((doc) => {
@@ -45,21 +45,41 @@ export function AutoUserSelector({
           return {
             id: doc.id,
             name:
-              data.fullName || data.fullname || data.displayName || data.name || data.email || "Người dùng không tên",
-            department: data.department || data.phongBan || "",
-            position: data.position || data.chucVu || "",
-            email: data.email || "",
+              data.fullName ||
+              data.fullname ||
+              data.displayName ||
+              data.name ||
+              data.email ||
+              'Người dùng không tên',
+            department: data.department || data.phongBan || '',
+            position: data.position || data.chucVu || '',
+            email: data.email || ''
           } as UserType
         })
 
         setUsers(usersData)
       } catch (error) {
-        console.error("Lỗi khi lấy danh sách người dùng:", error)
+        console.error('Lỗi khi lấy danh sách người dùng:', error)
         // Fallback data
         const sampleUsers: UserType[] = [
-          { id: "FHq19DvZunFcXbTLftMp", name: "Nguyễn Văn A", department: "R&D", position: "Nhân viên tiếp nhận" },
-          { id: "5FRPzXfxyDipfZUb6hbX", name: "Trần Thị B", department: "QC", position: "Nhân viên kiểm tra" },
-          { id: "MYelzq3eNurFLB9xxn8c", name: "Lê Văn C", department: "Design", position: "Nhân viên thiết kế" },
+          {
+            id: 'FHq19DvZunFcXbTLftMp',
+            name: 'Nguyễn Văn A',
+            department: 'R&D',
+            position: 'Nhân viên tiếp nhận'
+          },
+          {
+            id: '5FRPzXfxyDipfZUb6hbX',
+            name: 'Trần Thị B',
+            department: 'QC',
+            position: 'Nhân viên kiểm tra'
+          },
+          {
+            id: 'MYelzq3eNurFLB9xxn8c',
+            name: 'Lê Văn C',
+            department: 'Design',
+            position: 'Nhân viên thiết kế'
+          }
         ]
         setUsers(sampleUsers)
       } finally {
@@ -72,23 +92,30 @@ export function AutoUserSelector({
 
   // Tự động assign user khi có data
   useEffect(() => {
-    if (!loading && users.length > 0 && allowedUsers.length > 0 && !assignedUser) {
+    if (
+      !loading &&
+      users.length > 0 &&
+      allowedUsers.length > 0 &&
+      !assignedUser
+    ) {
       autoAssignUser()
     }
   }, [loading, users, allowedUsers, assignedUser])
 
   const autoAssignUser = () => {
     // Lọc users theo allowedUsers
-    const availableUsers = users.filter((user) => allowedUsers.includes(user.id))
+    const availableUsers = users.filter((user) =>
+      allowedUsers.includes(user.id)
+    )
 
-    console.log("🎯 AllowedUsers IDs:", allowedUsers)
+    console.log('🎯 AllowedUsers IDs:', allowedUsers)
     console.log(
-      "📋 All users:",
-      users.map((u) => `${u.id}: ${u.name}`),
+      '📋 All users:',
+      users.map((u) => `${u.id}: ${u.name}`)
     )
     console.log(
-      "✅ Available users for assignment:",
-      availableUsers.map((u) => `${u.id}: ${u.name}`),
+      '✅ Available users for assignment:',
+      availableUsers.map((u) => `${u.id}: ${u.name}`)
     )
 
     if (availableUsers.length > 0) {
@@ -96,12 +123,14 @@ export function AutoUserSelector({
       const randomIndex = Math.floor(Math.random() * availableUsers.length)
       const selectedUser = availableUsers[randomIndex]
 
-      console.log(`🎲 Auto-assigned user: ${selectedUser.name} (${selectedUser.id}) for role: ${assigneeRole}`)
+      console.log(
+        `🎲 Auto-assigned user: ${selectedUser.name} (${selectedUser.id}) for role: ${assigneeRole}`
+      )
       setAssignedUser(selectedUser)
       onUserAssigned(selectedUser)
     } else {
-      console.log("❌ No available users for this step")
-      console.log("🔍 Check if allowedUsers IDs match user IDs in database")
+      console.log('❌ No available users for this step')
+      console.log('🔍 Check if allowedUsers IDs match user IDs in database')
       setAssignedUser(null)
       onUserAssigned(null)
     }
@@ -131,7 +160,9 @@ export function AutoUserSelector({
     return (
       <div className="flex items-center space-x-2 p-3 border rounded-md bg-red-50 border-red-200">
         <AlertCircle className="h-4 w-4 text-red-500" />
-        <span className="text-sm text-red-600">Không có nhân viên nào được phép thực hiện bước này</span>
+        <span className="text-sm text-red-600">
+          Không có nhân viên nào được phép thực hiện bước này
+        </span>
       </div>
     )
   }
@@ -140,7 +171,9 @@ export function AutoUserSelector({
     return (
       <div className="flex items-center space-x-2 p-3 border rounded-md bg-yellow-50 border-yellow-200">
         <AlertCircle className="h-4 w-4 text-yellow-500" />
-        <span className="text-sm text-yellow-600">Không tìm thấy nhân viên phù hợp trong hệ thống</span>
+        <span className="text-sm text-yellow-600">
+          Không tìm thấy nhân viên phù hợp trong hệ thống
+        </span>
       </div>
     )
   }
@@ -152,12 +185,16 @@ export function AutoUserSelector({
         <div className="flex items-center space-x-3">
           <User className="h-5 w-5 text-green-600" />
           <div>
-            <div className="font-medium text-green-900">{assignedUser.name}</div>
+            <div className="font-medium text-green-900">
+              {assignedUser.name}
+            </div>
             <div className="text-xs text-green-600">
               {assignedUser.position}
               {assignedUser.department && ` • ${assignedUser.department}`}
             </div>
-            {assignedUser.email && <div className="text-xs text-green-500">{assignedUser.email}</div>}
+            {assignedUser.email && (
+              <div className="text-xs text-green-500">{assignedUser.email}</div>
+            )}
           </div>
         </div>
 
@@ -169,8 +206,10 @@ export function AutoUserSelector({
             disabled={reassigning}
             className="text-green-600 border-green-300 hover:bg-green-100"
           >
-            <RefreshCw className={`h-3 w-3 mr-1 ${reassigning ? "animate-spin" : ""}`} />
-            {reassigning ? "Đang chọn..." : "Chọn lại"}
+            <RefreshCw
+              className={`h-3 w-3 mr-1 ${reassigning ? 'animate-spin' : ''}`}
+            />
+            {reassigning ? 'Đang chọn...' : 'Chọn lại'}
           </Button>
         )}
       </div>
@@ -187,10 +226,14 @@ export function AutoUserSelector({
 
       {/* Thông tin số người có thể chọn */}
       <div className="text-xs text-gray-400">
-        Được chọn tự động từ {users.filter((u) => allowedUsers.includes(u.id)).length} người trong danh sách được phép
+        Được chọn tự động từ{' '}
+        {users.filter((u) => allowedUsers.includes(u.id)).length} người trong
+        danh sách được phép
         {allowedUsers.length > 0 && (
           <div className="mt-1">
-            <span className="font-mono text-xs">IDs: {allowedUsers.join(", ")}</span>
+            <span className="font-mono text-xs">
+              IDs: {allowedUsers.join(', ')}
+            </span>
           </div>
         )}
       </div>

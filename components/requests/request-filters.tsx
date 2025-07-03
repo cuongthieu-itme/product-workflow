@@ -1,30 +1,46 @@
-"use client"
+'use client'
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Search, SlidersHorizontal, X, Filter } from "lucide-react"
-import { useState, useEffect, useCallback } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { DatePicker } from "@/components/ui/date-picker"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { Search, SlidersHorizontal, X, Filter } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { DatePicker } from '@/components/ui/date-picker'
 
-export function RequestFilters({ onFilterChange }: { onFilterChange: (filters: any) => void }) {
+export function RequestFilters({
+  onFilterChange
+}: {
+  onFilterChange: (filters: any) => void
+}) {
   const [userRole, setUserRole] = useState<string | null>(null)
   const [userDepartment, setUserDepartment] = useState<string | null>(null)
 
   // Các state cho bộ lọc
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [departmentFilter, setDepartmentFilter] = useState<string>("all")
-  const [priorityFilter, setPriorityFilter] = useState<string>("all")
-  const [dateFromFilter, setDateFromFilter] = useState<Date | undefined>(undefined)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [departmentFilter, setDepartmentFilter] = useState<string>('all')
+  const [priorityFilter, setPriorityFilter] = useState<string>('all')
+  const [dateFromFilter, setDateFromFilter] = useState<Date | undefined>(
+    undefined
+  )
   const [dateToFilter, setDateToFilter] = useState<Date | undefined>(undefined)
-  const [creatorFilter, setCreatorFilter] = useState<string>("all")
-  const [materialFilter, setMaterialFilter] = useState<string>("all")
+  const [creatorFilter, setCreatorFilter] = useState<string>('all')
+  const [materialFilter, setMaterialFilter] = useState<string>('all')
 
   // State cho các bộ lọc đang áp dụng
   const [activeFilters, setActiveFilters] = useState<
@@ -36,72 +52,80 @@ export function RequestFilters({ onFilterChange }: { onFilterChange: (filters: a
   >([])
 
   useEffect(() => {
-    setUserRole(localStorage.getItem("userRole"))
-    setUserDepartment(localStorage.getItem("userDepartment"))
+    setUserRole(localStorage.getItem('userRole'))
+    setUserDepartment(localStorage.getItem('userDepartment'))
   }, [])
 
   // Tạo một hàm memoized để cập nhật activeFilters
   const updateActiveFilters = useCallback(() => {
     const newActiveFilters = []
 
-    if (statusFilter !== "all") {
+    if (statusFilter !== 'all') {
       newActiveFilters.push({
-        key: "status",
-        label: "Trạng thái",
-        value: getStatusLabel(statusFilter),
+        key: 'status',
+        label: 'Trạng thái',
+        value: getStatusLabel(statusFilter)
       })
     }
 
-    if (departmentFilter !== "all") {
+    if (departmentFilter !== 'all') {
       newActiveFilters.push({
-        key: "department",
-        label: "Phòng ban",
-        value: getDepartmentLabel(departmentFilter),
+        key: 'department',
+        label: 'Phòng ban',
+        value: getDepartmentLabel(departmentFilter)
       })
     }
 
-    if (priorityFilter !== "all") {
+    if (priorityFilter !== 'all') {
       newActiveFilters.push({
-        key: "priority",
-        label: "Độ ưu tiên",
-        value: getPriorityLabel(priorityFilter),
+        key: 'priority',
+        label: 'Độ ưu tiên',
+        value: getPriorityLabel(priorityFilter)
       })
     }
 
     if (dateFromFilter) {
       newActiveFilters.push({
-        key: "dateFrom",
-        label: "Từ ngày",
-        value: dateFromFilter.toLocaleDateString(),
+        key: 'dateFrom',
+        label: 'Từ ngày',
+        value: dateFromFilter.toLocaleDateString()
       })
     }
 
     if (dateToFilter) {
       newActiveFilters.push({
-        key: "dateTo",
-        label: "Đến ngày",
-        value: dateToFilter.toLocaleDateString(),
+        key: 'dateTo',
+        label: 'Đến ngày',
+        value: dateToFilter.toLocaleDateString()
       })
     }
 
-    if (creatorFilter !== "all") {
+    if (creatorFilter !== 'all') {
       newActiveFilters.push({
-        key: "creator",
-        label: "Người tạo",
-        value: creatorFilter,
+        key: 'creator',
+        label: 'Người tạo',
+        value: creatorFilter
       })
     }
 
-    if (materialFilter !== "all") {
+    if (materialFilter !== 'all') {
       newActiveFilters.push({
-        key: "material",
-        label: "Nguyên vật liệu",
-        value: materialFilter,
+        key: 'material',
+        label: 'Nguyên vật liệu',
+        value: materialFilter
       })
     }
 
     setActiveFilters(newActiveFilters)
-  }, [statusFilter, departmentFilter, priorityFilter, dateFromFilter, dateToFilter, creatorFilter, materialFilter])
+  }, [
+    statusFilter,
+    departmentFilter,
+    priorityFilter,
+    dateFromFilter,
+    dateToFilter,
+    creatorFilter,
+    materialFilter
+  ])
 
   // Cập nhật activeFilters khi các bộ lọc thay đổi
   useEffect(() => {
@@ -118,7 +142,7 @@ export function RequestFilters({ onFilterChange }: { onFilterChange: (filters: a
       dateFrom: dateFromFilter,
       dateTo: dateToFilter,
       creator: creatorFilter,
-      material: materialFilter,
+      material: materialFilter
     }
     onFilterChange(filters)
   }, [
@@ -130,7 +154,7 @@ export function RequestFilters({ onFilterChange }: { onFilterChange: (filters: a
     dateToFilter,
     creatorFilter,
     materialFilter,
-    onFilterChange,
+    onFilterChange
   ])
 
   // Chỉ gọi onFilterChange khi các bộ lọc thay đổi
@@ -141,26 +165,26 @@ export function RequestFilters({ onFilterChange }: { onFilterChange: (filters: a
   // Xóa một bộ lọc
   const removeFilter = (key: string) => {
     switch (key) {
-      case "status":
-        setStatusFilter("all")
+      case 'status':
+        setStatusFilter('all')
         break
-      case "department":
-        setDepartmentFilter("all")
+      case 'department':
+        setDepartmentFilter('all')
         break
-      case "priority":
-        setPriorityFilter("all")
+      case 'priority':
+        setPriorityFilter('all')
         break
-      case "dateFrom":
+      case 'dateFrom':
         setDateFromFilter(undefined)
         break
-      case "dateTo":
+      case 'dateTo':
         setDateToFilter(undefined)
         break
-      case "creator":
-        setCreatorFilter("all")
+      case 'creator':
+        setCreatorFilter('all')
         break
-      case "material":
-        setMaterialFilter("all")
+      case 'material':
+        setMaterialFilter('all')
         break
       default:
         break
@@ -169,28 +193,28 @@ export function RequestFilters({ onFilterChange }: { onFilterChange: (filters: a
 
   // Xóa tất cả bộ lọc
   const clearAllFilters = () => {
-    setStatusFilter("all")
-    setDepartmentFilter("all")
-    setPriorityFilter("all")
+    setStatusFilter('all')
+    setDepartmentFilter('all')
+    setPriorityFilter('all')
     setDateFromFilter(undefined)
     setDateToFilter(undefined)
-    setCreatorFilter("all")
-    setMaterialFilter("all")
+    setCreatorFilter('all')
+    setMaterialFilter('all')
   }
 
   // Hàm helper để lấy nhãn trạng thái
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "pending":
-        return "Chờ xử lý"
-      case "in_progress":
-        return "Đang xử lý"
-      case "completed":
-        return "Hoàn thành"
-      case "rejected":
-        return "Từ chối"
-      case "on_hold":
-        return "Tạm giữ"
+      case 'pending':
+        return 'Chờ xử lý'
+      case 'in_progress':
+        return 'Đang xử lý'
+      case 'completed':
+        return 'Hoàn thành'
+      case 'rejected':
+        return 'Từ chối'
+      case 'on_hold':
+        return 'Tạm giữ'
       default:
         return status
     }
@@ -199,14 +223,14 @@ export function RequestFilters({ onFilterChange }: { onFilterChange: (filters: a
   // Hàm helper để lấy nhãn phòng ban
   const getDepartmentLabel = (department: string) => {
     switch (department) {
-      case "mkt":
-        return "Marketing"
-      case "rd":
-        return "R&D"
-      case "sales":
-        return "Sales"
-      case "bod":
-        return "Ban Giám Đốc"
+      case 'mkt':
+        return 'Marketing'
+      case 'rd':
+        return 'R&D'
+      case 'sales':
+        return 'Sales'
+      case 'bod':
+        return 'Ban Giám Đốc'
       default:
         return department
     }
@@ -215,14 +239,14 @@ export function RequestFilters({ onFilterChange }: { onFilterChange: (filters: a
   // Hàm helper để lấy nhãn độ ưu tiên
   const getPriorityLabel = (priority: string) => {
     switch (priority) {
-      case "low":
-        return "Thấp"
-      case "medium":
-        return "Trung bình"
-      case "high":
-        return "Cao"
-      case "urgent":
-        return "Khẩn cấp"
+      case 'low':
+        return 'Thấp'
+      case 'medium':
+        return 'Trung bình'
+      case 'high':
+        return 'Cao'
+      case 'urgent':
+        return 'Khẩn cấp'
       default:
         return priority
     }
@@ -266,12 +290,15 @@ export function RequestFilters({ onFilterChange }: { onFilterChange: (filters: a
               </SelectContent>
             </Select>
           </div>
-          {userRole === "admin" && (
+          {userRole === 'admin' && (
             <div className="grid gap-2">
               <label htmlFor="department" className="text-sm font-medium">
                 Phòng ban
               </label>
-              <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+              <Select
+                value={departmentFilter}
+                onValueChange={setDepartmentFilter}
+              >
                 <SelectTrigger id="department" className="w-[180px]">
                   <SelectValue placeholder="Phòng ban" />
                 </SelectTrigger>
@@ -297,12 +324,17 @@ export function RequestFilters({ onFilterChange }: { onFilterChange: (filters: a
             <div className="grid gap-4">
               <div className="space-y-2">
                 <h4 className="font-medium leading-none">Bộ lọc nâng cao</h4>
-                <p className="text-sm text-muted-foreground">Thiết lập các điều kiện lọc cho yêu cầu</p>
+                <p className="text-sm text-muted-foreground">
+                  Thiết lập các điều kiện lọc cho yêu cầu
+                </p>
               </div>
               <Separator />
               <div className="grid gap-2">
                 <Label htmlFor="priority">Độ ưu tiên</Label>
-                <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                <Select
+                  value={priorityFilter}
+                  onValueChange={setPriorityFilter}
+                >
                   <SelectTrigger id="priority">
                     <SelectValue placeholder="Chọn độ ưu tiên" />
                   </SelectTrigger>
@@ -322,13 +354,21 @@ export function RequestFilters({ onFilterChange }: { onFilterChange: (filters: a
                     <Label htmlFor="dateFrom" className="text-xs">
                       Từ ngày
                     </Label>
-                    <DatePicker date={dateFromFilter} setDate={setDateFromFilter} className="w-full" />
+                    <DatePicker
+                      date={dateFromFilter}
+                      setDate={setDateFromFilter}
+                      className="w-full"
+                    />
                   </div>
                   <div>
                     <Label htmlFor="dateTo" className="text-xs">
                       Đến ngày
                     </Label>
-                    <DatePicker date={dateToFilter} setDate={setDateToFilter} className="w-full" />
+                    <DatePicker
+                      date={dateToFilter}
+                      setDate={setDateToFilter}
+                      className="w-full"
+                    />
                   </div>
                 </div>
               </div>
@@ -348,7 +388,10 @@ export function RequestFilters({ onFilterChange }: { onFilterChange: (filters: a
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="material">Nguyên vật liệu</Label>
-                <Select value={materialFilter} onValueChange={setMaterialFilter}>
+                <Select
+                  value={materialFilter}
+                  onValueChange={setMaterialFilter}
+                >
                   <SelectTrigger id="material">
                     <SelectValue placeholder="Chọn nguyên vật liệu" />
                   </SelectTrigger>
@@ -375,13 +418,22 @@ export function RequestFilters({ onFilterChange }: { onFilterChange: (filters: a
                 <Filter className="h-4 w-4" />
                 <span className="text-sm font-medium">Bộ lọc đang áp dụng</span>
               </div>
-              <Button variant="ghost" size="sm" onClick={clearAllFilters} className="h-8 px-2 text-xs">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearAllFilters}
+                className="h-8 px-2 text-xs"
+              >
                 Xóa tất cả
               </Button>
             </div>
             <div className="flex flex-wrap gap-2">
               {activeFilters.map((filter) => (
-                <Badge key={filter.key} variant="outline" className="flex items-center gap-1 px-3 py-1">
+                <Badge
+                  key={filter.key}
+                  variant="outline"
+                  className="flex items-center gap-1 px-3 py-1"
+                >
                   <span className="text-xs font-medium">
                     {filter.label}: {filter.value}
                   </span>

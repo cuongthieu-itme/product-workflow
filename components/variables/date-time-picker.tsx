@@ -1,16 +1,26 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
-import { CalendarIcon, Clock } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Label } from "@/components/ui/label"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
+import { useState } from 'react'
+import { format } from 'date-fns'
+import { vi } from 'date-fns/locale'
+import { CalendarIcon, Clock } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import { Label } from '@/components/ui/label'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface DateTimePickerProps {
   value?: Date | string
@@ -24,17 +34,17 @@ interface DateTimePickerProps {
 export function DateTimePicker({
   value,
   onChange,
-  placeholder = "Chọn ngày",
+  placeholder = 'Chọn ngày',
   includeTime = false,
   onIncludeTimeChange,
-  showTimeToggle = false,
+  showTimeToggle = false
 }: DateTimePickerProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    value ? (typeof value === "string" ? new Date(value) : value) : undefined,
+    value ? (typeof value === 'string' ? new Date(value) : value) : undefined
   )
   const [selectedTime, setSelectedTime] = useState({
     hours: selectedDate ? selectedDate.getHours() : 9,
-    minutes: selectedDate ? selectedDate.getMinutes() : 0,
+    minutes: selectedDate ? selectedDate.getMinutes() : 0
   })
 
   const handleDateSelect = (date: Date | undefined) => {
@@ -53,11 +63,11 @@ export function DateTimePicker({
     }
   }
 
-  const handleTimeChange = (type: "hours" | "minutes", value: string) => {
+  const handleTimeChange = (type: 'hours' | 'minutes', value: string) => {
     const numValue = Number.parseInt(value, 10)
     const newTime = {
       ...selectedTime,
-      [type]: numValue,
+      [type]: numValue
     }
     setSelectedTime(newTime)
 
@@ -75,7 +85,7 @@ export function DateTimePicker({
     if (includeTime) {
       return format(selectedDate, "PPP 'lúc' HH:mm", { locale: vi })
     } else {
-      return format(selectedDate, "PPP", { locale: vi })
+      return format(selectedDate, 'PPP', { locale: vi })
     }
   }
 
@@ -98,7 +108,10 @@ export function DateTimePicker({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={cn("w-full justify-start text-left font-normal", !selectedDate && "text-muted-foreground")}
+            className={cn(
+              'w-full justify-start text-left font-normal',
+              !selectedDate && 'text-muted-foreground'
+            )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {formatDisplayValue()}
@@ -106,7 +119,12 @@ export function DateTimePicker({
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
           <div className="p-3">
-            <Calendar mode="single" selected={selectedDate} onSelect={handleDateSelect} initialFocus />
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={handleDateSelect}
+              initialFocus
+            />
 
             {includeTime && (
               <div className="border-t pt-3 mt-3">
@@ -117,7 +135,7 @@ export function DateTimePicker({
                 <div className="flex items-center gap-2">
                   <Select
                     value={selectedTime.hours.toString()}
-                    onValueChange={(value) => handleTimeChange("hours", value)}
+                    onValueChange={(value) => handleTimeChange('hours', value)}
                   >
                     <SelectTrigger className="w-20">
                       <SelectValue />
@@ -125,7 +143,7 @@ export function DateTimePicker({
                     <SelectContent>
                       {Array.from({ length: 24 }, (_, i) => (
                         <SelectItem key={i} value={i.toString()}>
-                          {i.toString().padStart(2, "0")}
+                          {i.toString().padStart(2, '0')}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -133,7 +151,9 @@ export function DateTimePicker({
                   <span className="text-sm">:</span>
                   <Select
                     value={selectedTime.minutes.toString()}
-                    onValueChange={(value) => handleTimeChange("minutes", value)}
+                    onValueChange={(value) =>
+                      handleTimeChange('minutes', value)
+                    }
                   >
                     <SelectTrigger className="w-20">
                       <SelectValue />
@@ -141,7 +161,7 @@ export function DateTimePicker({
                     <SelectContent>
                       {Array.from({ length: 60 }, (_, i) => (
                         <SelectItem key={i} value={i.toString()}>
-                          {i.toString().padStart(2, "0")}
+                          {i.toString().padStart(2, '0')}
                         </SelectItem>
                       ))}
                     </SelectContent>

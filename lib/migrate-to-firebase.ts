@@ -1,5 +1,5 @@
-import { collection, doc, setDoc, getDocs, deleteDoc } from "firebase/firestore"
-import { db } from "./firebase"
+import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore'
+import { db } from './firebase'
 
 /**
  * Di chuyển dữ liệu từ localStorage sang Firestore
@@ -12,7 +12,7 @@ export async function migrateToFirestore(
   localStorageKey: string,
   collectionName: string,
   transform?: (item: any) => any,
-  useCustomIds = true,
+  useCustomIds = true
 ): Promise<{ success: boolean; message: string; count: number }> {
   try {
     // Kiểm tra xem dữ liệu đã tồn tại trong Firestore chưa
@@ -21,7 +21,7 @@ export async function migrateToFirestore(
       return {
         success: false,
         message: `Dữ liệu đã tồn tại trong collection ${collectionName}. Vui lòng xóa dữ liệu hiện có trước khi di chuyển.`,
-        count: 0,
+        count: 0
       }
     }
 
@@ -31,23 +31,23 @@ export async function migrateToFirestore(
       return {
         success: false,
         message: `Không tìm thấy dữ liệu trong localStorage với khóa ${localStorageKey}`,
-        count: 0,
+        count: 0
       }
     }
 
     // Parse dữ liệu
     const items = JSON.parse(localData)
-    if (!Array.isArray(items) && typeof items === "object") {
+    if (!Array.isArray(items) && typeof items === 'object') {
       // Nếu là object đơn, chuyển thành mảng có một phần tử
       const singleItem = items
       await setDoc(
-        doc(db, collectionName, singleItem.id || "singleton"),
-        transform ? transform(singleItem) : singleItem,
+        doc(db, collectionName, singleItem.id || 'singleton'),
+        transform ? transform(singleItem) : singleItem
       )
       return {
         success: true,
         message: `Đã di chuyển 1 đối tượng từ localStorage sang Firestore collection ${collectionName}`,
-        count: 1,
+        count: 1
       }
     }
 
@@ -56,7 +56,7 @@ export async function migrateToFirestore(
       return {
         success: false,
         message: `Dữ liệu trong localStorage với khóa ${localStorageKey} không phải là mảng hoặc object`,
-        count: 0,
+        count: 0
       }
     }
 
@@ -79,14 +79,14 @@ export async function migrateToFirestore(
     return {
       success: true,
       message: `Đã di chuyển ${count} bản ghi từ localStorage sang Firestore collection ${collectionName}`,
-      count,
+      count
     }
   } catch (error: any) {
     console.error(`Lỗi khi di chuyển dữ liệu: ${error.message}`, error)
     return {
       success: false,
       message: `Lỗi khi di chuyển dữ liệu: ${error.message}`,
-      count: 0,
+      count: 0
     }
   }
 }
@@ -95,14 +95,16 @@ export async function migrateToFirestore(
  * Xóa tất cả dữ liệu trong một collection
  * @param collectionName Tên collection cần xóa
  */
-export async function clearFirestoreCollection(collectionName: string): Promise<{ success: boolean; message: string }> {
+export async function clearFirestoreCollection(
+  collectionName: string
+): Promise<{ success: boolean; message: string }> {
   try {
     const snapshot = await getDocs(collection(db, collectionName))
 
     if (snapshot.empty) {
       return {
         success: true,
-        message: `Collection ${collectionName} đã trống.`,
+        message: `Collection ${collectionName} đã trống.`
       }
     }
 
@@ -111,13 +113,13 @@ export async function clearFirestoreCollection(collectionName: string): Promise<
 
     return {
       success: true,
-      message: `Đã xóa ${snapshot.size} bản ghi từ collection ${collectionName}`,
+      message: `Đã xóa ${snapshot.size} bản ghi từ collection ${collectionName}`
     }
   } catch (error: any) {
     console.error(`Lỗi khi xóa dữ liệu: ${error.message}`, error)
     return {
       success: false,
-      message: `Lỗi khi xóa dữ liệu: ${error.message}`,
+      message: `Lỗi khi xóa dữ liệu: ${error.message}`
     }
   }
 }
@@ -126,18 +128,20 @@ export async function clearFirestoreCollection(collectionName: string): Promise<
  * Kiểm tra xem dữ liệu đã được di chuyển sang Firestore chưa
  * @param collectionName Tên collection cần kiểm tra
  */
-export async function checkFirestoreCollection(collectionName: string): Promise<{ exists: boolean; count: number }> {
+export async function checkFirestoreCollection(
+  collectionName: string
+): Promise<{ exists: boolean; count: number }> {
   try {
     const snapshot = await getDocs(collection(db, collectionName))
     return {
       exists: !snapshot.empty,
-      count: snapshot.size,
+      count: snapshot.size
     }
   } catch (error) {
     console.error(`Lỗi khi kiểm tra collection: ${error}`)
     return {
       exists: false,
-      count: 0,
+      count: 0
     }
   }
 }
