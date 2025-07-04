@@ -5,6 +5,7 @@ import {
   RegisterInputType,
 } from "./schema";
 import { UserType } from "./type";
+import { ResetPasswordInputType } from "./schema/reset-password-schema";
 
 export const loginUser = async (data: LoginInputType) => {
   try {
@@ -41,6 +42,29 @@ export const forgotPassword = async (data: ForgotPasswordInput) => {
     return response.data;
   } catch (error) {
     console.error("Forgot password error:", error);
+    throw error;
+  }
+};
+
+export const resetPassword = async ({
+  token,
+  newPassword,
+}: ResetPasswordInputType) => {
+  try {
+    const response = await request.post(
+      "/auth/reset-password",
+      {
+        newPassword,
+      },
+      {
+        params: {
+          token,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Reset password error:", error);
     throw error;
   }
 };

@@ -11,7 +11,6 @@ import { authAtom } from "@/atoms";
 export const useLoginMutation = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [user, setUser] = useAtom(authAtom);
 
   return useMutation({
     mutationFn: loginUser,

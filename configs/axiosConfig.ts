@@ -1,7 +1,7 @@
 "use client";
 
 import { getAccessTokenFromStorage } from "@/utils";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
 const request = axios.create({
   baseURL: process.env.NEXT_PUBLIC_ENDPOINT_URL,
@@ -19,20 +19,6 @@ request.interceptors.request.use(
   },
   function (error: any) {
     return Promise.reject(error);
-  }
-);
-
-request.interceptors.response.use(
-  function (response) {
-    return response;
-  },
-  function (error: AxiosError) {
-    const customError = error.response?.data ?? {
-      message: "Không thể kết nối đến máy chủ",
-      status: error.response?.status,
-    };
-
-    return Promise.reject(customError);
   }
 );
 

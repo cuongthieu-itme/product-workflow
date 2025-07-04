@@ -41,6 +41,7 @@ export function RegisterPage() {
       password: "",
       role: UserRoleEnum.USER,
       userName: "",
+      confirmPassword: "",
     },
     resolver: zodResolver(registerInputSchema),
   });
@@ -111,6 +112,13 @@ export function RegisterPage() {
               />
 
               <InputCustom
+                name="email"
+                control={control}
+                label="Email"
+                placeholder="Nhập email"
+              />
+
+              <InputCustom
                 name="password"
                 control={control}
                 label="Mật khẩu"
@@ -119,10 +127,10 @@ export function RegisterPage() {
               />
 
               <InputCustom
-                name="password"
+                name="confirmPassword"
                 control={control}
-                label="Mật khẩu"
-                placeholder="Xac nhận mật khẩu"
+                label="Xác nhận mật khẩu"
+                placeholder="Xác nhận mật khẩu"
                 type="password"
               />
 
@@ -131,13 +139,6 @@ export function RegisterPage() {
                 control={control}
                 label="Họ và tên"
                 placeholder="Nhập họ và tên"
-              />
-
-              <InputCustom
-                name="email"
-                control={control}
-                label="Email"
-                placeholder="Nhập email"
               />
 
               {/* <div className="space-y-2">
