@@ -15,7 +15,6 @@ export const useLoginMutation = () => {
     mutationFn: loginUser,
     onSuccess: async (data) => {
       router.push("/dashboard");
-      console.log("Login successful:", data);
       setAccessTokenToStorage(data.accessToken);
       queryClient.prefetchQuery({
         queryKey: [USER_INFO_QUERY_KEY],

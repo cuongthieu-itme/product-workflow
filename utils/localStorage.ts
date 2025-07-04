@@ -16,4 +16,16 @@ const setAccessTokenToStorage = (locale: string) => {
   }
 };
 
-export { getAccessTokenFromStorage, setAccessTokenToStorage };
+const removeAccessTokenFromStorage = () => {
+  try {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+  } catch (e) {
+    console.log("Failed to remove login token from the storage");
+  }
+};
+
+export {
+  getAccessTokenFromStorage,
+  setAccessTokenToStorage,
+  removeAccessTokenFromStorage,
+};

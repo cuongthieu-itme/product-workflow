@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import RegisterClient from "./client";
-import { FirebaseConnectionChecker } from "@/components/firebase-connection-checker";
 
 export const metadata: Metadata = {
   title: "Đăng ký",
@@ -8,5 +6,5 @@ export const metadata: Metadata = {
 };
 
 export default function RegisterPage() {
-  return <RegisterClient />;
+  return <RegisterPage />;
 }

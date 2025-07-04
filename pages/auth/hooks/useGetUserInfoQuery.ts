@@ -7,5 +7,6 @@ export const useGetUserInfoQuery = () => {
   return useQuery({
     queryKey: [USER_INFO_QUERY_KEY],
     queryFn: getUserInfo,
+    retry: false,
   });
 };

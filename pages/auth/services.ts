@@ -1,5 +1,5 @@
 import request from "@/configs/axiosConfig";
-import { LoginInputType } from "./schema";
+import { LoginInputType, RegisterInputType } from "./schema";
 import { UserType } from "./type";
 
 export const loginUser = async (data: LoginInputType) => {
@@ -17,6 +17,16 @@ export const getUserInfo = async () => {
     const response = await request.get<UserType>("/auth/me");
     return response.data;
   } catch (error: unknown) {
+    throw error;
+  }
+};
+
+export const registerUser = async (data: RegisterInputType) => {
+  try {
+    const response = await request.post("/auth/register", data);
+    return response.data;
+  } catch (error) {
+    console.error("Registration error:", error);
     throw error;
   }
 };

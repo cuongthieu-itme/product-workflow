@@ -15,10 +15,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
-import { logout } from "@/lib/auth";
 import { useGetUserInfoQuery } from "@/pages/auth/hooks";
 import { UserRoleEnum } from "@/pages/auth/constants";
 import { getRoleName } from "@/helpers";
+import { removeAccessTokenFromStorage } from "@/utils/localStorage";
 
 export default function Header() {
   const router = useRouter();
@@ -26,7 +26,7 @@ export default function Header() {
   const [passwordRequests, setPasswordRequests] = useState<any[]>([]);
 
   const handleLogout = () => {
-    logout();
+    removeAccessTokenFromStorage();
     router.push("/login");
   };
 

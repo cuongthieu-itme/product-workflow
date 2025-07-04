@@ -19,7 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { InputCustom } from "@/components/form/input";
 import { useLoginMutation } from "../hooks";
 
-export default function LoginPageClient() {
+export function Login() {
   const { control, handleSubmit } = useForm<LoginInputType>({
     defaultValues: {
       emailOrUserName: "",
