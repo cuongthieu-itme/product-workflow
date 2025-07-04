@@ -1,73 +1,105 @@
-'use client'
+"use client";
 
-import type React from 'react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-
+import type React from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle
-} from '@/components/ui/card'
-import { AlertCircle } from 'lucide-react'
-import { InputCustom } from '@/components/form/input'
-import { SubmitHandler, useForm } from 'react-hook-form'
-import { forgotPasswordInputSchema } from '../schema'
-import type { ForgotPasswordInput } from '../schema/forgot-password-schema'
-import { zodResolver } from '@hookform/resolvers/zod'
+  CardTitle,
+} from "@/components/ui/card";
+import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { InputCustom } from "@/components/form/input";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { forgotPasswordInputSchema } from "../schema";
+import type { ForgotPasswordInput } from "../schema/forgot-password-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForgotPasswordMutation } from "../hooks";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useEffect } from "react";
 
 export function ForgotPasswordPage() {
-  const { control, handleSubmit } = useForm<ForgotPasswordInput>({
+  const { control, handleSubmit, reset, watch } = useForm<ForgotPasswordInput>({
     defaultValues: {
-      email: '',
-      username: ''
+      email: "",
     },
-    resolver: zodResolver(forgotPasswordInputSchema)
-  })
+    resolver: zodResolver(forgotPasswordInputSchema),
+  });
 
+  const {
+    mutate,
+    isPending,
+    error,
+    isSuccess,
+    data,
+    reset: resetMutationState,
+  } = useForgotPasswordMutation();
 
   const onSubmit: SubmitHandler<ForgotPasswordInput> = (data) => {
-    console.log(data)
-  }
+    mutate(data, {
+      onSuccess: () => {
+        reset();
+      },
+    });
+  };
+
+  const email = watch("email");
+  useEffect(() => {
+    if (email) {
+      resetMutationState();
+    }
+  }, [email, resetMutationState]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md bg-white shadow-lg">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Quên mật khẩu
-          </CardTitle>
+          <CardTitle className="text-2xl font-bold">Quên mật khẩu</CardTitle>
           <CardDescription>
             Nhập thông tin tài khoản để lấy lại mật khẩu
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Lỗi</AlertTitle>
-            <AlertDescription>SLSL</AlertDescription>
-          </Alert> */}
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Lỗi</AlertTitle>
+              <AlertDescription>{error.message}</AlertDescription>
+            </Alert>
+          )}
+
+          {isSuccess && (
+            <Alert className="mb-4 border-green-200 bg-green-50 text-green-800">
+              <CheckCircle className="h-4 w-4" />
+              <AlertTitle>Thành công</AlertTitle>
+              <AlertDescription>
+                {data.message ||
+                  "Yêu cầu đặt lại mật khẩu đã được gửi thành công. Vui lòng kiểm tra email của bạn."}
+              </AlertDescription>
+            </Alert>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="space-y-3">
               <InputCustom
                 control={control}
-                name='username'
-                id="username"
-                placeholder="Nhập tên đăng nhập"
-                label="Tên đăng nhập"
-              />
-              <InputCustom
-                control={control}
-                name='email'
+                name="email"
                 type="email"
                 placeholder="Nhập email"
                 label="Email"
               />
               <Button type="submit" className="w-full">
-                Gửi yêu cầu
+                {isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang xử
+                    lý...
+                  </>
+                ) : (
+                  "Gửi yêu cầu đặt lại mật khẩu"
+                )}
               </Button>
             </div>
           </form>
@@ -81,5 +113,5 @@ export function ForgotPasswordPage() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

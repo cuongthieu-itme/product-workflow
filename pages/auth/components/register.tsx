@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
@@ -34,7 +34,7 @@ import { useRegisterMutation } from "../hooks";
 import { InputCustom } from "@/components/form/input";
 
 export function RegisterPage() {
-  const { control, handleSubmit, reset } = useForm<RegisterInputType>({
+  const { control, handleSubmit, reset, watch } = useForm<RegisterInputType>({
     defaultValues: {
       email: "",
       fullName: "",
@@ -60,6 +60,20 @@ export function RegisterPage() {
       },
     });
   };
+
+  useEffect(() => {
+    const subscription = watch((value) => {
+      const { email, fullName, password, userName } = value;
+
+      if (email || fullName || password || userName) {
+        resetMutationState();
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [watch, resetMutationState]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -147,16 +161,7 @@ export function RegisterPage() {
                 </Select>
               </div> */}
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isPending}
-                onClick={() => {
-                  if (isSuccess) {
-                    resetMutationState();
-                  }
-                }}
-              >
+              <Button type="submit" className="w-full" disabled={isPending}>
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang đăng

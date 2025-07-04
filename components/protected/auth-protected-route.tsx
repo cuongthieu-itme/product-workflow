@@ -17,8 +17,11 @@ export function AuthProtectedRoute({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (token && data) {
-      router.push("/dashboard");
+    if (token) {
+      console.log("Token found:", token);
+      if (data) {
+        router.push("/dashboard");
+      }
     } else {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-import { LoginPage } from "@/pages/auth/components";
+import { Login } from "@/pages/auth/components";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  if (typeof window !== "undefined") {
-    return <LoginPage />;
-  }
-
-  return <></>;
+  return <Login />;
 }

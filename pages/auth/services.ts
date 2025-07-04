@@ -1,5 +1,9 @@
 import request from "@/configs/axiosConfig";
-import { LoginInputType, RegisterInputType } from "./schema";
+import {
+  ForgotPasswordInput,
+  LoginInputType,
+  RegisterInputType,
+} from "./schema";
 import { UserType } from "./type";
 
 export const loginUser = async (data: LoginInputType) => {
@@ -27,6 +31,16 @@ export const registerUser = async (data: RegisterInputType) => {
     return response.data;
   } catch (error) {
     console.error("Registration error:", error);
+    throw error;
+  }
+};
+
+export const forgotPassword = async (data: ForgotPasswordInput) => {
+  try {
+    const response = await request.post("/auth/request-password-reset", data);
+    return response.data;
+  } catch (error) {
+    console.error("Forgot password error:", error);
     throw error;
   }
 };
