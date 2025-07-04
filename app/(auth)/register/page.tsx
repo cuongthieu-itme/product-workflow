@@ -1,3 +1,4 @@
+import { RegisterPage } from "@/pages/auth/components";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -5,6 +6,6 @@ export const metadata: Metadata = {
   description: "Đăng ký tài khoản mới",
 };
 
-export default function RegisterPage() {
+export default function Page() {
   return <RegisterPage />;
 }
