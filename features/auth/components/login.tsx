@@ -23,7 +23,7 @@ import { useState } from "react";
 export function Login() {
   const { control, handleSubmit } = useForm<LoginInputType>({
     defaultValues: {
-      emailOrUserName: "",
+      emailOrUsername: "",
       password: "",
     },
     resolver: zodResolver(loginInputSchema),
@@ -56,7 +56,7 @@ export function Login() {
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="space-y-4">
               <InputCustom
-                name="emailOrUserName"
+                name="emailOrUsername"
                 control={control}
                 label="Email hoặc Tên đăng nhập"
                 placeholder="Nhập email hoặc tên đăng nhập"

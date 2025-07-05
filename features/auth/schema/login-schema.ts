@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const loginInputSchema = z.object({
-  emailOrUserName: z.string().trim().min(1, {
+  emailOrUsername: z.string().trim().min(1, {
     message: "Email hoặc tên đăng nhập không được để trống",
   }),
   password: z.string().trim().min(1, {

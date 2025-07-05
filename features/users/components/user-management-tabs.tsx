@@ -1,41 +1,41 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useState, useEffect } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
-} from '@/components/ui/card'
-import { UsersList } from '@/components/users/users-list'
-import { PendingAccounts } from '@/components/users/pending-accounts'
-import { collection, getDocs } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
-import { Badge } from '@/components/ui/badge'
-import { AddUserForm } from '@/components/users/add-user-form'
+  CardTitle,
+} from "@/components/ui/card";
+import { UsersList } from "./users-list";
+import { PendingAccounts } from "./pending-accounts";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { Badge } from "@/components/ui/badge";
+import { AddUserForm } from "./add-user-form";
 
 export function UserManagementTabs() {
-  const [pendingCount, setPendingCount] = useState(0)
-  const [activeTab, setActiveTab] = useState('users')
+  const [pendingCount, setPendingCount] = useState(0);
+  const [activeTab, setActiveTab] = useState("users");
 
   useEffect(() => {
     const fetchPendingCount = async () => {
       try {
-        const pendingUsersRef = collection(db, 'pendingUsers')
-        const snapshot = await getDocs(pendingUsersRef)
-        setPendingCount(snapshot.size)
+        const pendingUsersRef = collection(db, "pendingUsers");
+        const snapshot = await getDocs(pendingUsersRef);
+        setPendingCount(snapshot.size);
       } catch (error) {
-        console.error('Error fetching pending users count:', error)
+        console.error("Error fetching pending users count:", error);
       }
-    }
+    };
 
-    fetchPendingCount()
+    fetchPendingCount();
     // Thiết lập interval để cập nhật số lượng tài khoản chờ duyệt mỗi 30 giây
-    const interval = setInterval(fetchPendingCount, 30000)
-    return () => clearInterval(interval)
-  }, [])
+    const interval = setInterval(fetchPendingCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Tabs
@@ -87,14 +87,14 @@ export function UserManagementTabs() {
                 // Cập nhật lại số lượng tài khoản chờ duyệt
                 const fetchPendingCount = async () => {
                   try {
-                    const pendingUsersRef = collection(db, 'pendingUsers')
-                    const snapshot = await getDocs(pendingUsersRef)
-                    setPendingCount(snapshot.size)
+                    const pendingUsersRef = collection(db, "pendingUsers");
+                    const snapshot = await getDocs(pendingUsersRef);
+                    setPendingCount(snapshot.size);
                   } catch (error) {
-                    console.error('Error fetching pending users count:', error)
+                    console.error("Error fetching pending users count:", error);
                   }
-                }
-                fetchPendingCount()
+                };
+                fetchPendingCount();
               }}
             />
           </CardContent>
@@ -111,10 +111,10 @@ export function UserManagementTabs() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <AddUserForm onSuccess={() => setActiveTab('users')} />
+            <AddUserForm onSuccess={() => setActiveTab("users")} />
           </CardContent>
         </Card>
       </TabsContent>
     </Tabs>
-  )
+  );
 }

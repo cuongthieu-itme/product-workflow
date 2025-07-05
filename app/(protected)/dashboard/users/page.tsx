@@ -1,10 +1,10 @@
-import type { Metadata } from 'next'
-import { UserManagementTabs } from '@/components/users/user-management-tabs'
+import { UserManagementTabs } from "@/features/users/components/user-management-tabs";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Quản lý người dùng - Hệ thống quản lý yêu cầu',
-  description: 'Quản lý tài khoản người dùng trong hệ thống'
-}
+  title: "Quản lý người dùng - Hệ thống quản lý yêu cầu",
+  description: "Quản lý tài khoản người dùng trong hệ thống",
+};
 
 export default function UsersPage() {
   return (
@@ -20,5 +20,5 @@ export default function UsersPage() {
 
       <UserManagementTabs />
     </div>
-  )
+  );
 }

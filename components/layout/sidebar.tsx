@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import type React from 'react'
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { cn } from '@/lib/utils'
+import type React from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 import {
   Users,
   Settings,
@@ -24,45 +24,41 @@ import {
   ChevronRight,
   Briefcase,
   BarChart3,
-  Cog
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
+  Cog,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger
-} from '@/components/ui/collapsible'
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { useGetUserInfoQuery } from "@/features/auth/hooks";
+import { UserRoleEnum } from "@/features/auth/constants";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   items: {
-    href: string
-    title: string
-    icon: React.ReactNode
-    roles?: string[]
-  }[]
+    href: string;
+    title: string;
+    icon: React.ReactNode;
+    roles?: string[];
+  }[];
 }
 
 export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
-  const pathname = usePathname()
-  const [userRole, setUserRole] = useState<string>('')
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setUserRole(localStorage.getItem('userRole') || '')
-    }
-  }, [])
+  const pathname = usePathname();
+  const { data: user } = useGetUserInfoQuery();
 
   const filteredItems = items.filter((item) => {
-    if (!item.roles) return true
-    return item.roles.includes(userRole)
-  })
+    if (!item.roles) return true;
+    return item.roles.includes(user?.role ?? UserRoleEnum.USER);
+  });
 
   return (
     <nav
       className={cn(
-        'flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1',
+        "flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1",
         className
       )}
       {...props}
@@ -70,13 +66,13 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
       {filteredItems.map((item) => (
         <Button
           key={item.href}
-          variant={pathname === item.href ? 'secondary' : 'ghost'}
+          variant={pathname === item.href ? "secondary" : "ghost"}
           size="sm"
           className={cn(
-            'justify-start w-full text-left',
+            "justify-start w-full text-left",
             pathname === item.href
-              ? 'bg-muted hover:bg-muted'
-              : 'hover:bg-transparent hover:underline'
+              ? "bg-muted hover:bg-muted"
+              : "hover:bg-transparent hover:underline"
           )}
           asChild
         >
@@ -87,37 +83,37 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
         </Button>
       ))}
     </nav>
-  )
+  );
 }
 
 interface CollapsibleSectionProps {
-  title: string
-  icon: React.ReactNode
+  title: string;
+  icon: React.ReactNode;
   items: {
-    href: string
-    title: string
-    icon: React.ReactNode
-    roles?: string[]
-  }[]
-  defaultOpen?: boolean
+    href: string;
+    title: string;
+    icon: React.ReactNode;
+    roles?: string[];
+  }[];
+  defaultOpen?: boolean;
 }
 
 function CollapsibleSection({
   title,
   icon,
   items,
-  defaultOpen = false
+  defaultOpen = false,
 }: CollapsibleSectionProps) {
-  const [isOpen, setIsOpen] = useState(defaultOpen)
-  const pathname = usePathname()
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const pathname = usePathname();
 
-  const hasActiveItem = items.some((item) => pathname === item.href)
+  const hasActiveItem = items.some((item) => pathname === item.href);
 
   useEffect(() => {
     if (hasActiveItem) {
-      setIsOpen(true)
+      setIsOpen(true);
     }
-  }, [hasActiveItem])
+  }, [hasActiveItem]);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -126,8 +122,8 @@ function CollapsibleSection({
           variant="ghost"
           size="sm"
           className={cn(
-            'w-full justify-between px-3 py-2 font-semibold text-sm tracking-tight',
-            hasActiveItem ? 'text-primary' : 'text-gray-500 hover:text-gray-900'
+            "w-full justify-between px-3 py-2 font-semibold text-sm tracking-tight",
+            hasActiveItem ? "text-primary" : "text-gray-500 hover:text-gray-900"
           )}
         >
           <div className="flex items-center gap-2">
@@ -145,123 +141,121 @@ function CollapsibleSection({
         <SidebarNav items={items} />
       </CollapsibleContent>
     </Collapsible>
-  )
+  );
 }
 
 export function AppSidebar({
-  className
+  className,
 }: React.HTMLAttributes<HTMLDivElement>) {
-  const [userRole, setUserRole] = useState<string>('')
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setUserRole(localStorage.getItem('userRole') || '')
-    }
-  }, [])
+  const { data: user } = useGetUserInfoQuery();
 
   const overviewItems = [
     {
-      title: 'Tổng quan',
-      href: '/dashboard',
-      icon: <LayoutDashboard className="h-4 w-4" />
-    }
-  ]
+      title: "Tổng quan",
+      href: "/dashboard",
+      icon: <LayoutDashboard className="h-4 w-4" />,
+    },
+  ];
 
   const workspaceItems = [
     {
-      title: 'Yêu cầu',
-      href: '/dashboard/requests',
-      icon: <MessageSquare className="h-4 w-4" />
+      title: "Yêu cầu",
+      href: "/dashboard/requests",
+      icon: <MessageSquare className="h-4 w-4" />,
     },
     {
-      title: 'Sản phẩm',
-      href: '/dashboard/products',
-      icon: <ShoppingCart className="h-4 w-4" />
+      title: "Sản phẩm",
+      href: "/dashboard/products",
+      icon: <ShoppingCart className="h-4 w-4" />,
     },
     {
-      title: 'Nguyên vật liệu',
-      href: '/dashboard/materials',
+      title: "Nguyên vật liệu",
+      href: "/dashboard/materials",
       icon: <Package className="h-4 w-4" />,
-      roles: ['admin']
+      roles: ["admin"],
     },
     {
-      title: 'Khách hàng',
-      href: '/dashboard/customers',
-      icon: <Users className="h-4 w-4" />
+      title: "Khách hàng",
+      href: "/dashboard/customers",
+      icon: <Users className="h-4 w-4" />,
     },
     {
-      title: 'Marketing',
-      href: '/dashboard/marketing',
+      title: "Marketing",
+      href: "/dashboard/marketing",
       icon: <FileText className="h-4 w-4" />,
-      roles: ['admin']
+      roles: ["admin"],
     },
     {
-      title: 'R&D',
-      href: '/dashboard/rd-management',
+      title: "R&D",
+      href: "/dashboard/rd-management",
       icon: <FolderKanban className="h-4 w-4" />,
-      roles: ['admin']
-    }
-  ]
+      roles: ["admin"],
+    },
+  ];
 
   const reportItems = [
     {
-      title: 'Báo cáo',
-      href: '/dashboard/reports',
-      icon: <PieChart className="h-4 w-4" />
-    }
-  ]
+      title: "Báo cáo",
+      href: "/dashboard/reports",
+      icon: <PieChart className="h-4 w-4" />,
+    },
+  ];
 
   const systemItems = [
     {
-      title: 'Quản lý người dùng',
-      href: '/dashboard/users',
+      title: "Quản lý người dùng",
+      href: "/dashboard/users",
       icon: <Users className="h-4 w-4" />,
-      roles: ['admin']
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
     {
-      title: 'Quản lý phòng ban',
-      href: '/dashboard/departments',
+      title: "Quản lý phòng ban",
+      href: "/dashboard/departments",
       icon: <Building className="h-4 w-4" />,
-      roles: ['admin']
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
     {
-      title: 'Quản lý quyền',
-      href: '/dashboard/permissions',
+      title: "Quản lý quyền",
+      href: "/dashboard/permissions",
       icon: <Shield className="h-4 w-4" />,
-      roles: ['admin']
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
     {
-      title: 'Quản lý trạng thái',
-      href: '/dashboard/product-status',
+      title: "Quản lý trạng thái",
+      href: "/dashboard/product-status",
       icon: <Tag className="h-4 w-4" />,
-      roles: ['admin']
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
     {
-      title: 'Quản lý quy trình',
-      href: '/dashboard/workflow-management',
+      title: "Quản lý quy trình",
+      href: "/dashboard/workflow-management",
       icon: <Workflow className="h-4 w-4" />,
-      roles: ['admin']
-    }
-  ]
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
+    },
+  ];
 
   const settingsItems = [
     {
-      title: 'Cài đặt',
-      href: '/dashboard/settings',
-      icon: <Settings className="h-4 w-4" />
+      title: "Cài đặt",
+      href: "/dashboard/settings",
+      icon: <Settings className="h-4 w-4" />,
     },
     {
-      title: 'Di chuyển dữ liệu',
-      href: '/dashboard/data-migration',
+      title: "Di chuyển dữ liệu",
+      href: "/dashboard/data-migration",
       icon: <Database className="h-4 w-4" />,
-      roles: ['admin']
-    }
-  ]
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
+    },
+  ];
+
+  const isAdmin =
+    user?.role === UserRoleEnum.ADMIN ||
+    user?.role === UserRoleEnum.SUPER_ADMIN;
 
   return (
     <aside
       className={cn(
-        'h-full bg-background border-r flex flex-col w-full',
+        "h-full bg-background border-r flex flex-col w-full",
         className
       )}
     >
@@ -292,7 +286,7 @@ export function AppSidebar({
         <Separator className="my-2" />
 
         {/* Báo cáo - chỉ hiển thị cho admin */}
-        {userRole === 'admin' && (
+        {isAdmin && (
           <>
             <div className="py-2">
               <CollapsibleSection
@@ -307,7 +301,7 @@ export function AppSidebar({
         )}
 
         {/* Hệ thống - chỉ hiển thị cho admin */}
-        {userRole === 'admin' && (
+        {isAdmin && (
           <>
             <div className="py-2">
               <CollapsibleSection
@@ -322,7 +316,7 @@ export function AppSidebar({
         )}
 
         {/* Cài đặt - chỉ hiển thị cho admin */}
-        {userRole === 'admin' && (
+        {isAdmin && (
           <div className="py-2">
             <CollapsibleSection
               title="Cài đặt"
@@ -334,5 +328,5 @@ export function AppSidebar({
         )}
       </ScrollArea>
     </aside>
-  )
+  );
 }
