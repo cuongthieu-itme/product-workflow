@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { getAccessTokenFromStorage } from "@/utils";
 import { useRouter } from "next/navigation";
-import { useGetUserInfoQuery } from "@/pages/auth/hooks";
-import { Loader, Loader2 } from "lucide-react";
+import { useGetUserInfoQuery } from "@/features/auth/hooks";
+import { Loader } from "lucide-react";
 
 export function AuthProtectedRoute({
   children,

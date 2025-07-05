@@ -1,4 +1,4 @@
-import { UserType } from "@/pages/auth/type";
+import { UserType } from "@/features/auth/type";
 import { atom } from "jotai";
 
 interface AuthState {

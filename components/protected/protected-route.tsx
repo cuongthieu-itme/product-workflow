@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { getAccessTokenFromStorage } from "@/utils";
 import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
-import { useGetUserInfoQuery } from "@/pages/auth/hooks";
+import { useGetUserInfoQuery } from "@/features/auth/hooks";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = getAccessTokenFromStorage();

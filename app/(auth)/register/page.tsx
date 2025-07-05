@@ -1,4 +1,4 @@
-import { RegisterPage } from "@/pages/auth/components";
+import { RegisterPage } from "@/features/auth/components";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

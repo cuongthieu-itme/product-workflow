@@ -1,4 +1,4 @@
-import { UserRoleEnum } from "@/pages/auth/constants";
+import { UserRoleEnum } from "@/features/auth/constants";
 
 export const getRoleName = (role: UserRoleEnum): string => {
   switch (role) {

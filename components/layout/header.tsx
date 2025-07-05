@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
-import { useGetUserInfoQuery } from "@/pages/auth/hooks";
-import { UserRoleEnum } from "@/pages/auth/constants";
+import { useGetUserInfoQuery } from "@/features/auth/hooks";
+import { UserRoleEnum } from "@/features/auth/constants";
 import { getRoleName } from "@/helpers";
 import { removeAccessTokenFromStorage } from "@/utils/localStorage";
 
