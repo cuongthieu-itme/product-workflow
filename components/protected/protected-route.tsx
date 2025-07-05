@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useGetUserInfoQuery } from "../../pages/auth/hooks";
 import { getAccessTokenFromStorage } from "@/utils";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader } from "lucide-react";
+import { useGetUserInfoQuery } from "@/pages/auth/hooks";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = getAccessTokenFromStorage();
@@ -17,7 +17,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (isLoading || !data)
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-18 w-18 animate-spin" />
+        <Loader className="h-24 w-24 animate-spin" />
       </div>
     );
 

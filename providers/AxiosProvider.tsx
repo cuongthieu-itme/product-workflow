@@ -1,6 +1,6 @@
 "use client";
 
-import request from "@/configs/axiosConfig";
+import request from "@/configs/axios-config";
 import { AxiosError, AxiosResponse } from "axios";
 import { useEffect } from "react";
 

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { getAccessTokenFromStorage } from "@/utils";
 import { useRouter } from "next/navigation";
 import { useGetUserInfoQuery } from "@/pages/auth/hooks";
-import { Loader2 } from "lucide-react";
+import { Loader, Loader2 } from "lucide-react";
 
 export function AuthProtectedRoute({
   children,
@@ -17,10 +17,8 @@ export function AuthProtectedRoute({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (token) {
-      if (data) {
-        router.push("/dashboard");
-      }
+    if (token && data) {
+      router.push("/dashboard");
     } else {
       setLoading(false);
     }
@@ -29,7 +27,7 @@ export function AuthProtectedRoute({
   if (isLoading || loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-18 w-18 animate-spin" />
+        <Loader className="h-24 w-24 animate-spin" />
       </div>
     );
   }

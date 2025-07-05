@@ -1,1 +1,1 @@
-export * from "./axiosConfig";
+export * from "./axios-config";

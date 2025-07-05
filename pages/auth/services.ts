@@ -1,4 +1,4 @@
-import request from "@/configs/axiosConfig";
+import request from "@/configs/axios-config";
 import {
   ForgotPasswordInput,
   LoginInputType,
