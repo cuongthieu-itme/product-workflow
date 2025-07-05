@@ -22,6 +22,8 @@ export type UserFilterInput = {
   phoneNumber?: string;
   role?: UserRoleEnum;
   isVerifiedAccount?: boolean;
+  limit?: number;
+  page?: number;
 };
 
 export type UsersType = PaginatedResult<"data", User>;
