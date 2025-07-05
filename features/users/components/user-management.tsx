@@ -9,10 +9,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UsersList } from "@/components/users/users-list";
-import { AddUserForm } from "@/components/users/add-user-form";
-import { PasswordResetRequests } from "@/components/users/password-reset-requests";
-import { UserReports } from "@/components/users/user-reports";
+import { UsersList } from "./users-list";
+import { AddUserForm } from "./add-user-form";
+import { PasswordResetRequests } from "./password-reset-requests";
+import { UserReports } from "./user-reports";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
