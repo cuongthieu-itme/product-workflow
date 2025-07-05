@@ -1,9 +1,12 @@
 import request from "@/configs/axios-config";
-import { UsersType } from "./type";
+import { UserFilterInput, UsersType } from "./type";
+import { omitVoid } from "@/utils/removeParams";
 
-export const getUsers = async () => {
+export const getUsers = async (params?: UserFilterInput) => {
   try {
-    const response = await request.get<UsersType>("/users");
+    const response = await request.get<UsersType>("/users", {
+      params: omitVoid(params),
+    });
 
     return response.data;
   } catch (error) {

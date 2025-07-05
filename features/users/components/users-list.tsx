@@ -395,7 +395,7 @@ export function UsersList() {
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Tìm kiếm theo tên, email..."
-            value={searchTerm}
+            value="www"
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-8"
           />
@@ -466,8 +466,8 @@ export function UsersList() {
                   </div>
                 </TableCell>
               </TableRow>
-            ) : users && users?.users.length > 0 ? (
-              users?.users.map((user) => (
+            ) : users && users?.data.length > 0 ? (
+              users?.data.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.userName}</TableCell>
                   <TableCell>{user.fullName}</TableCell>
@@ -482,6 +482,7 @@ export function UsersList() {
                       {user.role === UserRoleEnum.ADMIN ? "Admin" : "User"}
                     </Badge>
                   </TableCell>
+                  <TableCell>Tlinh</TableCell>
                   {/* <TableCell>{getDepartmentName(user.department)}</TableCell> */}
                   <TableCell>
                     <Badge

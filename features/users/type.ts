@@ -15,4 +15,13 @@ export type User = {
   updatedAt: string | null;
 };
 
-export type UsersType = PaginatedResult<"users", User>;
+export type UserFilterInput = {
+  fullName?: string;
+  userName?: string;
+  email?: string;
+  phoneNumber?: string;
+  role?: UserRoleEnum;
+  isVerifiedAccount?: boolean;
+};
+
+export type UsersType = PaginatedResult<"data", User>;

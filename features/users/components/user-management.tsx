@@ -1,133 +1,60 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
-} from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { UsersList } from '@/components/users/users-list'
-import { AddUserForm } from '@/components/users/add-user-form'
-import { PendingAccounts } from '@/components/users/pending-accounts'
-import { PasswordResetRequests } from '@/components/users/password-reset-requests'
-import { UserReports } from '@/components/users/user-reports'
-import { useToast } from '@/components/ui/use-toast'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UsersList } from "@/components/users/users-list";
+import { AddUserForm } from "@/components/users/add-user-form";
+import { PasswordResetRequests } from "@/components/users/password-reset-requests";
+import { UserReports } from "@/components/users/user-reports";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog'
-import { PlusCircle } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { collection, getDocs } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { PlusCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useUsersQuery } from "../hooks";
+import { PendingAccounts } from "./pending-accounts";
 
 export function UserManagement() {
-  const { toast } = useToast()
-  const router = useRouter()
-  const [userRole, setUserRole] = useState<string | null>(null)
-  const [refreshUsers, setRefreshUsers] = useState(0)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [pendingCount, setPendingCount] = useState(0)
-
-  useEffect(() => {
-    // Kiểm tra quyền truy cập
-    if (typeof window !== 'undefined') {
-      const role = localStorage.getItem('userRole')
-      setUserRole(role)
-
-      if (role !== 'admin') {
-        toast({
-          variant: 'destructive',
-          title: 'Không có quyền truy cập',
-          description: 'Bạn không có quyền truy cập trang này.'
-        })
-        router.push('/dashboard')
-      }
-
-      // Khởi tạo dữ liệu mẫu nếu chưa có
-      if (!localStorage.getItem('users')) {
-        const initialUsers = [
-          {
-            id: '1',
-            username: 'user_rd',
-            password: 'password',
-            fullName: 'Nguyễn Văn A',
-            email: 'user_rd@example.com',
-            role: 'user',
-            department: 'rd',
-            status: 'active',
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: '2',
-            username: 'user_mkt',
-            password: 'password',
-            fullName: 'Trần Thị B',
-            email: 'user_mkt@example.com',
-            role: 'user',
-            department: 'mkt',
-            status: 'active',
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: '3',
-            username: 'user_sales',
-            password: 'password',
-            fullName: 'Lê Văn C',
-            email: 'user_sales@example.com',
-            role: 'user',
-            department: 'sales',
-            status: 'active',
-            createdAt: new Date().toISOString()
-          }
-        ]
-        localStorage.setItem('users', JSON.stringify(initialUsers))
-      }
-
-      // Fetch pending accounts count from Firebase
-      fetchPendingAccountsCount()
-    }
-  }, [router, toast])
-
-  // Add a function to fetch pending accounts count from Firebase
-  const fetchPendingAccountsCount = async () => {
-    try {
-      const pendingUsersRef = collection(db, 'pendingUsers')
-      const snapshot = await getDocs(pendingUsersRef)
-      setPendingCount(snapshot.size)
-    } catch (error) {
-      console.error('Error fetching pending accounts count:', error)
-    }
-  }
-
-  // Update the updatePendingCount function to use Firebase
-  const updatePendingCount = async () => {
-    await fetchPendingAccountsCount()
-  }
+  const { toast } = useToast();
+  const router = useRouter();
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [refreshUsers, setRefreshUsers] = useState(0);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleUserAdded = () => {
     // Cập nhật state để kích hoạt việc làm mới danh sách người dùng
-    setRefreshUsers((prev) => prev + 1)
+    setRefreshUsers((prev) => prev + 1);
     // Đóng dialog sau khi thêm thành công
-    setIsDialogOpen(false)
-  }
+    setIsDialogOpen(false);
+  };
 
-  if (userRole !== 'admin') {
-    return null
+  const { data: users } = useUsersQuery({ isVerifiedAccount: false });
+  const pendingCount = users?.data.length ? users.data.length + 1 : 0; // Giả sử có 1 tài khoản chờ duyệt
+
+  if (userRole !== "admin") {
+    return null;
   }
 
   return (
     <Tabs
       defaultValue="users"
       className="space-y-4"
-      onValueChange={updatePendingCount}
+      // onValueChange={updatePendingCount}
     >
       <TabsList>
         <TabsTrigger value="users">Danh sách người dùng</TabsTrigger>
@@ -228,5 +155,5 @@ export function UserManagement() {
         </Card>
       </TabsContent>
     </Tabs>
-  )
+  );
 }

@@ -1,315 +1,270 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
-} from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import { CheckCircle, XCircle, Edit, RefreshCw } from 'lucide-react'
-import { useToast } from '@/components/ui/use-toast'
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { CheckCircle, XCircle, Edit, RefreshCw } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { CheckCircle2 } from 'lucide-react'
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { CheckCircle2 } from "lucide-react";
 import {
   collection,
   getDocs,
   doc,
   deleteDoc,
   addDoc,
-  updateDoc
-} from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useUsersQuery } from "../hooks";
+import { toast } from "sonner";
 
 interface PendingUser {
-  id: string
-  username: string
-  password: string
-  fullName: string
-  email: string
-  role: string
-  department: string
-  status: string
-  createdAt: string
+  id: string;
+  username: string;
+  password: string;
+  fullName: string;
+  email: string;
+  role: string;
+  department: string;
+  status: string;
+  createdAt: string;
 }
 
 export function PendingAccounts() {
-  const { toast } = useToast()
-  const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([])
-  const [editingUser, setEditingUser] = useState<PendingUser | null>(null)
-  const [rejectReason, setRejectReason] = useState('')
-  const [showRejectDialog, setShowRejectDialog] = useState(false)
-  const [userToReject, setUserToReject] = useState<PendingUser | null>(null)
-  const [showSuccess, setShowSuccess] = useState(false)
-  const [successMessage, setSuccessMessage] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [departments, setDepartments] = useState<any[]>([])
+  const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
+  const [editingUser, setEditingUser] = useState<PendingUser | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [userToReject, setUserToReject] = useState<PendingUser | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [departments, setDepartments] = useState<any[]>([]);
 
   // Lấy danh sách phòng ban từ Firebase
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const departmentsRef = collection(db, 'departments')
-        const snapshot = await getDocs(departmentsRef)
-        const departmentsData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data()
-        }))
-        setDepartments(departmentsData)
-      } catch (error) {
-        console.error('Error fetching departments:', error)
-        // Fallback to localStorage if Firebase fails
-        if (typeof window !== 'undefined') {
-          const storedDepartments = JSON.parse(
-            localStorage.getItem('departments') || '[]'
-          )
-          setDepartments(storedDepartments)
-        }
-      }
-    }
+  // useEffect(() => {
+  //   const fetchDepartments = async () => {
+  //     try {
+  //       const departmentsRef = collection(db, "departments");
+  //       const snapshot = await getDocs(departmentsRef);
+  //       const departmentsData = snapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //       }));
+  //       setDepartments(departmentsData);
+  //     } catch (error) {
+  //       console.error("Error fetching departments:", error);
+  //       // Fallback to localStorage if Firebase fails
+  //       if (typeof window !== "undefined") {
+  //         const storedDepartments = JSON.parse(
+  //           localStorage.getItem("departments") || "[]"
+  //         );
+  //         setDepartments(storedDepartments);
+  //       }
+  //     }
+  //   };
 
-    fetchDepartments()
-  }, [])
+  //   fetchDepartments();
+  // }, []);
 
   // Lấy danh sách tài khoản chờ duyệt từ Firebase
-  const fetchPendingUsers = async () => {
-    setIsLoading(true)
-    try {
-      const pendingUsersRef = collection(db, 'pendingUsers')
-      const snapshot = await getDocs(pendingUsersRef)
-      const pendingUsersData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      })) as PendingUser[]
-      setPendingUsers(pendingUsersData)
-    } catch (error) {
-      console.error('Error fetching pending users:', error)
-      toast({
-        variant: 'destructive',
-        title: 'Lỗi',
-        description: 'Không thể tải danh sách tài khoản chờ duyệt'
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  // const fetchPendingUsers = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     const pendingUsersRef = collection(db, "pendingUsers");
+  //     const snapshot = await getDocs(pendingUsersRef);
+  //     const pendingUsersData = snapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     })) as PendingUser[];
+  //     setPendingUsers(pendingUsersData);
+  //   } catch (error) {
+  //     console.error("Error fetching pending users:", error);
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Lỗi",
+  //       description: "Không thể tải danh sách tài khoản chờ duyệt",
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchPendingUsers()
-  }, [])
+  // useEffect(() => {
+  //   fetchPendingUsers();
+  // }, []);
 
   const handleEditUser = (user: PendingUser) => {
-    setEditingUser({ ...user })
-  }
+    setEditingUser({ ...user });
+  };
 
-  const handleSaveEdit = async () => {
-    if (!editingUser) return
-    setIsLoading(true)
+  // const handleSaveEdit = async () => {
+  //   if (!editingUser) return;
+  //   setIsLoading(true);
 
-    try {
-      // Cập nhật thông tin người dùng trong Firebase
-      const userRef = doc(db, 'pendingUsers', editingUser.id)
-      await updateDoc(userRef, {
-        username: editingUser.username,
-        fullName: editingUser.fullName,
-        email: editingUser.email,
-        password: editingUser.password,
-        role: editingUser.role,
-        department: editingUser.department
-      })
+  //   try {
+  //     // Cập nhật thông tin người dùng trong Firebase
+  //     const userRef = doc(db, "pendingUsers", editingUser.id);
+  //     await updateDoc(userRef, {
+  //       username: editingUser.username,
+  //       fullName: editingUser.fullName,
+  //       email: editingUser.email,
+  //       password: editingUser.password,
+  //       role: editingUser.role,
+  //       department: editingUser.department,
+  //     });
 
-      // Cập nhật state
-      const updatedPendingUsers = pendingUsers.map((user) =>
-        user.id === editingUser.id ? editingUser : user
-      )
-      setPendingUsers(updatedPendingUsers)
-      setEditingUser(null)
+  //     // Cập nhật state
+  //     const updatedPendingUsers = pendingUsers.map((user) =>
+  //       user.id === editingUser.id ? editingUser : user
+  //     );
+  //     setPendingUsers(updatedPendingUsers);
+  //     setEditingUser(null);
 
-      // Hiển thị thông báo thành công
-      setSuccessMessage(
-        `Thông tin tài khoản ${editingUser.username} đã được cập nhật.`
-      )
-      setShowSuccess(true)
-      setTimeout(() => setShowSuccess(false), 3000)
+  //     // Hiển thị thông báo thành công
+  //     setSuccessMessage(
+  //       `Thông tin tài khoản ${editingUser.username} đã được cập nhật.`
+  //     );
+  //     setShowSuccess(true);
+  //     setTimeout(() => setShowSuccess(false), 3000);
 
-      toast({
-        title: 'Cập nhật thành công',
-        description: `Thông tin tài khoản ${editingUser.username} đã được cập nhật.`
-      })
-    } catch (error) {
-      console.error('Error updating user:', error)
-      toast({
-        variant: 'destructive',
-        title: 'Lỗi',
-        description: 'Không thể cập nhật thông tin tài khoản'
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleApproveUser = async (user: PendingUser) => {
-    setIsLoading(true)
-
-    try {
-      // Chuyển tài khoản từ pendingUsers sang users trong Firebase
-      const approvedUser = { ...user, status: 'active' }
-      delete approvedUser.id // Remove the id field before adding to users collection
-
-      // Add to users collection
-      const usersRef = collection(db, 'users')
-      await addDoc(usersRef, approvedUser)
-
-      // Delete from pendingUsers collection
-      const pendingUserRef = doc(db, 'pendingUsers', user.id)
-      await deleteDoc(pendingUserRef)
-
-      // Lưu lịch sử phê duyệt
-      const approvalHistoryRef = collection(db, 'approvalHistory')
-      await addDoc(approvalHistoryRef, {
-        userId: user.id,
-        username: user.username,
-        action: 'approve',
-        approvedBy: localStorage.getItem('username') || 'admin',
-        approvedAt: new Date().toISOString()
-      })
-
-      // Cập nhật state
-      const updatedPendingUsers = pendingUsers.filter((u) => u.id !== user.id)
-      setPendingUsers(updatedPendingUsers)
-
-      // Hiển thị thông báo thành công
-      setSuccessMessage(
-        `Tài khoản ${user.username} đã được phê duyệt thành công.`
-      )
-      setShowSuccess(true)
-      setTimeout(() => setShowSuccess(false), 3000)
-
-      toast({
-        title: 'Phê duyệt thành công',
-        description: `Tài khoản ${user.username} đã được phê duyệt và kích hoạt.`
-      })
-    } catch (error) {
-      console.error('Error approving user:', error)
-      toast({
-        variant: 'destructive',
-        title: 'Lỗi',
-        description: 'Không thể phê duyệt tài khoản'
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  //     toast({
+  //       title: "Cập nhật thành công",
+  //       description: `Thông tin tài khoản ${editingUser.username} đã được cập nhật.`,
+  //     });
+  //   } catch (error) {
+  //     console.error("Error updating user:", error);
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Lỗi",
+  //       description: "Không thể cập nhật thông tin tài khoản",
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const openRejectDialog = (user: PendingUser) => {
-    setUserToReject(user)
-    setRejectReason('')
-    setShowRejectDialog(true)
-  }
+    setUserToReject(user);
+    setRejectReason("");
+    setShowRejectDialog(true);
+  };
 
-  const handleRejectUser = async () => {
-    if (!userToReject) return
-    setIsLoading(true)
+  // const handleRejectUser = async () => {
+  //   if (!userToReject) return;
+  //   setIsLoading(true);
 
-    try {
-      // Delete from pendingUsers collection
-      const pendingUserRef = doc(db, 'pendingUsers', userToReject.id)
-      await deleteDoc(pendingUserRef)
+  //   try {
+  //     // Delete from pendingUsers collection
+  //     const pendingUserRef = doc(db, "pendingUsers", userToReject.id);
+  //     await deleteDoc(pendingUserRef);
 
-      // Lưu lịch sử từ chối
-      const rejectionHistoryRef = collection(db, 'rejectionHistory')
-      await addDoc(rejectionHistoryRef, {
-        userId: userToReject.id,
-        username: userToReject.username,
-        reason: rejectReason,
-        rejectedBy: localStorage.getItem('username') || 'admin',
-        rejectedAt: new Date().toISOString()
-      })
+  //     // Lưu lịch sử từ chối
+  //     const rejectionHistoryRef = collection(db, "rejectionHistory");
+  //     await addDoc(rejectionHistoryRef, {
+  //       userId: userToReject.id,
+  //       username: userToReject.username,
+  //       reason: rejectReason,
+  //       rejectedBy: localStorage.getItem("username") || "admin",
+  //       rejectedAt: new Date().toISOString(),
+  //     });
 
-      // Cập nhật state
-      const updatedPendingUsers = pendingUsers.filter(
-        (u) => u.id !== userToReject.id
-      )
-      setPendingUsers(updatedPendingUsers)
+  //     // Cập nhật state
+  //     const updatedPendingUsers = pendingUsers.filter(
+  //       (u) => u.id !== userToReject.id
+  //     );
+  //     setPendingUsers(updatedPendingUsers);
 
-      // Đóng dialog
-      setShowRejectDialog(false)
-      setUserToReject(null)
+  //     // Đóng dialog
+  //     setShowRejectDialog(false);
+  //     setUserToReject(null);
 
-      // Hiển thị thông báo thành công
-      setSuccessMessage(`Tài khoản ${userToReject.username} đã bị từ chối.`)
-      setShowSuccess(true)
-      setTimeout(() => setShowSuccess(false), 3000)
+  //     // Hiển thị thông báo thành công
+  //     setSuccessMessage(`Tài khoản ${userToReject.username} đã bị từ chối.`);
+  //     setShowSuccess(true);
+  //     setTimeout(() => setShowSuccess(false), 3000);
 
-      toast({
-        title: 'Từ chối thành công',
-        description: `Tài khoản ${userToReject.username} đã bị từ chối.`
-      })
-    } catch (error) {
-      console.error('Error rejecting user:', error)
-      toast({
-        variant: 'destructive',
-        title: 'Lỗi',
-        description: 'Không thể từ chối tài khoản'
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const refreshPendingUsersList = () => {
-    fetchPendingUsers()
-    toast({
-      title: 'Làm mới thành công',
-      description: 'Danh sách tài khoản chờ duyệt đã được cập nhật.'
-    })
-  }
+  //     toast({
+  //       title: "Từ chối thành công",
+  //       description: `Tài khoản ${userToReject.username} đã bị từ chối.`,
+  //     });
+  //   } catch (error) {
+  //     console.error("Error rejecting user:", error);
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Lỗi",
+  //       description: "Không thể từ chối tài khoản",
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const getDepartmentName = (departmentId: string) => {
-    const department = departments.find((dept) => dept.id === departmentId)
+    const department = departments.find((dept) => dept.id === departmentId);
     if (department) {
-      return department.name
+      return department.name;
     }
 
     // Fallback cho các giá trị cũ
     switch (departmentId) {
-      case 'product':
-        return 'Phòng Sản Phẩm'
-      case 'design':
-        return 'Phòng Thiết Kế'
-      case 'marketing':
-        return 'Phòng Marketing'
-      case 'sales':
-        return 'Phòng Kinh Doanh'
-      case 'rd':
-        return 'Phòng R&D'
-      case 'operations':
-        return 'Phòng Vận Hành'
+      case "product":
+        return "Phòng Sản Phẩm";
+      case "design":
+        return "Phòng Thiết Kế";
+      case "marketing":
+        return "Phòng Marketing";
+      case "sales":
+        return "Phòng Kinh Doanh";
+      case "rd":
+        return "Phòng R&D";
+      case "operations":
+        return "Phòng Vận Hành";
       default:
-        return departmentId
+        return departmentId;
     }
-  }
+  };
+
+  const {
+    data: users,
+    isLoading,
+    refetch,
+  } = useUsersQuery({
+    isVerifiedAccount: false,
+  });
+
+  const refreshPendingUsersList = () => {
+    refetch();
+    toast("Đã làm mới danh sách tài khoản chờ duyệt", {
+      duration: 2000,
+      description: "Danh sách đã được cập nhật thành công.",
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -366,13 +321,14 @@ export function PendingAccounts() {
                   </div>
                 </TableCell>
               </TableRow>
-            ) : pendingUsers.length > 0 ? (
-              pendingUsers.map((user) => (
+            ) : users && users.data.length > 0 ? (
+              users.data.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.username}</TableCell>
+                  <TableCell className="font-medium">{user.userName}</TableCell>
                   <TableCell>{user.fullName}</TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>{getDepartmentName(user.department)}</TableCell>
+                  <TableCell>Tlinh</TableCell>
+                  {/* <TableCell>{getDepartmentName(user.department)}</TableCell> */}
                   <TableCell>
                     {new Date(user.createdAt).toLocaleDateString()}
                   </TableCell>
@@ -381,7 +337,7 @@ export function PendingAccounts() {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => handleEditUser(user)}
+                        // onClick={() => handleEditUser(user)}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -389,7 +345,7 @@ export function PendingAccounts() {
                         variant="outline"
                         size="icon"
                         className="text-green-600"
-                        onClick={() => handleApproveUser(user)}
+                        // onClick={() => handleApproveUser(user)}
                       >
                         <CheckCircle className="h-4 w-4" />
                       </Button>
@@ -397,7 +353,7 @@ export function PendingAccounts() {
                         variant="outline"
                         size="icon"
                         className="text-red-600"
-                        onClick={() => openRejectDialog(user)}
+                        // onClick={() => openRejectDialog(user)}
                       >
                         <XCircle className="h-4 w-4" />
                       </Button>
@@ -529,10 +485,10 @@ export function PendingAccounts() {
             <DialogFooter>
               <Button
                 type="submit"
-                onClick={handleSaveEdit}
+                // onClick={handleSaveEdit}
                 disabled={isLoading}
               >
-                {isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
+                {isLoading ? "Đang lưu..." : "Lưu thay đổi"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -571,14 +527,14 @@ export function PendingAccounts() {
             </Button>
             <Button
               variant="destructive"
-              onClick={handleRejectUser}
+              // onClick={handleRejectUser}
               disabled={isLoading || !rejectReason}
             >
-              {isLoading ? 'Đang xử lý...' : 'Từ chối tài khoản'}
+              {isLoading ? "Đang xử lý..." : "Từ chối tài khoản"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
