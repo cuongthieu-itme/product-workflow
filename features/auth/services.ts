@@ -6,6 +6,7 @@ import {
 } from "./schema";
 import { UserType } from "./type";
 import { ResetPasswordInputType } from "./schema/reset-password-schema";
+import { omitVoid } from "@/utils/removeParams";
 
 export const loginUser = async (data: LoginInputType) => {
   try {
@@ -28,7 +29,7 @@ export const getUserInfo = async () => {
 
 export const registerUser = async (data: RegisterInputType) => {
   try {
-    const response = await request.post("/auth/register", data);
+    const response = await request.post("/auth/register", omitVoid(data, ['confirmPassword']));
     return response.data;
   } catch (error) {
     console.error("Registration error:", error);

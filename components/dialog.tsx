@@ -1,13 +1,12 @@
 // BaseDialog.tsx
 import {
     Dialog,
-    DialogOverlay,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogDescription,
-    DialogClose
-} from "@/components/ui/dialog";           // đổi path cho phù hợp
+    DialogClose,
+} from "@/components/ui/dialog";
 import { ReactNode } from "react";
 
 export interface BaseDialogProps {
@@ -33,24 +32,22 @@ export function BaseDialog({
     contentClassName = "sm:max-w-[425px]",
 }: BaseDialogProps) {
     return (
-        <Dialog open={open}>
-            <DialogOverlay onClick={onClose}>
-                <DialogContent className={contentClassName}>
-                    <DialogHeader>
-                        {title && <DialogTitle>{title}</DialogTitle>}
-                        {description && (
-                            <DialogDescription>{description}</DialogDescription>
-                        )}
-                        <DialogClose onClick={onClose} />
-                    </DialogHeader>
+        <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+            <DialogContent className={contentClassName}>
+                <DialogHeader>
+                    {title && <DialogTitle>{title}</DialogTitle>}
+                    {description && (
+                        <DialogDescription>{description}</DialogDescription>
+                    )}
+                    <DialogClose onClick={onClose} />
+                </DialogHeader>
 
-                    {/* body */}
-                    <div className="py-4">{children}</div>
+                {/* body */}
+                <div className="py-4">{children}</div>
 
-                    {/* footer */}
-                    {footer}
-                </DialogContent>
-            </DialogOverlay>
+                {/* footer */}
+                {footer}
+            </DialogContent>
         </Dialog>
     );
 }

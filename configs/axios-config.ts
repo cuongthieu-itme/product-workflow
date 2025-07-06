@@ -80,6 +80,7 @@ function normalizeError(error: unknown): ApiError {
       };
     }
 
+
     return {
       message:
         (error.response.data as any)?.message ??

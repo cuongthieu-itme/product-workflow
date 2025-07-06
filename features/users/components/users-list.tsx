@@ -30,12 +30,15 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { PasswordDialog } from "./password-dialog";
+import { UpdateUserDialog } from "./update-user-dialog";
 
 // ----------------------------------------------------------------
 
 export function UsersList() {
   const [page, setPage] = useState(1);
   const [resetPasswordUser, setResetPasswordUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
   const limit = 10;
 
   const { data: usersResp, isFetching, refetch } = useUsersQuery();
@@ -82,21 +85,27 @@ export function UsersList() {
       className: "text-right w-1",
       cell: (u) => (
         <div className="flex justify-end gap-2">
-          <button className="btn-icon" /* onClick={...} */>
-            <Edit className="h-4 w-4" />
-          </button>
-          <button
-            className="btn-icon"
+          <Button variant="outline" size="icon"
             onClick={() => {
-              console.log("Reset password for user:", u);
+              setEditingUser(u);
+            }}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon"
+            onClick={() => {
               setResetPasswordUser(u);
             }}
           >
             <Key className="h-4 w-4" />
-          </button>
-          <button className="btn-icon">
+          </Button>
+          <Button variant="outline" size="icon"
+            onClick={() => {
+              console.log("Delete user:", u);
+            }}
+          >
             <Trash2 className="h-4 w-4 text-red-500" />
-          </button>
+          </Button>
         </div>
       ),
     },
@@ -154,54 +163,14 @@ export function UsersList() {
         onPageChange={setPage}
       />
 
-      <Dialog open={!!resetPasswordUser} >
-        {resetPasswordUser && (
-          <DialogOverlay onClick={
-            () => {
-              setResetPasswordUser(null)
-              console.log("resetPasswordUser", resetPasswordUser)
-            }
-          }>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Đặt lại mật khẩu</DialogTitle>
-                <DialogDescription>
-                  Đặt lại mật khẩu cho người dùng {resetPasswordUser.userName}
-                </DialogDescription>
-                <DialogClose
-                  onClick={() => {
-                    setResetPasswordUser(null)
-                    console.log("resetPasswordUser", resetPasswordUser)
-                  }}
-                />
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="new-password" className="text-right">
-                    Mật khẩu mới
-                  </Label>
-                  <Input
-                    id="new-password"
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="col-span-3"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  type="submit"
-                  // onClick={handleSaveNewPassword}
-                  disabled={isLoading || !newPassword}
-                >
-                  {isLoading ? "Đang xử lý..." : "Đặt lại mật khẩu"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </DialogOverlay>
-        )}
-      </Dialog>
+      <PasswordDialog
+        resetPasswordUser={resetPasswordUser}
+        setResetPasswordUser={setResetPasswordUser}
+      />
+      <UpdateUserDialog
+        editingUser={editingUser}
+        setEditingUser={setEditingUser}
+      />
     </div>
   );
 }

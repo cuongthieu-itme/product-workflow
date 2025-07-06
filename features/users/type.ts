@@ -7,7 +7,7 @@ export type User = {
   userName: string;
   email: string;
   phoneNumber: string;
-  isVerifiedAccount: string;
+  isVerifiedAccount: boolean;
   verifiedDate: string;
   role: UserRoleEnum;
   lastLoginDate: string;

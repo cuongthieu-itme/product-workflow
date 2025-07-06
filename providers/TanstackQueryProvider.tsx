@@ -1,13 +1,14 @@
 "use client";
 
+import React, { ReactNode } from "react";
 import {
   QueryClient,
   QueryClientProvider as ReactQueryProvider,
 } from "@tanstack/react-query";
-import { ReactNode } from "react";
 
 const TanstackQueryProvider = ({ children }: { children: ReactNode }) => {
-  const queryClient = new QueryClient();
+  // Create the client once and reuse it for the entire app life-cycle.
+  const [queryClient] = React.useState(() => new QueryClient());
 
   return (
     <ReactQueryProvider client={queryClient}>{children}</ReactQueryProvider>
