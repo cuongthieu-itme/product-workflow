@@ -50,3 +50,15 @@ export const updateUser = async (
     throw error;
   }
 };
+
+/**
+ * DELETE /users/{id}
+ */
+export const deleteUser = async (id: string) => {
+  try {
+    const response = await request.delete(`/users/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

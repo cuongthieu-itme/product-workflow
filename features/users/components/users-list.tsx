@@ -32,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PasswordDialog } from "./password-dialog";
 import { UpdateUserDialog } from "./update-user-dialog";
+import { DeleteUserDialog } from "./delete-user-dialog";
 
 // ----------------------------------------------------------------
 
@@ -39,6 +40,7 @@ export function UsersList() {
   const [page, setPage] = useState(1);
   const [resetPasswordUser, setResetPasswordUser] = useState<User | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [deletingUser, setDeletingUser] = useState<User | null>(null);
   const limit = 10;
 
   const { data: usersResp, isFetching, refetch } = useUsersQuery();
@@ -101,7 +103,7 @@ export function UsersList() {
           </Button>
           <Button variant="outline" size="icon"
             onClick={() => {
-              console.log("Delete user:", u);
+              setDeletingUser(u);
             }}
           >
             <Trash2 className="h-4 w-4 text-red-500" />
@@ -170,6 +172,10 @@ export function UsersList() {
       <UpdateUserDialog
         editingUser={editingUser}
         setEditingUser={setEditingUser}
+      />
+      <DeleteUserDialog
+        deletingUser={deletingUser}
+        setDeletingUser={setDeletingUser}
       />
     </div>
   );

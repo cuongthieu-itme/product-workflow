@@ -42,10 +42,8 @@ export function BaseDialog({
                     <DialogClose onClick={onClose} />
                 </DialogHeader>
 
-                {/* body */}
-                <div className="py-4">{children}</div>
+                {children}
 
-                {/* footer */}
                 {footer}
             </DialogContent>
         </Dialog>
