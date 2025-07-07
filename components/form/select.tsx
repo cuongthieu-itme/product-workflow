@@ -30,6 +30,7 @@ export type SelectProps<T extends FieldValues> = UseControllerProps<T> & {
   emptyOption?: {
     label: string;
   };
+  valueType?: "string" | "number";
 };
 
 export const SelectCustom = <T extends FieldValues>({
@@ -45,6 +46,7 @@ export const SelectCustom = <T extends FieldValues>({
   disabled = false,
   className = "",
   emptyOption,
+  valueType = "string",
 }: SelectProps<T>) => {
   const {
     field: { value, onChange, ...field },
@@ -81,7 +83,7 @@ export const SelectCustom = <T extends FieldValues>({
         <Select
           value={String(value)}
           onValueChange={(v) =>
-            onChange(typeof value === "number" ? Number(v) : v)
+            onChange(valueType === "number" ? Number(v) : v)
           }
           disabled={disabled}
           {...field}

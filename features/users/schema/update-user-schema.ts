@@ -9,14 +9,11 @@ export const updateUserInputSchema = z.object({
   phoneNumber: z
     .string()
     .trim()
-    .regex(/^[0-9]{9,15}$/, {
-      message: "Số điện thoại gồm 9–15 chữ số",
+    .regex(/^[0-9]{10,11}$/, {
+      message: "Số điện thoại gồm 10-11 chữ số",
     }),
   role: z.nativeEnum(UserRoleEnum),
-  departmentCode: z
-    .string()
-    .trim()
-    .min(1, { message: "Mã phòng ban không được để trống" }),
+  departmentId: z.number().nullable().optional(),
   email: z.string().trim().email({ message: "Email không hợp lệ" }),
   isVerifiedAccount: z.enum(["true", "false"]),
   userName: z.string(),

@@ -34,9 +34,9 @@ export function DepartmentList() {
     { id: "name", header: "Tên phòng ban" },
     { id: "description", header: "Mô tả" },
     {
-      id: "headId",
+      id: "head",
       header: "Trưởng phòng",
-      // cell: (d) => d.head?.fullName || "Chưa cập nhật",
+      cell: (d) => d.head?.fullName || "Chưa cập nhật",
     },
     {
       id: "_count",

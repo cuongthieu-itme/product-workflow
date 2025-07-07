@@ -38,7 +38,7 @@ export const UpdateUserDialog = ({
       fullName: "",
       phoneNumber: "",
       role: UserRoleEnum.USER,
-      departmentCode: "",
+      departmentId: null,
       email: "",
       isVerifiedAccount: "false",
       userName: "",
@@ -51,7 +51,7 @@ export const UpdateUserDialog = ({
         fullName: editingUser.fullName ?? "",
         phoneNumber: editingUser.phoneNumber ?? "",
         role: editingUser.role,
-        departmentCode: editingUser.department?.id || "",
+        departmentId: editingUser.department?.id,
         email: editingUser.email,
         isVerifiedAccount: editingUser.isVerifiedAccount ? "true" : "false",
         userName: editingUser.userName,
@@ -130,8 +130,9 @@ export const UpdateUserDialog = ({
             ]}
           />
           <SelectCustom
+            valueType="number"
             control={control}
-            name="departmentCode"
+            name="departmentId"
             label="Phòng ban"
             required
             options={departOptions}

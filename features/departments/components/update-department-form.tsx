@@ -8,24 +8,17 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
-  createDepartmentInputSchema,
-  CreateDepartmentInputType,
   updateDepartmentInputSchema,
   UpdateDepartmentInputType,
 } from "../schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  useCreateDepartmentMutation,
-  useUpdateDepartmentMutation,
-} from "../hooks";
+import { useUpdateDepartmentMutation } from "../hooks";
 import { InputCustom } from "@/components/form/input";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { SelectCustom } from "@/components/form/select";
 import { useUsersQuery } from "@/features/users/hooks";
-import { useResetOnFormChange } from "@/hooks/use-reset-form-change";
 import { DepartmentType } from "../type";
 import { BaseDialog } from "@/components/dialog";
-import { useEffect } from "react";
 
 export function UpdateDepartmentForm({
   onDepartmentAdded,
@@ -54,6 +47,7 @@ export function UpdateDepartmentForm({
     isPending,
     isSuccess,
     error,
+    data,
     // reset: resetMutationStatus,
   } = useUpdateDepartmentMutation();
   const { data: users } = useUsersQuery();
@@ -93,10 +87,10 @@ export function UpdateDepartmentForm({
             <Alert className="bg-green-50 border-green-200">
               <CheckCircle2 className="h-4 w-4 text-green-600" />
               <AlertTitle className="text-green-800">
-                Tạo phòng ban thành công!
+                Cập nhật thành công!
               </AlertTitle>
               <AlertDescription className="text-green-700">
-                Phòng ban đã được tạo thành công và đã được thêm vào hệ thống.
+                {data.message || "Phòng ban đã được cập nhật thành công."}
               </AlertDescription>
             </Alert>
           )}
@@ -132,6 +126,7 @@ export function UpdateDepartmentForm({
               />
 
               <SelectCustom
+                valueType="number"
                 name="headId"
                 control={control}
                 label="Trưởng Phòng Ban"

@@ -36,15 +36,6 @@ import { userRoles } from "../options";
 import { useResetOnFormChange } from "@/hooks/use-reset-form-change";
 import { useDepartmentsQuery } from "@/features/departments/hooks";
 
-// Danh sách username bị cấm (trừ khi role là admin)
-const RESERVED_USERNAMES = ["admin", "administrator", "root", "system"];
-
-interface Department {
-  id: string;
-  name: string;
-  description: string;
-}
-
 export function AddUserForm() {
   const { control, handleSubmit, watch, reset } = useForm<CreateUserInputType>({
     defaultValues: {
@@ -54,19 +45,13 @@ export function AddUserForm() {
       fullName: "",
       email: "",
       role: UserRoleEnum.USER,
-      departmentCode: "",
+      departmentId: null,
       phoneNumber: "",
     },
     resolver: zodResolver(createUserInputSchema),
   });
 
-  const {
-    mutate,
-    isPending,
-    error,
-    isSuccess,
-    reset: resetMutationState,
-  } = useCreateUserMutation();
+  const { mutate, isPending, error, isSuccess } = useCreateUserMutation();
 
   const onSubmit: SubmitHandler<CreateUserInputType> = async (data) => {
     mutate(data, {
@@ -83,9 +68,6 @@ export function AddUserForm() {
       value: d.id,
       label: d.name,
     })) ?? [];
-
-  // Reset form khi có thay đổi
-  useResetOnFormChange(watch, resetMutationState);
 
   return (
     <div className="space-y-4">
@@ -162,8 +144,9 @@ export function AddUserForm() {
           />
 
           <SelectCustom
+            valueType="number"
             control={control}
-            name="departmentCode"
+            name="departmentId"
             label="Phòng ban"
             options={departOptions}
             emptyOption={{ label: "Không có phòng ban" }}

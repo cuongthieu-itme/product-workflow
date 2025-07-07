@@ -20,11 +20,8 @@ export const createUserInputSchema = z
     phoneNumber: z
       .string()
       .trim()
-      .regex(/^\d{9,15}$/, { message: "Số điện thoại gồm 9–15 chữ số" }),
-    departmentCode: z
-      .string()
-      .trim()
-      .min(1, { message: "Mã phòng ban không được để trống" }),
+      .regex(/^\d{9,11}$/, { message: "Số điện thoại gồm 9–15 chữ số" }),
+    departmentId: z.number().nullable().optional(),
   })
   .superRefine(({ password, confirmPassword }, ctx) => {
     if (password !== confirmPassword) {
