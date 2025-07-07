@@ -15,7 +15,7 @@ import {
 
 export interface SelectOption {
   label: string;
-  value: string
+  value: string | number;
 }
 
 export const KEY_EMPTY_SELECT = "empty-select-option";
@@ -79,24 +79,27 @@ export const SelectCustom = <T extends FieldValues>({
 
       <div className="space-y-1">
         <Select
-          value={value as string}
-          onValueChange={onChange}
+          value={String(value)}
+          onValueChange={(v) =>
+            onChange(typeof value === "number" ? Number(v) : v)
+          }
           disabled={disabled}
           {...field}
         >
           <SelectTrigger
             id={name}
-            className={`${className} ${fieldState.error
-              ? "border-red-500 placeholder:text-red-500 focus-visible:border-red-500"
-              : ""
-              } `}
+            className={`${className} ${
+              fieldState.error
+                ? "border-red-500 placeholder:text-red-500 focus-visible:border-red-500"
+                : ""
+            } `}
           >
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
 
           <SelectContent>
             {options.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
+              <SelectItem key={opt.value} value={String(opt.value)}>
                 {opt.label}
               </SelectItem>
             ))}

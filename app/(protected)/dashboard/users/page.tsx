@@ -1,4 +1,4 @@
-import { UserManagementTabs } from "@/features/users/components/user-management-tabs";
+import { DepartmentPage } from "@/features/departments/components/department";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ export default function UsersPage() {
         </p>
       </div>
 
-      <UserManagementTabs />
+      <DepartmentPage />
     </div>
   );
 }
