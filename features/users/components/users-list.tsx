@@ -1,7 +1,7 @@
 // features/users/components/users-list.tsx
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { TableToolbar } from "@/components/data-table/toolbar";
 import { TablePagination } from "@/components/data-table/pagination";
@@ -25,15 +25,12 @@ import { DeleteUserDialog } from "./delete-user-dialog";
 import { KEY_EMPTY_SELECT } from "@/components/form/select";
 import { userRoles } from "../options";
 import { useDepartmentsQuery } from "@/features/departments/hooks";
-import { Department } from "@/features/departments/type";
+import { DepartmentType } from "@/features/departments/type";
 
 export function UsersList() {
   const [page, setPage] = useState(1);
   const [resetPasswordUser, setResetPasswordUser] = useState<User | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [deletingUser, setDeletingUser] = useState<User | null>(null);
-  const limit = 10;
-
   const [filterRole, setFilterRole] = useState(KEY_EMPTY_SELECT);
   const [filterDepartment, setFilterDepartment] = useState(KEY_EMPTY_SELECT);
   const [filterStatus, setFilterStatus] = useState(KEY_EMPTY_SELECT);
@@ -51,9 +48,6 @@ export function UsersList() {
     departmentId: filterDepartment,
     role: filterRole as UserRoleEnum | undefined,
   });
-  const totalPages = usersResp
-    ? Math.max(1, Math.ceil(usersResp.total / limit))
-    : 1;
 
   const columns: Column<User>[] = [
     { id: "userName", header: "Tên đăng nhập" },
@@ -111,19 +105,16 @@ export function UsersList() {
           >
             <Key className="h-4 w-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => {
-              setDeletingUser(u);
-            }}
-          >
-            <Trash2 className="h-4 w-4 text-red-500" />
-          </Button>
         </div>
       ),
     },
   ];
+
+  const totalPages = useMemo(() => {
+    if (!usersResp) return 0;
+    const { total, limit } = usersResp;
+    return Math.ceil(total / limit);
+  }, [usersResp]);
 
   const { data: departments } = useDepartmentsQuery();
 
@@ -135,46 +126,50 @@ export function UsersList() {
         onRefresh={refetch}
         refreshing={isFetching}
       >
-        <Select value={filterRole} onValueChange={setFilterRole}>
-          <SelectTrigger className="miw-[60px]">
-            <SelectValue placeholder="Lọc theo vai trò" />
-          </SelectTrigger>
-          <SelectContent className="miw-[60px]">
-            <SelectItem value={KEY_EMPTY_SELECT}>Tất cả vai trò</SelectItem>
-            {userRoles.map((role) => (
-              <SelectItem key={role.value} value={role.value}>
-                {role.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={filterDepartment} onValueChange={setFilterDepartment}>
-          <SelectTrigger className="miw-[60px]">
-            <SelectValue placeholder="Lọc theo phòng ban" />
-          </SelectTrigger>
-          <SelectContent className="miw-[60px]">
-            <SelectItem value={KEY_EMPTY_SELECT}>Tất cả phòng ban</SelectItem>
-            {departments &&
-              departments?.data.map((dept: Department) => (
-                <SelectItem key={dept.id} value={dept.id}>
-                  {dept.name}
+        <div className="flex flex-row gap-2">
+          <Select value={filterRole} onValueChange={setFilterRole}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Lọc theo vai trò" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={KEY_EMPTY_SELECT}>Tất cả vai trò</SelectItem>
+              {userRoles.map((role) => (
+                <SelectItem key={role.value} value={String(role.value)}>
+                  {role.label}
                 </SelectItem>
               ))}
-          </SelectContent>
-        </Select>
-        <Select
-          value={filterStatus}
-          onValueChange={(filterStatus) => setFilterStatus(filterStatus)}
-        >
-          <SelectTrigger className="miw-[60px]">
-            <SelectValue placeholder="Lọc theo phòng ban" />
-          </SelectTrigger>
-          <SelectContent className="miw-[60px]">
-            <SelectItem value={KEY_EMPTY_SELECT}>Tất cả trạng thái</SelectItem>
-            <SelectItem value="true">Hoạt động</SelectItem>
-            <SelectItem value="false">Vô hiệu hóa</SelectItem>
-          </SelectContent>
-        </Select>
+            </SelectContent>
+          </Select>
+          <Select value={filterDepartment} onValueChange={setFilterDepartment}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Lọc theo phòng ban" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={KEY_EMPTY_SELECT}>Tất cả phòng ban</SelectItem>
+              {departments &&
+                departments?.data.map((dept: DepartmentType) => (
+                  <SelectItem key={dept.id} value={String(dept.id)}>
+                    {dept.name}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={filterStatus}
+            onValueChange={(filterStatus) => setFilterStatus(filterStatus)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Lọc theo phòng ban" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={KEY_EMPTY_SELECT}>
+                Tất cả trạng thái
+              </SelectItem>
+              <SelectItem value="true">Hoạt động</SelectItem>
+              <SelectItem value="false">Vô hiệu hóa</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </TableToolbar>
 
       <DataTable<User>
@@ -196,10 +191,6 @@ export function UsersList() {
       <UpdateUserDialog
         editingUser={editingUser}
         setEditingUser={setEditingUser}
-      />
-      <DeleteUserDialog
-        deletingUser={deletingUser}
-        setDeletingUser={setDeletingUser}
       />
     </div>
   );

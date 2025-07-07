@@ -29,7 +29,10 @@ export const getUserInfo = async () => {
 
 export const registerUser = async (data: RegisterInputType) => {
   try {
-    const response = await request.post("/auth/register", omitVoid(data, ['confirmPassword']));
+    const response = await request.post(
+      "/auth/register",
+      omitVoid(data, ["confirmPassword"])
+    );
     return response.data;
   } catch (error) {
     console.error("Registration error:", error);
@@ -39,7 +42,7 @@ export const registerUser = async (data: RegisterInputType) => {
 
 export const forgotPassword = async (data: ForgotPasswordInput) => {
   try {
-    const response = await request.post("/auth/request-password-reset", data);
+    const response = await request.post("/auth/forgot-password", data);
     return response.data;
   } catch (error) {
     console.error("Forgot password error:", error);
