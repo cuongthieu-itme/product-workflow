@@ -1,5 +1,6 @@
 // features/users/components/users-list.tsx
 "use client";
+
 import { useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { TableToolbar } from "@/components/data-table/toolbar";
@@ -17,24 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogOverlay,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PasswordDialog } from "./password-dialog";
 import { UpdateUserDialog } from "./update-user-dialog";
 import { DeleteUserDialog } from "./delete-user-dialog";
-
-// ----------------------------------------------------------------
+import { KEY_EMPTY_SELECT } from "@/components/form/select";
+import { userRoles } from "../options";
+import { useDepartmentsQuery } from "@/features/departments/hooks";
+import { Department } from "@/features/departments/type";
 
 export function UsersList() {
   const [page, setPage] = useState(1);
@@ -43,12 +34,27 @@ export function UsersList() {
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
   const limit = 10;
 
-  const { data: usersResp, isFetching, refetch } = useUsersQuery();
+  const [filterRole, setFilterRole] = useState(KEY_EMPTY_SELECT);
+  const [filterDepartment, setFilterDepartment] = useState(KEY_EMPTY_SELECT);
+  const [filterStatus, setFilterStatus] = useState(KEY_EMPTY_SELECT);
+  const {
+    data: usersResp,
+    isFetching,
+    refetch,
+  } = useUsersQuery({
+    isVerifiedAccount:
+      filterStatus === "true"
+        ? true
+        : filterStatus === "false"
+        ? false
+        : undefined,
+    departmentId: filterDepartment,
+    role: filterRole as UserRoleEnum | undefined,
+  });
   const totalPages = usersResp
     ? Math.max(1, Math.ceil(usersResp.total / limit))
     : 1;
 
-  /* -------------------- cấu hình cột -------------------- */
   const columns: Column<User>[] = [
     { id: "userName", header: "Tên đăng nhập" },
     { id: "fullName", header: "Họ tên" },
@@ -70,7 +76,7 @@ export function UsersList() {
     {
       id: "department",
       header: "Phòng ban",
-      cell: () => "Tlinh", // TODO: map phòng ban thật
+      cell: (u) => u.department?.name || "Chưa có",
     },
     {
       id: "status",
@@ -87,21 +93,27 @@ export function UsersList() {
       className: "text-right w-1",
       cell: (u) => (
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="icon"
+          <Button
+            variant="outline"
+            size="icon"
             onClick={() => {
               setEditingUser(u);
             }}
           >
             <Edit className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon"
+          <Button
+            variant="outline"
+            size="icon"
             onClick={() => {
               setResetPasswordUser(u);
             }}
           >
             <Key className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon"
+          <Button
+            variant="outline"
+            size="icon"
             onClick={() => {
               setDeletingUser(u);
             }}
@@ -113,42 +125,54 @@ export function UsersList() {
     },
   ];
 
-  const [filterRole, setFilterRole] = useState("all");
-  const [filterDepartment, setFilterDepartment] = useState("all");
-  const [newPassword, setNewPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  console.log("usersResp", resetPasswordUser);
+  const { data: departments } = useDepartmentsQuery();
 
-  /* -------------------- render -------------------- */
   return (
     <div className="space-y-4">
-      {/* Toolbar chung cho mọi list */}
       <TableToolbar
         searchValue={"" /* state search */}
-        onSearchChange={() => { }}
+        onSearchChange={() => {}}
         onRefresh={refetch}
         refreshing={isFetching}
       >
         <Select value={filterRole} onValueChange={setFilterRole}>
-          <SelectTrigger className="w-[260px]">
+          <SelectTrigger className="miw-[60px]">
             <SelectValue placeholder="Lọc theo vai trò" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả vai trò</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="user">User</SelectItem>
+          <SelectContent className="miw-[60px]">
+            <SelectItem value={KEY_EMPTY_SELECT}>Tất cả vai trò</SelectItem>
+            {userRoles.map((role) => (
+              <SelectItem key={role.value} value={role.value}>
+                {role.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Select value={filterDepartment} onValueChange={setFilterDepartment}>
-          <SelectTrigger className="w-[260px]">
+          <SelectTrigger className="miw-[60px]">
             <SelectValue placeholder="Lọc theo phòng ban" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả phòng ban</SelectItem>
-            <SelectItem value="mkt">Marketing</SelectItem>
-            <SelectItem value="rd">R&D</SelectItem>
-            <SelectItem value="sales">Sales</SelectItem>
-            <SelectItem value="bod">Ban Giám Đốc</SelectItem>
+          <SelectContent className="miw-[60px]">
+            <SelectItem value={KEY_EMPTY_SELECT}>Tất cả phòng ban</SelectItem>
+            {departments &&
+              departments?.data.map((dept: Department) => (
+                <SelectItem key={dept.id} value={dept.id}>
+                  {dept.name}
+                </SelectItem>
+              ))}
+          </SelectContent>
+        </Select>
+        <Select
+          value={filterStatus}
+          onValueChange={(filterStatus) => setFilterStatus(filterStatus)}
+        >
+          <SelectTrigger className="miw-[60px]">
+            <SelectValue placeholder="Lọc theo phòng ban" />
+          </SelectTrigger>
+          <SelectContent className="miw-[60px]">
+            <SelectItem value={KEY_EMPTY_SELECT}>Tất cả trạng thái</SelectItem>
+            <SelectItem value="true">Hoạt động</SelectItem>
+            <SelectItem value="false">Vô hiệu hóa</SelectItem>
           </SelectContent>
         </Select>
       </TableToolbar>

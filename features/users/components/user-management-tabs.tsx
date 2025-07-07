@@ -10,32 +10,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { UsersList } from "./users-list";
-import { PendingAccounts } from "./pending-accounts";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { Badge } from "@/components/ui/badge";
 import { AddUserForm } from "./add-user-form";
 
 export function UserManagementTabs() {
-  const [pendingCount, setPendingCount] = useState(0);
   const [activeTab, setActiveTab] = useState("users");
-
-  useEffect(() => {
-    const fetchPendingCount = async () => {
-      try {
-        const pendingUsersRef = collection(db, "pendingUsers");
-        const snapshot = await getDocs(pendingUsersRef);
-        setPendingCount(snapshot.size);
-      } catch (error) {
-        console.error("Error fetching pending users count:", error);
-      }
-    };
-
-    fetchPendingCount();
-    // Thiết lập interval để cập nhật số lượng tài khoản chờ duyệt mỗi 30 giây
-    const interval = setInterval(fetchPendingCount, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <Tabs
@@ -46,14 +24,6 @@ export function UserManagementTabs() {
     >
       <TabsList className="mb-4">
         <TabsTrigger value="users">Danh sách tài khoản</TabsTrigger>
-        <TabsTrigger value="pending">
-          Tài khoản chờ duyệt
-          {pendingCount > 0 && (
-            <Badge variant="destructive" className="ml-2">
-              {pendingCount}
-            </Badge>
-          )}
-        </TabsTrigger>
         <TabsTrigger value="add">Thêm tài khoản mới</TabsTrigger>
       </TabsList>
 
@@ -72,35 +42,6 @@ export function UserManagementTabs() {
         </Card>
       </TabsContent>
 
-      <TabsContent value="pending">
-        <Card>
-          <CardHeader>
-            <CardTitle>Tài khoản chờ duyệt</CardTitle>
-            <CardDescription>
-              Danh sách các tài khoản đang chờ được duyệt. Bạn có thể duyệt hoặc
-              từ chối các tài khoản này.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PendingAccounts
-              onApprove={() => {
-                // Cập nhật lại số lượng tài khoản chờ duyệt
-                const fetchPendingCount = async () => {
-                  try {
-                    const pendingUsersRef = collection(db, "pendingUsers");
-                    const snapshot = await getDocs(pendingUsersRef);
-                    setPendingCount(snapshot.size);
-                  } catch (error) {
-                    console.error("Error fetching pending users count:", error);
-                  }
-                };
-                fetchPendingCount();
-              }}
-            />
-          </CardContent>
-        </Card>
-      </TabsContent>
-
       <TabsContent value="add">
         <Card>
           <CardHeader>
@@ -111,7 +52,7 @@ export function UserManagementTabs() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <AddUserForm onSuccess={() => setActiveTab("users")} />
+            <AddUserForm />
           </CardContent>
         </Card>
       </TabsContent>

@@ -29,11 +29,12 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { createUserInputSchema, CreateUserInputType } from "../schema";
 import { UserRoleEnum } from "@/features/auth/constants";
 import { InputCustom } from "@/components/form/input";
-import { SelectCustom } from "@/components/form/select";
+import { SelectCustom, SelectOption } from "@/components/form/select";
 import { useCreateUserMutation } from "../hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userRoles } from "../options";
 import { useResetOnFormChange } from "@/hooks/use-reset-form-change";
+import { useDepartmentsQuery } from "@/features/departments/hooks";
 
 // Danh sách username bị cấm (trừ khi role là admin)
 const RESERVED_USERNAMES = ["admin", "administrator", "root", "system"];
@@ -75,87 +76,13 @@ export function AddUserForm() {
     });
   };
 
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [loadingDepartments, setLoadingDepartments] = useState(true);
-  const [departmentError, setDepartmentError] = useState<string | null>(null);
+  const { data: departments, error: departmentError } = useDepartmentsQuery();
 
-  // Kiểm tra kết nối Firebase và lấy danh sách phòng ban khi component được tải
-  useEffect(() => {
-    const checkFirebaseConnection = async () => {
-      try {
-        // Thử truy cập collection để kiểm tra kết nối
-        const testQuery = collection(db, "users");
-        await getDocs(query(testQuery, limit(1)));
-        console.log("Firebase connection successful");
-
-        // Lấy danh sách phòng ban từ Firestore
-        await fetchDepartments();
-      } catch (error) {
-        console.error("Lỗi kết nối Firebase:", error);
-      }
-    };
-
-    checkFirebaseConnection();
-  }, []);
-
-  // Hàm lấy danh sách phòng ban từ Firestore
-  const fetchDepartments = async () => {
-    setLoadingDepartments(true);
-    setDepartmentError(null);
-
-    try {
-      console.log("Đang lấy danh sách phòng ban từ Firestore...");
-      const departmentsCollection = collection(db, "departments");
-      const departmentsSnapshot = await getDocs(departmentsCollection);
-
-      if (departmentsSnapshot.empty) {
-        console.log("Không có phòng ban nào trong Firestore");
-        setDepartments([]);
-      } else {
-        // Lấy dữ liệu từ Firestore
-        const departmentsData = departmentsSnapshot.docs.map((doc) => {
-          return {
-            id: doc.id,
-            name: doc.data().name,
-            description: doc.data().description,
-          } as Department;
-        });
-        console.log(
-          "Đã lấy được",
-          departmentsData.length,
-          "phòng ban từ Firestore"
-        );
-        setDepartments(departmentsData);
-      }
-    } catch (error) {
-      console.error("Lỗi khi lấy danh sách phòng ban:", error);
-      setDepartmentError(
-        `Lỗi khi lấy danh sách phòng ban: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
-
-      // Sử dụng dữ liệu từ localStorage nếu có lỗi
-      try {
-        if (typeof window !== "undefined") {
-          const storedDepartments = JSON.parse(
-            localStorage.getItem("departments") || "[]"
-          );
-          const simplifiedDepartments = storedDepartments.map((dept: any) => ({
-            id: dept.id,
-            name: dept.name,
-            description: dept.description,
-          }));
-          setDepartments(simplifiedDepartments);
-          console.log("Đã sử dụng dữ liệu từ localStorage do lỗi Firestore");
-        }
-      } catch (localError) {
-        console.error("Lỗi khi lấy dữ liệu từ localStorage:", localError);
-      }
-    } finally {
-      setLoadingDepartments(false);
-    }
-  };
+  const departOptions: SelectOption[] =
+    departments?.data.map((d) => ({
+      value: d.id,
+      label: d.name,
+    })) ?? [];
 
   // Reset form khi có thay đổi
   useResetOnFormChange(watch, resetMutationState);
@@ -173,7 +100,7 @@ export function AddUserForm() {
       {departmentError && (
         <Alert variant="destructive" className="text-xs">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{departmentError}</AlertDescription>
+          <AlertDescription>{departmentError.message}</AlertDescription>
         </Alert>
       )}
 
@@ -238,14 +165,11 @@ export function AddUserForm() {
             control={control}
             name="departmentCode"
             label="Phòng ban"
-            options={departments.map((dept) => ({
-              value: dept.id,
-              label: dept.name,
-            }))}
+            options={departOptions}
             emptyOption={{ label: "Không có phòng ban" }}
             placeholder="Chọn phòng ban"
             required
-            disabled={isPending || loadingDepartments}
+            disabled={isPending}
           />
 
           <InputCustom

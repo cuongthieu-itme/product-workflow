@@ -1,5 +1,6 @@
 import { PaginatedResult } from "@/types/common";
 import { UserRoleEnum } from "../auth/constants";
+import { Department } from "../departments/type";
 
 export type User = {
   id: string;
@@ -11,6 +12,7 @@ export type User = {
   verifiedDate: string;
   role: UserRoleEnum;
   lastLoginDate: string;
+  department: Department | null;
   createdAt: string;
   updatedAt: string | null;
 };
@@ -24,6 +26,7 @@ export type UserFilterInput = {
   isVerifiedAccount?: boolean;
   limit?: number;
   page?: number;
+  departmentId?: string;
 };
 
 export type UsersType = PaginatedResult<"data", User>;

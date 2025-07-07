@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { updatePasswordInputSchema, UpdatePasswordInputType } from "../schema";
 import { useUpdatePasswordMutation } from "../hooks";
 import type { User } from "../type";
+import { toast } from "sonner";
 
 interface PasswordDialogProps {
   resetPasswordUser: User | null;
@@ -20,12 +21,7 @@ export const PasswordDialog: React.FC<PasswordDialogProps> = ({
   resetPasswordUser,
   setResetPasswordUser,
 }) => {
-  const { toast } = useToast();
-
-  const {
-    mutate,
-    isPending,
-  } = useUpdatePasswordMutation();
+  const { mutate, isPending } = useUpdatePasswordMutation();
 
   const { control, handleSubmit, reset } = useForm<UpdatePasswordInputType>({
     defaultValues: { password: "" },
@@ -38,12 +34,16 @@ export const PasswordDialog: React.FC<PasswordDialogProps> = ({
       { id: resetPasswordUser.id, data },
       {
         onSuccess: () => {
-          toast({ title: "Thành công", description: "Mật khẩu đã được cập nhật." });
+          toast("Đặt lại mật khẩu thành công", {
+            description: `Mật khẩu mới đã được đặt cho người dùng ${resetPasswordUser.userName}`,
+          });
           reset();
           setResetPasswordUser(null);
         },
         onError: (error: any) => {
-          toast({ title: "Lỗi", description: error?.message || "Có lỗi xảy ra" });
+          toast("Đặt lại mật khẩu thất bại", {
+            description: error.message || "Đã xảy ra lỗi khi đặt lại mật khẩu",
+          });
         },
       }
     );
@@ -52,9 +52,14 @@ export const PasswordDialog: React.FC<PasswordDialogProps> = ({
     <BaseDialog
       title="Đặt lại mật khẩu"
       open={!!resetPasswordUser}
-      onClose={() => { reset(); setResetPasswordUser(null); }}
+      onClose={() => {
+        reset();
+        setResetPasswordUser(null);
+      }}
       contentClassName="sm:max-w-[425px]"
-      description={`Đặt lại mật khẩu cho người dùng ${resetPasswordUser?.userName || ""}`}
+      description={`Đặt lại mật khẩu cho người dùng ${
+        resetPasswordUser?.userName || ""
+      }`}
       footer={
         <Button type="submit" disabled={isPending} form="password-dialog-form">
           {isPending ? "Đang xử lý..." : "Đặt lại mật khẩu"}
@@ -74,9 +79,7 @@ export const PasswordDialog: React.FC<PasswordDialogProps> = ({
           disabled={isPending}
           placeholder="Nhập mật khẩu mới"
           required
-
         />
-
       </form>
     </BaseDialog>
   );
