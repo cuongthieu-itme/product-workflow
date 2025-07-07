@@ -1,5 +1,5 @@
 import { PaginatedResult } from "@/types/common";
-import { UserRoleEnum } from "../auth/constants";
+import { User } from "../users/type";
 
 export type DepartmentType = {
   id: number;
@@ -20,22 +20,16 @@ export type DepartmentFilterInput = {
   search?: string;
 };
 
-export type Member = {
-  id: number;
-  fullName: string;
-  userName: string;
-  email: string;
-  phoneNumber: string;
-  role: UserRoleEnum;
-};
-
 export type DepartmentDetailType = {
   id: number;
   name: string;
   description: string;
   headId: number | null;
-  head: Member | null;
-  members: Member[];
+  head: User;
+  members: User[];
+  _count: {
+    members: number;
+  };
   createdAt: string;
   updatedAt: string;
 };

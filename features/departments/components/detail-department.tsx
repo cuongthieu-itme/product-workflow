@@ -22,28 +22,10 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/components/ui/use-toast";
-import { Badge } from "@/components/ui/badge";
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useDepartmentQuery } from "../hooks";
 import { format } from "date-fns";
+import { DepartmentUserRow } from "./department-user-row";
 
 export function DetailDepartmentPage() {
   const params = useParams();
@@ -146,7 +128,7 @@ export function DetailDepartmentPage() {
               <div>
                 <p className="text-sm font-medium">Số thành viên</p>
                 <p className="text-2xl font-bold">
-                  {department.data.members.length}
+                  {department.data._count.members ?? 0}
                 </p>
               </div>
             </div>
@@ -213,58 +195,14 @@ export function DetailDepartmentPage() {
             <CardContent>
               {department.data?.members.length > 0 ? (
                 <div className="space-y-4">
+                  {department.data.head && (
+                    <DepartmentUserRow
+                      user={department.data.head}
+                      isHead={true}
+                    />
+                  )}
                   {department.data?.members.map((user) => (
-                    <div
-                      key={user.id}
-                      className={`flex items-center justify-between p-3 border rounded-md ${
-                        user.id === department.data.headId
-                          ? "bg-primary/5 border-primary/20"
-                          : ""
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-primary font-bold">
-                            {user.fullName.charAt(0)}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-medium">{user.fullName}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {user.email}
-                          </p>
-                          {
-                            //   TODO: Fill value phone number when available
-                            /* 
-                          {department.data. && (
-                            <p className="text-sm text-muted-foreground">
-                              SĐT: {user.phone}
-                            </p>
-                          )} */
-                          }
-                          <p className="text-sm text-muted-foreground">
-                            SĐT: 0912345678
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {/* TODO: Case manager */}
-                        {user.id === department.data.headId && (
-                          <Badge
-                            variant="outline"
-                            className="bg-primary/10 text-primary border-primary/20"
-                          >
-                            Trưởng phòng
-                          </Badge>
-                        )}
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/dashboard/users/${user.id}`}>
-                            <UserCog className="h-4 w-4 mr-1" />
-                            Chi tiết
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
+                    <DepartmentUserRow user={user} />
                   ))}
                 </div>
               ) : (

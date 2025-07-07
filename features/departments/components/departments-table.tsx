@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { TablePagination } from "@/components/data-table/pagination";
-import { Edit, Trash2, Eye } from "lucide-react";
+import { Edit, Trash2, Eye, RefreshCw } from "lucide-react";
 import type { Column } from "@/components/data-table/types";
 import { Button } from "@/components/ui/button";
 import { useDepartmentsQuery } from "../hooks";
@@ -85,6 +85,37 @@ export function DepartmentList() {
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        {/* <div>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Lỗi</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+        </div> */}
+        <Button
+          variant="outline"
+          onClick={() => {
+            refetch();
+          }}
+          disabled={isFetching}
+        >
+          {isFetching ? (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              Đang tải...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Làm mới
+            </>
+          )}
+        </Button>
+      </div>
+
       <DataTable<DepartmentType>
         data={usersResp?.data}
         columns={columns}
