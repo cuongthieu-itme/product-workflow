@@ -1,6 +1,6 @@
 import { PaginatedResult } from "@/types/common";
 import { UserRoleEnum } from "../auth/constants";
-import { Department } from "../departments/type";
+import { DepartmentType } from "../departments/type";
 
 export type User = {
   id: string;
@@ -12,7 +12,7 @@ export type User = {
   verifiedDate: string;
   role: UserRoleEnum;
   lastLoginDate: string;
-  department: Department | null;
+  department: DepartmentType | null;
   createdAt: string;
   updatedAt: string | null;
 };

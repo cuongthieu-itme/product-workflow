@@ -34,6 +34,9 @@ export function UsersList() {
   const [filterRole, setFilterRole] = useState(KEY_EMPTY_SELECT);
   const [filterDepartment, setFilterDepartment] = useState(KEY_EMPTY_SELECT);
   const [filterStatus, setFilterStatus] = useState(KEY_EMPTY_SELECT);
+  const [searchValue, setSearchValue] = useState("");
+  const { data: departments } = useDepartmentsQuery();
+
   const {
     data: usersResp,
     isFetching,
@@ -47,6 +50,7 @@ export function UsersList() {
         : undefined,
     departmentId: filterDepartment,
     role: filterRole as UserRoleEnum | undefined,
+    fullName: searchValue,
   });
 
   const columns: Column<User>[] = [
@@ -116,13 +120,11 @@ export function UsersList() {
     return Math.ceil(total / limit);
   }, [usersResp]);
 
-  const { data: departments } = useDepartmentsQuery();
-
   return (
     <div className="space-y-4">
       <TableToolbar
-        searchValue={"" /* state search */}
-        onSearchChange={() => {}}
+        searchValue={searchValue}
+        onSearchChange={setSearchValue}
         onRefresh={refetch}
         refreshing={isFetching}
       >
