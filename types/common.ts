@@ -5,3 +5,7 @@ export type PaginatedResult<Key extends string = "users", T = unknown> = {
   page: number;
   limit: number;
 };
+
+export type BaseResultQuery<T = unknown> = {
+  data: T;
+};

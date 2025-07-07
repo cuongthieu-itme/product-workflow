@@ -1,8 +1,13 @@
 import request from "@/configs/axios-config";
-import { DepartmentFilterInput, DepartmentsType, DepartmentType } from "./type";
+import {
+  DepartmentDetailType,
+  DepartmentFilterInput,
+  DepartmentsType,
+  DepartmentType,
+} from "./type";
 import { omitVoid } from "@/utils/removeParams";
 import { CreateDepartmentInputType, UpdateDepartmentInputType } from "./schema";
-import { he } from "date-fns/locale";
+import { BaseResultQuery } from "@/types/common";
 
 export const getDepartments = async (params?: DepartmentFilterInput) => {
   try {
@@ -35,6 +40,18 @@ export const updateDepartment = async (data: UpdateDepartmentInputType) => {
       `/departments/${id}`,
       omitVoid(requestBody)
     );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getDepartment = async (id: string) => {
+  try {
+    const response = await request.get<BaseResultQuery<DepartmentDetailType>>(
+      `/departments/${id}`
+    );
+
     return response.data;
   } catch (error) {
     throw error;
