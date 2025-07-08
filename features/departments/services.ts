@@ -57,3 +57,12 @@ export const getDepartment = async (id: string) => {
     throw error;
   }
 };
+
+export const deleteDepartment = async (id: number) => {
+  try {
+    const response = await request.delete(`/departments/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

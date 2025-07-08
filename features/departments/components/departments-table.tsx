@@ -11,6 +11,7 @@ import { DepartmentType } from "../type";
 import Link from "next/link";
 import { UpdateDepartmentForm } from "./update-department-form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { DeleteDepartmentDialog } from "./delete-department-dialog";
 
 export function DepartmentList() {
   const [page, setPage] = useState(1);
@@ -24,15 +25,17 @@ export function DepartmentList() {
     page,
     limit,
   });
-  const [editingUser, setEditingUser] = useState<DepartmentType | null>(null);
-  const [deleteUser, setDeleteUser] = useState<DepartmentType | null>(null);
+  const [editingDepartment, setEditingDepartment] =
+    useState<DepartmentType | null>(null);
+  const [deleteDepartment, setDeleteDepartment] =
+    useState<DepartmentType | null>(null);
 
   const handleOpenDeleteDialog = (department: DepartmentType) => {
-    setDeleteUser(department);
+    setDeleteDepartment(department);
   };
 
   const handleOpenEditDialog = (department: DepartmentType) => {
-    setEditingUser(department);
+    setEditingDepartment(department);
   };
 
   const totalPages = departments
@@ -137,11 +140,18 @@ export function DepartmentList() {
         onPageChange={setPage}
       />
 
-      {editingUser && (
+      {editingDepartment && (
         <UpdateDepartmentForm
-          onClose={() => setEditingUser(null)}
-          department={editingUser}
-          open={Boolean(editingUser)}
+          onClose={() => setEditingDepartment(null)}
+          department={editingDepartment}
+          open={Boolean(editingDepartment)}
+        />
+      )}
+
+      {deleteDepartment && (
+        <DeleteDepartmentDialog
+          deletingDepartment={deleteDepartment}
+          setDeletingDepartment={setDeleteDepartment}
         />
       )}
     </div>
