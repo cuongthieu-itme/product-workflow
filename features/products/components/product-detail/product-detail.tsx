@@ -30,11 +30,9 @@ export function ProductDetail() {
         <Card>
           <CardContent className="py-10">
             <div className="text-center">
-              <h2 className="text-xl font-semibold">
-                Không tìm thấy khách hàng
-              </h2>
+              <h2 className="text-xl font-semibold">Không tìm thấy sản phẩm</h2>
               <p className="text-gray-500 mt-2">
-                Khách hàng không tồn tại hoặc đã bị xóa
+                Sản phẩm không tồn tại hoặc đã bị xóa
               </p>
             </div>
           </CardContent>
@@ -48,7 +46,7 @@ export function ProductDetail() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/custom ers">
+            <Link href="/dashboard/products">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Quay lại
             </Link>
@@ -57,7 +55,7 @@ export function ProductDetail() {
       </div>
       <div className="container mx-auto py-6 space-y-6">
         <h1 className="text-2xl font-bold">
-          Chi tiết sảm phẩm: {product.data.name}
+          Chi tiết sản phẩm: {product.data.name}
         </h1>
 
         <Tabs defaultValue="info">
