@@ -29,7 +29,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { createUserInputSchema, CreateUserInputType } from "../schema";
 import { UserRoleEnum } from "@/features/auth/constants";
 import { InputCustom } from "@/components/form/input";
-import { SelectCustom, SelectOption } from "@/components/form/select";
+import { KEY_EMPTY_SELECT, SelectCustom, SelectOption } from "@/components/form/select";
 import { useCreateUserMutation } from "../hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userRoles } from "../options";
@@ -45,7 +45,7 @@ export function AddUserForm() {
       fullName: "",
       email: "",
       role: UserRoleEnum.USER,
-      departmentId: null,
+      departmentId: KEY_EMPTY_SELECT,
       phoneNumber: "",
     },
     resolver: zodResolver(createUserInputSchema),

@@ -9,6 +9,7 @@ export type UserType = {
   verifiedDate: string;
   role: UserRoleEnum;
   lastLoginDate: string;
+  phoneNumber: string;
   createdAt: string;
   updatedAt: string;
 };

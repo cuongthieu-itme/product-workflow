@@ -6,7 +6,7 @@ import { DataTable } from "@/components/data-table";
 import { TableToolbar } from "@/components/data-table/toolbar";
 import { TablePagination } from "@/components/data-table/pagination";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, Key } from "lucide-react";
+import { Edit, Key, UserCheck, Eye } from "lucide-react";
 import { UserRoleEnum } from "@/features/auth/constants";
 import type { Column } from "@/components/data-table/types";
 import { useUsersQuery } from "../hooks";
@@ -21,11 +21,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { PasswordDialog } from "./password-dialog";
 import { UpdateUserDialog } from "./update-user-dialog";
-import { DeleteUserDialog } from "./delete-user-dialog";
 import { KEY_EMPTY_SELECT } from "@/components/form/select";
 import { userRoles } from "../options";
 import { useDepartmentsQuery } from "@/features/departments/hooks";
 import { DepartmentType } from "@/features/departments/type";
+import { UserVerifyAccountDialog } from "./user-verify-account-dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import Link from "next/link";
 
 export function UsersList() {
   const [page, setPage] = useState(1);
@@ -35,6 +37,7 @@ export function UsersList() {
   const [filterDepartment, setFilterDepartment] = useState(KEY_EMPTY_SELECT);
   const [filterStatus, setFilterStatus] = useState(KEY_EMPTY_SELECT);
   const [searchValue, setSearchValue] = useState("");
+  const [isVerifiedAccountId, setIsVerifiedAccountId] = useState<string | null>(null);
   const { data: departments } = useDepartmentsQuery();
 
   const {
@@ -46,8 +49,8 @@ export function UsersList() {
       filterStatus === "true"
         ? true
         : filterStatus === "false"
-        ? false
-        : undefined,
+          ? false
+          : undefined,
     departmentId: filterDepartment,
     role: filterRole as UserRoleEnum | undefined,
     fullName: searchValue,
@@ -87,10 +90,16 @@ export function UsersList() {
     },
     {
       id: "actions",
-      header: <span className="sr-only">Thao tác</span>,
-      className: "text-right w-1",
+      header: "Thao tác",
+      className: "text-right w-100",
       cell: (u) => (
         <div className="flex justify-end gap-2">
+          <Button variant="outline" size="icon" >
+            <Link href={`/dashboard/users/${u.id}`} >
+              <Eye className="h-4 w-4" />
+            </Link>
+          </Button>
+
           <Button
             variant="outline"
             size="icon"
@@ -109,6 +118,30 @@ export function UsersList() {
           >
             <Key className="h-4 w-4" />
           </Button>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  disabled={u.isVerifiedAccount}
+                  onClick={() => {
+                    setIsVerifiedAccountId(u.id);
+                  }}
+                >
+                  <UserCheck className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              {
+                u.isVerifiedAccount && (
+                  <TooltipContent>
+                    Tài khoản đã được duyệt
+                  </TooltipContent>
+                )
+              }
+            </Tooltip>
+          </TooltipProvider>
         </div>
       ),
     },
@@ -190,10 +223,18 @@ export function UsersList() {
         resetPasswordUser={resetPasswordUser}
         setResetPasswordUser={setResetPasswordUser}
       />
+
       <UpdateUserDialog
         editingUser={editingUser}
         setEditingUser={setEditingUser}
       />
+
+      {isVerifiedAccountId && (
+        <UserVerifyAccountDialog
+          userId={isVerifiedAccountId}
+          onClose={() => setIsVerifiedAccountId(null)}
+        />
+      )}
     </div>
   );
 }

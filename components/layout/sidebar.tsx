@@ -167,12 +167,19 @@ export function AppSidebar({
       title: "Sản phẩm",
       href: "/dashboard/products",
       icon: <ShoppingCart className="h-4 w-4" />,
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
+    },
+    {
+      title: "Danh mục sản phẩm",
+      href: "/dashboard/categories",
+      icon: <Tag className="h-4 w-4" />,
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
     {
       title: "Nguyên vật liệu",
       href: "/dashboard/materials",
       icon: <Package className="h-4 w-4" />,
-      roles: ["admin"],
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
     {
       title: "Khách hàng",
@@ -183,13 +190,13 @@ export function AppSidebar({
       title: "Marketing",
       href: "/dashboard/marketing",
       icon: <FileText className="h-4 w-4" />,
-      roles: ["admin"],
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
     {
       title: "R&D",
       href: "/dashboard/rd-management",
       icon: <FolderKanban className="h-4 w-4" />,
-      roles: ["admin"],
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
   ];
 

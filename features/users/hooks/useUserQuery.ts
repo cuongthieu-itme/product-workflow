@@ -1,13 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUsers } from "../services";
-import { UserFilterInput } from "../type";
+import { getUser } from "../services";
 
 export const USER_QUERY_KEY = "user";
 
-export const useUsersQuery = (data?: UserFilterInput) => {
+export const useUserQuery = (id: string) => {
   return useQuery({
-    queryKey: [USER_QUERY_KEY, data],
-    queryFn: () => getUsers(data),
+    queryKey: [USER_QUERY_KEY, id],
+    queryFn: () => getUser(id),
     refetchOnWindowFocus: false,
   });
 };

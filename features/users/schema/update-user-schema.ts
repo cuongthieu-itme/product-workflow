@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { UserRoleEnum } from "@/features/auth/constants";
+import { KEY_EMPTY_SELECT } from "@/components/form/select";
 
 export const updateUserInputSchema = z.object({
   fullName: z
@@ -9,11 +10,9 @@ export const updateUserInputSchema = z.object({
   phoneNumber: z
     .string()
     .trim()
-    .regex(/^[0-9]{10,11}$/, {
-      message: "Số điện thoại gồm 10-11 chữ số",
-    }),
+    .regex(/^\d{10,11}$/, { message: "Số điện thoại gồm 10–11 chữ số" }).optional().nullable(),
   role: z.nativeEnum(UserRoleEnum),
-  departmentId: z.number().nullable().optional(),
+  departmentId: z.number().nullable().optional().or(z.literal(KEY_EMPTY_SELECT)),
   email: z.string().trim().email({ message: "Email không hợp lệ" }),
   isVerifiedAccount: z.enum(["true", "false"]),
   userName: z.string(),

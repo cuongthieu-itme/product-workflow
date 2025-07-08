@@ -22,6 +22,8 @@ import { toast } from "sonner";
 import { UserRoleEnum } from "@/features/auth/constants";
 import { SelectCustom, SelectOption } from "@/components/form/select";
 import { useDepartmentsQuery } from "@/features/departments/hooks";
+import { userRoles, userStatus } from "../options";
+import { useGetUserInfoQuery } from "@/features/auth/hooks";
 
 interface UpdateUserDialogProps {
   editingUser: User | null;
@@ -80,6 +82,10 @@ export const UpdateUserDialog = ({
       label: d.name,
     })) ?? [];
 
+
+
+
+
   return (
     <BaseDialog
       open={!!editingUser}
@@ -115,26 +121,21 @@ export const UpdateUserDialog = ({
           <InputCustom
             control={control}
             name="phoneNumber"
-            label="Số ĐT"
+            label="Số điện thoại"
             className="flex-1 min-w-[180px]"
-            required
           />
           <SelectCustom
             control={control}
             name="role"
             label="Vai trò"
             required
-            options={[
-              { value: UserRoleEnum.ADMIN, label: "Admin" },
-              { value: UserRoleEnum.USER, label: "User" },
-            ]}
+            options={userRoles}
           />
           <SelectCustom
             valueType="number"
             control={control}
             name="departmentId"
             label="Phòng ban"
-            required
             options={departOptions}
           />
 
@@ -143,10 +144,7 @@ export const UpdateUserDialog = ({
             name="isVerifiedAccount"
             label="Trạng thái"
             required
-            options={[
-              { value: "true", label: "Hoạt động" },
-              { value: "false", label: "Vô hiệu hóa" },
-            ]}
+            options={userStatus}
           />
         </div>
         <div className="flex justify-end pt-2 mt-4">

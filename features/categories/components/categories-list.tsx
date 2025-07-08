@@ -15,6 +15,7 @@ import { AddDepartmentForm } from "@/components/departments/add-department-form"
 import { DeleteCategoryDialog } from "./delete-category-dialog";
 import { useCategoriesQuery } from "../hooks";
 import { UpdateCategoryForm } from "./update-category-form";
+import { CreateCategoryForm } from "./create-category-form";
 
 export function CategoryList() {
   const [page, setPage] = useState(PAGE);
@@ -45,7 +46,10 @@ export function CategoryList() {
 
   const columns: Column<CategoryType>[] = [
     { id: "name", header: "Tên danh mục" },
-    { id: "description", header: "Mô tả" },
+    {
+      id: "description", header: "Mô tả",
+      cell: (u) => u.description || "N/A"
+    },
     {
       id: "createdAt",
       header: "Ngày tạo",
@@ -100,7 +104,7 @@ export function CategoryList() {
           <p className="text-muted-foreground">Quản lý thông tin sản phẩm</p>
         </div>
 
-        <AddDepartmentForm />
+        <CreateCategoryForm />
       </div>
 
       <div className="space-y-4">

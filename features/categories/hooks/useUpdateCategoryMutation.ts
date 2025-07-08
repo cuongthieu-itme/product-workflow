@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CATEGORIES_QUERY_KEY } from "./useCategoriesQuery";
 import { updateCategory } from "../services";
+import { CATEGORY_QUERY_KEY } from "./useCategoryQuery";
 
 export const useUpdateCategoryMutation = () => {
   const queryClient = useQueryClient();
@@ -10,6 +11,10 @@ export const useUpdateCategoryMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [CATEGORIES_QUERY_KEY],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: [CATEGORY_QUERY_KEY],
       });
     },
   });

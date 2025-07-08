@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { UserRoleEnum } from "@/features/auth/constants";
+import { KEY_EMPTY_SELECT } from "@/components/form/select";
 
 export const createUserInputSchema = z
   .object({
@@ -20,8 +21,8 @@ export const createUserInputSchema = z
     phoneNumber: z
       .string()
       .trim()
-      .regex(/^\d{9,11}$/, { message: "Số điện thoại gồm 9–15 chữ số" }),
-    departmentId: z.number().nullable().optional(),
+      .regex(/^\d{10,11}$/, { message: "Số điện thoại gồm 10–11 chữ số" }).optional().nullable(),
+    departmentId: z.number().nullable().optional().or(z.literal(KEY_EMPTY_SELECT)),
   })
   .superRefine(({ password, confirmPassword }, ctx) => {
     if (password !== confirmPassword) {

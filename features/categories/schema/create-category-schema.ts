@@ -5,7 +5,7 @@ export const createCategoryInputSchema = z.object({
     .string()
     .trim()
     .min(1, { message: "Tên danh mục không được để trống" }),
-  description: z.string().optional(),
+  description: z.string().min(1, { message: "Mô tả không được để trống" }),
 });
 
 export type CreateCategoryInputType = z.infer<typeof createCategoryInputSchema>;

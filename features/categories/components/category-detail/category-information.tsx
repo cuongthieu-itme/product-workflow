@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
-import { Pencil, Phone } from "lucide-react";
+import { Pencil, Tag, Info, Calendar, Clock } from "lucide-react";
 import { useCategoryQuery } from "../../hooks";
 import { UpdateCategoryForm } from "../update-category-form";
 
@@ -39,47 +39,42 @@ export function CategoryInformation({ categoryId }: CategoryInformationProps) {
           Chỉnh sửa
         </Button>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-1">
+      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex items-start gap-3">
+          <Tag className="text-muted-foreground h-5 w-5 mt-1 flex-shrink-0" />
+          <div>
             <p className="text-sm text-muted-foreground">Tên danh mục</p>
             <p className="font-medium">{category.data.name}</p>
           </div>
+        </div>
 
-          <div className="space-y-1">
+        <div className="flex items-start gap-3">
+          <Info className="text-muted-foreground h-5 w-5 mt-1 flex-shrink-0" />
+          <div>
             <p className="text-sm text-muted-foreground">Chi tiết</p>
-            <p className="font-medium flex items-center">
-              {category.data.description ? (
-                <>
-                  <Phone className="mr-1 h-4 w-4" />
-                  {category.data.description}
-                </>
-              ) : (
-                "N/A"
-              )}
+            <p className="font-medium">
+              {category.data.description || "N/A"}
             </p>
           </div>
         </div>
 
-        <div className="pt-4 border-t">
-          <div className="space-y-1">
+        <div className="flex items-start gap-3">
+          <Calendar className="text-muted-foreground h-5 w-5 mt-1 flex-shrink-0" />
+          <div>
             <p className="text-sm text-muted-foreground">Ngày tạo</p>
-            <p className="text-sm">
-              {format(category.data.createdAt, "dd/MM/yyyy")}
-            </p>
+            <p className="text-sm">{format(category.data.createdAt, "dd/MM/yyyy HH:mm")}</p>
           </div>
-          {category.data.updatedAt &&
-            category.data.updatedAt !== category.data.createdAt && (
-              <div className="space-y-1 mt-2">
-                <p className="text-sm text-muted-foreground">
-                  Cập nhật lần cuối
-                </p>
-                <p className="text-sm">
-                  {format(category.data.updatedAt, "dd/MM/yyyy")}
-                </p>
-              </div>
-            )}
         </div>
+
+        {category.data.updatedAt && category.data.updatedAt !== category.data.createdAt && (
+          <div className="flex items-start gap-3">
+            <Clock className="text-muted-foreground h-5 w-5 mt-1 flex-shrink-0" />
+            <div>
+              <p className="text-sm text-muted-foreground">Cập nhật lần cuối</p>
+              <p className="text-sm">{format(category.data.updatedAt, "dd/MM/yyyy HH:mm")}</p>
+            </div>
+          </div>
+        )}
       </CardContent>
 
       <UpdateCategoryForm

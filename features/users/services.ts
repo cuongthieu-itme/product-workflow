@@ -2,6 +2,8 @@ import request from "@/configs/axios-config";
 import { UserFilterInput, UsersType } from "./type";
 import { omitVoid } from "@/utils/removeParams";
 import { CreateUserInputType, UpdatePasswordInputType } from "./schema";
+import { BaseResultQuery } from "@/types/common";
+import { UserType } from "../auth/type";
 
 export const getUsers = async (params?: UserFilterInput) => {
   try {
@@ -60,6 +62,28 @@ export const updateUser = async (
 export const deleteUser = async (id: string) => {
   try {
     const response = await request.delete(`/users/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const verifyUserAccount = async (id: string) => {
+  try {
+    const response = await request.patch(`/auth/verify-account`, {
+      id,
+      isVerifiedAccount: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+export const getUser = async (id: string) => {
+  try {
+    const response = await request.get<BaseResultQuery<UserType>>(`/users/${id}`);
     return response.data;
   } catch (error) {
     throw error;

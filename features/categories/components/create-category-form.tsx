@@ -44,77 +44,84 @@ export function CreateCategoryForm({
   };
 
   return (
-    <BaseDialog
-      open={isDialogOpen}
-      onClose={() => setIsDialogOpen(false)}
-      title="Thêm mới danh mục"
-    >
-      {isSuccess && (
-        <Alert className="bg-green-50 border-green-200">
-          <CheckCircle2 className="h-4 w-4 text-green-600" />
-          <AlertTitle className="text-green-800">
-            Thêm mới thành công!
-          </AlertTitle>
-          <AlertDescription className="text-green-700">
-            {data.message || "Danh mục đã được thêm thành công."}
-          </AlertDescription>
-        </Alert>
-      )}
+    <>
+      <Button
+        className="w-full md:w-auto"
+        onClick={() => setIsDialogOpen(true)}
+      >
+        <PlusCircle className="mr-2 h-4 w-4" />
+        Tạo mới danh mục
+      </Button>
 
-      {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Lỗi</AlertTitle>
-          <AlertDescription>{error.message}</AlertDescription>
-        </Alert>
-      )}
+      <BaseDialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        title="Thêm mới danh mục"
+      >
+        {isSuccess && (
+          <Alert className="bg-green-50 border-green-200">
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <AlertTitle className="text-green-800">
+              Thêm mới thành công!
+            </AlertTitle>
+            <AlertDescription className="text-green-700">
+              {data.message || "Danh mục đã được thêm thành công."}
+            </AlertDescription>
+          </Alert>
+        )}
 
-      <ScrollArea className="h-[600px]">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium">
-                Tên danh mục
-              </label>
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Lỗi</AlertTitle>
+            <AlertDescription>{error.message}</AlertDescription>
+          </Alert>
+        )}
+
+        <ScrollArea className="h-[600px]">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="space-y-6 ">
               <InputCustom
                 name="name"
                 control={control}
                 placeholder="Nhập tên danh mục"
+                label="Tên danh mục"
+                required
               />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="description" className="text-sm font-medium">
-                Mô tả
-              </label>
+
               <InputCustom
                 name="description"
                 control={control}
                 placeholder="Nhập mô tả"
+                label="Mô tả"
               />
             </div>
-          </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Hủy
+            <DialogFooter className="mt-6 flex justify-end space-x-2">
+              <DialogClose asChild>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
+                >
+                  Hủy
+                </Button>
+              </DialogClose>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang thêm...
+                  </>
+                ) : (
+                  <>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Thêm mới danh mục
+                  </>
+                )}
               </Button>
-            </DialogClose>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Đang thêm...
-                </>
-              ) : (
-                <>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Thêm mới danh mục
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
-      </ScrollArea>
-    </BaseDialog>
+            </DialogFooter>
+          </form>
+        </ScrollArea>
+      </BaseDialog>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -13,8 +13,6 @@ import { UsersList } from "./users-list";
 import { AddUserForm } from "./add-user-form";
 import { PasswordResetRequests } from "./password-reset-requests";
 import { UserReports } from "./user-reports";
-import { useToast } from "@/components/ui/use-toast";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,15 +22,9 @@ import {
 } from "@/components/ui/dialog";
 import { PlusCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { useUsersQuery } from "../hooks";
 import { PendingAccounts } from "./pending-accounts";
 
 export function UserManagement() {
-  const { toast } = useToast();
-  const router = useRouter();
-  const [userRole, setUserRole] = useState<string | null>(null);
   const [refreshUsers, setRefreshUsers] = useState(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -43,18 +35,13 @@ export function UserManagement() {
     setIsDialogOpen(false);
   };
 
-  const { data: users } = useUsersQuery({ isVerifiedAccount: false });
-  const pendingCount = users?.data.length ? users.data.length + 1 : 0; // Giả sử có 1 tài khoản chờ duyệt
-
-  if (userRole !== "admin") {
-    return null;
-  }
+  const pendingCount = 0; // Giả sử có 1 tài khoản chờ duyệt
 
   return (
     <Tabs
       defaultValue="users"
       className="space-y-4"
-      // onValueChange={updatePendingCount}
+    // onValueChange={updatePendingCount}
     >
       <TabsList>
         <TabsTrigger value="users">Danh sách người dùng</TabsTrigger>
@@ -96,7 +83,7 @@ export function UserManagement() {
                 <DialogHeader>
                   <DialogTitle>Thêm người dùng mới</DialogTitle>
                 </DialogHeader>
-                <AddUserForm onUserAdded={handleUserAdded} />
+                <AddUserForm />
               </DialogContent>
             </Dialog>
           </CardHeader>
