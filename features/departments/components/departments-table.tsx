@@ -3,18 +3,27 @@
 import { useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { TablePagination } from "@/components/data-table/pagination";
-import { Edit, Trash2, Eye, RefreshCw } from "lucide-react";
+import { Edit, Trash2, Eye, RefreshCw, AlertCircle } from "lucide-react";
 import type { Column } from "@/components/data-table/types";
 import { Button } from "@/components/ui/button";
 import { useDepartmentsQuery } from "../hooks";
 import { DepartmentType } from "../type";
 import Link from "next/link";
 import { UpdateDepartmentForm } from "./update-department-form";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function DepartmentList() {
   const [page, setPage] = useState(1);
   const limit = 10;
-  const { data: usersResp, isFetching, refetch } = useDepartmentsQuery();
+  const {
+    data: departments,
+    isFetching,
+    refetch,
+    error,
+  } = useDepartmentsQuery({
+    page,
+    limit,
+  });
   const [editingUser, setEditingUser] = useState<DepartmentType | null>(null);
   const [deleteUser, setDeleteUser] = useState<DepartmentType | null>(null);
 
@@ -26,8 +35,8 @@ export function DepartmentList() {
     setEditingUser(department);
   };
 
-  const totalPages = usersResp
-    ? Math.max(1, Math.ceil(usersResp.total / limit))
+  const totalPages = departments
+    ? Math.max(1, Math.ceil(departments.total / limit))
     : 1;
 
   const columns: Column<DepartmentType>[] = [
@@ -86,15 +95,15 @@ export function DepartmentList() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        {/* <div>
+        <div>
           {error && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Lỗi</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>{error.message}</AlertDescription>
             </Alert>
           )}
-        </div> */}
+        </div>
         <Button
           variant="outline"
           onClick={() => {
@@ -117,7 +126,7 @@ export function DepartmentList() {
       </div>
 
       <DataTable<DepartmentType>
-        data={usersResp?.data}
+        data={departments?.data}
         columns={columns}
         loading={isFetching}
       />
