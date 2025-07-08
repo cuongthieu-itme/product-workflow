@@ -16,6 +16,9 @@ import { useUpdateProductMutation } from "../hooks";
 import { genderOptions } from "@/features/customers/options";
 import { ProductType } from "../types";
 import { useCategoriesQuery } from "@/features/categories/hooks";
+import { useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 export function UpdateProductForm({
   onCustomerAdded,
@@ -38,14 +41,23 @@ export function UpdateProductForm({
     resolver: zodResolver(updateProductInputSchema),
   });
 
-  const { mutate, isPending, isSuccess, error, data } =
-    useUpdateProductMutation();
+  const {
+    mutate,
+    isPending,
+    isSuccess,
+    error,
+    data,
+    reset: resetMutation,
+  } = useUpdateProductMutation();
 
   const onSubmit: SubmitHandler<UpdateProductInputType> = (data) => {
     if (!product?.id) return;
 
     mutate(data, {
       onSuccess: () => {
+        toast("Cập nhật sản phẩm thành công", {
+          duration: 5000,
+        });
         reset();
         if (onCustomerAdded) {
           onCustomerAdded();
@@ -53,6 +65,10 @@ export function UpdateProductForm({
       },
     });
   };
+
+  useEffect(() => {
+    resetMutation();
+  }, [open]);
 
   const { data: categories } = useCategoriesQuery();
   const categoryOptions =
@@ -136,7 +152,7 @@ export function UpdateProductForm({
                     Đang xử lý...
                   </>
                 ) : (
-                  "Cập nhật khách hàng"
+                  "Cập nhật sản phẩm"
                 )}
               </Button>
             </DialogFooter>

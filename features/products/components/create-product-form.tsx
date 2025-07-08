@@ -13,7 +13,6 @@ import { SelectCustom } from "@/components/form/select";
 import { useState } from "react";
 import { BaseDialog } from "@/components/dialog";
 import { createProductInputSchema, CreateProductInputType } from "../schema";
-import { genderOptions } from "@/features/customers/options";
 import { useCreateProductMutation } from "../hooks";
 import { useCategoriesQuery } from "@/features/categories/hooks";
 
@@ -35,8 +34,6 @@ export function CreateProductForm({
     });
 
   const { mutate, isPending, isSuccess, error } = useCreateProductMutation();
-
-  console.log(watch());
 
   const onSubmit: SubmitHandler<CreateProductInputType> = (data) => {
     mutate(data, {
@@ -118,6 +115,7 @@ export function CreateProductForm({
                 />
 
                 <SelectCustom
+                  valueType="number"
                   name="categoryId"
                   control={control}
                   label="Danh mục sản phẩm"

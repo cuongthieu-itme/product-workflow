@@ -1,6 +1,5 @@
+import { ProductDetail } from "@/features/products/components/product-detail";
 import type { Metadata } from "next";
-import { ProductDetail } from "@/components/products/product-detail";
-import { DetailDepartmentPage } from "@/features/departments";
 
 export const metadata: Metadata = {
   title: "Chi Tiết Sản Phẩm - ProductFlow",
@@ -27,5 +26,5 @@ export const metadata: Metadata = {
 // }
 
 export default function Page() {
-  return <DetailDepartmentPage />;
+  return <ProductDetail />;
 }

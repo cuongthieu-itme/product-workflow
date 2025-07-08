@@ -49,7 +49,7 @@ export function CustomerDetail() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/custom ers">
+            <Link href="/dashboard/customers">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Quay lại
             </Link>

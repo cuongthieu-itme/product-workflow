@@ -31,7 +31,7 @@ export const updateProduct = async (data: UpdateProductInputType) => {
   const { id, ...requestBody } = data;
   try {
     const response = await request.put(
-      `/customers/${id}`,
+      `/products/${id}`,
       omitVoid(requestBody)
     );
     return response.data;

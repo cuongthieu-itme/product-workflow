@@ -15,6 +15,7 @@ import { UpdateProductForm } from "./update-product-form";
 import { DeleteProductDialog } from "./delete-product-dialog";
 import { useProductsQuery } from "../hooks";
 import { AddDepartmentDialog } from "@/features/departments/components/add-department-dialog";
+import { CreateProductForm } from "./create-product-form";
 
 export function ProductList() {
   const [page, setPage] = useState(PAGE);
@@ -108,7 +109,7 @@ export function ProductList() {
           <p className="text-muted-foreground">Quản lý thông tin sản phẩm</p>
         </div>
 
-        <AddDepartmentDialog />
+        <CreateProductForm />
       </div>
 
       <div className="space-y-4">
