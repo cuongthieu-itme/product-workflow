@@ -1,4 +1,4 @@
-import { AccountSettings } from '@/components/settings/account-settings'
+import { AccountSettings } from "@/features/settings/components/account-settings";
 
 export default function SettingsPage() {
   return (
@@ -26,5 +26,5 @@ export default function SettingsPage() {
 
       <AccountSettings />
     </div>
-  )
+  );
 }

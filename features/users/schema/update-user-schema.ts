@@ -19,6 +19,16 @@ export const updateUserInputSchema = z.object({
   userName: z.string(),
 });
 
+export const currentUserUpdateInputSchema = updateUserInputSchema.omit({
+  role: true,
+  isVerifiedAccount: true,
+  departmentId: true,
+});
+
 export type UpdateUserInputType = z.input<typeof updateUserInputSchema>;
 
 export type UpdateUserOutputType = z.output<typeof updateUserInputSchema>;
+
+export type CurrentUserUpdateInputType = z.input<
+  typeof currentUserUpdateInputSchema
+>;

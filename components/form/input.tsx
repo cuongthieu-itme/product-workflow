@@ -6,11 +6,13 @@ import {
 import { Input as BaseInput } from "@/components/ui/input";
 import type { InputProps as BaseInputProps } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ReactElement } from "react";
 
 export type InputProps<T extends FieldValues> = UseControllerProps<T> &
   Omit<BaseInputProps, "value"> & {
     label?: string;
     className?: string;
+    labelIcon?: ReactElement;
   };
 
 export const InputCustom = <T extends FieldValues>({
@@ -25,6 +27,7 @@ export const InputCustom = <T extends FieldValues>({
   required = false,
   disabled = false,
   className = "",
+  labelIcon,
   ...props
 }: InputProps<T>) => {
   const {
@@ -42,7 +45,11 @@ export const InputCustom = <T extends FieldValues>({
     <div className="space-y-2">
       {label && (
         <div className="flex items-center">
-          <Label htmlFor={name}>{label}</Label>
+          <Label htmlFor={name} className="flex items-center gap-2">
+            {labelIcon}
+
+            {label}
+          </Label>
           {required && <span className="text-red-500 ml-1">*</span>}
         </div>
       )}
@@ -54,10 +61,11 @@ export const InputCustom = <T extends FieldValues>({
           value={value}
           {...field}
           disabled={disabled}
-          className={`w-full ${className} ${fieldState.error
-            ? "border-red-500 placeholder:text-red-500 focus-visible:placeholder:text-red-500 focus-visible:border-red-500"
-            : ""
-            }`}
+          className={`w-full ${className} ${
+            fieldState.error
+              ? "border-red-500 placeholder:text-red-500 focus-visible:placeholder:text-red-500 focus-visible:border-red-500"
+              : ""
+          }`}
           {...props}
         />
         {fieldState.error && (

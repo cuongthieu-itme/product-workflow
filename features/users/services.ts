@@ -19,7 +19,7 @@ export const createUser = async (data: CreateUserInputType) => {
   try {
     const response = await request.post<UserFilterInput>(
       "/users",
-      omitVoid(data, ["departmentCode", "confirmPassword"])
+      omitVoid(data, ["confirmPassword"])
     );
     return response.data;
   } catch (error) {
@@ -44,7 +44,10 @@ export const updateUser = async (
   data: import("./schema/update-user-schema").UpdateUserInputType
 ) => {
   try {
-    const response = await request.put(`/users/${id}`, omitVoid(data, ["departmentCode", "userName", "isVerifiedAccount"]));
+    const response = await request.put(
+      `/users/${id}`,
+      omitVoid(data, ["userName", "isVerifiedAccount"])
+    );
     return response.data;
   } catch (error) {
     throw error;
