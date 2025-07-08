@@ -1,10 +1,10 @@
-import type { Metadata } from 'next'
-import { PasswordResetRequests } from '@/components/users/password-reset-requests'
+import { PasswordResetRequests } from "@/features/users/components/password-reset-requests";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Yêu cầu đặt lại mật khẩu',
-  description: 'Quản lý các yêu cầu đặt lại mật khẩu'
-}
+  title: "Yêu cầu đặt lại mật khẩu",
+  description: "Quản lý các yêu cầu đặt lại mật khẩu",
+};
 
 export default function PasswordRequestsPage() {
   return (
@@ -19,5 +19,5 @@ export default function PasswordRequestsPage() {
         <PasswordResetRequests />
       </div>
     </div>
-  )
+  );
 }
