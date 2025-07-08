@@ -15,6 +15,7 @@ import { BaseDialog } from "@/components/dialog";
 import { createProductInputSchema, CreateProductInputType } from "../schema";
 import { genderOptions } from "@/features/customers/options";
 import { useCreateProductMutation } from "../hooks";
+import { useCategoriesQuery } from "@/features/categories/hooks";
 
 export function CreateProductForm({
   onCustomerAdded,
@@ -47,6 +48,13 @@ export function CreateProductForm({
       },
     });
   };
+
+  const { data: categories } = useCategoriesQuery();
+  const categoryOptions =
+    categories?.data.map((category) => ({
+      value: category.id,
+      label: category.name,
+    })) ?? [];
 
   return (
     <>
@@ -113,7 +121,7 @@ export function CreateProductForm({
                   name="categoryId"
                   control={control}
                   label="Danh mục sản phẩm"
-                  options={genderOptions}
+                  options={categoryOptions}
                   required
                   placeholder="Chọn danh mục sản phẩm"
                 />

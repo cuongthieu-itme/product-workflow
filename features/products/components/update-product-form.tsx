@@ -15,6 +15,7 @@ import { updateProductInputSchema, UpdateProductInputType } from "../schema";
 import { useUpdateProductMutation } from "../hooks";
 import { genderOptions } from "@/features/customers/options";
 import { ProductType } from "../types";
+import { useCategoriesQuery } from "@/features/categories/hooks";
 
 export function UpdateProductForm({
   onCustomerAdded,
@@ -52,6 +53,13 @@ export function UpdateProductForm({
       },
     });
   };
+
+  const { data: categories } = useCategoriesQuery();
+  const categoryOptions =
+    categories?.data.map((category) => ({
+      value: category.id,
+      label: category.name,
+    })) ?? [];
 
   return (
     <BaseDialog
@@ -109,9 +117,9 @@ export function UpdateProductForm({
                 name="categoryId"
                 control={control}
                 label="Danh mục sản phẩm"
-                options={genderOptions}
+                options={categoryOptions}
                 required
-                placeholder="Chọn giới tính"
+                placeholder="Chọn danh mục sản phẩm"
               />
             </div>
 
