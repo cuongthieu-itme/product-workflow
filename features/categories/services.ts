@@ -22,7 +22,7 @@ export const getCategories = async (params?: CategoryFilterInput) => {
 
 export const createCategory = async (data: CreateCategoryInputType) => {
   try {
-    const response = await request.post<CategoryType>("/categories", {
+    const response = await request.post("/categories", {
       ...data,
     });
 
@@ -47,7 +47,9 @@ export const updateCategory = async (data: UpdateCategoryInputType) => {
 
 export const getCategory = async (id: string) => {
   try {
-    const response = await request.get<CategoryType>(`/categories/${id}`);
+    const response = await request.get<BaseResultQuery<CategoryType>>(
+      `/categories/${id}`
+    );
     return response.data;
   } catch (error) {
     throw error;

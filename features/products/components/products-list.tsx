@@ -11,10 +11,10 @@ import { format } from "date-fns";
 import { TableToolbar } from "@/components/data-table/toolbar";
 import { LIMIT, PAGE } from "@/constants/pagination";
 import { ProductType } from "../types";
-import { AddDepartmentForm } from "@/components/departments/add-department-form";
 import { UpdateProductForm } from "./update-product-form";
 import { DeleteProductDialog } from "./delete-product-dialog";
 import { useProductsQuery } from "../hooks";
+import { AddDepartmentDialog } from "@/features/departments/components/add-department-dialog";
 
 export function ProductList() {
   const [page, setPage] = useState(PAGE);
@@ -108,7 +108,7 @@ export function ProductList() {
           <p className="text-muted-foreground">Quản lý thông tin sản phẩm</p>
         </div>
 
-        <AddDepartmentForm />
+        <AddDepartmentDialog />
       </div>
 
       <div className="space-y-4">

@@ -1,15 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteProduct } from "../services";
-import { PRODUCTS_QUERY_KEY } from "./useProductsQuery";
+import { deleteCategory } from "../services";
+import { CATEGORIES_QUERY_KEY } from "./useCategoriesQuery";
 
-export const useDeleteProductMutation = () => {
+export const useDeleteCategoryMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteProduct,
+    mutationFn: deleteCategory,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [PRODUCTS_QUERY_KEY],
+        queryKey: [CATEGORIES_QUERY_KEY],
       });
     },
   });

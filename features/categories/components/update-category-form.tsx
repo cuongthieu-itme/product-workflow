@@ -34,8 +34,7 @@ export function UpdateCategoryForm({
     resolver: zodResolver(updateCategoryInputSchema),
   });
 
-  const { mutate, isPending, isSuccess, error, data } =
-    useUpdateCategoryMutation();
+  const { mutate, isPending, isSuccess, error } = useUpdateCategoryMutation();
 
   const onSubmit: SubmitHandler<UpdateCategoryInputType> = (data) => {
     if (!category?.id) return;
@@ -67,7 +66,7 @@ export function UpdateCategoryForm({
                 Cập nhật thành công!
               </AlertTitle>
               <AlertDescription className="text-green-700">
-                {data.message || "Danh mục đã được cập nhật thành công."}
+                Danh mục đã được cập nhật thành công.
               </AlertDescription>
             </Alert>
           )}
