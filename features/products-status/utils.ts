@@ -18,14 +18,10 @@ export const getSourceCustomer = (source: SourceEnum) => {
       return "Facebook";
     case SourceEnum.WEBSITE:
       return "Website";
+    case SourceEnum.REFERRAL:
+      return "Referral";
     case SourceEnum.OTHER:
       return "Other";
-    case SourceEnum.GOOGLE_ADS:
-      return "Google Ads";
-    case SourceEnum.INSTAGRAM:
-      return "Instagram";
-    case SourceEnum.INTRODUCER:
-      return "Introducer";
     default:
       return "Khác";
   }

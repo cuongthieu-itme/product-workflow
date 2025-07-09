@@ -3,9 +3,11 @@ import { User } from "../users/type";
 import { GenderEnum } from "@/constants/gender";
 
 export enum SourceEnum {
-  FACEBOOK = "FACEBOOK",
   WEBSITE = "WEBSITE",
-  REFERRAL = "REFERRAL",
+  FACEBOOK = "FACEBOOK",
+  INSTAGRAM = "INSTAGRAM",
+  GOOGLE_ADS = "GOOGLE_ADS",
+  INTRODUCER = "INTRODUCER",
   OTHER = "OTHER",
 }
 

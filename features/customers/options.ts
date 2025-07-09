@@ -9,6 +9,8 @@ export const genderOptions = [
 export const sourceOptions = [
   { value: SourceEnum.FACEBOOK, label: "Facebook" },
   { value: SourceEnum.WEBSITE, label: "Website" },
-  { value: SourceEnum.REFERRAL, label: "Referral" },
   { value: SourceEnum.OTHER, label: "Other" },
+  { value: SourceEnum.GOOGLE_ADS, label: "Google Ads" },
+  { value: SourceEnum.INSTAGRAM, label: "Instagram" },
+  { value: SourceEnum.INTRODUCER, label: "Introducer" },
 ];
