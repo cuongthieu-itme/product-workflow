@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const changePasswordInputSchema = z
   .object({
-    currentPassword: z.string().min(1, {
+    oldPassword: z.string().min(1, {
       message: "Vui lòng nhập mật khẩu",
     }),
     newPassword: passwordSchema,

@@ -7,15 +7,17 @@ import { useState } from "react";
 import request from "@/configs/axios-config";
 import { useToast } from "@/components/ui/use-toast";
 import { getRoleName } from "@/helpers";
+import { useUpdateProfileMutation } from "../hooks";
 
 interface AvatarSettingProps {
   user: UserType;
-  onAvatarChange?: (avatarUrl: string) => void;
 }
 
-export const AvatarSetting = ({ user, onAvatarChange }: AvatarSettingProps) => {
+export const AvatarSetting = ({ user }: AvatarSettingProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const { mutate } = useUpdateProfileMutation()
+
 
   const onDrop = async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -24,7 +26,6 @@ export const AvatarSetting = ({ user, onAvatarChange }: AvatarSettingProps) => {
     // Create preview
     const reader = new FileReader();
     reader.onload = (e) => {
-      onAvatarChange?.(e.target?.result as string);
     };
     reader.readAsDataURL(file);
 
@@ -32,16 +33,19 @@ export const AvatarSetting = ({ user, onAvatarChange }: AvatarSettingProps) => {
     setIsLoading(true);
     try {
       const formData = new FormData();
-      formData.append("avatar", file);
+      formData.append("file", file);
 
-      const response = await request.post("/users/upload-avatar", formData, {
+      const response = await request.post("/files", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      if (response.data.avatarUrl) {
-        onAvatarChange?.(response.data.avatarUrl);
+      if (response.data.filename) {
+        mutate({
+          ...user,
+          avatar: response.data.filename,
+        })
         toast({
           title: "Thành công",
           description: "Đã thay đổi ảnh đại diện thành công",
@@ -65,7 +69,7 @@ export const AvatarSetting = ({ user, onAvatarChange }: AvatarSettingProps) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
+      "image/*": [".png", ".jpg", ".jpeg",],
     },
     maxFiles: 1,
   });
@@ -75,7 +79,7 @@ export const AvatarSetting = ({ user, onAvatarChange }: AvatarSettingProps) => {
       <div {...getRootProps()} className="w-full justify-center flex">
         <input {...getInputProps()} />
         <Avatar className="h-24 w-24 cursor-pointer relative">
-          <AvatarImage src={user.avatarUrl} alt={user.fullName} />
+          <AvatarImage src={user.avatar} alt={user.fullName} />
           <AvatarFallback className="text-2xl">
             {user.fullName?.charAt(0) || user.userName?.charAt(0) || "U"}
           </AvatarFallback>

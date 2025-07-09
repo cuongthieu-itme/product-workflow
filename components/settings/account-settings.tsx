@@ -1,12 +1,12 @@
-'use client'
+"use client";
 
-import type React from 'react'
+import type React from "react";
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Loader2,
   AlertCircle,
@@ -15,116 +15,122 @@ import {
   Building,
   Shield,
   Phone,
-  FileText
-} from 'lucide-react'
+  FileText,
+} from "lucide-react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle
-} from '@/components/ui/card'
-import { useToast } from '@/components/ui/use-toast'
-import { db } from '@/lib/firebase'
-import { doc, updateDoc, collection, getDocs, getDoc } from 'firebase/firestore'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Textarea } from '@/components/ui/textarea'
+  CardTitle,
+} from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import { db } from "@/lib/firebase";
+import {
+  doc,
+  updateDoc,
+  collection,
+  getDocs,
+  getDoc,
+} from "firebase/firestore";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
+  SelectValue,
+} from "@/components/ui/select";
 
 export function AccountSettings() {
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(true)
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
     twoFactorEnabled: false,
-    sessionTimeout: 30
-  })
+    sessionTimeout: 30,
+  });
   const [profileData, setProfileData] = useState({
-    fullName: '',
-    email: '',
-    department: '',
-    role: '',
-    username: '',
-    avatarUrl: '',
-    phone: '',
-    position: '',
-    bio: ''
-  })
-  const [currentUser, setCurrentUser] = useState<any>(null)
-  const [userId, setUserId] = useState<string>('')
-  const [error, setError] = useState<string | null>(null)
+    fullName: "",
+    email: "",
+    department: "",
+    role: "",
+    username: "",
+    avatarUrl: "",
+    phone: "",
+    position: "",
+    bio: "",
+  });
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [userId, setUserId] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
   const [departments, setDepartments] = useState<
     { id: string; name: string }[]
-  >([])
+  >([]);
   const [departmentNames, setDepartmentNames] = useState<{
-    [key: string]: string
-  }>({})
-  const [debug, setDebug] = useState<any>(null)
+    [key: string]: string;
+  }>({});
+  const [debug, setDebug] = useState<any>(null);
 
   // Lấy thông tin người dùng hiện tại từ Firebase
   useEffect(() => {
     const fetchCurrentUser = async () => {
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         try {
-          setIsLoading(true)
-          setError(null)
+          setIsLoading(true);
+          setError(null);
 
           // Lấy thông tin đăng nhập từ localStorage
-          const username = localStorage.getItem('username') || ''
-          const userRole = localStorage.getItem('userRole') || ''
-          const userDepartment = localStorage.getItem('userDepartment') || ''
+          const username = localStorage.getItem("username") || "";
+          const userRole = localStorage.getItem("userRole") || "";
+          const userDepartment = localStorage.getItem("userDepartment") || "";
 
-          console.log('Thông tin từ localStorage:', {
+          console.log("Thông tin từ localStorage:", {
             username,
             userRole,
-            userDepartment
-          })
+            userDepartment,
+          });
 
           if (!username) {
             setError(
-              'Không tìm thấy thông tin đăng nhập. Vui lòng đăng nhập lại.'
-            )
-            setIsLoading(false)
-            return
+              "Không tìm thấy thông tin đăng nhập. Vui lòng đăng nhập lại."
+            );
+            setIsLoading(false);
+            return;
           }
 
           // Tìm tất cả người dùng trong Firestore
-          const usersRef = collection(db, 'users')
-          const allUsersSnapshot = await getDocs(usersRef)
+          const usersRef = collection(db, "users");
+          const allUsersSnapshot = await getDocs(usersRef);
           const allUsers = allUsersSnapshot.docs.map((doc) => ({
             id: doc.id,
-            ...doc.data()
-          }))
+            ...doc.data(),
+          }));
 
           console.log(
-            'Tất cả người dùng:',
+            "Tất cả người dùng:",
             allUsers.map((u) => ({
               id: u.id,
               username: u.username,
-              department: u.department
+              department: u.department,
             }))
-          )
+          );
 
           // Tìm người dùng phù hợp
-          let foundUser = null
+          let foundUser = null;
 
           // Thử tìm theo username chính xác
-          foundUser = allUsers.find((user) => user.username === username)
+          foundUser = allUsers.find((user) => user.username === username);
 
           // Nếu không tìm thấy, thử tìm theo fullName
           if (!foundUser) {
-            foundUser = allUsers.find((user) => user.fullName === username)
+            foundUser = allUsers.find((user) => user.fullName === username);
           }
 
           // Nếu vẫn không tìm thấy, thử tìm theo username không phân biệt chữ hoa/thường
@@ -133,291 +139,291 @@ export function AccountSettings() {
               (user) =>
                 user.username?.toLowerCase() === username.toLowerCase() ||
                 user.fullName?.toLowerCase() === username.toLowerCase()
-            )
+            );
           }
 
           // Nếu là admin đặc biệt
-          if (username.toLowerCase() === 'admin' && !foundUser) {
+          if (username.toLowerCase() === "admin" && !foundUser) {
             foundUser = allUsers.find(
-              (user) => user.username?.toLowerCase() === 'admin'
-            )
+              (user) => user.username?.toLowerCase() === "admin"
+            );
           }
 
           if (foundUser) {
-            console.log('Tìm thấy người dùng:', foundUser)
-            setUserId(foundUser.id)
-            setCurrentUser(foundUser)
-            setDebug(foundUser)
+            console.log("Tìm thấy người dùng:", foundUser);
+            setUserId(foundUser.id);
+            setCurrentUser(foundUser);
+            setDebug(foundUser);
 
             // Cập nhật form data với thông tin hiện tại
             setFormData({
-              currentPassword: '',
-              newPassword: '',
-              confirmPassword: '',
+              currentPassword: "",
+              newPassword: "",
+              confirmPassword: "",
               twoFactorEnabled: foundUser.twoFactorEnabled || false,
-              sessionTimeout: foundUser.sessionTimeout || 30
-            })
+              sessionTimeout: foundUser.sessionTimeout || 30,
+            });
 
             // Cập nhật thông tin hồ sơ
             setProfileData({
-              fullName: foundUser.fullName || foundUser.username || '',
-              email: foundUser.email || '',
-              department: foundUser.department || userDepartment || '',
-              role: foundUser.role || userRole || '',
-              username: foundUser.username || '',
-              avatarUrl: foundUser.avatarUrl || '',
-              phone: foundUser.phone || '',
-              position: foundUser.position || '',
-              bio: foundUser.bio || ''
-            })
+              fullName: foundUser.fullName || foundUser.username || "",
+              email: foundUser.email || "",
+              department: foundUser.department || userDepartment || "",
+              role: foundUser.role || userRole || "",
+              username: foundUser.username || "",
+              avatarUrl: foundUser.avatarUrl || "",
+              phone: foundUser.phone || "",
+              position: foundUser.position || "",
+              bio: foundUser.bio || "",
+            });
 
             // Cập nhật localStorage nếu cần
             if (foundUser.username && foundUser.username !== username) {
-              localStorage.setItem('username', foundUser.username)
+              localStorage.setItem("username", foundUser.username);
             }
             if (foundUser.role && foundUser.role !== userRole) {
-              localStorage.setItem('userRole', foundUser.role)
+              localStorage.setItem("userRole", foundUser.role);
             }
             if (
               foundUser.department &&
               foundUser.department !== userDepartment
             ) {
-              localStorage.setItem('userDepartment', foundUser.department)
+              localStorage.setItem("userDepartment", foundUser.department);
             }
           } else {
-            console.log('Không tìm thấy người dùng nào phù hợp')
-            setError('Không tìm thấy thông tin người dùng trong hệ thống.')
+            console.log("Không tìm thấy người dùng nào phù hợp");
+            setError("Không tìm thấy thông tin người dùng trong hệ thống.");
 
             // Hiển thị thông tin debug
-            console.log('Thông tin đăng nhập từ localStorage:', {
+            console.log("Thông tin đăng nhập từ localStorage:", {
               username,
               userRole,
-              userDepartment
-            })
-            console.log('Tất cả người dùng trong hệ thống:', allUsers)
+              userDepartment,
+            });
+            console.log("Tất cả người dùng trong hệ thống:", allUsers);
           }
         } catch (error: any) {
-          console.error('Lỗi khi lấy thông tin người dùng:', error)
-          setError(`Lỗi khi lấy thông tin người dùng: ${error.message}`)
+          console.error("Lỗi khi lấy thông tin người dùng:", error);
+          setError(`Lỗi khi lấy thông tin người dùng: ${error.message}`);
         } finally {
-          setIsLoading(false)
+          setIsLoading(false);
         }
       }
-    }
+    };
 
     const fetchDepartments = async () => {
       try {
-        console.log('Đang lấy danh sách phòng ban từ Firestore...')
-        const departmentsCollection = collection(db, 'departments')
-        const departmentsSnapshot = await getDocs(departmentsCollection)
+        console.log("Đang lấy danh sách phòng ban từ Firestore...");
+        const departmentsCollection = collection(db, "departments");
+        const departmentsSnapshot = await getDocs(departmentsCollection);
 
         if (!departmentsSnapshot.empty) {
           const departmentsData = departmentsSnapshot.docs.map((doc) => ({
             id: doc.id,
-            name: doc.data().name
-          }))
+            name: doc.data().name,
+          }));
 
           // Lưu danh sách phòng ban
-          setDepartments(departmentsData)
+          setDepartments(departmentsData);
 
           // Tạo mapping từ id -> name để dễ dàng tra cứu
-          const namesMap: { [key: string]: string } = {}
+          const namesMap: { [key: string]: string } = {};
           departmentsData.forEach((dept) => {
-            namesMap[dept.id] = dept.name
-          })
-          setDepartmentNames(namesMap)
+            namesMap[dept.id] = dept.name;
+          });
+          setDepartmentNames(namesMap);
 
           console.log(
-            'Đã lấy được',
+            "Đã lấy được",
             departmentsData.length,
-            'phòng ban từ Firestore'
-          )
+            "phòng ban từ Firestore"
+          );
         } else {
-          console.log('Không có phòng ban nào trong Firestore')
+          console.log("Không có phòng ban nào trong Firestore");
         }
       } catch (error) {
-        console.error('Lỗi khi lấy danh sách phòng ban:', error)
+        console.error("Lỗi khi lấy danh sách phòng ban:", error);
       }
-    }
+    };
 
-    fetchCurrentUser()
-    fetchDepartments()
-  }, [])
+    fetchCurrentUser();
+    fetchDepartments();
+  }, []);
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleProfileChange = (field: string, value: any) => {
-    setProfileData((prev) => ({ ...prev, [field]: value }))
-  }
+    setProfileData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
     try {
       if (!currentUser) {
-        setError('Không tìm thấy thông tin người dùng.')
-        setIsLoading(false)
-        return
+        setError("Không tìm thấy thông tin người dùng.");
+        setIsLoading(false);
+        return;
       }
 
       // Kiểm tra mật khẩu hiện tại
       if (formData.currentPassword !== currentUser.password) {
         toast({
-          variant: 'destructive',
-          title: 'Lỗi',
-          description: 'Mật khẩu hiện tại không đúng'
-        })
-        setIsLoading(false)
-        return
+          variant: "destructive",
+          title: "Lỗi",
+          description: "Mật khẩu hiện tại không đúng",
+        });
+        setIsLoading(false);
+        return;
       }
 
       // Kiểm tra mật khẩu mới và xác nhận mật khẩu
       if (formData.newPassword !== formData.confirmPassword) {
         toast({
-          variant: 'destructive',
-          title: 'Lỗi',
-          description: 'Mật khẩu mới và xác nhận mật khẩu không khớp'
-        })
-        setIsLoading(false)
-        return
+          variant: "destructive",
+          title: "Lỗi",
+          description: "Mật khẩu mới và xác nhận mật khẩu không khớp",
+        });
+        setIsLoading(false);
+        return;
       }
 
       // Cập nhật mật khẩu trong Firebase
       if (userId) {
-        console.log('Đang cập nhật mật khẩu cho user ID:', userId)
+        console.log("Đang cập nhật mật khẩu cho user ID:", userId);
 
         // Kiểm tra document tồn tại
-        const userRef = doc(db, 'users', userId)
-        const userSnap = await getDoc(userRef)
+        const userRef = doc(db, "users", userId);
+        const userSnap = await getDoc(userRef);
 
         if (!userSnap.exists()) {
-          throw new Error(`Document với ID ${userId} không tồn tại`)
+          throw new Error(`Document với ID ${userId} không tồn tại`);
         }
 
         // Cập nhật mật khẩu
         await updateDoc(userRef, {
-          password: formData.newPassword
-        })
+          password: formData.newPassword,
+        });
 
-        console.log('Đã cập nhật mật khẩu trong Firestore')
+        console.log("Đã cập nhật mật khẩu trong Firestore");
 
         // Cập nhật currentUser
         setCurrentUser((prev: any) => ({
           ...prev,
-          password: formData.newPassword
-        }))
+          password: formData.newPassword,
+        }));
 
         toast({
-          title: 'Thành công',
-          description: 'Mật khẩu đã được cập nhật trong cơ sở dữ liệu'
-        })
+          title: "Thành công",
+          description: "Mật khẩu đã được cập nhật trong cơ sở dữ liệu",
+        });
 
         // Đặt lại form
         setFormData((prev) => ({
           ...prev,
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
-        }))
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        }));
       } else {
-        throw new Error('Không có ID người dùng để cập nhật')
+        throw new Error("Không có ID người dùng để cập nhật");
       }
     } catch (error: any) {
-      console.error('Lỗi khi cập nhật mật khẩu:', error)
-      setError(`Lỗi khi cập nhật mật khẩu: ${error.message}`)
+      console.error("Lỗi khi cập nhật mật khẩu:", error);
+      setError(`Lỗi khi cập nhật mật khẩu: ${error.message}`);
       toast({
-        variant: 'destructive',
-        title: 'Lỗi',
-        description: `Không thể cập nhật mật khẩu: ${error.message}`
-      })
+        variant: "destructive",
+        title: "Lỗi",
+        description: `Không thể cập nhật mật khẩu: ${error.message}`,
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleSecuritySubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
     try {
       if (!currentUser) {
-        setError('Không tìm thấy thông tin người dùng.')
-        setIsLoading(false)
-        return
+        setError("Không tìm thấy thông tin người dùng.");
+        setIsLoading(false);
+        return;
       }
 
       // Cập nhật cài đặt bảo mật trong Firebase
       if (userId) {
-        console.log('Đang cập nhật cài đặt bảo mật cho user ID:', userId)
+        console.log("Đang cập nhật cài đặt bảo mật cho user ID:", userId);
 
-        const userRef = doc(db, 'users', userId)
+        const userRef = doc(db, "users", userId);
         await updateDoc(userRef, {
           twoFactorEnabled: formData.twoFactorEnabled,
-          sessionTimeout: formData.sessionTimeout
-        })
+          sessionTimeout: formData.sessionTimeout,
+        });
 
-        console.log('Đã cập nhật cài đặt bảo mật trong Firestore')
+        console.log("Đã cập nhật cài đặt bảo mật trong Firestore");
 
         // Cập nhật currentUser
         setCurrentUser((prev: any) => ({
           ...prev,
           twoFactorEnabled: formData.twoFactorEnabled,
-          sessionTimeout: formData.sessionTimeout
-        }))
+          sessionTimeout: formData.sessionTimeout,
+        }));
 
         toast({
-          title: 'Thành công',
-          description: 'Cài đặt bảo mật đã được cập nhật trong cơ sở dữ liệu'
-        })
+          title: "Thành công",
+          description: "Cài đặt bảo mật đã được cập nhật trong cơ sở dữ liệu",
+        });
       } else {
-        throw new Error('Không có ID người dùng để cập nhật')
+        throw new Error("Không có ID người dùng để cập nhật");
       }
     } catch (error: any) {
-      console.error('Lỗi khi cập nhật cài đặt bảo mật:', error)
-      setError(`Lỗi khi cập nhật cài đặt bảo mật: ${error.message}`)
+      console.error("Lỗi khi cập nhật cài đặt bảo mật:", error);
+      setError(`Lỗi khi cập nhật cài đặt bảo mật: ${error.message}`);
       toast({
-        variant: 'destructive',
-        title: 'Lỗi',
-        description: `Không thể cập nhật cài đặt bảo mật: ${error.message}`
-      })
+        variant: "destructive",
+        title: "Lỗi",
+        description: `Không thể cập nhật cài đặt bảo mật: ${error.message}`,
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
     try {
       if (!currentUser) {
-        setError('Không tìm thấy thông tin người dùng.')
-        setIsLoading(false)
-        return
+        setError("Không tìm thấy thông tin người dùng.");
+        setIsLoading(false);
+        return;
       }
 
       // Cập nhật thông tin hồ sơ trong Firebase
       if (userId) {
-        console.log('Đang cập nhật thông tin hồ sơ cho user ID:', userId)
+        console.log("Đang cập nhật thông tin hồ sơ cho user ID:", userId);
 
-        const userRef = doc(db, 'users', userId)
+        const userRef = doc(db, "users", userId);
         await updateDoc(userRef, {
           fullName: profileData.fullName,
           email: profileData.email,
           department: profileData.department,
           phone: profileData.phone,
           position: profileData.position,
-          bio: profileData.bio
+          bio: profileData.bio,
           // Không cập nhật role và username vì đây là thông tin quan trọng
-        })
+        });
 
-        console.log('Đã cập nhật thông tin hồ sơ trong Firestore')
+        console.log("Đã cập nhật thông tin hồ sơ trong Firestore");
 
         // Cập nhật currentUser
         setCurrentUser((prev: any) => ({
@@ -427,35 +433,35 @@ export function AccountSettings() {
           department: profileData.department,
           phone: profileData.phone,
           position: profileData.position,
-          bio: profileData.bio
-        }))
+          bio: profileData.bio,
+        }));
 
         // Cập nhật localStorage
         localStorage.setItem(
-          'username',
+          "username",
           profileData.fullName || profileData.username
-        )
-        localStorage.setItem('userDepartment', profileData.department)
+        );
+        localStorage.setItem("userDepartment", profileData.department);
 
         toast({
-          title: 'Thành công',
-          description: 'Thông tin hồ sơ đã được cập nhật trong cơ sở dữ liệu'
-        })
+          title: "Thành công",
+          description: "Thông tin hồ sơ đã được cập nhật trong cơ sở dữ liệu",
+        });
       } else {
-        throw new Error('Không có ID người dùng để cập nhật')
+        throw new Error("Không có ID người dùng để cập nhật");
       }
     } catch (error: any) {
-      console.error('Lỗi khi cập nhật thông tin hồ sơ:', error)
-      setError(`Lỗi khi cập nhật thông tin hồ sơ: ${error.message}`)
+      console.error("Lỗi khi cập nhật thông tin hồ sơ:", error);
+      setError(`Lỗi khi cập nhật thông tin hồ sơ: ${error.message}`);
       toast({
-        variant: 'destructive',
-        title: 'Lỗi',
-        description: `Không thể cập nhật thông tin hồ sơ: ${error.message}`
-      })
+        variant: "destructive",
+        title: "Lỗi",
+        description: `Không thể cập nhật thông tin hồ sơ: ${error.message}`,
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -463,7 +469,7 @@ export function AccountSettings() {
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <span className="ml-2">Đang tải thông tin người dùng...</span>
       </div>
-    )
+    );
   }
 
   return (
@@ -496,13 +502,13 @@ export function AccountSettings() {
                 <div className="flex flex-col items-center space-y-4">
                   <Avatar className="h-24 w-24">
                     <AvatarImage
-                      src={profileData.avatarUrl || '/placeholder.svg'}
+                      src={profileData.avatarUrl || "/placeholder.svg"}
                       alt={profileData.fullName}
                     />
                     <AvatarFallback className="text-2xl">
                       {profileData.fullName?.charAt(0) ||
                         profileData.username?.charAt(0) ||
-                        'U'}
+                        "U"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="text-center">
@@ -552,7 +558,7 @@ export function AccountSettings() {
                         id="fullName"
                         value={profileData.fullName}
                         onChange={(e) =>
-                          handleProfileChange('fullName', e.target.value)
+                          handleProfileChange("fullName", e.target.value)
                         }
                       />
                     </div>
@@ -568,7 +574,7 @@ export function AccountSettings() {
                         type="email"
                         value={profileData.email}
                         onChange={(e) =>
-                          handleProfileChange('email', e.target.value)
+                          handleProfileChange("email", e.target.value)
                         }
                       />
                     </div>
@@ -584,7 +590,7 @@ export function AccountSettings() {
                         type="tel"
                         value={profileData.phone}
                         onChange={(e) =>
-                          handleProfileChange('phone', e.target.value)
+                          handleProfileChange("phone", e.target.value)
                         }
                       />
                     </div>
@@ -598,14 +604,14 @@ export function AccountSettings() {
                       <Select
                         value={profileData.department}
                         onValueChange={(value) =>
-                          handleProfileChange('department', value)
+                          handleProfileChange("department", value)
                         }
                       >
                         <SelectTrigger id="department">
                           <SelectValue placeholder="Chọn phòng ban">
                             {departmentNames[profileData.department] ||
                               profileData.department ||
-                              'Chọn phòng ban'}
+                              "Chọn phòng ban"}
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
@@ -631,7 +637,7 @@ export function AccountSettings() {
                         id="position"
                         value={profileData.position}
                         onChange={(e) =>
-                          handleProfileChange('position', e.target.value)
+                          handleProfileChange("position", e.target.value)
                         }
                       />
                     </div>
@@ -645,7 +651,7 @@ export function AccountSettings() {
                       id="bio"
                       value={profileData.bio}
                       onChange={(e) =>
-                        handleProfileChange('bio', e.target.value)
+                        handleProfileChange("bio", e.target.value)
                       }
                       rows={4}
                       placeholder="Giới thiệu ngắn về bản thân..."
@@ -682,7 +688,7 @@ export function AccountSettings() {
                       type="password"
                       value={formData.currentPassword}
                       onChange={(e) =>
-                        handleInputChange('currentPassword', e.target.value)
+                        handleInputChange("currentPassword", e.target.value)
                       }
                       required
                     />
@@ -694,7 +700,7 @@ export function AccountSettings() {
                       type="password"
                       value={formData.newPassword}
                       onChange={(e) =>
-                        handleInputChange('newPassword', e.target.value)
+                        handleInputChange("newPassword", e.target.value)
                       }
                       required
                     />
@@ -708,7 +714,7 @@ export function AccountSettings() {
                       type="password"
                       value={formData.confirmPassword}
                       onChange={(e) =>
-                        handleInputChange('confirmPassword', e.target.value)
+                        handleInputChange("confirmPassword", e.target.value)
                       }
                       required
                     />
@@ -748,7 +754,7 @@ export function AccountSettings() {
                       id="twoFactor"
                       checked={formData.twoFactorEnabled}
                       onCheckedChange={(checked) =>
-                        handleInputChange('twoFactorEnabled', checked)
+                        handleInputChange("twoFactorEnabled", checked)
                       }
                     />
                   </div>
@@ -764,7 +770,7 @@ export function AccountSettings() {
                       value={formData.sessionTimeout}
                       onChange={(e) =>
                         handleInputChange(
-                          'sessionTimeout',
+                          "sessionTimeout",
                           Number.parseInt(e.target.value)
                         )
                       }
@@ -788,5 +794,5 @@ export function AccountSettings() {
         </Tabs>
       )}
     </div>
-  )
+  );
 }

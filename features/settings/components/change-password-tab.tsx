@@ -16,9 +16,9 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const ChangePasswordTab = () => {
-  const { control, handleSubmit } = useForm<ChangePasswordInputType>({
+  const { control, handleSubmit, reset } = useForm<ChangePasswordInputType>({
     defaultValues: {
-      currentPassword: "",
+      oldPassword: "",
       newPassword: "",
       confirmPassword: "",
     },
@@ -28,7 +28,11 @@ export const ChangePasswordTab = () => {
   const { mutate, isPending } = useChangePasswordMutation();
 
   const onSubmit: SubmitHandler<ChangePasswordInputType> = (data) => {
-    mutate(data);
+    mutate(data, {
+      onSuccess: () => {
+        reset();
+      },
+    });
   };
 
   return (
@@ -43,7 +47,7 @@ export const ChangePasswordTab = () => {
         <CardContent className="space-y-4">
           <InputCustom
             control={control}
-            name="currentPassword"
+            name="oldPassword"
             label="Mật khẩu hiện tại"
             placeholder="Nhập mật khẩu hiện tại"
             type="password"

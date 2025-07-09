@@ -10,12 +10,17 @@ export const updateUserInputSchema = z.object({
   phoneNumber: z
     .string()
     .trim()
-    .regex(/^\d{10,11}$/, { message: "Số điện thoại gồm 10–11 chữ số" }).optional().nullable(),
+    .regex(/^\d{10,11}$/, { message: "Số điện thoại gồm 10–11 chữ số" })
+    .optional()
+    .nullable(),
   role: z.nativeEnum(UserRoleEnum),
-  departmentId: z.number().nullable().optional().or(z.literal(KEY_EMPTY_SELECT)),
+  departmentId: z
+    .number()
+    .nullable()
+    .optional()
+    .or(z.literal(KEY_EMPTY_SELECT)),
   email: z.string().trim().email({ message: "Email không hợp lệ" }),
   isVerifiedAccount: z.enum(["true", "false"]),
-  userName: z.string(),
 });
 
 export const currentUserUpdateInputSchema = updateUserInputSchema.omit({

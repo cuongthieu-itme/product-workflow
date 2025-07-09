@@ -111,9 +111,9 @@ export function UserDetailPage() {
         <CardHeader className="flex flex-row items-start justify-between">
           <div className="flex items-start gap-4">
             <Avatar className="h-16 w-16">
-              {user.data.avatarUrl ? (
+              {user.data.avatar ? (
                 <AvatarImage
-                  src={user.data.avatarUrl || "/placeholder.svg"}
+                  src={user.data.avatar || "/placeholder.svg"}
                   alt={user.data.fullName}
                 />
               ) : (
@@ -133,7 +133,7 @@ export function UserDetailPage() {
                 <Badge
                   variant={
                     user.data.role === UserRoleEnum.ADMIN ||
-                    user.data.role === UserRoleEnum.SUPER_ADMIN
+                      user.data.role === UserRoleEnum.SUPER_ADMIN
                       ? "default"
                       : "outline"
                   }
