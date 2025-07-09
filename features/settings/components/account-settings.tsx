@@ -23,6 +23,7 @@ import { useForm } from "react-hook-form";
 import { CurrentUserUpdateInputType } from "@/features/users/schema/update-user-schema";
 import { InputCustom } from "@/components/form/input";
 import { ChangePasswordTab } from "./change-password-tab";
+import { AvatarSetting } from "./avatar-setting";
 
 export function AccountSettings() {
   const [formData] = useState({
@@ -80,32 +81,12 @@ export function AccountSettings() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex flex-col items-center space-y-4">
-                  <Avatar className="h-24 w-24">
-                    {/* <AvatarImage
-                      src={profileData.avatarUrl || "/placeholder.svg"}
-                      alt={profileData.fullName}
-                    /> */}
-                    <AvatarFallback className="text-2xl">
-                      {user.fullName?.charAt(0) ||
-                        user.userName?.charAt(0) ||
-                        "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="text-center">
-                    <h3 className="text-xl font-semibold">
-                      {user.fullName || user.userName}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">{user.role}</p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
-                    <User className="h-4 w-4" /> Thay đổi ảnh đại diện
-                  </Button>
-                </div>
+                <AvatarSetting
+                  user={user}
+                  onAvatarChange={(avatarUrl) => {
+                    console.log(avatarUrl);
+                  }}
+                />
 
                 <form noValidate className="space-y-4">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

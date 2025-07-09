@@ -11,6 +11,7 @@ export type User = {
   isVerifiedAccount: boolean;
   verifiedDate: string;
   role: UserRoleEnum;
+  avatarUrl: string;
   lastLoginDate: string;
   department: DepartmentType | null;
   createdAt: string;

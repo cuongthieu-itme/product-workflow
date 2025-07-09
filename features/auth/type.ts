@@ -1,6 +1,7 @@
 import { UserRoleEnum } from "./constants";
 
 export type UserType = {
+  avatarUrl: string;
   id: number;
   fullName: string;
   userName: string;

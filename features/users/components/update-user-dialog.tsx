@@ -1,15 +1,9 @@
 "use client";
+
 import { BaseDialog } from "@/components/dialog";
 import { Button } from "@/components/ui/button";
 import { InputCustom } from "@/components/form/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   updateUserInputSchema,
@@ -91,6 +85,13 @@ export const UpdateUserDialog = ({
       label: d.name,
     })) ?? [];
 
+  const { data: user } = useGetUserInfoQuery();
+
+  const selectUserOptions: SelectOption[] =
+    user?.role === UserRoleEnum.SUPER_ADMIN
+      ? userRoles
+      : userRoles.filter((r) => r.value !== UserRoleEnum.ADMIN);
+
   return (
     <BaseDialog
       open={!!editingUser}
@@ -141,7 +142,7 @@ export const UpdateUserDialog = ({
             name="role"
             label="Vai trò"
             required
-            options={userRoles}
+            options={selectUserOptions}
             disabled={isPending}
           />
 

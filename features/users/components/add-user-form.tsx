@@ -2,42 +2,26 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
-import {
-  collection,
-  addDoc,
-  query,
-  where,
-  getDocs,
-  limit,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { CheckCircle, AlertCircle } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { createUserInputSchema, CreateUserInputType } from "../schema";
 import { UserRoleEnum } from "@/features/auth/constants";
 import { InputCustom } from "@/components/form/input";
-import { KEY_EMPTY_SELECT, SelectCustom, SelectOption } from "@/components/form/select";
+import {
+  KEY_EMPTY_SELECT,
+  SelectCustom,
+  SelectOption,
+} from "@/components/form/select";
 import { useCreateUserMutation } from "../hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userRoles } from "../options";
-import { useResetOnFormChange } from "@/hooks/use-reset-form-change";
 import { useDepartmentsQuery } from "@/features/departments/hooks";
+import { useGetUserInfoQuery } from "@/features/auth/hooks";
 
 export function AddUserForm() {
-  const { control, handleSubmit, watch, reset } = useForm<CreateUserInputType>({
+  const { control, handleSubmit, reset } = useForm<CreateUserInputType>({
     defaultValues: {
       userName: "",
       password: "",
@@ -68,6 +52,13 @@ export function AddUserForm() {
       value: d.id,
       label: d.name,
     })) ?? [];
+
+  const { data: user } = useGetUserInfoQuery();
+
+  const selectUserOptions: SelectOption[] =
+    user?.role === UserRoleEnum.SUPER_ADMIN
+      ? userRoles
+      : userRoles.filter((r) => r.value !== UserRoleEnum.ADMIN);
 
   return (
     <div className="space-y-4">
@@ -138,7 +129,7 @@ export function AddUserForm() {
             disabled={isPending}
             name="role"
             label="Vai trò"
-            options={userRoles}
+            options={selectUserOptions}
             placeholder="Chọn vai trò"
             required
           />

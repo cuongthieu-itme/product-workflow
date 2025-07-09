@@ -41,7 +41,6 @@ export function TablePagination({
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
-            href="#"
             onClick={(e) => {
               e.preventDefault();
               onPageChange(Math.max(page - 1, 1));
@@ -56,7 +55,6 @@ export function TablePagination({
               <PaginationEllipsis />
             ) : (
               <PaginationLink
-                href="#"
                 isActive={n === page}
                 onClick={(e) => {
                   e.preventDefault();
@@ -71,13 +69,12 @@ export function TablePagination({
 
         <PaginationItem>
           <PaginationNext
-            href="#"
             onClick={(e) => {
               e.preventDefault();
               onPageChange(Math.min(page + 1, totalPages));
             }}
             className={
-              page === totalPages ? "pointer-events-none opacity-50" : ""
+              page === totalPages ? "pointer-events-none opacity-50 " : ""
             }
           />
         </PaginationItem>
