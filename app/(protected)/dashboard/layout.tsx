@@ -1,33 +1,33 @@
-'use client'
+"use client";
 
-import type React from 'react'
+import type React from "react";
 
-import { ThemeProvider } from '@/components/theme-provider'
-import { Toaster } from '@/components/ui/toaster'
-import { RequestProvider } from '@/components/requests/request-context-firebase'
-import { MaterialProvider } from '@/components/materials/material-context-firebase'
-import { CustomerProvider } from '@/components/customers/customer-context'
-import { ProductStatusProvider } from '@/components/product-status/product-status-context-firebase'
-import { WorkflowProvider } from '@/components/workflow/workflow-context-firebase'
-import { SubWorkflowProvider } from '@/components/workflow/sub-workflow-context-firebase'
-import { StandardWorkflowProvider } from '@/components/workflow/standard-workflow-context-firebase'
-import { PermissionsProvider } from '@/components/permissions-context'
-import { AvailableVariablesProvider } from '@/components/variables/available-variables-context'
-import { UserContextProvider } from '@/components/workflow/user-context-provider'
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
+import { RequestProvider } from "@/components/requests/request-context-firebase";
+import { MaterialProvider } from "@/components/materials/material-context-firebase";
+import { CustomerProvider } from "@/components/customers/customer-context";
+import { ProductStatusProvider } from "@/components/product-status/product-status-context-firebase";
+import { WorkflowProvider } from "@/components/workflow/workflow-context-firebase";
+import { SubWorkflowProvider } from "@/components/workflow/sub-workflow-context-firebase";
+import { StandardWorkflowProvider } from "@/components/workflow/standard-workflow-context-firebase";
+import { PermissionsProvider } from "@/components/permissions-context";
+import { AvailableVariablesProvider } from "@/components/variables/available-variables-context";
+import { UserContextProvider } from "@/components/workflow/user-context-provider";
 
-import { useState } from 'react'
-import { Menu, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import Header from '@/components/layout/header'
-import { AppSidebar } from '@/components/layout/sidebar'
-import { Button } from '@/components/ui/button'
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import Header from "@/components/layout/header";
+import { AppSidebar } from "@/components/layout/sidebar";
+import { Button } from "@/components/ui/button";
 
 export default function DashboardLayout({
-  children
+  children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const MainShell = (
     <div className="flex h-screen bg-background">
@@ -42,8 +42,8 @@ export default function DashboardLayout({
       {/* Sidebar - Fixed width on desktop, slide-out on mobile */}
       <div
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 ease-in-out lg:relative lg:translate-x-0',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          "fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 ease-in-out lg:relative lg:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         <AppSidebar />
@@ -76,7 +76,7 @@ export default function DashboardLayout({
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
       </div>
     </div>
-  )
+  );
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
@@ -103,5 +103,5 @@ export default function DashboardLayout({
         </UserContextProvider>
       </PermissionsProvider>
     </ThemeProvider>
-  )
+  );
 }

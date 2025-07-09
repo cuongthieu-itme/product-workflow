@@ -2,10 +2,8 @@
 
 import type React from "react";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import Link from "next/link";
-import { useToast } from "@/components/ui/use-toast";
 import {
   Card,
   CardContent,
@@ -14,24 +12,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { registerInputSchema, RegisterInputType } from "../schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserRoleEnum } from "../constants";
 import { useRegisterMutation } from "../hooks";
 import { InputCustom } from "@/components/form/input";
+import { SelectCustom, SelectOption } from "@/components/form/select";
+import { useDepartmentsQuery } from "@/features/departments/hooks";
 
 export function RegisterPage() {
   const { control, handleSubmit, reset, watch } = useForm<RegisterInputType>({
@@ -62,6 +53,14 @@ export function RegisterPage() {
     });
   };
 
+  // const { data: departments } = useDepartmentsQuery();
+
+  // const departOptions: SelectOption[] =
+  //   departments?.data.map((d) => ({
+  //     value: d.id,
+  //     label: d.name,
+  //   })) ?? [];
+
   useEffect(() => {
     const subscription = watch((value) => {
       const { email, fullName, password, userName } = value;
@@ -75,8 +74,6 @@ export function RegisterPage() {
       subscription.unsubscribe();
     };
   }, [watch, resetMutationState]);
-
-  console.log("error", error);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -111,6 +108,8 @@ export function RegisterPage() {
                 control={control}
                 label="Tên đăng nhập"
                 placeholder="Nhập tên đăng nhập"
+                disabled={isPending}
+                required
               />
 
               <InputCustom
@@ -118,6 +117,17 @@ export function RegisterPage() {
                 control={control}
                 label="Email"
                 placeholder="Nhập email"
+                disabled={isPending}
+                required
+              />
+
+              <InputCustom
+                name="fullName"
+                control={control}
+                label="Họ và tên"
+                placeholder="Nhập họ và tên"
+                disabled={isPending}
+                required
               />
 
               <InputCustom
@@ -126,6 +136,8 @@ export function RegisterPage() {
                 label="Mật khẩu"
                 placeholder="Nhập mật khẩu"
                 type="password"
+                disabled={isPending}
+                required
               />
 
               <InputCustom
@@ -134,35 +146,21 @@ export function RegisterPage() {
                 label="Xác nhận mật khẩu"
                 placeholder="Xác nhận mật khẩu"
                 type="password"
+                disabled={isPending}
+                required
               />
 
-              <InputCustom
-                name="fullName"
+              {/* <SelectCustom
+                valueType="number"
                 control={control}
-                label="Họ và tên"
-                placeholder="Nhập họ và tên"
-              />
-
-              {/* <div className="space-y-2">
-                <Label htmlFor="department">Phòng ban</Label>
-                <Select
-                  value={formData.department}
-                  onValueChange={(value) =>
-                    handleInputChange("department", value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn phòng ban" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Quản trị</SelectItem>
-                    <SelectItem value="sales">Kinh doanh</SelectItem>
-                    <SelectItem value="marketing">Marketing</SelectItem>
-                    <SelectItem value="production">Sản xuất</SelectItem>
-                    <SelectItem value="rd">Nghiên cứu & Phát triển</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div> */}
+                name="departmentId"
+                label="Phòng ban"
+                options={departOptions}
+                emptyOption={{ label: "Không có phòng ban" }}
+                placeholder="Chọn phòng ban"
+                required
+                disabled={isPending}
+              /> */}
 
               <Button type="submit" className="w-full" disabled={isPending}>
                 {isPending ? (

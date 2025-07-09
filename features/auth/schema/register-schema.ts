@@ -26,6 +26,7 @@ export const registerInputSchema = z
           "Vai trò phải là một trong các giá trị 'USER', 'ADMIN', 'SUPER_ADMIN'",
       }
     ),
+    // departmentId: z.number().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Mật khẩu và xác nhận mật khẩu không khớp",

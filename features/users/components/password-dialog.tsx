@@ -3,14 +3,12 @@ import React from "react";
 import { BaseDialog } from "@/components/dialog";
 import { Button } from "@/components/ui/button";
 import { InputCustom } from "@/components/form/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { useForm, SubmitHandler, Control } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updatePasswordInputSchema, UpdatePasswordInputType } from "../schema";
 import { useUpdatePasswordMutation } from "../hooks";
 import type { User } from "../type";
-import { toast } from "sonner";
 
 interface PasswordDialogProps {
   resetPasswordUser: User | null;
@@ -22,6 +20,7 @@ export const PasswordDialog: React.FC<PasswordDialogProps> = ({
   setResetPasswordUser,
 }) => {
   const { mutate, isPending } = useUpdatePasswordMutation();
+  const { toast } = useToast();
 
   const { control, handleSubmit, reset } = useForm<UpdatePasswordInputType>({
     defaultValues: { password: "" },
@@ -34,14 +33,16 @@ export const PasswordDialog: React.FC<PasswordDialogProps> = ({
       { id: resetPasswordUser.id, data },
       {
         onSuccess: () => {
-          toast("Đặt lại mật khẩu thành công", {
-            description: `Mật khẩu mới đã được đặt cho người dùng ${resetPasswordUser.userName}`,
+          toast({
+            title: "Đặt lại mật khẩu thành công",
+            description: `Mật khẩu của người dùng ${resetPasswordUser.userName} đã được đặt lại.`,
           });
           reset();
           setResetPasswordUser(null);
         },
         onError: (error: any) => {
-          toast("Đặt lại mật khẩu thất bại", {
+          toast({
+            title: "Đặt lại mật khẩu thất bại",
             description: error.message || "Đã xảy ra lỗi khi đặt lại mật khẩu",
           });
         },

@@ -1,25 +1,21 @@
 import { useMutation } from "@tanstack/react-query";
 import { registerUser } from "../services";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 
 export const useRegisterMutation = () => {
   const router = useRouter();
+  const { toast } = useToast();
 
   return useMutation({
     mutationFn: registerUser,
     onSuccess: async () => {
-      toast("Đăng ký thành công!", {
+      toast({
+        title: "Đăng ký thành công!",
         description: "Bạn sẽ được chuyển hướng đến trang đăng nhập.",
         duration: 3000,
-        action: {
-          label: "Đăng nhập",
-          onClick: () => {
-            router.push("/login");
-          },
-        },
       });
+      router.push("/login");
     },
-
   });
 };

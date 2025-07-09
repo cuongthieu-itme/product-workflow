@@ -18,7 +18,6 @@ import { loginInputSchema, LoginInputType } from "../schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { InputCustom } from "@/components/form/input";
 import { useLoginMutation } from "../hooks";
-import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
 export function Login() {
@@ -70,6 +69,8 @@ export function Login() {
                 control={control}
                 label="Email hoặc Tên đăng nhập"
                 placeholder="Nhập email hoặc tên đăng nhập"
+                disabled={isPending}
+                required
               />
 
               <InputCustom
@@ -78,6 +79,8 @@ export function Login() {
                 label="Mật khẩu"
                 placeholder="Nhập mật khẩu"
                 type="password"
+                disabled={isPending}
+                required
               />
 
               <div className="flex justify-end">

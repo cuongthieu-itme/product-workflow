@@ -169,24 +169,22 @@ export function AppSidebar({
       title: "Nguyên vật liệu",
       href: "/dashboard/materials",
       icon: <Package className="h-4 w-4" />,
-      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
     {
       title: "Khách hàng",
       href: "/dashboard/customers",
       icon: <Users className="h-4 w-4" />,
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
     {
       title: "Marketing",
       href: "/dashboard/marketing",
       icon: <FileText className="h-4 w-4" />,
-      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
     {
       title: "R&D",
       href: "/dashboard/rd-management",
       icon: <FolderKanban className="h-4 w-4" />,
-      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
   ];
 
@@ -318,17 +316,14 @@ export function AppSidebar({
           </>
         )}
 
-        {/* Cài đặt - chỉ hiển thị cho admin */}
-        {isAdmin && (
-          <div className="py-2">
-            <CollapsibleSection
-              title="Cài đặt"
-              icon={<Settings className="h-4 w-4" />}
-              items={settingsItems}
-              defaultOpen={false}
-            />
-          </div>
-        )}
+        <div className="py-2">
+          <CollapsibleSection
+            title="Cài đặt"
+            icon={<Settings className="h-4 w-4" />}
+            items={settingsItems}
+            defaultOpen={false}
+          />
+        </div>
       </ScrollArea>
     </aside>
   );

@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TanstackQueryProvider } from "@/providers";
 import { Toaster } from "sonner";
+import { Toaster as ToasterUI } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,6 +31,8 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <ToasterUI />
+
             <Toaster position="top-center" />
           </ThemeProvider>
         </TanstackQueryProvider>
