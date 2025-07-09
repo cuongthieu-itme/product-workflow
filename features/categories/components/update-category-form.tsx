@@ -13,6 +13,7 @@ import { CategoryType } from "../types";
 import { BaseDialog } from "@/components/dialog";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 export function UpdateCategoryForm({
   onCategoryAdded,
@@ -25,6 +26,7 @@ export function UpdateCategoryForm({
   open: boolean;
   onClose: () => void;
 }) {
+  const { toast } = useToast();
   const { control, handleSubmit, reset } = useForm<UpdateCategoryInputType>({
     defaultValues: {
       description: category?.description || "",
@@ -42,6 +44,11 @@ export function UpdateCategoryForm({
     mutate(data, {
       onSuccess: () => {
         reset();
+        onClose();
+        toast({
+          title: "Thành công",
+          description: "Danh mục đã được cập nhật thành công.",
+        });
         if (onCategoryAdded) {
           onCategoryAdded();
         }

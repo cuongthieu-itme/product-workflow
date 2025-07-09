@@ -12,23 +12,29 @@ import Link from "next/link";
 import { UpdateDepartmentForm } from "./update-department-form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DeleteDepartmentDialog } from "./delete-department-dialog";
+import { TableToolbar } from "@/components/data-table/toolbar";
+import { LIMIT, PAGE } from "@/constants/pagination";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export function DepartmentList() {
-  const [page, setPage] = useState(1);
-  const limit = 10;
-  const {
-    data: departments,
-    isFetching,
-    refetch,
-    error,
-  } = useDepartmentsQuery({
-    page,
-    limit,
-  });
+  const [page, setPage] = useState(PAGE);
+
   const [editingDepartment, setEditingDepartment] =
     useState<DepartmentType | null>(null);
   const [deleteDepartment, setDeleteDepartment] =
     useState<DepartmentType | null>(null);
+  const [searchValue, setSearchValue] = useState("");
+  const debouncedSearch = useDebounce(searchValue, 400);
+
+  const {
+    data: departments,
+    isFetching,
+    refetch,
+  } = useDepartmentsQuery({
+    page,
+    limit: LIMIT,
+    name: debouncedSearch,
+  });
 
   const handleOpenDeleteDialog = (department: DepartmentType) => {
     setDeleteDepartment(department);
@@ -39,8 +45,8 @@ export function DepartmentList() {
   };
 
   const totalPages = departments
-    ? Math.max(1, Math.ceil(departments.total / limit))
-    : 1;
+    ? Math.max(PAGE, Math.ceil(departments.total / LIMIT))
+    : PAGE;
 
   const columns: Column<DepartmentType>[] = [
     { id: "name", header: "Tên phòng ban" },
@@ -97,36 +103,13 @@ export function DepartmentList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Lỗi</AlertTitle>
-              <AlertDescription>{error.message}</AlertDescription>
-            </Alert>
-          )}
-        </div>
-        <Button
-          variant="outline"
-          onClick={() => {
-            refetch();
-          }}
-          disabled={isFetching}
-        >
-          {isFetching ? (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-              Đang tải...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Làm mới
-            </>
-          )}
-        </Button>
-      </div>
+      <TableToolbar
+        searchPlaceholder="Tìm kiếm tên phòng ban"
+        searchValue={searchValue}
+        onSearchChange={setSearchValue}
+        onRefresh={refetch}
+        refreshing={isFetching}
+      />
 
       <DataTable<DepartmentType>
         data={departments?.data}

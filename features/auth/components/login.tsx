@@ -19,6 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { InputCustom } from "@/components/form/input";
 import { useLoginMutation } from "../hooks";
 import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 export function Login() {
   const { control, handleSubmit } = useForm<LoginInputType>({
@@ -29,10 +30,19 @@ export function Login() {
     resolver: zodResolver(loginInputSchema),
   });
 
+  const { toast } = useToast();
+
   const { mutate, isPending, error } = useLoginMutation();
 
   const onSubmit: SubmitHandler<LoginInputType> = async (data) => {
-    mutate(data);
+    mutate(data, {
+      onSuccess() {
+        toast({
+          title: "Thành công",
+          description: "Đăng nhập thành công!",
+        });
+      },
+    });
   };
 
   return (

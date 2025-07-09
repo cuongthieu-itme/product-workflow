@@ -13,12 +13,10 @@ import { SelectCustom } from "@/components/form/select";
 import { BaseDialog } from "@/components/dialog";
 import { updateProductInputSchema, UpdateProductInputType } from "../schema";
 import { useUpdateProductMutation } from "../hooks";
-import { genderOptions } from "@/features/customers/options";
 import { ProductType } from "../types";
 import { useCategoriesQuery } from "@/features/categories/hooks";
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { toast } from "sonner";
 
 export function UpdateProductForm({
   onCustomerAdded,
@@ -31,6 +29,7 @@ export function UpdateProductForm({
   open: boolean;
   onClose: () => void;
 }) {
+  const { toast } = useToast();
   const { control, handleSubmit, reset } = useForm<UpdateProductInputType>({
     defaultValues: {
       description: product?.description || "",
@@ -55,10 +54,12 @@ export function UpdateProductForm({
 
     mutate(data, {
       onSuccess: () => {
-        toast("Cập nhật sản phẩm thành công", {
-          duration: 5000,
+        toast({
+          title: "Thành công",
+          description: "Sản phẩm đã được cập nhật thành công.",
         });
         reset();
+        onClose();
         if (onCustomerAdded) {
           onCustomerAdded();
         }

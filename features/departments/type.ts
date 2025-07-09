@@ -23,7 +23,7 @@ export type DepartmentType = {
 export type DepartmentFilterInput = {
   page?: number;
   limit?: number;
-  search?: string;
+  name?: string;
 };
 
 export type DepartmentDetailType = {

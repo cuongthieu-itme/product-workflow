@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/tooltip";
 import Link from "next/link";
 import { getUserRole } from "../utils";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export function UsersList() {
   const [page, setPage] = useState(1);
@@ -47,6 +48,7 @@ export function UsersList() {
     null
   );
   const { data: departments } = useDepartmentsQuery();
+  const debouncedSearch = useDebounce(searchValue, 400);
 
   const {
     data: usersResp,
@@ -61,7 +63,7 @@ export function UsersList() {
         : undefined,
     departmentId: filterDepartment,
     role: filterRole as UserRoleEnum | undefined,
-    fullName: searchValue,
+    fullName: debouncedSearch,
   });
 
   const columns: Column<User>[] = [

@@ -32,8 +32,6 @@ import { InputCustom } from "@/components/form/input";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { SelectCustom } from "@/components/form/select";
 import { useUsersQuery } from "@/features/users/hooks";
-import { useResetOnFormChange } from "@/hooks/use-reset-form-change";
-import { DepartmentType } from "../type";
 
 export function CreateDepartmentForm({
   onDepartmentAdded,
@@ -53,6 +51,7 @@ export function CreateDepartmentForm({
 
   const selected = watch("memberIds");
   const headSelected = watch("headId");
+  const { toast } = useToast();
 
   const toggleUser = (id: number, checked: boolean) =>
     setValue(
@@ -60,17 +59,15 @@ export function CreateDepartmentForm({
       checked ? [...selected, id] : selected.filter((v) => v !== id)
     );
 
-  const {
-    mutate,
-    isPending,
-    isSuccess,
-    error,
-    reset: resetMutationStatus,
-  } = useCreateDepartmentMutation();
+  const { mutate, isPending, error } = useCreateDepartmentMutation();
 
   const onSubmit: SubmitHandler<CreateDepartmentInputType> = (data) => {
     mutate(data, {
       onSuccess: () => {
+        toast({
+          title: "Thành công",
+          description: "Phòng ban đã được tạo thành công.",
+        });
         reset();
         if (onDepartmentAdded) {
           onDepartmentAdded();
@@ -101,18 +98,6 @@ export function CreateDepartmentForm({
   return (
     <ScrollArea className="max-h-[80vh] pr-4 -mr-4">
       <div className="space-y-6 pr-4">
-        {isSuccess && (
-          <Alert className="bg-green-50 border-green-200">
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
-            <AlertTitle className="text-green-800">
-              Tạo phòng ban thành công!
-            </AlertTitle>
-            <AlertDescription className="text-green-700">
-              Phòng ban đã được tạo thành công và đã được thêm vào hệ thống.
-            </AlertDescription>
-          </Alert>
-        )}
-
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />

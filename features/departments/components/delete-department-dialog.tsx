@@ -2,9 +2,9 @@
 
 import { BaseDialog } from "@/components/dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { DepartmentType } from "../type";
 import { useDeleteDepartmentMutation } from "../hooks";
+import { useToast } from "@/components/ui/use-toast";
 
 interface DeleteDepartmentDialogProps {
   deletingDepartment: DepartmentType | null;
@@ -16,15 +16,23 @@ export const DeleteDepartmentDialog = ({
   setDeletingDepartment,
 }: DeleteDepartmentDialogProps) => {
   const { mutateAsync, isPending } = useDeleteDepartmentMutation();
+  const { toast } = useToast();
 
   const handleDelete = async () => {
     if (!deletingDepartment) return;
     try {
       await mutateAsync(deletingDepartment.id);
-      toast.success("Xóa phòng ban thành công!");
+      toast({
+        title: "Thành công",
+        description: "Phòng ban đã được xóa thành công.",
+      });
       setDeletingDepartment(null);
     } catch (err: any) {
-      toast.error(err.message || "Xóa phòng ban thất bại");
+      toast({
+        title: "Lỗi",
+        description: err.message || "Xóa phòng ban thất bại",
+        variant: "destructive",
+      });
     }
   };
 

@@ -2,9 +2,10 @@
 
 import { BaseDialog } from "@/components/dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { ProductType } from "../types";
 import { useDeleteProductMutation } from "../hooks";
+import { useToast } from "@/components/ui/use-toast";
+import { Loader2 } from "lucide-react";
 
 interface DeleteProductDialogProps {
   deletingProduct: ProductType | null;
@@ -16,15 +17,22 @@ export const DeleteProductDialog = ({
   setDeletingCustomer,
 }: DeleteProductDialogProps) => {
   const { mutateAsync, isPending } = useDeleteProductMutation();
+  const { toast } = useToast();
 
   const handleDelete = async () => {
     if (!deletingProduct) return;
     try {
       await mutateAsync(deletingProduct.id);
-      toast.success("Xóa sản phẩm thành công!");
+      toast({
+        title: "Thành công",
+        description: "Sản phẩm đã được xóa thành công.",
+      });
       setDeletingCustomer(null);
     } catch (err: any) {
-      toast.error(err.message || "Xóa sản phẩm thất bại");
+      toast({
+        title: "Lỗi",
+        description: err.message || "Xóa sản phẩm thất bại",
+      });
     }
   };
 
@@ -49,7 +57,14 @@ export const DeleteProductDialog = ({
             onClick={handleDelete}
             disabled={isPending}
           >
-            Xoá
+            {isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Đang xóa...
+              </>
+            ) : (
+              "Xóa"
+            )}
           </Button>
         </div>
       }

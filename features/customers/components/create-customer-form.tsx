@@ -16,13 +16,15 @@ import { SourceEnum } from "../type";
 import { GenderEnum } from "@/constants/gender";
 import { DatePickerCustom } from "@/components/form/date-picker";
 import { genderOptions, sourceOptions } from "../options";
+import { useToast } from "@/components/ui/use-toast";
 
 export function CreateCustomerForm({
   onCustomerAdded,
 }: {
   onCustomerAdded?: () => void;
 }) {
-  const { control, handleSubmit, reset, watch, formState } =
+  const { toast } = useToast();
+  const { control, handleSubmit, reset, formState } =
     useForm<CreateCustomerInputType>({
       defaultValues: {
         dateOfBirth: "",
@@ -43,11 +45,13 @@ export function CreateCustomerForm({
     reset: resetMutationStatus,
   } = useCreateCustomerMutation();
 
-  console.log(watch());
-
   const onSubmit: SubmitHandler<CreateCustomerInputType> = (data) => {
     mutate(data, {
       onSuccess: () => {
+        toast({
+          title: "Thành công",
+          description: "Khách hàng đã được tạo thành công.",
+        });
         reset();
         if (onCustomerAdded) {
           onCustomerAdded();
@@ -55,10 +59,6 @@ export function CreateCustomerForm({
       },
     });
   };
-
-  console.log(formState);
-
-  // useResetOnFormChange(watch, resetMutationStatus);
 
   return (
     <ScrollArea className="max-h-[80vh] pr-4 -mr-4">
@@ -95,6 +95,7 @@ export function CreateCustomerForm({
               label="Họ Tên"
               placeholder="Nhập họ tên"
               required
+              disabled={isPending}
             />
 
             <InputCustom
@@ -103,6 +104,7 @@ export function CreateCustomerForm({
               label="Email"
               placeholder="Nhập email"
               required
+              disabled={isPending}
             />
 
             <SelectCustom
@@ -112,6 +114,7 @@ export function CreateCustomerForm({
               options={genderOptions}
               required
               placeholder="Chọn giới tính"
+              disabled={isPending}
             />
 
             <DatePickerCustom
@@ -119,6 +122,7 @@ export function CreateCustomerForm({
               control={control}
               label="Ngày sinh"
               required
+              disabled={isPending}
             />
 
             <InputCustom
@@ -127,6 +131,7 @@ export function CreateCustomerForm({
               label="Số điện thoại"
               placeholder="Nhập số điện thoại"
               required
+              disabled={isPending}
             />
 
             <SelectCustom
@@ -136,6 +141,7 @@ export function CreateCustomerForm({
               options={sourceOptions}
               required
               placeholder="Chọn nguồn khách hàng"
+              disabled={isPending}
             />
           </div>
 

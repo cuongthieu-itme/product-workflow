@@ -11,13 +11,12 @@ import { UpdateCustomerInputType, updateCustomerInputSchema } from "../schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { InputCustom } from "@/components/form/input";
 import { SelectCustom } from "@/components/form/select";
-import { useUsersQuery } from "@/features/users/hooks";
-import { CustomerType, SourceEnum } from "../type";
+import { CustomerType } from "../type";
 import { BaseDialog } from "@/components/dialog";
 import { useUpdateCustomerMutation } from "../hooks";
 import { DatePickerCustom } from "@/components/form/date-picker";
-import { GenderEnum } from "@/constants/gender";
 import { genderOptions, sourceOptions } from "../options";
+import { useToast } from "@/components/ui/use-toast";
 
 export function UpdateCustomerForm({
   onCustomerAdded,
@@ -30,6 +29,7 @@ export function UpdateCustomerForm({
   open: boolean;
   onClose: () => void;
 }) {
+  const { toast } = useToast();
   const { control, handleSubmit, reset, watch, setValue } =
     useForm<UpdateCustomerInputType>({
       defaultValues: {
@@ -44,21 +44,18 @@ export function UpdateCustomerForm({
       resolver: zodResolver(updateCustomerInputSchema),
     });
 
-  const {
-    mutate,
-    isPending,
-    isSuccess,
-    error,
-    data,
-    // reset: resetMutationStatus,
-  } = useUpdateCustomerMutation();
-  const { data: users } = useUsersQuery();
+  const { mutate, isPending, isSuccess, error, data } =
+    useUpdateCustomerMutation();
 
   const onSubmit: SubmitHandler<UpdateCustomerInputType> = (data) => {
     if (!customer?.id) return;
 
     mutate(data, {
       onSuccess: () => {
+        toast({
+          title: "Thành công",
+          description: "Khách hàng đã được cập nhật thành công.",
+        });
         reset();
         if (onCustomerAdded) {
           onCustomerAdded();
@@ -66,14 +63,6 @@ export function UpdateCustomerForm({
       },
     });
   };
-
-  const userOptions =
-    users?.data.map((user) => ({
-      value: user.id,
-      label: `${user.fullName} (${user.userName})`,
-    })) || [];
-
-  // useResetOnFormChange(watch, resetMutationStatus);
 
   return (
     <BaseDialog
@@ -117,6 +106,7 @@ export function UpdateCustomerForm({
                 label="Họ Tên"
                 placeholder="Nhập họ tên"
                 required
+                disabled={isPending}
               />
 
               <InputCustom
@@ -125,6 +115,7 @@ export function UpdateCustomerForm({
                 label="Email"
                 placeholder="Nhập email"
                 required
+                disabled={isPending}
               />
 
               <SelectCustom
@@ -134,6 +125,7 @@ export function UpdateCustomerForm({
                 options={genderOptions}
                 required
                 placeholder="Chọn giới tính"
+                disabled={isPending}
               />
 
               <DatePickerCustom
@@ -141,6 +133,7 @@ export function UpdateCustomerForm({
                 control={control}
                 label="Ngày sinh"
                 required
+                disabled={isPending}
               />
 
               <InputCustom
@@ -149,6 +142,7 @@ export function UpdateCustomerForm({
                 label="Số điện thoại"
                 placeholder="Nhập số điện thoại"
                 required
+                disabled={isPending}
               />
 
               <SelectCustom
@@ -158,6 +152,7 @@ export function UpdateCustomerForm({
                 options={sourceOptions}
                 required
                 placeholder="Chọn nguồn khách hàng"
+                disabled={isPending}
               />
             </div>
 

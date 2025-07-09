@@ -24,7 +24,7 @@ export const AddCustomerDialog = () => {
         description="Điền thông tin để tạo khách hàng mới. Nhấn nút Tạo khách hàng khi hoàn tất."
         contentClassName="sm:max-w-[400px]"
       >
-        <CreateCustomerForm />
+        <CreateCustomerForm onCustomerAdded={() => setIsDialogOpen(false)} />
       </BaseDialog>
     </>
   );

@@ -22,6 +22,7 @@ import { BaseDialog } from "@/components/dialog";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/components/ui/use-toast";
 
 export function UpdateDepartmentForm({
   onDepartmentAdded,
@@ -34,6 +35,8 @@ export function UpdateDepartmentForm({
   open: boolean;
   onClose: () => void;
 }) {
+  const { toast } = useToast();
+
   const { control, handleSubmit, reset, watch, setValue } =
     useForm<UpdateDepartmentInputType>({
       defaultValues: {
@@ -70,6 +73,10 @@ export function UpdateDepartmentForm({
 
     mutate(data, {
       onSuccess: () => {
+        toast({
+          title: "Thành công",
+          description: "Phòng ban đã được cập nhật thành công.",
+        });
         reset();
         if (onDepartmentAdded) {
           onDepartmentAdded();

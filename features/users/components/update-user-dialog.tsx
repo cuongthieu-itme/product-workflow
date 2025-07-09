@@ -18,12 +18,13 @@ import {
 import { User } from "../type";
 import { useEffect } from "react";
 import { useUpdateUserMutation } from "../hooks";
-import { toast } from "sonner";
 import { UserRoleEnum } from "@/features/auth/constants";
 import { SelectCustom, SelectOption } from "@/components/form/select";
 import { useDepartmentsQuery } from "@/features/departments/hooks";
 import { userRoles, userStatus } from "../options";
 import { useGetUserInfoQuery } from "@/features/auth/hooks";
+import { useToast } from "@/components/ui/use-toast";
+import { Loader2 } from "lucide-react";
 
 interface UpdateUserDialogProps {
   editingUser: User | null;
@@ -34,6 +35,7 @@ export const UpdateUserDialog = ({
   editingUser,
   setEditingUser,
 }: UpdateUserDialogProps) => {
+  const { toast } = useToast();
   const { control, handleSubmit, reset } = useForm<UpdateUserInputType>({
     resolver: zodResolver(updateUserInputSchema),
     defaultValues: {
@@ -67,10 +69,17 @@ export const UpdateUserDialog = ({
     if (!editingUser) return;
     try {
       await mutateAsync({ id: editingUser.id, data });
-      toast.success("Cập nhật thành công!");
+      toast({
+        title: "Thành công",
+        description: "Cập nhật thành công!",
+      });
       setEditingUser(null);
     } catch (err: any) {
-      toast.error(err.message || "Cập nhật thất bại");
+      toast({
+        title: "Lỗi",
+        description: err.message || "Cập nhật thất bại",
+        variant: "destructive",
+      });
     }
   };
 
@@ -81,10 +90,6 @@ export const UpdateUserDialog = ({
       value: d.id,
       label: d.name,
     })) ?? [];
-
-
-
-
 
   return (
     <BaseDialog
@@ -104,39 +109,49 @@ export const UpdateUserDialog = ({
             className="flex-1 min-w-[180px]"
             disabled
           />
+
           <InputCustom
             control={control}
             name="fullName"
             label="Họ tên"
             required
             className="flex-1 min-w-[180px]"
+            disabled={isPending}
           />
+
           <InputCustom
             control={control}
             name="email"
             label="Email"
             required
             className="flex-1 min-w-[180px]"
+            disabled={isPending}
           />
+
           <InputCustom
             control={control}
             name="phoneNumber"
             label="Số điện thoại"
             className="flex-1 min-w-[180px]"
+            disabled={isPending}
           />
+
           <SelectCustom
             control={control}
             name="role"
             label="Vai trò"
             required
             options={userRoles}
+            disabled={isPending}
           />
+
           <SelectCustom
             valueType="number"
             control={control}
             name="departmentId"
             label="Phòng ban"
             options={departOptions}
+            disabled={isPending}
           />
 
           <SelectCustom
@@ -145,11 +160,22 @@ export const UpdateUserDialog = ({
             label="Trạng thái"
             required
             options={userStatus}
+            disabled={isPending}
           />
         </div>
-        <div className="flex justify-end pt-2 mt-4">
+        <div className="flex justify-end pt-2 mt-4 gap-2">
+          <Button variant="outline" onClick={() => setEditingUser(null)}>
+            Hủy
+          </Button>
           <Button type="submit" disabled={isPending}>
-            Lưu thay đổi
+            {isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Đang xử lý...
+              </>
+            ) : (
+              "Lưu thay đổi"
+            )}
           </Button>
         </div>
       </form>

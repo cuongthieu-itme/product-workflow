@@ -13,6 +13,7 @@ import { useState } from "react";
 import { BaseDialog } from "@/components/dialog";
 import { createCategoryInputSchema, CreateCategoryInputType } from "../schema";
 import { useCreateCategoryMutation } from "../hooks";
+import { useToast } from "@/components/ui/use-toast";
 
 export function CreateCategoryForm({
   onCategoryAdded,
@@ -20,6 +21,7 @@ export function CreateCategoryForm({
   onCategoryAdded?: () => void;
 }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   const { control, handleSubmit, reset } = useForm<CreateCategoryInputType>({
     defaultValues: {
@@ -36,6 +38,11 @@ export function CreateCategoryForm({
     mutate(data, {
       onSuccess: () => {
         reset();
+        setIsDialogOpen(false);
+        toast({
+          title: "Thành công",
+          description: "Danh mục đã được thêm thành công.",
+        });
         if (onCategoryAdded) {
           onCategoryAdded();
         }
@@ -87,6 +94,7 @@ export function CreateCategoryForm({
                 placeholder="Nhập tên danh mục"
                 label="Tên danh mục"
                 required
+                disabled={isPending}
               />
 
               <InputCustom
@@ -94,6 +102,7 @@ export function CreateCategoryForm({
                 control={control}
                 placeholder="Nhập mô tả"
                 label="Mô tả"
+                disabled={isPending}
               />
             </div>
             <DialogFooter className="mt-6 flex justify-end space-x-2">

@@ -15,6 +15,7 @@ import { BaseDialog } from "@/components/dialog";
 import { createProductInputSchema, CreateProductInputType } from "../schema";
 import { useCreateProductMutation } from "../hooks";
 import { useCategoriesQuery } from "@/features/categories/hooks";
+import { useToast } from "@/components/ui/use-toast";
 
 export function CreateProductForm({
   onCustomerAdded,
@@ -22,6 +23,7 @@ export function CreateProductForm({
   onCustomerAdded?: () => void;
 }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   const { control, handleSubmit, reset, watch, formState } =
     useForm<CreateProductInputType>({
@@ -39,6 +41,11 @@ export function CreateProductForm({
     mutate(data, {
       onSuccess: () => {
         reset();
+        setIsDialogOpen(false);
+        toast({
+          title: "Thành công",
+          description: "Sản phẩm đã được thêm thành công.",
+        });
         if (onCustomerAdded) {
           onCustomerAdded();
         }
@@ -104,6 +111,7 @@ export function CreateProductForm({
                   label="Tên sản phẩm"
                   placeholder="Nhập tên sản phẩm"
                   required
+                  disabled={isPending}
                 />
 
                 <InputCustom
@@ -112,6 +120,7 @@ export function CreateProductForm({
                   label="Chi tiết sản phẩm"
                   placeholder="Nhập chi tiết sản phẩm"
                   required
+                  disabled={isPending}
                 />
 
                 <SelectCustom
@@ -122,6 +131,7 @@ export function CreateProductForm({
                   options={categoryOptions}
                   required
                   placeholder="Chọn danh mục sản phẩm"
+                  disabled={isPending}
                 />
               </div>
 

@@ -24,7 +24,9 @@ export const AddDepartmentDialog = () => {
         description="Điền thông tin để tạo phòng ban mới. Nhấn nút Tạo phòng ban khi hoàn tất."
         contentClassName="sm:max-w-[400px]"
       >
-        <CreateDepartmentForm />
+        <CreateDepartmentForm
+          onDepartmentAdded={() => setIsDialogOpen(false)}
+        />
       </BaseDialog>
     </>
   );

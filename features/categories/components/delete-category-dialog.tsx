@@ -2,9 +2,9 @@
 
 import { BaseDialog } from "@/components/dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { CategoryType } from "../types";
 import { useDeleteCategoryMutation } from "../hooks";
+import { useToast } from "@/components/ui/use-toast";
 
 interface DeleteCategoryDialogProps {
   deletingProduct: CategoryType | null;
@@ -16,15 +16,22 @@ export const DeleteCategoryDialog = ({
   setDeletingCustomer,
 }: DeleteCategoryDialogProps) => {
   const { mutateAsync, isPending } = useDeleteCategoryMutation();
+  const { toast } = useToast();
 
   const handleDelete = async () => {
     if (!deletingProduct) return;
     try {
       await mutateAsync(deletingProduct.id);
-      toast.success("Xóa danh mục thành công!");
+      toast({
+        title: "Thành công",
+        description: "Danh mục đã được xóa thành công.",
+      });
       setDeletingCustomer(null);
     } catch (err: any) {
-      toast.error(err.message || "Xóa danh mục thất bại");
+      toast({
+        title: "Lỗi",
+        description: err.message || "Xóa danh mục thất bại",
+      });
     }
   };
 

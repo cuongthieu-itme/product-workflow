@@ -2,9 +2,9 @@
 
 import { BaseDialog } from "@/components/dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { CustomerType } from "../type";
 import { useDeleteCustomerMutation } from "../hooks";
+import { useToast } from "@/components/ui/use-toast";
 
 interface DeleteCustomerDialogProps {
   deletingCustomer: CustomerType | null;
@@ -16,15 +16,22 @@ export const DeleteCustomerDialog = ({
   setDeletingCustomer,
 }: DeleteCustomerDialogProps) => {
   const { mutateAsync, isPending } = useDeleteCustomerMutation();
+  const { toast } = useToast();
 
   const handleDelete = async () => {
     if (!deletingCustomer) return;
     try {
       await mutateAsync(deletingCustomer.id);
-      toast.success("Xóa khách hàng thành công!");
+      toast({
+        title: "Thành công",
+        description: "Khách hàng đã được xóa thành công.",
+      });
       setDeletingCustomer(null);
     } catch (err: any) {
-      toast.error(err.message || "Xóa khách hàng thất bại");
+      toast({
+        title: "Lỗi",
+        description: err.message || "Xóa khách hàng thất bại",
+      });
     }
   };
 
