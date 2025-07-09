@@ -40,15 +40,25 @@ export function CreateDepartmentForm({
 }: {
   onDepartmentAdded?: () => void;
 }) {
-  const { control, handleSubmit, reset, watch } =
+  const { control, handleSubmit, reset, watch, setValue } =
     useForm<CreateDepartmentInputType>({
       defaultValues: {
         description: "",
         headId: undefined,
         name: "",
+        memberIds: [],
       },
       resolver: zodResolver(createDepartmentInputSchema),
     });
+
+  const selected = watch("memberIds");
+  const headSelected = watch("headId");
+
+  const toggleUser = (id: number, checked: boolean) =>
+    setValue(
+      "memberIds",
+      checked ? [...selected, id] : selected.filter((v) => v !== id)
+    );
 
   const {
     mutate,
@@ -70,13 +80,23 @@ export function CreateDepartmentForm({
   };
 
   const { data: users } = useUsersQuery();
-  const userOptions =
-    users?.data.map((user) => ({
-      value: user.id,
-      label: `${user.fullName} (${user.userName})`,
-    })) || [];
 
-  useResetOnFormChange(watch, resetMutationStatus);
+  const headOptions =
+    users?.data
+      ?.map((user) => ({
+        value: user.id,
+        label: `${user.fullName} (${user.userName})`,
+      }))
+      .filter((user) => !selected.includes(Number(user.value))) ?? [];
+
+  const memberOptions =
+    users?.data?.filter((user) => {
+      if (headSelected) {
+        return Number(user.id) !== headSelected;
+      }
+    }) ?? [];
+
+  // useResetOnFormChange(watch, resetMutationStatus);
 
   return (
     <ScrollArea className="max-h-[80vh] pr-4 -mr-4">
@@ -124,39 +144,43 @@ export function CreateDepartmentForm({
             />
 
             <SelectCustom
+              valueType="number"
               name="headId"
               control={control}
               label="Trưởng Phòng Ban"
-              options={userOptions}
+              options={headOptions}
               required
               placeholder="Chọn trưởng phòng ban"
             />
 
-            {/* <div className="space-y-2">
+            <div className="space-y-2">
               <Label className="text-sm font-medium">
                 Thành Viên Phòng Ban
               </Label>
+
               <div className="border rounded-md p-3">
                 <div className="flex flex-wrap gap-2 mb-2">
-                  {selectedUsers.length > 0 ? (
-                    selectedUsers.map((userId) => {
-                      const user = users.find((u) => u.id === userId);
-                      return user ? (
+                  {selected.length ? (
+                    selected.map((id) => {
+                      const user = users?.data.find(
+                        (u) => u.id.toString() === id.toString()
+                      );
+                      return (
                         <Badge
-                          key={userId}
+                          key={id}
                           variant="secondary"
                           className="flex items-center gap-1"
                         >
-                          {user.fullName}
+                          {user?.fullName}
                           <button
                             type="button"
-                            onClick={() => handleUserSelect(userId, false)}
+                            onClick={() => toggleUser(id, false)}
                             className="text-muted-foreground hover:text-foreground"
                           >
                             <X className="h-3 w-3" />
                           </button>
                         </Badge>
-                      ) : null;
+                      );
                     })
                   ) : (
                     <p className="text-sm text-muted-foreground">
@@ -164,32 +188,30 @@ export function CreateDepartmentForm({
                     </p>
                   )}
                 </div>
+
                 <ScrollArea className="h-[150px]">
                   <div className="space-y-2 pr-4">
-                    {users.map((user) => (
-                      <div
-                        key={user.id}
-                        className="flex items-center space-x-2"
-                      >
+                    {memberOptions.map((u) => (
+                      <div key={u.id} className="flex items-center space-x-2">
                         <Checkbox
-                          id={`user-${user.id}`}
-                          checked={selectedUsers.includes(user.id)}
-                          onCheckedChange={(checked) =>
-                            handleUserSelect(user.id, checked as boolean)
+                          id={`user-${u.id}`}
+                          checked={selected.includes(Number(u.id))}
+                          onCheckedChange={(c) =>
+                            toggleUser(Number(u.id), c as boolean)
                           }
                         />
                         <label
-                          htmlFor={`user-${user.id}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          htmlFor={`user-${u.id}`}
+                          className="text-sm font-medium leading-none"
                         >
-                          {user.fullName} ({user.username})
+                          {u.fullName} ({u.userName})
                         </label>
                       </div>
                     ))}
                   </div>
                 </ScrollArea>
               </div>
-            </div> */}
+            </div>
           </div>
 
           <DialogFooter className="flex justify-end gap-2">

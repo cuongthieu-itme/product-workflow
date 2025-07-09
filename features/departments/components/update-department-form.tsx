@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { CheckCircle2, AlertCircle, Loader2, X } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
   updateDepartmentInputSchema,
@@ -19,6 +19,9 @@ import { SelectCustom } from "@/components/form/select";
 import { useUsersQuery } from "@/features/users/hooks";
 import { DepartmentType } from "../type";
 import { BaseDialog } from "@/components/dialog";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export function UpdateDepartmentForm({
   onDepartmentAdded,
@@ -38,9 +41,19 @@ export function UpdateDepartmentForm({
         description: department?.description || "",
         headId: department?.headId,
         name: department?.name || "",
+        memberIds: department?.members.map((m) => m.id) || [],
       },
       resolver: zodResolver(updateDepartmentInputSchema),
     });
+
+  const selected = watch("memberIds");
+  const headSelected = watch("headId");
+
+  const toggleUser = (id: number, checked: boolean) =>
+    setValue(
+      "memberIds",
+      checked ? [...selected, id] : selected.filter((v) => v !== id)
+    );
 
   const {
     mutate,
@@ -65,11 +78,21 @@ export function UpdateDepartmentForm({
     });
   };
 
-  const userOptions =
-    users?.data.map((user) => ({
-      value: user.id,
-      label: `${user.fullName} (${user.userName})`,
-    })) || [];
+  // If selected have headId, remove it from headOptions
+  const headOptions =
+    users?.data
+      ?.map((user) => ({
+        value: user.id,
+        label: `${user.fullName} (${user.userName})`,
+      }))
+      .filter((user) => !selected.includes(Number(user.value))) ?? [];
+
+  const memberOptions =
+    users?.data?.filter((user) => {
+      if (headSelected) {
+        return Number(user.id) !== headSelected;
+      }
+    }) ?? [];
 
   // useResetOnFormChange(watch, resetMutationStatus);
 
@@ -130,69 +153,70 @@ export function UpdateDepartmentForm({
                 name="headId"
                 control={control}
                 label="Trưởng Phòng Ban"
-                options={userOptions}
+                options={headOptions}
                 required
                 placeholder="Chọn trưởng phòng ban"
               />
 
-              {/* <div className="space-y-2">
-              <Label className="text-sm font-medium">
-                Thành Viên Phòng Ban
-              </Label>
-              <div className="border rounded-md p-3">
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {selectedUsers.length > 0 ? (
-                    selectedUsers.map((userId) => {
-                      const user = users.find((u) => u.id === userId);
-                      return user ? (
-                        <Badge
-                          key={userId}
-                          variant="secondary"
-                          className="flex items-center gap-1"
-                        >
-                          {user.fullName}
-                          <button
-                            type="button"
-                            onClick={() => handleUserSelect(userId, false)}
-                            className="text-muted-foreground hover:text-foreground"
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
+                  Thành Viên Phòng Ban
+                </Label>
+
+                <div className="border rounded-md p-3">
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {selected.length ? (
+                      selected.map((id) => {
+                        const user = users?.data.find(
+                          (u) => u.id.toString() === id.toString()
+                        );
+                        return (
+                          <Badge
+                            key={id}
+                            variant="secondary"
+                            className="flex items-center gap-1"
                           >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ) : null;
-                    })
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      Chưa có thành viên nào được chọn
-                    </p>
-                  )}
-                </div>
-                <ScrollArea className="h-[150px]">
-                  <div className="space-y-2 pr-4">
-                    {users.map((user) => (
-                      <div
-                        key={user.id}
-                        className="flex items-center space-x-2"
-                      >
-                        <Checkbox
-                          id={`user-${user.id}`}
-                          checked={selectedUsers.includes(user.id)}
-                          onCheckedChange={(checked) =>
-                            handleUserSelect(user.id, checked as boolean)
-                          }
-                        />
-                        <label
-                          htmlFor={`user-${user.id}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {user.fullName} ({user.username})
-                        </label>
-                      </div>
-                    ))}
+                            {user?.fullName}
+                            <button
+                              type="button"
+                              onClick={() => toggleUser(id, false)}
+                              className="text-muted-foreground hover:text-foreground"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        );
+                      })
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Chưa có thành viên nào được chọn
+                      </p>
+                    )}
                   </div>
-                </ScrollArea>
+
+                  <ScrollArea className="h-[150px]">
+                    <div className="space-y-2 pr-4">
+                      {memberOptions.map((u) => (
+                        <div key={u.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`user-${u.id}`}
+                            checked={selected.includes(Number(u.id))}
+                            onCheckedChange={(c) =>
+                              toggleUser(Number(u.id), c as boolean)
+                            }
+                          />
+                          <label
+                            htmlFor={`user-${u.id}`}
+                            className="text-sm font-medium leading-none"
+                          >
+                            {u.fullName} ({u.userName})
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
               </div>
-            </div> */}
             </div>
 
             <DialogFooter className="flex justify-end gap-2">

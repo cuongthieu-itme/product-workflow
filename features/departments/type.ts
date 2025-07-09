@@ -1,6 +1,11 @@
 import { PaginatedResult } from "@/types/common";
 import { User } from "../users/type";
 
+export type MemberType = {
+  id: number;
+  fullName: string;
+};
+
 export type DepartmentType = {
   id: number;
   name: string;
@@ -10,6 +15,7 @@ export type DepartmentType = {
   _count: {
     members: number;
   };
+  members: MemberType[];
   createdAt: string;
   updatedAt: string;
 };
