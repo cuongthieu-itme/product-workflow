@@ -15,17 +15,18 @@ import {
 } from "@/components/ui/card";
 import { InputCustom } from "@/components/form/input";
 import { AvatarSetting } from "./avatar-setting";
-import { useGetUserInfoQuery } from "@/features/auth/hooks";
 import { useUpdateProfileMutation } from "../hooks";
 import { ChangeInfoInputType } from "../schema";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useToast } from "@/components/ui/use-toast";
+import { useGetCurrentUserQuery } from "../hooks/useProfile";
+import { getDepartmentRole } from "../utils";
 
 export const ChangeInformationTab = () => {
     const { toast } = useToast()
-    const { data: user } = useGetUserInfoQuery();
+    const { data: user } = useGetCurrentUserQuery();
 
-    const { control, handleSubmit } = useForm<ChangeInfoInputType>({
+    const { control, handleSubmit, formState: { isDirty } } = useForm<ChangeInfoInputType>({
         defaultValues: {
             email: user?.email,
             fullName: user?.fullName,
@@ -120,7 +121,7 @@ export const ChangeInformationTab = () => {
                             </Label>
                             <Input
                                 id="department"
-                                value="Phòng kế hoạch"
+                                value={user.department.name ?? "Chưa có phòng ban"}
                                 disabled
                                 className="bg-muted"
                             />
@@ -134,7 +135,7 @@ export const ChangeInformationTab = () => {
                             </Label>
                             <Input
                                 id="position"
-                                value="Nhân viên"
+                                value={getDepartmentRole(user.id, user?.department?.headId, user?.department?.id)}
                                 disabled
                                 className="bg-muted"
                             />
@@ -142,7 +143,7 @@ export const ChangeInformationTab = () => {
                     </div>
 
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={isPending}>
+                        <Button type="submit" disabled={isPending || !isDirty}>
                             {isPending ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Cập nhật...

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, User, Mail, Building, Shield, Phone } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -16,40 +16,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGetUserInfoQuery } from "@/features/auth/hooks";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { InputCustom } from "@/components/form/input";
+import { useGetCurrentUserQuery } from "../hooks";
 import { ChangePasswordTab } from "./change-password-tab";
-import { AvatarSetting } from "./avatar-setting";
-import { ChangeInfoInputType } from "../schema";
-import { useUpdateProfileMutation } from "../hooks";
 import { ChangeInformationTab } from "./change-information-tab";
 
 export function AccountSettings() {
-  const [formData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-    twoFactorEnabled: false,
-    sessionTimeout: 30,
-  });
-
-  const { data: user, isLoading } = useGetUserInfoQuery();
-
-  const { control, handleSubmit } = useForm<ChangeInfoInputType>({
-    defaultValues: {
-      email: user?.email,
-      fullName: user?.fullName,
-      phoneNumber: user?.phoneNumber,
-      avatar: user?.avatar,
-    },
-  });
-
-  const { mutate } = useUpdateProfileMutation()
-
-  const onSubmit: SubmitHandler<ChangeInfoInputType> = (data) => {
-    mutate(data)
-  };
+  const { isLoading } = useGetCurrentUserQuery();
 
   if (isLoading) {
     return (
@@ -97,7 +69,7 @@ export function AccountSettings() {
                   </div>
                   <Switch
                     id="twoFactor"
-                    checked={formData.twoFactorEnabled}
+                    checked={false}
                   />
                 </div>
                 <div className="space-y-2">
@@ -109,7 +81,7 @@ export function AccountSettings() {
                     type="number"
                     min="5"
                     max="120"
-                    value={formData.sessionTimeout}
+                    value={30}
                   />
                   <p className="text-sm text-muted-foreground">
                     Thời gian không hoạt động trước khi tự động đăng xuất

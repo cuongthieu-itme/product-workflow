@@ -1,5 +1,7 @@
 import request from "@/configs/axios-config";
 import { ChangeInfoInputType, ChangePasswordInputType } from "./schema";
+import { BaseResultQuery } from "@/types/common";
+import { CurrentUserType } from "./type";
 
 export const changePassword = async (data: ChangePasswordInputType) => {
   try {
@@ -14,9 +16,29 @@ export const changePassword = async (data: ChangePasswordInputType) => {
 
 export const updateProfile = async (data: ChangeInfoInputType) => {
   try {
-    const response = await request.put("/users", data);
+    const response = await request.put("/users/profile", data);
 
     return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateAvatar = async (avatar: string) => {
+  try {
+    const response = await request.put("/users/profile", { avatar });
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getUserProfile = async () => {
+  try {
+    const response = await request.get<BaseResultQuery<CurrentUserType>>("/users/profile");
+
+    return response.data.data;
   } catch (error) {
     throw error;
   }

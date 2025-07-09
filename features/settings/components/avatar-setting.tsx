@@ -7,16 +7,18 @@ import { useState } from "react";
 import request from "@/configs/axios-config";
 import { useToast } from "@/components/ui/use-toast";
 import { getRoleName } from "@/helpers";
-import { useUpdateProfileMutation } from "../hooks";
+import { useUpdateAvatarMutation } from "../hooks";
+import { getImageUrl } from "../utils";
+import { CurrentUserType } from "../type";
 
 interface AvatarSettingProps {
-  user: UserType;
+  user: CurrentUserType;
 }
 
 export const AvatarSetting = ({ user }: AvatarSettingProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const { mutate } = useUpdateProfileMutation()
+  const { mutate } = useUpdateAvatarMutation()
 
 
   const onDrop = async (acceptedFiles: File[]) => {
@@ -25,8 +27,6 @@ export const AvatarSetting = ({ user }: AvatarSettingProps) => {
 
     // Create preview
     const reader = new FileReader();
-    reader.onload = (e) => {
-    };
     reader.readAsDataURL(file);
 
     // Upload to server
@@ -42,10 +42,7 @@ export const AvatarSetting = ({ user }: AvatarSettingProps) => {
       });
 
       if (response.data.filename) {
-        mutate({
-          ...user,
-          avatar: response.data.filename,
-        })
+        mutate(response.data.filename)
         toast({
           title: "Thành công",
           description: "Đã thay đổi ảnh đại diện thành công",
@@ -79,7 +76,7 @@ export const AvatarSetting = ({ user }: AvatarSettingProps) => {
       <div {...getRootProps()} className="w-full justify-center flex">
         <input {...getInputProps()} />
         <Avatar className="h-24 w-24 cursor-pointer relative">
-          <AvatarImage src={user.avatar} alt={user.fullName} />
+          <AvatarImage src={getImageUrl(user.avatar)} alt={user.fullName} />
           <AvatarFallback className="text-2xl">
             {user.fullName?.charAt(0) || user.userName?.charAt(0) || "U"}
           </AvatarFallback>

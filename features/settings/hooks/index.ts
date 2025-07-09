@@ -1,2 +1,2 @@
 export { useChangePasswordMutation } from "./useChangePasswordMutation";
-export { useUpdateProfileMutation } from "./useUpdateProfileMutation";
+export { useUpdateProfileMutation, useUpdateAvatarMutation, useGetCurrentUserQuery } from "./useProfile";
