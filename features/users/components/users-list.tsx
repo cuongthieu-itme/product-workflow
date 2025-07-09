@@ -26,8 +26,14 @@ import { userRoles } from "../options";
 import { useDepartmentsQuery } from "@/features/departments/hooks";
 import { DepartmentType } from "@/features/departments/type";
 import { UserVerifyAccountDialog } from "./user-verify-account-dialog";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import Link from "next/link";
+import { getUserRole } from "../utils";
 
 export function UsersList() {
   const [page, setPage] = useState(1);
@@ -37,7 +43,9 @@ export function UsersList() {
   const [filterDepartment, setFilterDepartment] = useState(KEY_EMPTY_SELECT);
   const [filterStatus, setFilterStatus] = useState(KEY_EMPTY_SELECT);
   const [searchValue, setSearchValue] = useState("");
-  const [isVerifiedAccountId, setIsVerifiedAccountId] = useState<string | null>(null);
+  const [isVerifiedAccountId, setIsVerifiedAccountId] = useState<string | null>(
+    null
+  );
   const { data: departments } = useDepartmentsQuery();
 
   const {
@@ -49,8 +57,8 @@ export function UsersList() {
       filterStatus === "true"
         ? true
         : filterStatus === "false"
-          ? false
-          : undefined,
+        ? false
+        : undefined,
     departmentId: filterDepartment,
     role: filterRole as UserRoleEnum | undefined,
     fullName: searchValue,
@@ -70,7 +78,7 @@ export function UsersList() {
       header: "Vai trò",
       cell: (u) => (
         <Badge variant={u.role === UserRoleEnum.ADMIN ? "default" : "outline"}>
-          {u.role === UserRoleEnum.ADMIN ? "Admin" : "User"}
+          {getUserRole(u.role)}
         </Badge>
       ),
     },
@@ -94,8 +102,8 @@ export function UsersList() {
       className: "text-right w-100",
       cell: (u) => (
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="icon" >
-            <Link href={`/dashboard/users/${u.id}`} >
+          <Button variant="outline" size="icon">
+            <Link href={`/dashboard/users/${u.id}`}>
               <Eye className="h-4 w-4" />
             </Link>
           </Button>
@@ -119,29 +127,16 @@ export function UsersList() {
             <Key className="h-4 w-4" />
           </Button>
 
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  disabled={u.isVerifiedAccount}
-                  onClick={() => {
-                    setIsVerifiedAccountId(u.id);
-                  }}
-                >
-                  <UserCheck className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              {
-                u.isVerifiedAccount && (
-                  <TooltipContent>
-                    Tài khoản đã được duyệt
-                  </TooltipContent>
-                )
-              }
-            </Tooltip>
-          </TooltipProvider>
+          <Button
+            variant="outline"
+            size="icon"
+            disabled={u.isVerifiedAccount}
+            onClick={() => {
+              setIsVerifiedAccountId(u.id);
+            }}
+          >
+            <UserCheck className="h-4 w-4" />
+          </Button>
         </div>
       ),
     },

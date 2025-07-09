@@ -163,18 +163,7 @@ export function AppSidebar({
       href: "/dashboard/requests",
       icon: <MessageSquare className="h-4 w-4" />,
     },
-    {
-      title: "Sản phẩm",
-      href: "/dashboard/products",
-      icon: <ShoppingCart className="h-4 w-4" />,
-      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
-    },
-    {
-      title: "Danh mục sản phẩm",
-      href: "/dashboard/categories",
-      icon: <Tag className="h-4 w-4" />,
-      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
-    },
+
     {
       title: "Nguyên vật liệu",
       href: "/dashboard/materials",
@@ -237,6 +226,18 @@ export function AppSidebar({
       title: "Quản lý quy trình",
       href: "/dashboard/workflow-management",
       icon: <Workflow className="h-4 w-4" />,
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
+    },
+    {
+      title: "Sản phẩm",
+      href: "/dashboard/products",
+      icon: <ShoppingCart className="h-4 w-4" />,
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
+    },
+    {
+      title: "Danh mục sản phẩm",
+      href: "/dashboard/categories",
+      icon: <Tag className="h-4 w-4" />,
       roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
   ];
