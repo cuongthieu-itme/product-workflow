@@ -98,14 +98,14 @@ export function CategoryList() {
   ];
 
   return (
-    <div className="space-y-6 p-6 pb-16">
+    <div className="space-y-6">
       <div className="flex flex-col space-y-4 md:flex-row justify-between md:space-y-0 w-full">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">
-            Danh sách danh mục sản phẩm
+            Quản lý danh mục sản phẩm
           </h2>
           <p className="text-muted-foreground">
-            Quản lý thông tin danh mục sản phẩm
+            Quản lý thông tin danh mục sản phẩm trong hệ thống
           </p>
         </div>
 

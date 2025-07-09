@@ -26,12 +26,6 @@ import { userRoles } from "../options";
 import { useDepartmentsQuery } from "@/features/departments/hooks";
 import { DepartmentType } from "@/features/departments/type";
 import { UserVerifyAccountDialog } from "./user-verify-account-dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import Link from "next/link";
 import { getUserRole } from "../utils";
 import { useDebounce } from "@/hooks/use-debounce";

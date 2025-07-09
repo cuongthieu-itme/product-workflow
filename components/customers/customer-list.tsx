@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Search, Plus, Eye, Edit, Trash2 } from 'lucide-react'
-import Link from 'next/link'
-import { useCustomers } from './customer-context'
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search, Plus, Eye, Edit, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { useCustomers } from "./customer-context";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,58 +15,58 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
-} from '@/components/ui/alert-dialog'
-import { useToast } from '@/hooks/use-toast'
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 export function CustomerList() {
   const { customers, loading, error, refreshData, deleteCustomer } =
-    useCustomers()
-  const [searchTerm, setSearchTerm] = useState('')
-  const [deletingId, setDeletingId] = useState('')
-  const { toast } = useToast()
+    useCustomers();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [deletingId, setDeletingId] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
-    refreshData()
-  }, [refreshData])
+    refreshData();
+  }, [refreshData]);
 
   const filteredCustomers = customers.filter(
     (customer) =>
       customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.phone?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  );
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'N/A'
+    if (!dateString) return "N/A";
     try {
-      return new Date(dateString).toLocaleDateString('vi-VN')
+      return new Date(dateString).toLocaleDateString("vi-VN");
     } catch {
-      return 'N/A'
+      return "N/A";
     }
-  }
+  };
 
   const handleDeleteCustomer = async (id: string, name: string) => {
     try {
-      setDeletingId(id)
-      console.log(`🗑️ Deleting customer: ${name} (${id})`)
-      await deleteCustomer(id)
+      setDeletingId(id);
+      console.log(`🗑️ Deleting customer: ${name} (${id})`);
+      await deleteCustomer(id);
       toast({
-        title: 'Xóa thành công',
-        description: `Đã xóa khách hàng ${name}`
-      })
-      await refreshData()
+        title: "Xóa thành công",
+        description: `Đã xóa khách hàng ${name}`,
+      });
+      await refreshData();
     } catch (error) {
-      console.error('❌ Error deleting customer:', error)
+      console.error("❌ Error deleting customer:", error);
       toast({
-        title: 'Lỗi',
-        description: 'Không thể xóa khách hàng. Vui lòng thử lại sau.',
-        variant: 'destructive'
-      })
+        title: "Lỗi",
+        description: "Không thể xóa khách hàng. Vui lòng thử lại sau.",
+        variant: "destructive",
+      });
     } finally {
-      setDeletingId('')
+      setDeletingId("");
     }
-  }
+  };
 
   return (
     <div className="p-6">
@@ -137,8 +137,8 @@ export function CustomerList() {
                 <tr>
                   <td colSpan={7} className="text-center p-8">
                     {searchTerm
-                      ? 'Không tìm thấy khách hàng nào'
-                      : 'Chưa có khách hàng nào'}
+                      ? "Không tìm thấy khách hàng nào"
+                      : "Chưa có khách hàng nào"}
                   </td>
                 </tr>
               ) : (
@@ -146,7 +146,7 @@ export function CustomerList() {
                   <tr key={customer.id} className="border-b hover:bg-muted/50">
                     <td className="p-3">
                       <div className="font-medium">
-                        {customer.name || 'N/A'}
+                        {customer.name || "N/A"}
                       </div>
                     </td>
                     <td className="p-3">
@@ -163,15 +163,15 @@ export function CustomerList() {
                         )}
                       </div>
                     </td>
-                    <td className="p-3">{customer.source || 'N/A'}</td>
+                    <td className="p-3">{customer.source || "N/A"}</td>
                     <td className="p-3">
-                      {customer.gender === 'male'
-                        ? 'Nam'
-                        : customer.gender === 'female'
-                          ? 'Nữ'
-                          : customer.gender === 'other'
-                            ? 'Khác'
-                            : 'Không xác định'}
+                      {customer.gender === "male"
+                        ? "Nam"
+                        : customer.gender === "female"
+                        ? "Nữ"
+                        : customer.gender === "other"
+                        ? "Khác"
+                        : "Không xác định"}
                     </td>
                     <td className="p-3">{formatDate(customer.birthDate)}</td>
                     <td className="p-3">{formatDate(customer.createdAt)}</td>
@@ -213,7 +213,7 @@ export function CustomerList() {
                                 Xác nhận xóa khách hàng
                               </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Bạn có chắc chắn muốn xóa khách hàng{' '}
+                                Bạn có chắc chắn muốn xóa khách hàng{" "}
                                 <strong>{customer.name}</strong>? Hành động này
                                 không thể hoàn tác.
                               </AlertDialogDescription>
@@ -224,7 +224,7 @@ export function CustomerList() {
                                 onClick={() =>
                                   handleDeleteCustomer(
                                     customer.id,
-                                    customer.name || ''
+                                    customer.name || ""
                                   )
                                 }
                                 className="bg-red-600 hover:bg-red-700"
@@ -244,5 +244,5 @@ export function CustomerList() {
         </div>
       )}
     </div>
-  )
+  );
 }

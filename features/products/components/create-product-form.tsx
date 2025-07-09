@@ -10,7 +10,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { InputCustom } from "@/components/form/input";
 import { SelectCustom } from "@/components/form/select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BaseDialog } from "@/components/dialog";
 import { createProductInputSchema, CreateProductInputType } from "../schema";
 import { useCreateProductMutation } from "../hooks";
@@ -25,17 +25,22 @@ export function CreateProductForm({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  const { control, handleSubmit, reset, watch, formState } =
-    useForm<CreateProductInputType>({
-      defaultValues: {
-        categoryId: null,
-        description: "",
-        name: "",
-      },
-      resolver: zodResolver(createProductInputSchema),
-    });
+  const { control, handleSubmit, reset } = useForm<CreateProductInputType>({
+    defaultValues: {
+      categoryId: undefined,
+      description: "",
+      name: "",
+    },
+    resolver: zodResolver(createProductInputSchema),
+  });
 
-  const { mutate, isPending, isSuccess, error } = useCreateProductMutation();
+  const {
+    mutate,
+    isPending,
+    isSuccess,
+    error,
+    reset: resetMutation,
+  } = useCreateProductMutation();
 
   const onSubmit: SubmitHandler<CreateProductInputType> = (data) => {
     mutate(data, {
@@ -59,6 +64,13 @@ export function CreateProductForm({
       value: category.id,
       label: category.name,
     })) ?? [];
+
+  useEffect(() => {
+    if (isDialogOpen) {
+      reset();
+      resetMutation();
+    }
+  }, [isDialogOpen]);
 
   return (
     <>

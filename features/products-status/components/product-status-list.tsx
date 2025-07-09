@@ -21,7 +21,7 @@ export function ProductStatusList() {
   const [searchValue, setSearchValue] = useState("");
   const {
     data: products,
-    isFetching,
+    isLoading,
     refetch,
   } = useProductsStatusQuery({
     page,
@@ -108,7 +108,7 @@ export function ProductStatusList() {
   ];
 
   return (
-    <div className="space-y-6 p-6 pb-16">
+    <div className="space-y-6">
       <div className="flex flex-col space-y-4 md:flex-row justify-between md:space-y-0 w-full">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">
@@ -128,13 +128,13 @@ export function ProductStatusList() {
             searchValue={searchValue}
             onSearchChange={setSearchValue}
             onRefresh={refetch}
-            refreshing={isFetching}
+            refreshing={isLoading}
           />
 
           <DataTable<ProductStatusType>
             data={products?.data}
             columns={columns}
-            loading={isFetching}
+            loading={isLoading}
           />
 
           <TablePagination

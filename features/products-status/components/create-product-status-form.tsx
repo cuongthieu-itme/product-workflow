@@ -39,8 +39,13 @@ export function CreateProductStatusForm({
       resolver: zodResolver(createProductStatusInputSchema),
     });
 
-  const { mutate, isPending, isSuccess, error } =
-    useCreateProductStatusMutation();
+  const {
+    mutate,
+    isPending,
+    isSuccess,
+    error,
+    reset: resetMutation,
+  } = useCreateProductStatusMutation();
 
   const onSubmit: SubmitHandler<CreateProductStatusInputType> = (data) => {
     mutate(data, {
@@ -49,7 +54,7 @@ export function CreateProductStatusForm({
         setIsDialogOpen(false);
         toast({
           title: "Thành công",
-          description: "Sản phẩm đã được thêm thành công.",
+          description: "Trạng thái đã được thêm thành công.",
         });
         if (onCustomerAdded) {
           onCustomerAdded();
@@ -60,7 +65,8 @@ export function CreateProductStatusForm({
 
   useEffect(() => {
     reset();
-  }, []);
+    resetMutation();
+  }, [isDialogOpen]);
 
   return (
     <>
@@ -69,14 +75,14 @@ export function CreateProductStatusForm({
         onClick={() => setIsDialogOpen(true)}
       >
         <PlusCircle className="mr-2 h-4 w-4" />
-        Tạo sản phẩm trạng thái
+        Tạo trạng thái
       </Button>
 
       <BaseDialog
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        title="Tạo sản phẩm trạng thái mới"
-        description="Điền thông tin để tạo sản phẩm trạng thái mới. Nhấn nút Tạo sản phẩm khi hoàn tất."
+        title="Tạo trạng thái mới"
+        description="Điền thông tin để tạo trạng thái mới. Nhấn nút Tạo sản phẩm khi hoàn tất."
         contentClassName="sm:max-w-[400px]"
       >
         <ScrollArea className="max-h-[80vh] pr-4 -mr-4">
@@ -85,10 +91,11 @@ export function CreateProductStatusForm({
               <Alert className="bg-green-50 border-green-200">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                 <AlertTitle className="text-green-800">
-                  Tạo sản phẩm thành công!
+                  Tạo trạng thái thành công!
                 </AlertTitle>
                 <AlertDescription className="text-green-700">
-                  Sản phẩm đã được tạo thành công và đã được thêm vào hệ thống.
+                  Trạng thái đã được tạo thành công và đã được thêm vào hệ
+                  thống.
                 </AlertDescription>
               </Alert>
             )}
@@ -158,7 +165,7 @@ export function CreateProductStatusForm({
                       Đang xử lý...
                     </>
                   ) : (
-                    "Tạo sản phẩm trạng thái"
+                    "Tạo trạng thái sản phẩm"
                   )}
                 </Button>
               </DialogFooter>

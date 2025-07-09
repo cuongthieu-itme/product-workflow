@@ -115,6 +115,7 @@ export function CreateCategoryForm({
                 control={control}
                 placeholder="Nhập mô tả"
                 label="Mô tả"
+                required
                 disabled={isPending}
               />
             </div>

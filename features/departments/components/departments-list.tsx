@@ -18,7 +18,6 @@ import { useDebounce } from "@/hooks/use-debounce";
 
 export function DepartmentList() {
   const [page, setPage] = useState(PAGE);
-
   const [editingDepartment, setEditingDepartment] =
     useState<DepartmentType | null>(null);
   const [deleteDepartment, setDeleteDepartment] =
@@ -28,7 +27,7 @@ export function DepartmentList() {
 
   const {
     data: departments,
-    isFetching,
+    isLoading,
     refetch,
   } = useDepartmentsQuery({
     page,
@@ -104,17 +103,17 @@ export function DepartmentList() {
   return (
     <div className="space-y-4">
       <TableToolbar
-        searchPlaceholder="Tìm kiếm tên phòng ban"
+        searchPlaceholder="Tìm kiếm tên phòng ban..."
         searchValue={searchValue}
         onSearchChange={setSearchValue}
         onRefresh={refetch}
-        refreshing={isFetching}
+        refreshing={isLoading}
       />
 
       <DataTable<DepartmentType>
         data={departments?.data}
         columns={columns}
-        loading={isFetching}
+        loading={isLoading}
       />
 
       <TablePagination

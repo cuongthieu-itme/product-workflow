@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { DepartmentList } from "./departments-table";
+import { DepartmentList } from "./departments-list";
 import { AddDepartmentDialog } from "./add-department-dialog";
 
 export const DepartmentPage = () => {
   return (
-    <div className="space-y-6 p-6 pb-16">
+    <div className="space-y-6">
       <div className="flex flex-col space-y-4 md:flex-row justify-between md:space-y-0 w-full">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">

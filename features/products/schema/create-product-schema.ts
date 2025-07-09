@@ -5,12 +5,12 @@ export const createProductInputSchema = z.object({
     .string()
     .trim()
     .min(1, { message: "Tên sản phẩm không được để trống" }),
-  description: z.string().optional(),
+  description: z.string().min(1, { message: "Mô tả không được để trống" }),
   categoryId: z
-    .number()
-    .min(1, { message: "Phải chọn danh mục sản phẩm" })
-    .optional()
-    .nullable(),
+    .number({
+      message: "Phải chọn danh mục sản phẩm",
+    })
+    .min(1, { message: "Phải chọn danh mục sản phẩm" }),
 });
 
 export type CreateProductInputType = z.infer<typeof createProductInputSchema>;
