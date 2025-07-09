@@ -25,6 +25,7 @@ import {
   Briefcase,
   BarChart3,
   Cog,
+  Folder,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -211,12 +212,6 @@ export function AppSidebar({
       roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
     {
-      title: "Quản lý quyền",
-      href: "/dashboard/permissions",
-      icon: <Shield className="h-4 w-4" />,
-      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
-    },
-    {
       title: "Quản lý trạng thái",
       href: "/dashboard/product-status",
       icon: <Tag className="h-4 w-4" />,
@@ -229,15 +224,15 @@ export function AppSidebar({
       roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
     {
-      title: "Sản phẩm",
+      title: "Quản lý sản phẩm",
       href: "/dashboard/products",
       icon: <ShoppingCart className="h-4 w-4" />,
       roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
     {
-      title: "Danh mục sản phẩm",
+      title: "Quản lý danh mục sản phẩm",
       href: "/dashboard/categories",
-      icon: <Tag className="h-4 w-4" />,
+      icon: <Folder className="h-4 w-4" />,
       roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
   ];

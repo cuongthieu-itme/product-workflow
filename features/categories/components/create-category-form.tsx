@@ -9,7 +9,7 @@ import { CheckCircle2, Loader2, PlusCircle, AlertCircle } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { InputCustom } from "@/components/form/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BaseDialog } from "@/components/dialog";
 import { createCategoryInputSchema, CreateCategoryInputType } from "../schema";
 import { useCreateCategoryMutation } from "../hooks";
@@ -31,8 +31,14 @@ export function CreateCategoryForm({
     resolver: zodResolver(createCategoryInputSchema),
   });
 
-  const { mutate, isPending, isSuccess, error, data } =
-    useCreateCategoryMutation();
+  const {
+    mutate,
+    isPending,
+    isSuccess,
+    error,
+    data,
+    reset: resetMutation,
+  } = useCreateCategoryMutation();
 
   const onSubmit: SubmitHandler<CreateCategoryInputType> = (data) => {
     mutate(data, {
@@ -49,6 +55,13 @@ export function CreateCategoryForm({
       },
     });
   };
+
+  useEffect(() => {
+    if (isDialogOpen) {
+      resetMutation();
+      reset();
+    }
+  }, [isDialogOpen]);
 
   return (
     <>

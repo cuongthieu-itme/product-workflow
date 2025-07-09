@@ -16,16 +16,18 @@ import { DeleteCategoryDialog } from "./delete-category-dialog";
 import { useCategoriesQuery } from "../hooks";
 import { UpdateCategoryForm } from "./update-category-form";
 import { CreateCategoryForm } from "./create-category-form";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export function CategoryList() {
   const [page, setPage] = useState(PAGE);
   const [searchValue, setSearchValue] = useState("");
+  const debouncedSearchValue = useDebounce(searchValue, 500);
   const {
     data: categories,
     refetch,
     isFetching,
   } = useCategoriesQuery({
-    name: searchValue,
+    name: debouncedSearchValue,
     page,
     limit: LIMIT,
   });
@@ -47,8 +49,9 @@ export function CategoryList() {
   const columns: Column<CategoryType>[] = [
     { id: "name", header: "Tên danh mục" },
     {
-      id: "description", header: "Mô tả",
-      cell: (u) => u.description || "N/A"
+      id: "description",
+      header: "Mô tả",
+      cell: (u) => u.description || "N/A",
     },
     {
       id: "createdAt",
@@ -99,9 +102,11 @@ export function CategoryList() {
       <div className="flex flex-col space-y-4 md:flex-row justify-between md:space-y-0 w-full">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">
-            Danh sách sản phẩm
+            Danh sách danh mục sản phẩm
           </h2>
-          <p className="text-muted-foreground">Quản lý thông tin sản phẩm</p>
+          <p className="text-muted-foreground">
+            Quản lý thông tin danh mục sản phẩm
+          </p>
         </div>
 
         <CreateCategoryForm />
@@ -114,6 +119,7 @@ export function CategoryList() {
             onSearchChange={setSearchValue}
             onRefresh={refetch}
             refreshing={isFetching}
+            searchPlaceholder="Tìm kiếm danh mục..."
           />
 
           <DataTable<CategoryType>
