@@ -77,6 +77,7 @@ export function UpdateDepartmentForm({
           title: "Thành công",
           description: "Phòng ban đã được cập nhật thành công.",
         });
+        onClose();
         reset();
         if (onDepartmentAdded) {
           onDepartmentAdded();
