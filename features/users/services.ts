@@ -48,7 +48,7 @@ export const updateUser = async (
   try {
     const response = await request.put(
       `/users/${id}`,
-      omitVoid(data, ["isVerifiedAccount"] as const)
+      omitVoid(data, ["isVerifiedAccount"])
     );
     return response.data;
   } catch (error) {

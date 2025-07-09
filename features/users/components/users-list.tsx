@@ -29,8 +29,10 @@ import { UserVerifyAccountDialog } from "./user-verify-account-dialog";
 import Link from "next/link";
 import { getUserRole } from "../utils";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useGetUserInfoQuery } from "@/features/auth/hooks";
 
 export function UsersList() {
+  const { data: user } = useGetUserInfoQuery()
   const [page, setPage] = useState(1);
   const [resetPasswordUser, setResetPasswordUser] = useState<User | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -43,6 +45,7 @@ export function UsersList() {
   );
   const { data: departments } = useDepartmentsQuery();
   const debouncedSearch = useDebounce(searchValue, 400);
+  const isSuperAdmin = user?.role === UserRoleEnum.SUPER_ADMIN
 
   const {
     data: usersResp,
@@ -53,10 +56,10 @@ export function UsersList() {
       filterStatus === "true"
         ? true
         : filterStatus === "false"
-        ? false
-        : undefined,
+          ? false
+          : undefined,
     departmentId: filterDepartment,
-    role: filterRole as UserRoleEnum | undefined,
+    role: isSuperAdmin ? filterRole as UserRoleEnum | undefined : UserRoleEnum.USER,
     fullName: debouncedSearch,
   });
 
@@ -153,19 +156,21 @@ export function UsersList() {
         refreshing={isFetching}
       >
         <div className="flex flex-row gap-2">
-          <Select value={filterRole} onValueChange={setFilterRole}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Lọc theo vai trò" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={KEY_EMPTY_SELECT}>Tất cả vai trò</SelectItem>
-              {userRoles.map((role) => (
-                <SelectItem key={role.value} value={String(role.value)}>
-                  {role.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {isSuperAdmin && (
+            <Select value={filterRole} onValueChange={setFilterRole}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Lọc theo vai trò" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={KEY_EMPTY_SELECT}>Tất cả vai trò</SelectItem>
+                {userRoles.map((role) => (
+                  <SelectItem key={role.value} value={String(role.value)}>
+                    {role.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <Select value={filterDepartment} onValueChange={setFilterDepartment}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Lọc theo phòng ban" />
