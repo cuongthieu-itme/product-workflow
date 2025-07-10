@@ -1,28 +1,28 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useMaterialContext, type Material } from './material-context-firebase'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from "react";
+import { useMaterialContext, type Material } from "./material-context-firebase";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
-} from '@/components/ui/table'
+  TableRow,
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   Edit,
   Trash2,
@@ -33,75 +33,75 @@ import {
   X,
   Pencil,
   Check,
-  ChevronsUpDown
-} from 'lucide-react'
-import { toast } from '@/components/ui/use-toast'
-import { MultiImageUpload } from './multi-image-upload'
-import Image from 'next/image'
+  ChevronsUpDown,
+} from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { MultiImageUpload } from "./multi-image-upload";
+import Image from "next/image";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
-  CarouselPrevious
-} from '@/components/ui/carousel'
-import { ScrollArea } from '@/components/ui/scroll-area'
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover'
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-  CommandList
-} from '@/components/ui/command'
-import { cn } from '@/lib/utils'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 // Danh sách các đơn vị phổ biến
 const commonUnits = [
-  'kg',
-  'g',
-  'tấn',
-  'm',
-  'cm',
-  'mm',
-  'm²',
-  'm³',
-  'cái',
-  'chiếc',
-  'bộ',
-  'lít',
-  'ml',
-  'thùng',
-  'hộp'
-]
+  "kg",
+  "g",
+  "tấn",
+  "m",
+  "cm",
+  "mm",
+  "m²",
+  "m³",
+  "cái",
+  "chiếc",
+  "bộ",
+  "lít",
+  "ml",
+  "thùng",
+  "hộp",
+];
 
 // Danh sách các xuất xứ phổ biến
 const commonOrigins = [
-  'Việt Nam',
-  'Trung Quốc',
-  'Nhật Bản',
-  'Hàn Quốc',
-  'Thái Lan',
-  'Malaysia',
-  'Singapore',
-  'Indonesia',
-  'Đài Loan',
-  'Mỹ',
-  'Đức',
-  'Pháp',
-  'Ý',
-  'Anh',
-  'Nga',
-  'Ấn Độ',
-  'Australia'
-]
+  "Việt Nam",
+  "Trung Quốc",
+  "Nhật Bản",
+  "Hàn Quốc",
+  "Thái Lan",
+  "Malaysia",
+  "Singapore",
+  "Indonesia",
+  "Đài Loan",
+  "Mỹ",
+  "Đức",
+  "Pháp",
+  "Ý",
+  "Anh",
+  "Nga",
+  "Ấn Độ",
+  "Australia",
+];
 
 export function MaterialsTable() {
   const {
@@ -110,43 +110,43 @@ export function MaterialsTable() {
     updateMaterial,
     deleteMaterial,
     toggleMaterialStatus,
-    loading
-  } = useMaterialContext()
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false)
-  const [currentMaterial, setCurrentMaterial] = useState<Material | null>(null)
+    loading,
+  } = useMaterialContext();
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
+  const [currentMaterial, setCurrentMaterial] = useState<Material | null>(null);
   const [formData, setFormData] = useState<Partial<Material>>({
-    name: '',
-    code: '',
+    name: "",
+    code: "",
     quantity: 0,
-    unit: '',
-    description: '',
-    origin: '',
+    unit: "",
+    description: "",
+    origin: "",
     images: [],
-    type: 'material' // Mặc định là nguyên liệu
-  })
-  const [activeTab, setActiveTab] = useState<'material' | 'accessory'>(
-    'material'
-  )
+    type: "material", // Mặc định là nguyên liệu
+  });
+  const [activeTab, setActiveTab] = useState<"material" | "accessory">(
+    "material"
+  );
 
   // State for inline editing
-  const [editingField, setEditingField] = useState<string | null>(null)
-  const [editValue, setEditValue] = useState<string | number>('')
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<string | number>("");
 
   // State for unit combobox
-  const [unitOpen, setUnitOpen] = useState(false)
-  const [customUnitInput, setCustomUnitInput] = useState('')
-  const [availableUnits, setAvailableUnits] = useState<string[]>(commonUnits)
-  const [isAddingNewUnit, setIsAddingNewUnit] = useState(false)
+  const [unitOpen, setUnitOpen] = useState(false);
+  const [customUnitInput, setCustomUnitInput] = useState("");
+  const [availableUnits, setAvailableUnits] = useState<string[]>(commonUnits);
+  const [isAddingNewUnit, setIsAddingNewUnit] = useState(false);
 
   // State for origin combobox
-  const [originOpen, setOriginOpen] = useState(false)
-  const [customOriginInput, setCustomOriginInput] = useState('')
+  const [originOpen, setOriginOpen] = useState(false);
+  const [customOriginInput, setCustomOriginInput] = useState("");
   const [availableOrigins, setAvailableOrigins] =
-    useState<string[]>(commonOrigins)
-  const [isAddingNewOrigin, setIsAddingNewOrigin] = useState(false)
+    useState<string[]>(commonOrigins);
+  const [isAddingNewOrigin, setIsAddingNewOrigin] = useState(false);
 
   // Lấy danh sách các đơn vị và xuất xứ đã có từ materials
   useEffect(() => {
@@ -154,195 +154,197 @@ export function MaterialsTable() {
       // Xử lý đơn vị
       const existingUnits = materials
         .map((material) => material.unit)
-        .filter(Boolean) as string[]
+        .filter(Boolean) as string[];
       const uniqueUnits = Array.from(
         new Set([...commonUnits, ...existingUnits])
-      ).sort()
-      setAvailableUnits(uniqueUnits)
+      ).sort();
+      setAvailableUnits(uniqueUnits);
 
       // Xử lý xuất xứ
       const existingOrigins = materials
         .map((material) => material.origin)
-        .filter(Boolean) as string[]
+        .filter(Boolean) as string[];
       const uniqueOrigins = Array.from(
         new Set([...commonOrigins, ...existingOrigins])
-      ).sort()
-      setAvailableOrigins(uniqueOrigins)
+      ).sort();
+      setAvailableOrigins(uniqueOrigins);
     }
-  }, [materials])
+  }, [materials]);
 
   // Lọc materials theo loại (nguyên liệu hoặc phụ kiện)
   const filteredMaterials = materials.filter(
     (material) => material.type === activeTab
-  )
+  );
 
   // Xử lý thêm nguyên vật liệu mới
   const handleAddMaterial = async () => {
     if (
       !formData.name ||
-      (formData.type === 'material' &&
+      (formData.type === "material" &&
         (formData.quantity === undefined || !formData.unit || !formData.origin))
     ) {
       toast({
-        title: 'Lỗi',
-        description: 'Vui lòng điền đầy đủ thông tin bắt buộc',
-        variant: 'destructive'
-      })
-      return
+        title: "Lỗi",
+        description: "Vui lòng điền đầy đủ thông tin bắt buộc",
+        variant: "destructive",
+      });
+      return;
     }
 
     try {
       await addMaterial({
         name: formData.name,
-        code: formData.code || '',
+        code: formData.code || "",
         quantity: formData.quantity || 0,
-        unit: formData.unit || 'cái',
-        description: formData.description || '',
-        origin: formData.origin || 'Việt Nam',
+        unit: formData.unit || "cái",
+        description: formData.description || "",
+        origin: formData.origin || "Việt Nam",
         images: formData.images || [],
-        type: formData.type || 'material'
-      })
+        type: formData.type || "material",
+      });
 
       toast({
-        title: 'Thành công',
-        description: `Đã thêm ${formData.type === 'material' ? 'nguyên liệu' : 'phụ kiện'} mới`
-      })
+        title: "Thành công",
+        description: `Đã thêm ${
+          formData.type === "material" ? "nguyên liệu" : "phụ kiện"
+        } mới`,
+      });
 
       // Nếu đơn vị mới chưa có trong danh sách, thêm vào
       if (formData.unit && !availableUnits.includes(formData.unit)) {
-        setAvailableUnits((prev) => [...prev, formData.unit!].sort())
+        setAvailableUnits((prev) => [...prev, formData.unit!].sort());
       }
 
       // Nếu xuất xứ mới chưa có trong danh sách, thêm vào
       if (formData.origin && !availableOrigins.includes(formData.origin)) {
-        setAvailableOrigins((prev) => [...prev, formData.origin!].sort())
+        setAvailableOrigins((prev) => [...prev, formData.origin!].sort());
       }
 
-      setIsAddDialogOpen(false)
-      resetForm()
+      setIsAddDialogOpen(false);
+      resetForm();
     } catch (error) {
-      console.error('Error adding material:', error)
+      console.error("Error adding material:", error);
       toast({
-        title: 'Lỗi',
-        description: 'Không thể thêm nguyên vật liệu. Vui lòng thử lại sau.',
-        variant: 'destructive'
-      })
+        title: "Lỗi",
+        description: "Không thể thêm nguyên vật liệu. Vui lòng thử lại sau.",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   // Xử lý khi chọn đơn vị từ dropdown
   const handleSelectUnit = (unit: string) => {
-    if (unit === 'add-new') {
-      setIsAddingNewUnit(true)
-      setCustomUnitInput('')
+    if (unit === "add-new") {
+      setIsAddingNewUnit(true);
+      setCustomUnitInput("");
     } else {
-      setFormData({ ...formData, unit })
-      setUnitOpen(false)
+      setFormData({ ...formData, unit });
+      setUnitOpen(false);
     }
-  }
+  };
 
   // Xử lý khi thêm đơn vị mới
   const handleAddNewUnit = () => {
     if (customUnitInput.trim()) {
-      const newUnit = customUnitInput.trim()
-      setFormData({ ...formData, unit: newUnit })
+      const newUnit = customUnitInput.trim();
+      setFormData({ ...formData, unit: newUnit });
 
       // Thêm đơn vị mới vào danh sách nếu chưa có
       if (!availableUnits.includes(newUnit)) {
-        setAvailableUnits((prev) => [...prev, newUnit].sort())
+        setAvailableUnits((prev) => [...prev, newUnit].sort());
       }
 
-      setIsAddingNewUnit(false)
-      setUnitOpen(false)
+      setIsAddingNewUnit(false);
+      setUnitOpen(false);
     }
-  }
+  };
 
   // Xử lý khi chọn xuất xứ từ dropdown
   const handleSelectOrigin = (origin: string) => {
-    if (origin === 'add-new') {
-      setIsAddingNewOrigin(true)
-      setCustomOriginInput('')
+    if (origin === "add-new") {
+      setIsAddingNewOrigin(true);
+      setCustomOriginInput("");
     } else {
-      setFormData({ ...formData, origin })
-      setOriginOpen(false)
+      setFormData({ ...formData, origin });
+      setOriginOpen(false);
     }
-  }
+  };
 
   // Xử lý khi thêm xuất xứ mới
   const handleAddNewOrigin = () => {
     if (customOriginInput.trim()) {
-      const newOrigin = customOriginInput.trim()
-      setFormData({ ...formData, origin: newOrigin })
+      const newOrigin = customOriginInput.trim();
+      setFormData({ ...formData, origin: newOrigin });
 
       // Thêm xuất xứ mới vào danh sách nếu chưa có
       if (!availableOrigins.includes(newOrigin)) {
-        setAvailableOrigins((prev) => [...prev, newOrigin].sort())
+        setAvailableOrigins((prev) => [...prev, newOrigin].sort());
       }
 
-      setIsAddingNewOrigin(false)
-      setOriginOpen(false)
+      setIsAddingNewOrigin(false);
+      setOriginOpen(false);
     }
-  }
+  };
 
   // Function to start editing a field
   const startEditing = (field: string, value: string | number) => {
-    setEditingField(field)
-    setEditValue(value)
-  }
+    setEditingField(field);
+    setEditValue(value);
+  };
 
   // Function to cancel editing
   const cancelEditing = () => {
-    setEditingField(null)
-  }
+    setEditingField(null);
+  };
 
   // Function to save changes for a specific field
   const saveFieldChange = async (field: string) => {
-    if (!currentMaterial) return
+    if (!currentMaterial) return;
 
     try {
       if (field === editingField) {
         const updatedData = {
           ...currentMaterial,
-          [field]: editValue
-        }
+          [field]: editValue,
+        };
 
-        await updateMaterial(currentMaterial.id, { [field]: editValue })
+        await updateMaterial(currentMaterial.id, { [field]: editValue });
 
         // Update the current material in state
         setCurrentMaterial({
           ...currentMaterial,
-          [field]: editValue
-        })
+          [field]: editValue,
+        });
 
         toast({
-          title: 'Thành công',
-          description: `Đã cập nhật ${getFieldLabel(field)}`
-        })
+          title: "Thành công",
+          description: `Đã cập nhật ${getFieldLabel(field)}`,
+        });
 
-        setEditingField(null)
+        setEditingField(null);
       }
     } catch (error) {
-      console.error('Error updating material:', error)
+      console.error("Error updating material:", error);
       toast({
-        title: 'Lỗi',
-        description: 'Không thể cập nhật thông tin nguyên vật liệu',
-        variant: 'destructive'
-      })
+        title: "Lỗi",
+        description: "Không thể cập nhật thông tin nguyên vật liệu",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   // Helper function to get field label
   const getFieldLabel = (field: string): string => {
     const labels: Record<string, string> = {
-      name: 'Tên nguyên vật liệu',
-      code: 'Mã',
-      quantity: 'Số lượng',
-      unit: 'Đơn vị',
-      description: 'Mô tả',
-      origin: 'Xuất xứ'
-    }
-    return labels[field] || field
-  }
+      name: "Tên nguyên vật liệu",
+      code: "Mã",
+      quantity: "Số lượng",
+      unit: "Đơn vị",
+      description: "Mô tả",
+      origin: "Xuất xứ",
+    };
+    return labels[field] || field;
+  };
 
   // Render editable field
   const renderEditableField = (
@@ -350,7 +352,7 @@ export function MaterialsTable() {
     field: string,
     value: string | number
   ) => {
-    const isEditing = editingField === field
+    const isEditing = editingField === field;
 
     return (
       <div className="grid grid-cols-3 items-center gap-4 py-3 border-b border-gray-100">
@@ -358,14 +360,14 @@ export function MaterialsTable() {
         <div className="col-span-2 flex items-center gap-2">
           {isEditing ? (
             <>
-              {field === 'description' ? (
+              {field === "description" ? (
                 <Textarea
                   value={editValue as string}
                   onChange={(e) => setEditValue(e.target.value)}
                   className="flex-1"
                   autoFocus
                 />
-              ) : field === 'quantity' ? (
+              ) : field === "quantity" ? (
                 <Input
                   type="number"
                   value={editValue as number}
@@ -373,7 +375,7 @@ export function MaterialsTable() {
                   className="flex-1"
                   autoFocus
                 />
-              ) : field === 'unit' ? (
+              ) : field === "unit" ? (
                 <select
                   value={editValue as string}
                   onChange={(e) => setEditValue(e.target.value)}
@@ -387,7 +389,7 @@ export function MaterialsTable() {
                   ))}
                   <option value="other">Khác...</option>
                 </select>
-              ) : field === 'origin' ? (
+              ) : field === "origin" ? (
                 <select
                   value={editValue as string}
                   onChange={(e) => setEditValue(e.target.value)}
@@ -434,101 +436,103 @@ export function MaterialsTable() {
           )}
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   // Xử lý xóa nguyên vật liệu
   const handleDeleteMaterial = async () => {
-    if (!currentMaterial) return
+    if (!currentMaterial) return;
 
     try {
-      await deleteMaterial(currentMaterial.id)
+      await deleteMaterial(currentMaterial.id);
 
       toast({
-        title: 'Thành công',
-        description: 'Đã xóa nguyên vật liệu'
-      })
+        title: "Thành công",
+        description: "Đã xóa nguyên vật liệu",
+      });
 
-      setIsDeleteDialogOpen(false)
+      setIsDeleteDialogOpen(false);
     } catch (error) {
-      console.error('Error deleting material:', error)
+      console.error("Error deleting material:", error);
       toast({
-        title: 'Lỗi',
-        description: 'Không thể xóa nguyên vật liệu. Vui lòng thử lại sau.',
-        variant: 'destructive'
-      })
+        title: "Lỗi",
+        description: "Không thể xóa nguyên vật liệu. Vui lòng thử lại sau.",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   // Xử lý bật/tắt trạng thái nguyên vật liệu
   const handleToggleStatus = async (material: Material) => {
     try {
-      await toggleMaterialStatus(material.id)
+      await toggleMaterialStatus(material.id);
 
       toast({
-        title: 'Thành công',
-        description: `Đã ${material.isActive ? 'tắt' : 'bật'} trạng thái nguyên vật liệu. Trạng thái hiện tại: ${
-          material.isActive ? 'Hết hàng' : 'Còn hàng'
-        }`
-      })
+        title: "Thành công",
+        description: `Đã ${
+          material.isActive ? "tắt" : "bật"
+        } trạng thái nguyên vật liệu. Trạng thái hiện tại: ${
+          material.isActive ? "Hết hàng" : "Còn hàng"
+        }`,
+      });
     } catch (error) {
-      console.error('Error toggling material status:', error)
+      console.error("Error toggling material status:", error);
       toast({
-        title: 'Lỗi',
+        title: "Lỗi",
         description:
-          'Không thể thay đổi trạng thái nguyên vật liệu. Vui lòng thử lại sau.',
-        variant: 'destructive'
-      })
+          "Không thể thay đổi trạng thái nguyên vật liệu. Vui lòng thử lại sau.",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   // Mở dialog chi tiết
   const openDetailDialog = (material: Material) => {
-    setCurrentMaterial(material)
-    setIsDetailDialogOpen(true)
-  }
+    setCurrentMaterial(material);
+    setIsDetailDialogOpen(true);
+  };
 
   // Mở dialog xem hình ảnh
   const openImageDialog = (material: Material) => {
-    setCurrentMaterial(material)
-    setIsImageDialogOpen(true)
-  }
+    setCurrentMaterial(material);
+    setIsImageDialogOpen(true);
+  };
 
   // Mở dialog xóa
   const openDeleteDialog = (material: Material) => {
-    setCurrentMaterial(material)
-    setIsDeleteDialogOpen(true)
-  }
+    setCurrentMaterial(material);
+    setIsDeleteDialogOpen(true);
+  };
 
   // Reset form
   const resetForm = () => {
     setFormData({
-      name: '',
-      code: '',
+      name: "",
+      code: "",
       quantity: 0,
-      unit: '',
-      description: '',
-      origin: '',
+      unit: "",
+      description: "",
+      origin: "",
       images: [],
-      type: activeTab // Sử dụng tab hiện tại làm loại mặc định
-    })
-    setCurrentMaterial(null)
-    setEditingField(null)
-    setIsAddingNewUnit(false)
-    setIsAddingNewOrigin(false)
-  }
+      type: activeTab, // Sử dụng tab hiện tại làm loại mặc định
+    });
+    setCurrentMaterial(null);
+    setEditingField(null);
+    setIsAddingNewUnit(false);
+    setIsAddingNewOrigin(false);
+  };
 
   // Khi chuyển tab, cập nhật loại mặc định cho form
   useEffect(() => {
-    setFormData((prev) => ({ ...prev, type: activeTab }))
-  }, [activeTab])
+    setFormData((prev) => ({ ...prev, type: activeTab }));
+  }, [activeTab]);
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-40">
         Đang tải dữ liệu...
       </div>
-    )
+    );
   }
 
   return (
@@ -536,15 +540,15 @@ export function MaterialsTable() {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Danh sách nguyên vật liệu</h2>
         <Button onClick={() => setIsAddDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Thêm{' '}
-          {activeTab === 'material' ? 'nguyên liệu' : 'phụ kiện'}
+          <Plus className="mr-2 h-4 w-4" /> Thêm{" "}
+          {activeTab === "material" ? "nguyên liệu" : "phụ kiện"}
         </Button>
       </div>
 
       <Tabs
         value={activeTab}
         onValueChange={(value) =>
-          setActiveTab(value as 'material' | 'accessory')
+          setActiveTab(value as "material" | "accessory")
         }
         className="w-full"
       >
@@ -589,7 +593,7 @@ export function MaterialsTable() {
                             onClick={() => openImageDialog(material)}
                           >
                             <Image
-                              src={material.images[0] || '/placeholder.svg'}
+                              src={material.images[0] || "/placeholder.svg"}
                               alt={material.name}
                               fill
                               className="object-cover rounded-md"
@@ -624,10 +628,10 @@ export function MaterialsTable() {
                       <TableCell className="w-[120px]">
                         <Badge
                           variant={
-                            material.isActive ? 'default' : 'destructive'
+                            material.isActive ? "default" : "destructive"
                           }
                         >
-                          {material.isActive ? 'Còn hàng' : 'Hết hàng'}
+                          {material.isActive ? "Còn hàng" : "Hết hàng"}
                         </Badge>
                       </TableCell>
                       <TableCell className="w-[150px]">
@@ -648,7 +652,7 @@ export function MaterialsTable() {
                           </Button>
                           <Button
                             variant={
-                              material.isActive ? 'destructive' : 'default'
+                              material.isActive ? "destructive" : "default"
                             }
                             size="icon"
                             onClick={() => handleToggleStatus(material)}
@@ -683,7 +687,7 @@ export function MaterialsTable() {
                   >
                     {accessory.images && accessory.images.length > 0 ? (
                       <Image
-                        src={accessory.images[0] || '/placeholder.svg'}
+                        src={accessory.images[0] || "/placeholder.svg"}
                         alt={accessory.name}
                         fill
                         className="object-cover"
@@ -695,9 +699,9 @@ export function MaterialsTable() {
                     )}
                     <Badge
                       className="absolute top-2 right-2"
-                      variant={accessory.isActive ? 'default' : 'destructive'}
+                      variant={accessory.isActive ? "default" : "destructive"}
                     >
-                      {accessory.isActive ? 'Còn hàng' : 'Hết hàng'}
+                      {accessory.isActive ? "Còn hàng" : "Hết hàng"}
                     </Badge>
                   </div>
                   <div className="p-3">
@@ -746,12 +750,12 @@ export function MaterialsTable() {
         <DialogContent className="max-w-3xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>
-              Thêm {formData.type === 'material' ? 'nguyên liệu' : 'phụ kiện'}{' '}
+              Thêm {formData.type === "material" ? "nguyên liệu" : "phụ kiện"}{" "}
               mới
             </DialogTitle>
             <DialogDescription>
-              Nhập thông tin{' '}
-              {formData.type === 'material' ? 'nguyên liệu' : 'phụ kiện'} mới
+              Nhập thông tin{" "}
+              {formData.type === "material" ? "nguyên liệu" : "phụ kiện"} mới
               vào form dưới đây.
             </DialogDescription>
           </DialogHeader>
@@ -764,7 +768,7 @@ export function MaterialsTable() {
                   onValueChange={(value) =>
                     setFormData({
                       ...formData,
-                      type: value as 'material' | 'accessory'
+                      type: value as "material" | "accessory",
                     })
                   }
                   className="col-span-3 flex space-x-4"
@@ -821,7 +825,7 @@ export function MaterialsTable() {
               </div>
 
               {/* Các trường chỉ hiển thị cho nguyên liệu */}
-              {formData.type === 'material' && (
+              {formData.type === "material" && (
                 <>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="quantity" className="text-right">
@@ -834,7 +838,7 @@ export function MaterialsTable() {
                       onChange={(e) =>
                         setFormData({
                           ...formData,
-                          quantity: Number(e.target.value)
+                          quantity: Number(e.target.value),
                         })
                       }
                       className="col-span-3"
@@ -879,7 +883,7 @@ export function MaterialsTable() {
                               aria-expanded={unitOpen}
                               className="w-full justify-between"
                             >
-                              {formData.unit ? formData.unit : 'Chọn đơn vị...'}
+                              {formData.unit ? formData.unit : "Chọn đơn vị..."}
                               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                           </PopoverTrigger>
@@ -900,10 +904,10 @@ export function MaterialsTable() {
                                       >
                                         <Check
                                           className={cn(
-                                            'mr-2 h-4 w-4',
+                                            "mr-2 h-4 w-4",
                                             formData.unit === unit
-                                              ? 'opacity-100'
-                                              : 'opacity-0'
+                                              ? "opacity-100"
+                                              : "opacity-0"
                                           )}
                                         />
                                         {unit}
@@ -912,7 +916,7 @@ export function MaterialsTable() {
                                     <CommandItem
                                       value="add-new"
                                       onSelect={() =>
-                                        handleSelectUnit('add-new')
+                                        handleSelectUnit("add-new")
                                       }
                                     >
                                       <Plus className="mr-2 h-4 w-4" />
@@ -967,7 +971,7 @@ export function MaterialsTable() {
                             >
                               {formData.origin
                                 ? formData.origin
-                                : 'Chọn xuất xứ...'}
+                                : "Chọn xuất xứ..."}
                               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                           </PopoverTrigger>
@@ -990,10 +994,10 @@ export function MaterialsTable() {
                                       >
                                         <Check
                                           className={cn(
-                                            'mr-2 h-4 w-4',
+                                            "mr-2 h-4 w-4",
                                             formData.origin === origin
-                                              ? 'opacity-100'
-                                              : 'opacity-0'
+                                              ? "opacity-100"
+                                              : "opacity-0"
                                           )}
                                         />
                                         {origin}
@@ -1002,7 +1006,7 @@ export function MaterialsTable() {
                                     <CommandItem
                                       value="add-new"
                                       onSelect={() =>
-                                        handleSelectOrigin('add-new')
+                                        handleSelectOrigin("add-new")
                                       }
                                     >
                                       <Plus className="mr-2 h-4 w-4" />
@@ -1036,7 +1040,7 @@ export function MaterialsTable() {
               </div>
 
               {/* Các trường ẩn cho phụ kiện nhưng vẫn cần giá trị mặc định */}
-              {formData.type === 'accessory' && (
+              {formData.type === "accessory" && (
                 <div className="hidden">
                   <Input
                     type="number"
@@ -1044,18 +1048,18 @@ export function MaterialsTable() {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        quantity: Number(e.target.value)
+                        quantity: Number(e.target.value),
                       })
                     }
                   />
                   <Input
-                    value={formData.unit || 'cái'}
+                    value={formData.unit || "cái"}
                     onChange={(e) =>
                       setFormData({ ...formData, unit: e.target.value })
                     }
                   />
                   <Input
-                    value={formData.origin || 'Việt Nam'}
+                    value={formData.origin || "Việt Nam"}
                     onChange={(e) =>
                       setFormData({ ...formData, origin: e.target.value })
                     }
@@ -1069,7 +1073,7 @@ export function MaterialsTable() {
               Hủy
             </Button>
             <Button onClick={handleAddMaterial}>
-              Thêm {formData.type === 'material' ? 'nguyên liệu' : 'phụ kiện'}
+              Thêm {formData.type === "material" ? "nguyên liệu" : "phụ kiện"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1080,16 +1084,16 @@ export function MaterialsTable() {
         <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>
-              Chi tiết{' '}
-              {currentMaterial?.type === 'material'
-                ? 'nguyên liệu'
-                : 'phụ kiện'}
+              Chi tiết{" "}
+              {currentMaterial?.type === "material"
+                ? "nguyên liệu"
+                : "phụ kiện"}
             </DialogTitle>
             <DialogDescription>
-              Xem và chỉnh sửa thông tin{' '}
-              {currentMaterial?.type === 'material'
-                ? 'nguyên liệu'
-                : 'phụ kiện'}
+              Xem và chỉnh sửa thông tin{" "}
+              {currentMaterial?.type === "material"
+                ? "nguyên liệu"
+                : "phụ kiện"}
               .
             </DialogDescription>
           </DialogHeader>
@@ -1104,19 +1108,19 @@ export function MaterialsTable() {
                       initialImages={currentMaterial.images}
                       onImagesChange={async (images) => {
                         try {
-                          await updateMaterial(currentMaterial.id, { images })
-                          setCurrentMaterial({ ...currentMaterial, images })
+                          await updateMaterial(currentMaterial.id, { images });
+                          setCurrentMaterial({ ...currentMaterial, images });
                           toast({
-                            title: 'Thành công',
-                            description: 'Đã cập nhật hình ảnh'
-                          })
+                            title: "Thành công",
+                            description: "Đã cập nhật hình ảnh",
+                          });
                         } catch (error) {
-                          console.error('Error updating images:', error)
+                          console.error("Error updating images:", error);
                           toast({
-                            title: 'Lỗi',
-                            description: 'Không thể cập nhật hình ảnh',
-                            variant: 'destructive'
-                          })
+                            title: "Lỗi",
+                            description: "Không thể cập nhật hình ảnh",
+                            variant: "destructive",
+                          });
                         }
                       }}
                       maxImages={5}
@@ -1125,34 +1129,34 @@ export function MaterialsTable() {
                 </div>
 
                 {/* Các trường có thể chỉnh sửa */}
-                {renderEditableField('Tên', 'name', currentMaterial.name)}
-                {renderEditableField('Mã', 'code', currentMaterial.code)}
+                {renderEditableField("Tên", "name", currentMaterial.name)}
+                {renderEditableField("Mã", "code", currentMaterial.code)}
 
                 {/* Chỉ hiển thị các trường này cho nguyên liệu */}
-                {currentMaterial.type === 'material' && (
+                {currentMaterial.type === "material" && (
                   <>
                     {renderEditableField(
-                      'Số lượng',
-                      'quantity',
+                      "Số lượng",
+                      "quantity",
                       currentMaterial.quantity
                     )}
                     {renderEditableField(
-                      'Đơn vị',
-                      'unit',
+                      "Đơn vị",
+                      "unit",
                       currentMaterial.unit
                     )}
                     {renderEditableField(
-                      'Xuất xứ',
-                      'origin',
+                      "Xuất xứ",
+                      "origin",
                       currentMaterial.origin
                     )}
                   </>
                 )}
 
                 {renderEditableField(
-                  'Mô tả',
-                  'description',
-                  currentMaterial.description || ''
+                  "Mô tả",
+                  "description",
+                  currentMaterial.description || ""
                 )}
 
                 {/* Trạng thái */}
@@ -1161,36 +1165,38 @@ export function MaterialsTable() {
                   <div className="col-span-2 flex items-center gap-2">
                     <Badge
                       variant={
-                        currentMaterial.isActive ? 'default' : 'destructive'
+                        currentMaterial.isActive ? "default" : "destructive"
                       }
                     >
-                      {currentMaterial.isActive ? 'Còn hàng' : 'Hết hàng'}
+                      {currentMaterial.isActive ? "Còn hàng" : "Hết hàng"}
                     </Badge>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={async () => {
                         try {
-                          await toggleMaterialStatus(currentMaterial.id)
+                          await toggleMaterialStatus(currentMaterial.id);
                           setCurrentMaterial({
                             ...currentMaterial,
-                            isActive: !currentMaterial.isActive
-                          })
+                            isActive: !currentMaterial.isActive,
+                          });
                           toast({
-                            title: 'Thành công',
-                            description: `Đã ${currentMaterial.isActive ? 'tắt' : 'bật'} trạng thái`
-                          })
+                            title: "Thành công",
+                            description: `Đã ${
+                              currentMaterial.isActive ? "tắt" : "bật"
+                            } trạng thái`,
+                          });
                         } catch (error) {
-                          console.error('Error toggling status:', error)
+                          console.error("Error toggling status:", error);
                           toast({
-                            title: 'Lỗi',
-                            description: 'Không thể thay đổi trạng thái',
-                            variant: 'destructive'
-                          })
+                            title: "Lỗi",
+                            description: "Không thể thay đổi trạng thái",
+                            variant: "destructive",
+                          });
                         }
                       }}
                     >
-                      {currentMaterial.isActive ? 'Tắt' : 'Bật'}
+                      {currentMaterial.isActive ? "Tắt" : "Bật"}
                     </Button>
                   </div>
                 </div>
@@ -1213,10 +1219,10 @@ export function MaterialsTable() {
         <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>
-              Hình ảnh{' '}
-              {currentMaterial?.type === 'material'
-                ? 'nguyên liệu'
-                : 'phụ kiện'}
+              Hình ảnh{" "}
+              {currentMaterial?.type === "material"
+                ? "nguyên liệu"
+                : "phụ kiện"}
               : {currentMaterial?.name}
             </DialogTitle>
           </DialogHeader>
@@ -1229,7 +1235,7 @@ export function MaterialsTable() {
                   <CarouselItem key={index}>
                     <div className="relative h-96 w-full">
                       <Image
-                        src={image || '/placeholder.svg'}
+                        src={image || "/placeholder.svg"}
                         alt={`${currentMaterial.name} - ${index + 1}`}
                         fill
                         className="object-contain"
@@ -1261,10 +1267,10 @@ export function MaterialsTable() {
           <DialogHeader>
             <DialogTitle>Xác nhận xóa</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa{' '}
-              {currentMaterial?.type === 'material'
-                ? 'nguyên liệu'
-                : 'phụ kiện'}{' '}
+              Bạn có chắc chắn muốn xóa{" "}
+              {currentMaterial?.type === "material"
+                ? "nguyên liệu"
+                : "phụ kiện"}{" "}
               "{currentMaterial?.name}" không? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
@@ -1282,5 +1288,5 @@ export function MaterialsTable() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
