@@ -27,6 +27,8 @@ import { useUserQuery } from "../hooks";
 import { format } from "date-fns";
 import { getUserRole } from "../utils";
 import { UserRoleEnum } from "@/features/auth/constants";
+import { getRoleName } from "@/helpers";
+import { getDepartmentRole } from "@/features/settings/utils";
 
 export function UserDetailPage() {
   const params = useParams();
@@ -133,12 +135,12 @@ export function UserDetailPage() {
                 <Badge
                   variant={
                     user.data.role === UserRoleEnum.ADMIN ||
-                      user.data.role === UserRoleEnum.SUPER_ADMIN
+                    user.data.role === UserRoleEnum.SUPER_ADMIN
                       ? "default"
                       : "outline"
                   }
                 >
-                  {getUserRole(user.data.role)}
+                  {getRoleName(user.data.role)}
                 </Badge>
                 <Badge
                   variant={
@@ -148,12 +150,15 @@ export function UserDetailPage() {
                   {user.data.isVerifiedAccount ? "Hoạt động" : "Vô hiệu hóa"}
                 </Badge>
 
-                {/* TODO: API chưa có */}
                 <Badge
                   variant="outline"
                   className="bg-primary/10 text-primary border-primary/20"
                 >
-                  Trưởng phòng
+                  {getDepartmentRole(
+                    user?.data?.id,
+                    user?.data?.department?.headId,
+                    user?.data?.department?.id
+                  )}
                 </Badge>
               </div>
             </div>
@@ -166,7 +171,7 @@ export function UserDetailPage() {
                 <Mail className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Email</p>
-                  <p>{user.data.email || "Chưa cập nhật"}</p>
+                  <p>{user?.data?.email || "Chưa cập nhật"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -182,8 +187,7 @@ export function UserDetailPage() {
                 <Building className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Phòng ban</p>
-                  {/* TODO: API chưa có */}
-                  <p>Chưa cập nhật</p>
+                  <p>{user.data.department?.name || "Chưa cập nhật"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">

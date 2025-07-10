@@ -217,7 +217,7 @@ export function AppSidebar({
     },
     {
       title: "Quản lý quy trình",
-      href: "/dashboard/workflow-management",
+      href: "/dashboard/workflows",
       icon: <Workflow className="h-4 w-4" />,
       roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },

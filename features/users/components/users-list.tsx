@@ -30,9 +30,10 @@ import Link from "next/link";
 import { getUserRole } from "../utils";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useGetUserInfoQuery } from "@/features/auth/hooks";
+import { getRoleName } from "@/helpers";
 
 export function UsersList() {
-  const { data: user } = useGetUserInfoQuery()
+  const { data: user } = useGetUserInfoQuery();
   const [page, setPage] = useState(1);
   const [resetPasswordUser, setResetPasswordUser] = useState<User | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -45,21 +46,23 @@ export function UsersList() {
   );
   const { data: departments } = useDepartmentsQuery();
   const debouncedSearch = useDebounce(searchValue, 400);
-  const isSuperAdmin = user?.role === UserRoleEnum.SUPER_ADMIN
+  const isSuperAdmin = user?.role === UserRoleEnum.SUPER_ADMIN;
 
   const {
     data: usersResp,
-    isFetching,
+    isLoading,
     refetch,
   } = useUsersQuery({
     isVerifiedAccount:
       filterStatus === "true"
         ? true
         : filterStatus === "false"
-          ? false
-          : undefined,
+        ? false
+        : undefined,
     departmentId: filterDepartment,
-    role: isSuperAdmin ? filterRole as UserRoleEnum | undefined : UserRoleEnum.USER,
+    role: isSuperAdmin
+      ? (filterRole as UserRoleEnum | undefined)
+      : UserRoleEnum.USER,
     fullName: debouncedSearch,
   });
 
@@ -77,7 +80,7 @@ export function UsersList() {
       header: "Vai trò",
       cell: (u) => (
         <Badge variant={u.role === UserRoleEnum.ADMIN ? "default" : "outline"}>
-          {getUserRole(u.role)}
+          {getRoleName(u.role)}
         </Badge>
       ),
     },
@@ -153,7 +156,7 @@ export function UsersList() {
         searchValue={searchValue}
         onSearchChange={setSearchValue}
         onRefresh={refetch}
-        refreshing={isFetching}
+        refreshing={isLoading}
       >
         <div className="flex flex-row gap-2">
           {isSuperAdmin && (
@@ -206,7 +209,7 @@ export function UsersList() {
       <DataTable<User>
         data={usersResp?.data}
         columns={columns}
-        loading={isFetching}
+        loading={isLoading}
       />
 
       <TablePagination

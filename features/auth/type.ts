@@ -1,3 +1,4 @@
+import { DepartmentType } from "../departments/type";
 import { UserRoleEnum } from "./constants";
 
 export type UserType = {
@@ -13,4 +14,5 @@ export type UserType = {
   phoneNumber: string;
   createdAt: string;
   updatedAt: string;
+  department: DepartmentType;
 };

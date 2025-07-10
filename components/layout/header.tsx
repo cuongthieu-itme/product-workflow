@@ -19,14 +19,17 @@ import { useGetUserInfoQuery } from "@/features/auth/hooks";
 import { UserRoleEnum } from "@/features/auth/constants";
 import { getRoleName } from "@/helpers";
 import { removeAccessTokenFromStorage } from "@/utils/localStorage";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Header() {
   const router = useRouter();
   const { data } = useGetUserInfoQuery();
+  const queryClient = useQueryClient();
   const [passwordRequests, setPasswordRequests] = useState<any[]>([]);
 
   const handleLogout = () => {
     removeAccessTokenFromStorage();
+    queryClient.removeQueries();
     router.push("/login");
   };
 

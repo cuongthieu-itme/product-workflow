@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,15 +18,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetCurrentUserQuery } from "../hooks";
 import { ChangePasswordTab } from "./change-password-tab";
 import { ChangeInformationTab } from "./change-information-tab";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function AccountSettings() {
   const { isLoading } = useGetCurrentUserQuery();
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Đang tải thông tin người dùng...</span>
+      <div className="space-y-6">
+        <Tabs defaultValue="profile" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <Skeleton className="h-8 w-40" />
+            <Skeleton className="h-8 w-40" />
+            <Skeleton className="h-8 w-40" />
+          </TabsList>
+        </Tabs>
+        <div className="space-y-4">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
       </div>
     );
   }
@@ -67,10 +79,7 @@ export function AccountSettings() {
                       khoản của bạn
                     </p>
                   </div>
-                  <Switch
-                    id="twoFactor"
-                    checked={false}
-                  />
+                  <Switch id="twoFactor" checked={false} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="sessionTimeout">
