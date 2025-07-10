@@ -91,6 +91,8 @@ export function CreateDepartmentForm({
       if (headSelected) {
         return Number(user.id) !== headSelected;
       }
+
+      return true;
     }) ?? [];
 
   // useResetOnFormChange(watch, resetMutationStatus);

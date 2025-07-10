@@ -6,17 +6,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
-  createWorkflowInputSchema,
   CreateWorkflowInputType,
   StepInputType,
 } from "../../schema/create-workflow-schema";
+import { useFormContext } from "react-hook-form";
+import React from "react";
+import { InputCustom } from "@/components/form/input";
+import { TextAreaCustom } from "@/components/form/textarea";
+import { Label } from "@radix-ui/react-label";
 
 interface StepModalProps {
   isOpen: boolean;
@@ -32,137 +33,95 @@ export function StepModal({
   editingStep,
 }: StepModalProps) {
   const {
-    control,
-    register,
-    handleSubmit,
     formState: { errors },
+    handleSubmit,
     setValue,
-  } = useForm<CreateWorkflowInputType>({
-    resolver: zodResolver(createWorkflowInputSchema),
-    defaultValues: {
-      steps: [
-        editingStep || {
-          name: "",
-          description: "",
-          estimatedDays: 1,
-          roleUserEnsure: "",
-          notifyBeforeDeadline: 1,
-          stepRequired: false,
-          stepWithCost: false,
-        },
-      ],
-    },
-  });
+    watch,
+    control,
+  } = useFormContext<CreateWorkflowInputType>();
 
-  const stepRequired = useWatch({ control, name: "steps.0.stepRequired" });
-  const stepWithCost = useWatch({ control, name: "steps.0.stepWithCost" });
+  React.useEffect(() => {
+    if (editingStep) {
+      setValue("steps.0.name", editingStep.name);
+      setValue("steps.0.description", editingStep.description);
+      setValue("steps.0.estimatedDays", editingStep.estimatedDays);
+      setValue(
+        "steps.0.notifyBeforeDeadline",
+        editingStep.notifyBeforeDeadline
+      );
+      setValue("steps.0.roleUserEnsure", editingStep.roleUserEnsure);
+      setValue("steps.0.stepRequired", editingStep.stepRequired);
+      setValue("steps.0.stepWithCost", editingStep.stepWithCost);
+    }
+  }, [editingStep, setValue]);
 
-  const handleSave = (data: CreateWorkflowInputType) => {
+  const stepRequired = useWatch({ name: "steps.0.stepRequired" });
+  const stepWithCost = useWatch({ name: "steps.0.stepWithCost" });
+
+  const handleSave = handleSubmit((data: CreateWorkflowInputType) => {
     onSave(data.steps[0]);
     onClose();
-  };
+  });
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
           <DialogTitle>
             {editingStep ? "Chỉnh sửa bước" : "Thêm bước mới"}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(handleSave)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="stepName">Tên bước</Label>
-            <Input
-              id="stepName"
-              placeholder="Nhập tên bước"
-              {...register(`steps.0.name`)}
-              className={errors.steps?.[0]?.name ? "border-destructive" : ""}
-            />
-            {errors.steps?.[0]?.name && (
-              <p className="text-sm text-destructive">
-                {errors.steps[0].name.message}
-              </p>
-            )}
-          </div>
+        <form onSubmit={handleSave} className="space-y-4">
+          <InputCustom
+            control={control}
+            name="steps.0.name"
+            placeholder="Nhập tên bước"
+            className={errors.steps?.[0]?.name ? "border-destructive" : ""}
+            label="Tên bước"
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="stepDescription">Mô tả</Label>
-            <Input
-              id="stepDescription"
-              placeholder="Mô tả bước"
-              {...register(`steps.0.description`)}
-              className={
-                errors.steps?.[0]?.description ? "border-destructive" : ""
-              }
-            />
-            {errors.steps?.[0]?.description && (
-              <p className="text-sm text-destructive">
-                {errors.steps[0].description.message}
-              </p>
-            )}
-          </div>
+          <TextAreaCustom
+            control={control}
+            name="steps.0.description"
+            placeholder="Mô tả bước"
+            className={
+              errors.steps?.[0]?.description ? "border-destructive" : ""
+            }
+            label="Mô tả"
+          />
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="estimatedDays">Số ngày ước lượng</Label>
-              <Input
-                id="estimatedDays"
-                type="number"
-                min="1"
-                max="365"
-                {...register(`steps.0.estimatedDays`)}
-                className={
-                  errors.steps?.[0]?.estimatedDays ? "border-destructive" : ""
-                }
-              />
-              {errors.steps?.[0]?.estimatedDays && (
-                <p className="text-sm text-destructive">
-                  {errors.steps[0].estimatedDays.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="notifyBeforeDeadline">
-                Thông báo trước hạn (ngày)
-              </Label>
-              <Input
-                id="notifyBeforeDeadline"
-                type="number"
-                min="1"
-                max="365"
-                {...register(`steps.0.notifyBeforeDeadline`)}
-                className={
-                  errors.steps?.[0]?.notifyBeforeDeadline
-                    ? "border-destructive"
-                    : ""
-                }
-              />
-              {errors.steps?.[0]?.notifyBeforeDeadline && (
-                <p className="text-sm text-destructive">
-                  {errors.steps[0].notifyBeforeDeadline.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="roleUserEnsure">Vai trò người đảm bảo</Label>
-            <Input
-              id="roleUserEnsure"
-              placeholder="Nhập vai trò người đảm bảo"
-              {...register(`steps.0.roleUserEnsure`)}
+            <InputCustom
+              control={control}
+              name="steps.0.estimatedDays"
+              placeholder="Nhập số ngày ước lượng"
               className={
-                errors.steps?.[0]?.roleUserEnsure ? "border-destructive" : ""
+                errors.steps?.[0]?.estimatedDays ? "border-destructive" : ""
               }
+              label="Số ngày ước lượng"
             />
-            {errors.steps?.[0]?.roleUserEnsure && (
-              <p className="text-sm text-destructive">
-                {errors.steps[0].roleUserEnsure.message}
-              </p>
-            )}
+            <InputCustom
+              control={control}
+              name="steps.0.notifyBeforeDeadline"
+              placeholder="Nhập số ngày thông báo trước hạn"
+              className={
+                errors.steps?.[0]?.notifyBeforeDeadline
+                  ? "border-destructive"
+                  : ""
+              }
+              label="Thông báo trước hạn (ngày)"
+            />
           </div>
+
+          <InputCustom
+            control={control}
+            name="steps.0.roleUserEnsure"
+            placeholder="Nhập vai trò người đảm bảo"
+            className={
+              errors.steps?.[0]?.roleUserEnsure ? "border-destructive" : ""
+            }
+            label="Vai trò người đảm bảo"
+          />
 
           <div className="flex gap-4">
             <div className="flex items-center space-x-2">
@@ -191,7 +150,21 @@ export function StepModal({
             <Button type="button" variant="outline" onClick={onClose}>
               Hủy bỏ
             </Button>
-            <Button type="submit">
+            <Button
+              type="button"
+              onClick={() => {
+                const formData = {
+                  name: watch("steps.0.name"),
+                  description: watch("steps.0.description"),
+                  estimatedDays: watch("steps.0.estimatedDays"),
+                  notifyBeforeDeadline: watch("steps.0.notifyBeforeDeadline"),
+                  roleUserEnsure: watch("steps.0.roleUserEnsure"),
+                  stepRequired: stepRequired,
+                  stepWithCost: stepWithCost,
+                };
+                onSave(formData);
+              }}
+            >
               {editingStep ? "Cập nhật" : "Thêm bước"}
             </Button>
           </div>
