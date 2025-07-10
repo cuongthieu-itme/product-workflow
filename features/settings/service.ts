@@ -13,7 +13,6 @@ export const changePassword = async (data: ChangePasswordInputType) => {
   }
 };
 
-
 export const updateProfile = async (data: ChangeInfoInputType) => {
   try {
     const response = await request.put("/users/profile", data);
@@ -36,9 +35,33 @@ export const updateAvatar = async (avatar: string) => {
 
 export const getUserProfile = async () => {
   try {
-    const response = await request.get<BaseResultQuery<CurrentUserType>>("/users/profile");
+    const response = await request.get<BaseResultQuery<CurrentUserType>>(
+      "/users/profile"
+    );
 
     return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getAvatarByFileName = async (fileName: string) => {
+  try {
+    const response = await request.get<BaseResultQuery<string>>(
+      `/files/${fileName}`
+    );
+
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const removeFileByFileName = async (fileName: string) => {
+  try {
+    const response = await request.delete(`/files/${fileName}`);
+
+    return response.data;
   } catch (error) {
     throw error;
   }
