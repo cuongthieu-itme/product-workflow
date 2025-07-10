@@ -21,8 +21,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { UserRoleEnum } from "../constants";
 import { useRegisterMutation } from "../hooks";
 import { InputCustom } from "@/components/form/input";
-import { SelectCustom, SelectOption } from "@/components/form/select";
-import { useDepartmentsQuery } from "@/features/departments/hooks";
 
 export function RegisterPage() {
   const { control, handleSubmit, reset, watch } = useForm<RegisterInputType>({

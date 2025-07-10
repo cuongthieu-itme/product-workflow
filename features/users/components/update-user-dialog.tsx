@@ -19,6 +19,8 @@ import { userRoles, userStatus } from "../options";
 import { useGetUserInfoQuery } from "@/features/auth/hooks";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface UpdateUserDialogProps {
   editingUser: User | null;
@@ -39,7 +41,6 @@ export const UpdateUserDialog = ({
       departmentId: null,
       email: "",
       isVerifiedAccount: "false",
-      userName: "",
     },
   });
 
@@ -52,7 +53,6 @@ export const UpdateUserDialog = ({
         departmentId: editingUser.department?.id,
         email: editingUser.email,
         isVerifiedAccount: editingUser.isVerifiedAccount ? "true" : "false",
-        userName: editingUser.userName,
       });
     }
   }, [editingUser, reset]);
@@ -100,16 +100,26 @@ export const UpdateUserDialog = ({
       contentClassName="sm:max-w-[420px]"
       description={`Chỉnh sửa người dùng ${editingUser?.userName || ""}`}
     >
-      {/* form */}
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-4">
-          <InputCustom
-            control={control}
-            name="userName"
-            label="Tên đăng nhập"
-            className="flex-1 min-w-[180px]"
-            disabled
-          />
+          <div className="space-y-2">
+            <Label
+              htmlFor="username"
+              className="flex items-center gap-2 h-[24px]"
+            >
+              Tên đăng nhập
+            </Label>
+            <Input
+              id="username"
+              value={editingUser?.userName}
+              disabled
+              className="bg-muted"
+            />
+            <p className="text-xs text-muted-foreground">
+              Tên đăng nhập không thể thay đổi
+            </p>
+          </div>
+
 
           <InputCustom
             control={control}

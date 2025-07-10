@@ -90,11 +90,10 @@ export const SelectCustom = <T extends FieldValues>({
         >
           <SelectTrigger
             id={name}
-            className={`${className} ${
-              fieldState.error
-                ? "border-red-500 placeholder:text-red-500 focus-visible:border-red-500"
-                : ""
-            } `}
+            className={`${className} ${fieldState.error
+              ? "border-red-500 placeholder:text-red-500 focus-visible:border-red-500"
+              : ""
+              } `}
           >
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>

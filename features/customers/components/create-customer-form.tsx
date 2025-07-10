@@ -42,7 +42,6 @@ export function CreateCustomerForm({
     isPending,
     isSuccess,
     error,
-    reset: resetMutationStatus,
   } = useCreateCustomerMutation();
 
   const onSubmit: SubmitHandler<CreateCustomerInputType> = (data) => {

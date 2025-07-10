@@ -76,7 +76,7 @@ export function CreateDepartmentForm({
     });
   };
 
-  const { data: users } = useUsersQuery();
+  const { data: users } = useUsersQuery({ limit: 10000 });
 
   const headOptions =
     users?.data
@@ -136,7 +136,6 @@ export function CreateDepartmentForm({
               control={control}
               label="Trưởng Phòng Ban"
               options={headOptions}
-              required
               placeholder="Chọn trưởng phòng ban"
             />
 

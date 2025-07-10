@@ -45,7 +45,7 @@ export function AddUserForm() {
     });
   };
 
-  const { data: departments, error: departmentError } = useDepartmentsQuery();
+  const { data: departments, error: departmentError } = useDepartmentsQuery({ limit: 10000 });
 
   const departOptions: SelectOption[] =
     departments?.data.map((d) => ({

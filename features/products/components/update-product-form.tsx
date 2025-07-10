@@ -35,7 +35,7 @@ export function UpdateProductForm({
       description: product?.description || "",
       id: product?.id || 0,
       name: product?.name || "",
-      categoryId: product?.categoryId || null,
+      categoryId: product?.categoryId || undefined,
     },
     resolver: zodResolver(updateProductInputSchema),
   });
@@ -71,7 +71,7 @@ export function UpdateProductForm({
     resetMutation();
   }, [open]);
 
-  const { data: categories } = useCategoriesQuery();
+  const { data: categories } = useCategoriesQuery({ limit: 10000 });
   const categoryOptions =
     categories?.data.map((category) => ({
       value: category.id,
@@ -137,6 +137,10 @@ export function UpdateProductForm({
                 options={categoryOptions}
                 required
                 placeholder="Chọn danh mục sản phẩm"
+                emptyOption={{
+                  label: "Chọn danh mục sản phẩm",
+
+                }}
               />
             </div>
 

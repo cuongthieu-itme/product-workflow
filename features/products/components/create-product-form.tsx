@@ -58,7 +58,7 @@ export function CreateProductForm({
     });
   };
 
-  const { data: categories } = useCategoriesQuery();
+  const { data: categories } = useCategoriesQuery({ limit: 10000 });
   const categoryOptions =
     categories?.data.map((category) => ({
       value: category.id,

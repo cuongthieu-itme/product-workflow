@@ -10,7 +10,6 @@ import { useDepartmentsQuery } from "../hooks";
 import { DepartmentType } from "../type";
 import Link from "next/link";
 import { UpdateDepartmentForm } from "./update-department-form";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DeleteDepartmentDialog } from "./delete-department-dialog";
 import { TableToolbar } from "@/components/data-table/toolbar";
 import { LIMIT, PAGE } from "@/constants/pagination";
