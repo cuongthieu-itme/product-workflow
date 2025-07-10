@@ -19,6 +19,7 @@ export interface ProductFilterInput {
   name?: string;
   page?: number;
   limit?: number;
+  categoryId?: string;
 }
 
 export type ProductsType = PaginatedResult<"data", ProductType>;

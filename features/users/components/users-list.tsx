@@ -44,7 +44,7 @@ export function UsersList() {
   const [isVerifiedAccountId, setIsVerifiedAccountId] = useState<string | null>(
     null
   );
-  const { data: departments } = useDepartmentsQuery();
+  const { data: departments } = useDepartmentsQuery({ limit: 10000 });
   const debouncedSearch = useDebounce(searchValue, 400);
   const isSuperAdmin = user?.role === UserRoleEnum.SUPER_ADMIN;
 
@@ -57,8 +57,8 @@ export function UsersList() {
       filterStatus === "true"
         ? true
         : filterStatus === "false"
-        ? false
-        : undefined,
+          ? false
+          : undefined,
     departmentId: filterDepartment,
     role: isSuperAdmin
       ? (filterRole as UserRoleEnum | undefined)

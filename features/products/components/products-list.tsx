@@ -14,12 +14,17 @@ import { ProductType } from "../types";
 import { UpdateProductForm } from "./update-product-form";
 import { DeleteProductDialog } from "./delete-product-dialog";
 import { useProductsQuery } from "../hooks";
-import { AddDepartmentDialog } from "@/features/departments/components/add-department-dialog";
 import { CreateProductForm } from "./create-product-form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useCategoriesQuery } from "@/features/categories/hooks";
+import { KEY_EMPTY_SELECT } from "@/components/form/select";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export function ProductList() {
   const [page, setPage] = useState(PAGE);
   const [searchValue, setSearchValue] = useState("");
+  const [categoryId, setCategoryId] = useState<string>(KEY_EMPTY_SELECT);
+  const debouncedSearch = useDebounce(searchValue, 400);
   const {
     data: products,
     isFetching,
@@ -27,7 +32,8 @@ export function ProductList() {
   } = useProductsQuery({
     page,
     limit: LIMIT,
-    name: searchValue,
+    name: debouncedSearch,
+    categoryId,
   });
   const [editForm, setEditForm] = useState<ProductType | null>(null);
   const [deleteForm, setDeleteForm] = useState<ProductType | null>(null);
@@ -99,6 +105,8 @@ export function ProductList() {
     },
   ];
 
+  const { data: categories } = useCategoriesQuery({ limit: 10000 })
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-4 md:flex-row justify-between md:space-y-0 w-full">
@@ -119,7 +127,21 @@ export function ProductList() {
             onSearchChange={setSearchValue}
             onRefresh={refetch}
             refreshing={isFetching}
-          />
+          >
+            <Select value={categoryId} onValueChange={setCategoryId}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Lọc theo danh mục" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={KEY_EMPTY_SELECT}>Tất cả danh mục</SelectItem>
+                {categories?.data.map((category) => (
+                  <SelectItem key={category.id} value={String(category.id)}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </TableToolbar>
 
           <DataTable<ProductType>
             data={products?.data}
