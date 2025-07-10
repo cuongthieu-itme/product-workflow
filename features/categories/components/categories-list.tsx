@@ -54,6 +54,11 @@ export function CategoryList() {
       cell: (u) => u.description || "N/A",
     },
     {
+      id: "_count",
+      header: "Sản phẩm",
+      cell: (u) => u._count.products,
+    },
+    {
       id: "createdAt",
       header: "Ngày tạo",
       cell: (u) => format(new Date(u.createdAt), "dd/MM/yyyy hh:mm"),

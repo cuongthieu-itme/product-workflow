@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
-import { Pencil, Phone, Mail } from "lucide-react";
+import { Pencil, Info, Folder, Tag, Calendar } from "lucide-react";
 import { useProductQuery } from "../../hooks";
 import { UpdateProductForm } from "../update-product-form";
 
@@ -41,55 +41,61 @@ export function ProductInformation({ productId }: ProductInformationProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">Tên sản phẩm</p>
-            <p className="font-medium">{product.data.name}</p>
+          <div className="flex items-start gap-3">
+            <Tag className="text-muted-foreground h-5 w-5 mt-1 flex-shrink-0" />
+            <div>
+              <p className="text-sm text-muted-foreground">Tên sản phẩm</p>
+              <p className="font-medium">
+                {product.data.name}
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">Chi tiết</p>
-            <p className="font-medium flex items-center">
-              {product.data.description ? (
-                <>
-                  <Phone className="mr-1 h-4 w-4" />
-                  {product.data.description}
-                </>
-              ) : (
-                "N/A"
-              )}
-            </p>
+
+          <div className="flex items-start gap-3">
+            <Info className="text-muted-foreground h-5 w-5 mt-1 flex-shrink-0" />
+            <div>
+              <p className="text-sm text-muted-foreground">Chi tiết</p>
+              <p className="font-medium">
+                {product.data.description || "N/A"}
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">Danh mục</p>
-            <p className="font-medium flex items-center">
-              {product.data.category ? (
-                <>
-                  <Mail className="mr-1 h-4 w-4" />
-                  {product.data.category.name}
-                </>
-              ) : (
-                "N/A"
-              )}
-            </p>
+          <div className="flex items-start gap-3">
+            <Folder className="text-muted-foreground h-5 w-5 mt-1 flex-shrink-0" />
+            <div>
+              <p className="text-sm text-muted-foreground">Danh mục</p>
+              <p className="font-medium flex items-center">
+                {product.data.category ? (
+                  <>
+                    {product.data.category.name}
+                  </>
+                ) : (
+                  "N/A"
+                )}
+              </p>
+            </div>
           </div>
         </div>
 
         <div className="pt-4 border-t">
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">Ngày tạo</p>
-            <p className="text-sm">
-              {format(product.data.createdAt, "dd/MM/yyyy")}
-            </p>
+          <div className="flex items-start gap-3">
+            <Calendar className="text-muted-foreground h-5 w-5 mt-1 flex-shrink-0" />
+            <div>
+              <p className="text-sm text-muted-foreground">Ngày tạo</p>
+              <p className="text-sm">{format(product.data.createdAt, "dd/MM/yyyy HH:mm")}</p>
+            </div>
           </div>
           {product.data.updatedAt &&
             product.data.updatedAt !== product.data.createdAt && (
-              <div className="space-y-1 mt-2">
+              <div className="flex items-start gap-3 mt-2">
+                <Calendar className="text-muted-foreground h-5 w-5 mt-1 flex-shrink-0" />
                 <p className="text-sm text-muted-foreground">
                   Cập nhật lần cuối
                 </p>
-                <p className="text-sm">
-                  {format(product.data.updatedAt, "dd/MM/yyyy")}
+                <p className="font-medium">
+                  {format(product.data.updatedAt, "dd/MM/yyyy HH:mm")}
                 </p>
               </div>
             )}

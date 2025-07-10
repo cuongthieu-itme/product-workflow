@@ -228,7 +228,7 @@ export function AppSidebar({
       roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
     {
-      title: "Quản lý danh mục sản phẩm",
+      title: "Quản lý danh mục",
       href: "/dashboard/categories",
       icon: <Folder className="h-4 w-4" />,
       roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],

@@ -53,7 +53,7 @@ export function ProductDetail() {
           </Button>
         </div>
       </div>
-      <div className="container mx-auto py-6 space-y-6">
+      <div className="container  space-y-6">
         <h1 className="text-2xl font-bold">
           Chi tiết sản phẩm: {product.data.name}
         </h1>
