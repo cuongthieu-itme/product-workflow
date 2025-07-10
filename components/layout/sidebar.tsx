@@ -176,16 +176,6 @@ export function AppSidebar({
       icon: <Users className="h-4 w-4" />,
       roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
-    {
-      title: "Marketing",
-      href: "/dashboard/marketing",
-      icon: <FileText className="h-4 w-4" />,
-    },
-    {
-      title: "R&D",
-      href: "/dashboard/rd-management",
-      icon: <FolderKanban className="h-4 w-4" />,
-    },
   ];
 
   const reportItems = [
@@ -240,12 +230,6 @@ export function AppSidebar({
       title: "Cài đặt",
       href: "/dashboard/settings",
       icon: <Settings className="h-4 w-4" />,
-    },
-    {
-      title: "Di chuyển dữ liệu",
-      href: "/dashboard/data-migration",
-      icon: <Database className="h-4 w-4" />,
-      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
   ];
 
