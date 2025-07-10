@@ -17,7 +17,7 @@ export function ProductDetail() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-6 space-y-6">
+      <div className="container space-y-6">
         <Skeleton className="h-12 w-1/3" />
         <Skeleton className="h-[400px] w-full" />
       </div>
@@ -61,14 +61,15 @@ export function ProductDetail() {
         <Tabs defaultValue="info">
           <TabsList>
             <TabsTrigger value="info">Thông tin</TabsTrigger>
-            {/* <TabsTrigger value="requests">Yêu cầu</TabsTrigger> */}
+            <TabsTrigger value="requests">Yêu cầu</TabsTrigger>
           </TabsList>
           <TabsContent value="info" className="mt-4">
             <ProductInformation productId={productId} />
           </TabsContent>
-          {/* <TabsContent value="requests" className="mt-4">
-            <CustomerRequests customerId={customerId} />
-          </TabsContent> */}
+          <TabsContent value="requests" className="mt-4">
+            {/* <CustomerRequests customerId={customerId} /> */}
+            <p className="text-gray-500">Chức năng này đang được phát triển.</p>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
