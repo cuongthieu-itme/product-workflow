@@ -122,8 +122,8 @@ export const AvatarSetting = ({ user }: AvatarSettingProps) => {
     <div className="flex flex-col items-center space-y-4">
       <div {...getRootProps()} className="w-full justify-center flex">
         <input {...getInputProps()} />
-        <Avatar className="h-24 w-24 cursor-pointer border-2 border-dashed p-2">
-          <AvatarImage src={getImageUrl(user.avatar)} alt={user.fullName} />
+        <Avatar className="h-24 w-24 cursor-pointer border-2 border-dashed p-[3px]">
+          <AvatarImage src={getImageUrl(user.avatar)} alt={user.fullName} className="rounded-full" />
           <AvatarFallback className="text-2xl">
             {user.fullName?.charAt(0) || user.userName?.charAt(0) || "U"}
           </AvatarFallback>
