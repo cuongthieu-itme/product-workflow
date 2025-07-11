@@ -48,6 +48,15 @@ export const ImageUpload = <T extends FieldValues>({
 
   // Generate / cleanup object-URLs
   useEffect(() => {
+    //Check value is array string or array file
+    if (!Array.isArray(value)) return;
+
+    if (value.every((v) => typeof v === "string")) {
+      const urls = value as string[];
+      setPreviews(urls);
+      return;
+    }
+
     const files = value as File[];
     const urls = files.map((f) => URL.createObjectURL(f));
     setPreviews(urls);

@@ -12,6 +12,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 export interface SelectOption {
   label: string;
@@ -31,6 +32,7 @@ export type SelectProps<T extends FieldValues> = UseControllerProps<T> & {
     label: string;
   };
   valueType?: "string" | "number";
+  containerClassName?: string;
 };
 
 export const SelectCustom = <T extends FieldValues>({
@@ -47,6 +49,7 @@ export const SelectCustom = <T extends FieldValues>({
   className = "",
   emptyOption,
   valueType = "string",
+  containerClassName = "",
 }: SelectProps<T>) => {
   const {
     field: { value, onChange, ...field },
@@ -71,7 +74,7 @@ export const SelectCustom = <T extends FieldValues>({
   }
 
   return (
-    <div className="space-y-2">
+    <div className={cn("space-y-2", containerClassName)}>
       {label && (
         <div className="flex items-center">
           <Label htmlFor={name}>{label}</Label>
@@ -90,10 +93,11 @@ export const SelectCustom = <T extends FieldValues>({
         >
           <SelectTrigger
             id={name}
-            className={`${className} ${fieldState.error
-              ? "border-red-500 placeholder:text-red-500 focus-visible:border-red-500"
-              : ""
-              } `}
+            className={`${className} ${
+              fieldState.error
+                ? "border-red-500 placeholder:text-red-500 focus-visible:border-red-500"
+                : ""
+            } `}
           >
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>

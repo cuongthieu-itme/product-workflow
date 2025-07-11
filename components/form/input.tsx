@@ -16,6 +16,7 @@ export type InputProps<T extends FieldValues> = UseControllerProps<T> &
     label?: string;
     className?: string;
     labelIcon?: ReactElement;
+    containerClassName?: string;
   };
 
 export const InputCustom = <T extends FieldValues>({
@@ -31,6 +32,7 @@ export const InputCustom = <T extends FieldValues>({
   disabled = false,
   className = "",
   labelIcon,
+  containerClassName = "",
   ...props
 }: InputProps<T>) => {
   const {
@@ -48,7 +50,7 @@ export const InputCustom = <T extends FieldValues>({
   const inputType = type === "password" && !showPassword ? "password" : "text";
 
   return (
-    <div className="space-y-2">
+    <div className={cn("space-y-2", containerClassName)}>
       {label && (
         <div className="flex items-center h-[24px]">
           <Label htmlFor={name} className="flex items-center gap-2">

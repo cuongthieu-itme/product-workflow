@@ -1,12 +1,13 @@
 export type MaterialType = {
   id: string;
-  image: string;
+  image: string[];
   code: string;
   name: string;
   count: number;
   unit: string;
   origin: string;
-  status: string;
+  isActive: boolean;
+  description: string;
   createdAt: string;
   updatedAt: string;
 };

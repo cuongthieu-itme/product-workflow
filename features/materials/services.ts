@@ -1,5 +1,8 @@
 import { materialsMock } from "./mock";
-import { CreateMaterialInputType } from "./schema/create-material-schema";
+import {
+  CreateMaterialInputType,
+  UpdateMaterialInputType,
+} from "./schema/create-material-schema";
 import { MaterialFilterInput } from "./type";
 
 export const getMaterials = async (params?: MaterialFilterInput) => {
@@ -8,4 +11,16 @@ export const getMaterials = async (params?: MaterialFilterInput) => {
 
 export const createMaterial = async (data: CreateMaterialInputType) => {
   return data;
+};
+
+export const updateMaterial = async (data: UpdateMaterialInputType) => {
+  return data;
+};
+
+export const deleteMaterial = async (id: string) => {
+  return id;
+};
+
+export const changeStatusMaterial = async (id: string) => {
+  return id;
 };

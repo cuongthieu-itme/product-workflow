@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { TablePagination } from "@/components/data-table/pagination";
-import { Edit, Trash2, Eye } from "lucide-react";
+import { Edit, Trash2, Eye, Power } from "lucide-react";
 import type { Column } from "@/components/data-table/types";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -12,8 +12,10 @@ import { TableToolbar } from "@/components/data-table/toolbar";
 import { LIMIT, PAGE } from "@/constants/pagination";
 import { MaterialType } from "../type";
 import Image from "next/image";
-import { CreateMaterialForm } from "./create-material-form";
+import { CreateMaterialForm, MaterialForm } from "./material-form-dialog";
 import { useMaterialsQuery } from "../hooks";
+import { ToggleStatusMaterialDialog } from "./toggle-status-material-dialog";
+import { Badge } from "@/components/ui/badge";
 
 export function MaterialList() {
   const [page, setPage] = useState(PAGE);
@@ -28,14 +30,23 @@ export function MaterialList() {
     name: searchValue,
   });
   const [editForm, setEditForm] = useState<MaterialType | null>(null);
-  const [deleteForm, setDeleteForm] = useState<MaterialType | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [toggleStatusForm, setToggleStatusForm] = useState<MaterialType | null>(
+    null
+  );
 
-  const handleOpenDeleteDialog = (customer: MaterialType) => {
-    setDeleteForm(customer);
+  const handleOpenChangeStatusDialog = (customer: MaterialType) => {
+    setToggleStatusForm(customer);
   };
 
   const handleOpenEditDialog = (customer: MaterialType) => {
     setEditForm(customer);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleCloseEditDialog = () => {
+    setEditForm(null);
+    setIsEditDialogOpen(false);
   };
 
   const totalPages = materials
@@ -48,11 +59,11 @@ export function MaterialList() {
       header: "Hình ảnh",
       cell: (u) => (
         <Image
-          src={u.image}
+          src={u.image[0]}
           alt={u.name}
           width={50}
           height={50}
-          className="rounded-md"
+          className="rounded-sm"
         />
       ),
     },
@@ -77,6 +88,18 @@ export function MaterialList() {
       cell: (u) => u.origin,
     },
     {
+      id: "isActive",
+      header: "Trạng thái",
+      cell: (u) => (
+        <Badge
+          variant={u.isActive ? "default" : "destructive"}
+          className="text-xs"
+        >
+          {u.isActive ? "Còn hàng" : "Hết hàng"}
+        </Badge>
+      ),
+    },
+    {
       id: "createdAt",
       header: "Ngày tạo",
       cell: (u) => format(new Date(u.createdAt), "dd/MM/yyyy hh:mm"),
@@ -92,28 +115,24 @@ export function MaterialList() {
       className: "text-right w-1",
       cell: (u) => (
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/dashboard/materials/${u.id}`}>
-              <Eye className="h-4 w-4 mr-2" />
-              Chi tiết
-            </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              handleOpenEditDialog(u);
+            }}
+          >
+            <Edit className="h-4 w-4 mr-2" />
+            Chỉnh Sửa
           </Button>
 
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleOpenEditDialog(u)}
+            onClick={() => handleOpenChangeStatusDialog(u)}
           >
-            <Edit className="h-4 w-4 mr-2" />
-            Chỉnh Sửa
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleOpenDeleteDialog(u)}
-          >
-            <Trash2 className="h-4 w-4 mr-2 text-red-500" />
-            Xóa
+            <Power className="h-4 w-4" />
+            Thay đổi trạng thái
           </Button>
         </div>
       ),
@@ -153,6 +172,21 @@ export function MaterialList() {
             totalPages={totalPages}
             onPageChange={setPage}
           />
+
+          {editForm && (
+            <MaterialForm
+              material={editForm}
+              isDialogOpen={isEditDialogOpen}
+              onClose={handleCloseEditDialog}
+            />
+          )}
+
+          {toggleStatusForm && (
+            <ToggleStatusMaterialDialog
+              changeStatusMaterial={toggleStatusForm}
+              setChangeStatusMaterial={setToggleStatusForm}
+            />
+          )}
         </div>
       </div>
     </div>

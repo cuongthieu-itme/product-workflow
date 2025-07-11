@@ -18,7 +18,10 @@ const imageSchema = z
   .max(5, { message: "Không được quá 5 ảnh" });
 
 export const createMaterialInputSchema = z.object({
-  image: imageSchema,
+  image: z
+    .array(z.string())
+    .min(1, { message: "Phải chọn ít nhất 1 ảnh" })
+    .max(5, { message: "Không được quá 5 ảnh" }),
   code: z
     .string()
     .trim()
@@ -52,3 +55,6 @@ export const createMaterialInputSchema = z.object({
 });
 
 export type CreateMaterialInputType = z.infer<typeof createMaterialInputSchema>;
+export type UpdateMaterialInputType = CreateMaterialInputType & {
+  id: string;
+};
