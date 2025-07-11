@@ -27,6 +27,7 @@ export type CustomerFilterInput = {
   page?: number;
   limit?: number;
   fullName?: string;
+  source?: SourceEnum;
 };
 
 export type CustomerDetailType = {

@@ -7,7 +7,7 @@ import { Edit, Trash2, Eye } from "lucide-react";
 import type { Column } from "@/components/data-table/types";
 import { Button } from "@/components/ui/button";
 import { useCustomersQuery } from "../hooks";
-import { CustomerType } from "../type";
+import { CustomerType, SourceEnum } from "../type";
 import Link from "next/link";
 import { UpdateCustomerForm } from "./update-customer-form";
 import { DeleteCustomerDialog } from "./delete-customer-dialog";
@@ -16,10 +16,23 @@ import { TableToolbar } from "@/components/data-table/toolbar";
 import { LIMIT, PAGE } from "@/constants/pagination";
 import { genderOptions, sourceOptions } from "../options";
 import { AddCustomerDialog } from "./add-customer-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useDebounce } from "@/hooks/use-debounce";
+import { KEY_EMPTY_SELECT } from "@/components/form/select";
 
 export function CustomerList() {
   const [page, setPage] = useState(PAGE);
   const [searchValue, setSearchValue] = useState("");
+  const debouncedSearch = useDebounce(searchValue, 400);
+  const [sourceFilter, setSourceFilter] = useState<SourceEnum | undefined>(
+    undefined
+  );
   const {
     data: customers,
     isFetching,
@@ -27,7 +40,8 @@ export function CustomerList() {
   } = useCustomersQuery({
     page,
     limit: LIMIT,
-    fullName: searchValue,
+    fullName: debouncedSearch,
+    source: sourceFilter,
   });
   const [editingCustomer, setEditingCustomer] = useState<CustomerType | null>(
     null
@@ -135,7 +149,24 @@ export function CustomerList() {
             onSearchChange={setSearchValue}
             onRefresh={refetch}
             refreshing={isFetching}
-          />
+          >
+            <Select
+              value={sourceFilter}
+              onValueChange={(value) => setSourceFilter(value as SourceEnum)}
+            >
+              <SelectTrigger className="w-24 overflow-hidden text-ellipsis text-left">
+                <SelectValue placeholder="Lọc theo nguồn" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={KEY_EMPTY_SELECT}>Tất cả nguồn</SelectItem>
+                {sourceOptions.map((source) => (
+                  <SelectItem key={source.value} value={source.value}>
+                    {source.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </TableToolbar>
 
           <DataTable<CustomerType>
             data={customers?.data}
