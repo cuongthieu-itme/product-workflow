@@ -8,13 +8,15 @@ import {
 } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDropzone } from "react-dropzone";
 import type { FileWithPath } from "react-dropzone";
+import { getImageUrl } from "@/features/settings/utils";
+import { useFileMutation } from "@/hooks/use-file";
+import { FileType } from "@/types/common";
 
 export type ImageUploadProps<T extends FieldValues> = UseControllerProps<T> & {
   label?: string;
@@ -45,36 +47,37 @@ export const ImageUpload = <T extends FieldValues>({
 
   // ----- PREVIEW -----
   const [previews, setPreviews] = useState<string[]>([]);
+  const { mutate: uploadMultipleFilesMutation } =
+    useFileMutation("uploadMultiple");
+  const { mutate: deleteFileMutation } = useFileMutation("delete");
 
   // Generate / cleanup object-URLs
   useEffect(() => {
-    //Check value is array string or array file
     if (!Array.isArray(value)) return;
 
-    if (value.every((v) => typeof v === "string")) {
-      const urls = value as string[];
-      setPreviews(urls);
-      return;
-    }
-
-    const files = value as File[];
-    const urls = files.map((f) => URL.createObjectURL(f));
+    const urls = value as string[];
     setPreviews(urls);
 
-    // cleanup
     return () => urls.forEach((u) => URL.revokeObjectURL(u));
   }, [value]);
 
   // ----- DROPZONE -----
-  const onDrop = (accepted: FileWithPath[]) => {
+  const onDrop = async (accepted: FileWithPath[]) => {
     const valid = accepted.filter((f) =>
       ["image/jpeg", "image/png", "image/webp"].includes(f.type)
     );
 
     if (!valid.length) return;
 
-    const next = [...(value as File[]), ...valid].slice(0, maxFiles);
-    onChange(next); // react-hook-form update
+    uploadMultipleFilesMutation(valid, {
+      onSuccess: (data) => {
+        const next = [
+          ...(value as string[]),
+          ...(data as FileType[]).map((f) => f.filename),
+        ].slice(0, maxFiles);
+        onChange(next);
+      },
+    });
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -88,9 +91,13 @@ export const ImageUpload = <T extends FieldValues>({
   });
 
   // ----- REMOVE -----
-  const removeAt = (idx: number) => {
-    const next = (value as File[]).filter((_, i) => i !== idx);
-    onChange(next);
+  const removeAt = async (idx: number) => {
+    deleteFileMutation(value[idx], {
+      onSuccess: () => {
+        const next = (value as string[]).filter((_, i) => i !== idx);
+        onChange(next);
+      },
+    });
   };
 
   // ----- UI -----
@@ -116,7 +123,7 @@ export const ImageUpload = <T extends FieldValues>({
                 : "border-muted-foreground"
             )}
           >
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-2 ">
               <Plus className="h-6 w-6 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">
                 {value.length >= maxFiles
@@ -133,7 +140,7 @@ export const ImageUpload = <T extends FieldValues>({
               {previews.map((src, i) => (
                 <div key={i} className="relative">
                   <img
-                    src={src}
+                    src={getImageUrl(src)}
                     alt={`preview-${i}`}
                     className="w-full h-24 object-cover rounded-md"
                   />

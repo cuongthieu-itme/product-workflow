@@ -9,3 +9,9 @@ export type PaginatedResult<Key extends string = "users", T = unknown> = {
 export type BaseResultQuery<T = unknown> = {
   data: T;
 };
+
+export type FileType = {
+  filename: string;
+  originalname: string;
+  size: number;
+};
