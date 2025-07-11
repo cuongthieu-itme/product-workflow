@@ -144,9 +144,7 @@ export const ImageUpload = <T extends FieldValues>({
       </Card>
 
       {fieldState.error && (
-        <Alert variant="destructive">
-          <AlertDescription>{fieldState.error.message}</AlertDescription>
-        </Alert>
+        <p className="text-sm text-red-500">{fieldState.error.message}</p>
       )}
     </div>
   );
