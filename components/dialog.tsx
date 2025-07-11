@@ -8,6 +8,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 export interface BaseDialogProps {
   open: boolean;
@@ -41,7 +42,7 @@ export function BaseDialog({
         if (!o) onClose();
       }}
     >
-      <DialogContent className={contentClassName}>
+      <DialogContent className={cn(contentClassName, "px-4 py-6")}>
         <DialogHeader className={headerClassName}>
           {title && <DialogTitle>{title}</DialogTitle>}
           {description && <DialogDescription>{description}</DialogDescription>}

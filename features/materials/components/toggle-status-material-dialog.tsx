@@ -28,7 +28,6 @@ export const ToggleStatusMaterialDialog = ({
       open={!!changeStatusMaterial}
       onClose={() => setChangeStatusMaterial(null)}
       title="Xác nhận thay đổi trạng thái nguyên liệu"
-      contentClassName="sm:max-w-[320px]"
       description={`Bạn có chắc chắn muốn thay đổi trạng thái nguyên liệu ${changeStatusMaterial?.name}? `}
       footer={
         <div className="flex justify-end gap-2">
