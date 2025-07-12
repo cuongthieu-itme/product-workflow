@@ -21,6 +21,7 @@ import { useOriginsQuery, useUnitsQuery } from "../hooks/useMaterials";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { KEY_EMPTY_SELECT, SelectOption } from "@/components/form/select";
 import { ToolbarFilters } from "@/components/data-table/toolbar-filter";
+import { ImageDialog } from "./image-dialog";
 
 export function MaterialList() {
   const [page, setPage] = useState(PAGE);
@@ -46,6 +47,19 @@ export function MaterialList() {
   const [toggleStatusForm, setToggleStatusForm] = useState<MaterialType | null>(
     null
   );
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
+  const [nameImage, setNameImage] = useState("");
+  const handleCloseImageDialog = () => {
+    setIsImageDialogOpen(false);
+    setImages([]);
+    setNameImage("");
+  };
+  const handleOpenImageDialog = (images: string[], nameImage: string) => {
+    setImages(images);
+    setIsImageDialogOpen(true);
+    setNameImage(nameImage);
+  };
 
   const { data: origins, refetch: refetchOrigins } = useOriginsQuery();
   const { data: units, refetch: refetchUnits } = useUnitsQuery();
@@ -79,6 +93,7 @@ export function MaterialList() {
           width={50}
           height={50}
           className="rounded-sm"
+          onClick={() => handleOpenImageDialog(u.image, u.name)}
         />
       ),
     },
@@ -242,6 +257,15 @@ export function MaterialList() {
             <ToggleStatusMaterialDialog
               changeStatusMaterial={toggleStatusForm}
               setChangeStatusMaterial={setToggleStatusForm}
+            />
+          )}
+
+          {isImageDialogOpen && (
+            <ImageDialog
+              isImageDialogOpen={isImageDialogOpen}
+              images={images}
+              onClose={handleCloseImageDialog}
+              nameImage={nameImage}
             />
           )}
         </div>
