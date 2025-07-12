@@ -34,7 +34,7 @@ export const ToggleStatusMaterialDialog = ({
       title="Xác nhận thay đổi trạng thái nguyên liệu"
       description={
         <>
-          Bạn có chắc chắn muốn thay đổi trạng thái nguyên liệu <span className="font-bold">{changeStatusMaterial?.name}</span> sang <span className="font-bold">{changeStatusMaterial?.isActive ? "còn hàng" : "hết hàng"}</span>?
+          Bạn có chắc chắn muốn thay đổi trạng thái nguyên liệu <span className="font-bold">{changeStatusMaterial?.name}</span> sang <span className="font-bold">{changeStatusMaterial?.isActive ? "hết hàng" : "còn hàng"}</span>?
         </>
       }
       footer={

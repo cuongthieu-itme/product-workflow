@@ -20,6 +20,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { useOriginsQuery, useUnitsQuery } from "../hooks/useMaterials";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { KEY_EMPTY_SELECT, SelectOption } from "@/components/form/select";
+import { ToolbarFilters } from "@/components/data-table/toolbar-filter";
 
 export function MaterialList() {
   const [page, setPage] = useState(PAGE);
@@ -37,7 +38,7 @@ export function MaterialList() {
     limit: LIMIT,
     name: debouncedSearchValue,
     origin: filterOrigin,
-    isActive: Boolean(Number(filterStatus)),
+    isActive: filterStatus === KEY_EMPTY_SELECT ? undefined : Boolean(Number(filterStatus)),
     unit: filterUnit,
   });
   const [editForm, setEditForm] = useState<MaterialType | null>(null);
@@ -159,6 +160,12 @@ export function MaterialList() {
     refetchUnits();
   };
 
+  const statusOptions = [
+    { value: KEY_EMPTY_SELECT, label: "Tất cả trạng thái" },
+    { value: "1", label: "Còn hàng" },
+    { value: "0", label: "Hết hàng" },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-4 md:flex-row justify-between md:space-y-0 w-full">
@@ -180,54 +187,35 @@ export function MaterialList() {
             onRefresh={handleRefresh}
             refreshing={isFetching}
           >
-            <Select value={filterOrigin} onValueChange={setFilterOrigin}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Lọc theo xuất xứ" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={KEY_EMPTY_SELECT}>Tất cả xuất xứ</SelectItem>
-                {origins &&
-                  origins?.data.map((origin: SelectOption) => (
-                    <SelectItem key={origin.value} value={String(origin.value)}>
-                      {origin.label}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={filterUnit}
-              onValueChange={(filterUnit) => setFilterUnit(filterUnit)}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Lọc theo đơn vị" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={KEY_EMPTY_SELECT}>
-                  Tất cả đơn vị
-                </SelectItem>
-                {units &&
-                  units?.data.map((unit: SelectOption) => (
-                    <SelectItem key={unit.value} value={String(unit.value)}>
-                      {unit.label}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={filterStatus}
-              onValueChange={(filterStatus) => setFilterStatus(filterStatus)}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Lọc theo trạng thái" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={KEY_EMPTY_SELECT}>
-                  Tất cả trạng thái
-                </SelectItem>
-                <SelectItem value="1">Còn hàng</SelectItem>
-                <SelectItem value="0">Hết hàng</SelectItem>
-              </SelectContent>
-            </Select>
+            <ToolbarFilters
+              filters={[
+                {
+                  placeholder: "Lọc theo xuất xứ",
+                  value: filterOrigin,
+                  onChange: setFilterOrigin,
+                  options: [
+                    { value: KEY_EMPTY_SELECT, label: "Tất cả xuất xứ" },
+                    ...(origins?.data ?? []),
+                  ],
+                },
+                {
+                  placeholder: "Lọc theo đơn vị",
+                  value: filterUnit,
+                  onChange: setFilterUnit,
+                  options: [
+                    { value: KEY_EMPTY_SELECT, label: "Tất cả đơn vị" },
+                    ...(units?.data ?? []),
+                  ],
+                },
+                {
+                  placeholder: "Lọc theo trạng thái",
+                  value: filterStatus,
+                  onChange: setFilterStatus,
+                  options: statusOptions,
+                },
+              ]}
+            />
+
           </TableToolbar>
 
           <DataTable<MaterialType>
