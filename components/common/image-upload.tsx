@@ -17,6 +17,7 @@ import type { FileWithPath } from "react-dropzone";
 import { getImageUrl } from "@/features/settings/utils";
 import { useFileMutation } from "@/hooks/use-file";
 import { FileType } from "@/types/common";
+import { useToast } from "../ui/use-toast";
 
 export type ImageUploadProps<T extends FieldValues> = UseControllerProps<T> & {
   label?: string;
@@ -34,6 +35,7 @@ export const ImageUpload = <T extends FieldValues>({
   className = "",
   maxFiles = 5,
 }: ImageUploadProps<T>) => {
+  const { toast } = useToast();
   const {
     field: { value = [], onChange, ...field },
     fieldState,
@@ -63,6 +65,14 @@ export const ImageUpload = <T extends FieldValues>({
 
   // ----- DROPZONE -----
   const onDrop = async (accepted: FileWithPath[]) => {
+    if (value.length >= maxFiles) {
+      toast({
+        title: "Lỗi",
+        description: `Bạn chỉ có thể tải lên tối đa ${maxFiles} hình ảnh`,
+        variant: "destructive"
+      })
+      return;
+    };
     const valid = accepted.filter((f) =>
       ["image/jpeg", "image/png", "image/webp"].includes(f.type)
     );
@@ -131,7 +141,7 @@ export const ImageUpload = <T extends FieldValues>({
                   : "Kéo thả ảnh hoặc nhấp để chọn"}
               </p>
             </div>
-            <Input {...getInputProps()} className="hidden" />
+            <Input {...getInputProps()} className="hidden" disabled={value.length >= maxFiles} />
           </div>
 
           {/* Previews */}
