@@ -1,108 +1,177 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Power } from "lucide-react";
+import { Edit, Trash2, Power, Package } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { accessoryMock } from "../mock/accessory-mock";
-
-interface Accessory {
-  id: string;
-  name: string;
-  code: string;
-  quantity: number;
-  isActive: boolean;
-  images: string[];
-  createdAt: string;
-  updatedAt: string;
-}
+import { AccessoryForm, CreateAccessoryForm } from "./accessory-form";
+import { AccessoryType } from "../type";
+import { useAccessoriesQuery } from "../hooks/useAccessories";
+import { LIMIT, PAGE } from "@/constants/pagination";
+import { getImageUrl } from "@/features/settings/utils";
+import { ImageDialog } from "./image-dialog";
+import { ToggleStatusAccessoryDialog } from "./toggle-status-accessory-dialog";
+import { DeleteAccessoryDialog } from "./delete-accessory-dialog";
 
 export const AccessoryList = () => {
-  const [selectedAccessory, setSelectedAccessory] = useState<Accessory | null>(
+  const [selectedAccessory, setSelectedAccessory] = useState<AccessoryType | null>(
     null
   );
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [deletingAccessory, setDeletingAccessory] = useState<AccessoryType | null>(null);
+  const [toggleStatusForm, setToggleStatusForm] = useState<AccessoryType | null>(null);
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
+  const [nameImage, setNameImage] = useState<string>("");
 
-  const handleDeleteAccessory = async (accessory: Accessory) => {
-    // TODO: Implement delete functionality
-    console.log("Deleting accessory:", accessory);
-    setIsDeleteDialogOpen(false);
+  const handleCloseEditDialog = () => {
+    setIsEditDialogOpen(false);
+    setSelectedAccessory(null);
   };
 
-  const handleToggleStatus = async (accessory: Accessory) => {
-    // TODO: Implement status toggle functionality
-    console.log("Toggling status for accessory:", accessory);
-    setIsStatusDialogOpen(false);
+  const handleCloseImageDialog = () => {
+    setIsImageDialogOpen(false);
+    setImages([]);
+    setNameImage("");
   };
+
+  const handleOpenImageDialog = (images: string[], nameImage: string) => {
+    setImages(images);
+    setIsImageDialogOpen(true);
+    setNameImage(nameImage);
+  };
+
+  const handleToggleStatus = async (accessory: AccessoryType) => {
+    setToggleStatusForm(accessory);
+  };
+
+  const handleDeleteAccessory = async (accessory: AccessoryType) => {
+    setDeletingAccessory(accessory);
+  };
+
+
+  const { data: accessories } = useAccessoriesQuery({
+    limit: LIMIT,
+    page: PAGE,
+  })
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-      {accessoryMock.length === 0 ? (
-        <div className="col-span-full text-center py-8">
-          Không có dữ liệu phụ kiện
+    <div >
+      <div className="flex flex-col space-y-4 md:flex-row justify-between md:space-y-0 w-full">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Quản lý phụ kiện
+          </h2>
+          <p className="text-muted-foreground">Quản lý thông tin phụ kiện </p>
         </div>
-      ) : (
-        accessoryMock.map((accessory) => (
-          <div
-            key={accessory.id}
-            className="border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow"
-          >
+
+        <CreateAccessoryForm />
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 py-4">
+        {accessories?.data.length === 0 ? (
+          <div className="py-6 col-span-full flex flex-col items-center justify-center py-12 text-gray-500 border border-dashed rounded-lg">
+            <Package className="h-12 w-12 mb-3 opacity-60" />
+            <p className="text-sm">Không có dữ liệu phụ kiện</p>
+          </div>
+        ) : (
+          accessories?.data.map((accessory) => (
             <div
-              className="relative h-40 w-full cursor-pointer"
-              onClick={() => setSelectedAccessory(accessory)}
+              key={accessory.id}
+              className="border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow"
             >
-              <Image
-                src={accessory.images[0] || "/placeholder.svg"}
-                alt={accessory.name}
-                fill
-                className="object-cover"
-              />
-              <Badge
-                className="absolute top-2 right-2"
-                variant={accessory.isActive ? "default" : "destructive"}
+              <div
+                className="relative h-40 w-full cursor-pointer"
+                onClick={() => setSelectedAccessory(accessory)}
               >
-                {accessory.isActive ? "Còn hàng" : "Hết hàng"}
-              </Badge>
-            </div>
-            <div className="p-3">
-              <h3 className="font-medium text-lg truncate">{accessory.name}</h3>
-              <p className="text-sm text-gray-500 truncate">{accessory.code}</p>
-              <div className="mt-3 flex justify-between items-center">
-                <span className="text-sm">SL: {accessory.quantity}</span>
-                <div className="flex space-x-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setSelectedAccessory(accessory)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setSelectedAccessory(accessory);
-                      setIsDeleteDialogOpen(true);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setSelectedAccessory(accessory);
-                      setIsStatusDialogOpen(true);
-                    }}
-                  >
-                    <Power className="h-4 w-4" />
-                  </Button>
+                <Image
+                  onClick={() => {
+                    handleOpenImageDialog(accessory.image, accessory.name);
+                  }}
+                  src={getImageUrl(accessory.image[0]) || "/placeholder.svg"}
+                  alt={accessory.name}
+                  fill
+                  className="object-cover"
+                />
+                <Badge
+                  className="absolute top-2 right-2"
+                  variant={accessory.isActive ? "default" : "destructive"}
+                >
+                  {accessory.isActive ? "Còn hàng" : "Hết hàng"}
+                </Badge>
+              </div>
+              <div className="p-3">
+                <h3 className="font-medium text-lg truncate">{accessory.name}</h3>
+                <p className="text-sm text-gray-500 truncate">{accessory.code}</p>
+                <div className="mt-3 flex justify-between items-center">
+                  <span className="text-sm">SL: {accessory.quantity ?? 0}</span>
+                  <div className="flex space-x-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setSelectedAccessory(accessory);
+                        setIsEditDialogOpen(true);
+                      }}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        handleDeleteAccessory(accessory);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        handleToggleStatus(accessory);
+                      }}
+                    >
+                      <Power className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))
+          ))
+        )}
+      </div>
+
+      {selectedAccessory && (
+        <AccessoryForm
+          accessory={selectedAccessory}
+          isDialogOpen={isEditDialogOpen}
+          onClose={handleCloseEditDialog}
+        />
       )}
+
+      {isImageDialogOpen && (
+        <ImageDialog
+          isImageDialogOpen={isImageDialogOpen}
+          images={images}
+          onClose={handleCloseImageDialog}
+          nameImage={nameImage}
+        />
+      )}
+
+      {toggleStatusForm && (
+        <ToggleStatusAccessoryDialog
+          changeStatusAccessory={toggleStatusForm}
+          setChangeStatusAccessory={setToggleStatusForm}
+        />
+      )}
+
+      {deletingAccessory && (
+        <DeleteAccessoryDialog
+          deletingAccessory={deletingAccessory}
+          setDeletingAccessory={setDeletingAccessory}
+        />
+      )}
+
     </div>
+
   );
 };

@@ -3,10 +3,12 @@ import {
   CreateMaterialInputType,
   UpdateMaterialInputType,
 } from "./schema/create-material-schema";
-import { ChangeStatusMaterialInput, MaterialFilterInput, MaterialType } from "./type";
+import { AccessoryFilterInput, AccessoryType, ChangeStatusAccessoryInput, ChangeStatusMaterialInput, MaterialFilterInput, MaterialType } from "./type";
 import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
 import { SelectOption } from "@/components/form/select";
+import { AccessoryInputType } from "./schema";
+import { UpdateAccessoryInputType } from "./schema/accessory-schema";
 
 export const getMaterials = async (params?: MaterialFilterInput) => {
   try {
@@ -77,3 +79,74 @@ export const getUnits = async () => {
     throw error;
   }
 };
+
+
+export const createAccessory = async (data: AccessoryInputType) => {
+  try {
+    const response = await request.post<AccessoryType>("/accessories", data);
+    return response.data;
+  } catch (error) {
+    console.error("Create accessory error:", error);
+    throw error;
+  }
+};
+
+export const updateAccessory = async ({ id, ...data }: UpdateAccessoryInputType) => {
+  try {
+    const response = await request.patch<AccessoryType>(
+      `/accessories/${id}`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Update accessory error:", error);
+    throw error;
+  }
+};
+
+
+export const changeStatusAccessory = async ({ id, isActive }: ChangeStatusAccessoryInput) => {
+  try {
+    const response = await request.patch(`/accessories/${id}`, {
+      isActive,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Change status accessory error:", error);
+    throw error;
+  }
+};
+
+
+export const getAccessories = async (params?: AccessoryFilterInput) => {
+  try {
+    const response = await request.get<PaginatedResult<"data", AccessoryType>>("/accessories", {
+      params: omitVoid(params),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Get accessories error:", error);
+    throw error;
+  }
+}
+
+export const getAccessoryDetail = async (id: string) => {
+  try {
+    const response = await request.get<AccessoryType>(`/accessories/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Get accessory by id error:", error);
+    throw error;
+  }
+}
+
+
+export const deleteAccessory = async (id: string) => {
+  try {
+    const response = await request.delete(`/accessories/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Delete accessory error:", error);
+    throw error;
+  }
+}

@@ -32,3 +32,27 @@ export type SelectOptionMaterialType = {
   name: string;
 };
 
+export type AccessoryType = {
+  id: string;
+  image: string[];
+  code: string;
+  name: string;
+  isActive: boolean;
+  quantity: number;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+
+export type ChangeStatusAccessoryInput = {
+  id: string;
+  isActive: boolean;
+};
+
+export type AccessoryFilterInput = {
+  page: number;
+  limit: number;
+  name?: string;
+  isActive?: boolean;
+};

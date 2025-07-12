@@ -55,6 +55,7 @@ export function TablePagination({
               <PaginationEllipsis />
             ) : (
               <PaginationLink
+                className="cursor-pointer"
                 isActive={n === page}
                 onClick={(e) => {
                   e.preventDefault();
