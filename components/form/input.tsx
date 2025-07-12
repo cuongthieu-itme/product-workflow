@@ -47,7 +47,25 @@ export const InputCustom = <T extends FieldValues>({
   });
 
   const [showPassword, setShowPassword] = useState(false);
-  const inputType = type === "password" && !showPassword ? "password" : "text";
+  // Determine the type actually rendered by the input element
+  const inputType =
+    type === "password" ? (showPassword ? "text" : "password") : type;
+
+  /**
+   * Ensure numeric inputs store numbers instead of strings.
+   * React-hook-form’s `field.onChange` can accept either an event or a value.
+   */
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (type === "number") {
+      const raw = e.target.value;
+      // Pass empty string through so RHF can clear the field
+      field.onChange(raw === "" ? "" : Number(raw));
+    } else {
+      field.onChange(e);
+    }
+  };
 
   return (
     <div className={cn("space-y-2", containerClassName)}>
@@ -69,12 +87,12 @@ export const InputCustom = <T extends FieldValues>({
             placeholder={placeholder}
             value={value}
             {...field}
+            onChange={handleChange}
             disabled={disabled}
             className={cn(
-              `w-full ${className} ${
-                fieldState.error
-                  ? "border-red-500 placeholder:text-red-500 focus-visible:placeholder:text-red-500 focus-visible:border-red-500"
-                  : ""
+              `w-full ${className} ${fieldState.error
+                ? "border-red-500 placeholder:text-red-500 focus-visible:placeholder:text-red-500 focus-visible:border-red-500"
+                : ""
               }`
             )}
             {...props}

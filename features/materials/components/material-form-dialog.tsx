@@ -17,7 +17,7 @@ import { useCreateMaterialMutation } from "../hooks";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { SelectCustom } from "@/components/form/select";
 import { MaterialType } from "../type";
-import { useUpdateMaterialMutation } from "../hooks/useMaterials";
+import { useOriginsQuery, useUnitsQuery, useUpdateMaterialMutation } from "../hooks/useMaterials";
 import { useToast } from "@/components/ui/use-toast";
 
 export function CreateMaterialForm({
@@ -73,11 +73,12 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
     defaultValues: {
       code: material?.code || "",
       name: material?.name || "",
-      count: material?.count || 0,
+      quantity: material?.quantity || 0,
       image: material?.image || [],
       unit: material?.unit || "",
       origin: material?.origin || "",
       description: material?.description || "",
+      isActive: material?.isActive !== undefined ? material.isActive : true,
     },
     resolver: zodResolver(createMaterialInputSchema),
   });
@@ -89,8 +90,11 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
     reset: resetMutation,
   } = useCreateMaterialMutation();
 
-  const { mutate: updateMaterial, isPending: isUpdatePending } =
+  const { mutate: updateMaterial } =
     useUpdateMaterialMutation();
+
+  const { data: origins } = useOriginsQuery();
+  const { data: units } = useUnitsQuery();
 
   const onSubmit: SubmitHandler<CreateMaterialInputType> = (data) => {
     if (material) {
@@ -139,23 +143,7 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
     }
   }, [isDialogOpen]);
 
-  const units = [
-    { value: "kg", label: "Kg" },
-    { value: "g", label: "G" },
-    { value: "ml", label: "Ml" },
-    { value: "l", label: "L" },
-    { value: "box", label: "Box" },
-    { value: "pack", label: "Pack" },
-    { value: "unit", label: "Unit" },
-  ];
 
-  const origins = [
-    { value: "vn", label: "Việt Nam" },
-    { value: "cn", label: "Trung Quốc" },
-    { value: "us", label: "Mỹ" },
-    { value: "jp", label: "Nhật Bản" },
-    { value: "other", label: "Khác" },
-  ];
 
   return (
     <BaseDialog
@@ -201,7 +189,6 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
                 name="description"
                 label="Chi tiết nguyên liệu"
                 placeholder="Nhập chi tiết nguyên liệu"
-                required
                 disabled={isPending}
               />
 
@@ -216,7 +203,7 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
 
               <div className="flex gap-2 flex-row w-full justify-between">
                 <SelectCustom
-                  options={units}
+                  options={units?.data || []}
                   control={control}
                   name="unit"
                   label="Đơn vị"
@@ -229,7 +216,7 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
 
                 <InputCustom
                   control={control}
-                  name="count"
+                  name="quantity"
                   label="Số lượng"
                   placeholder="Nhập số lượng"
                   required
@@ -241,7 +228,7 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
               </div>
 
               <SelectCustom
-                options={origins}
+                options={origins?.data || []}
                 control={control}
                 name="origin"
                 label="Xuất xứ"

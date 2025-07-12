@@ -3,7 +3,7 @@ export type MaterialType = {
   image: string[];
   code: string;
   name: string;
-  count: number;
+  quantity: number;
   unit: string;
   origin: string;
   isActive: boolean;
@@ -16,4 +16,19 @@ export type MaterialFilterInput = {
   page: number;
   limit: number;
   name?: string;
+  origin?: string;
+  isActive?: boolean;
+  unit?: string;
 };
+
+
+export type ChangeStatusMaterialInput = {
+  id: string;
+  isActive: boolean;
+};
+
+export type SelectOptionMaterialType = {
+  id: string;
+  name: string;
+};
+

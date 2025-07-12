@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { TablePagination } from "@/components/data-table/pagination";
-import { Edit, Trash2, Eye, Power } from "lucide-react";
+import { Edit, Power } from "lucide-react";
 import type { Column } from "@/components/data-table/types";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { format } from "date-fns";
 import { TableToolbar } from "@/components/data-table/toolbar";
 import { LIMIT, PAGE } from "@/constants/pagination";
@@ -16,10 +15,19 @@ import { CreateMaterialForm, MaterialForm } from "./material-form-dialog";
 import { useMaterialsQuery } from "../hooks";
 import { ToggleStatusMaterialDialog } from "./toggle-status-material-dialog";
 import { Badge } from "@/components/ui/badge";
+import { getImageUrl } from "@/features/settings/utils";
+import { useDebounce } from "@/hooks/use-debounce";
+import { useOriginsQuery, useUnitsQuery } from "../hooks/useMaterials";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { KEY_EMPTY_SELECT, SelectOption } from "@/components/form/select";
 
 export function MaterialList() {
   const [page, setPage] = useState(PAGE);
   const [searchValue, setSearchValue] = useState("");
+  const debouncedSearchValue = useDebounce(searchValue, 500);
+  const [filterOrigin, setFilterOrigin] = useState(KEY_EMPTY_SELECT);
+  const [filterStatus, setFilterStatus] = useState(KEY_EMPTY_SELECT);
+  const [filterUnit, setFilterUnit] = useState(KEY_EMPTY_SELECT);
   const {
     data: materials,
     isFetching,
@@ -27,13 +35,19 @@ export function MaterialList() {
   } = useMaterialsQuery({
     page,
     limit: LIMIT,
-    name: searchValue,
+    name: debouncedSearchValue,
+    origin: filterOrigin,
+    isActive: Boolean(Number(filterStatus)),
+    unit: filterUnit,
   });
   const [editForm, setEditForm] = useState<MaterialType | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [toggleStatusForm, setToggleStatusForm] = useState<MaterialType | null>(
     null
   );
+
+  const { data: origins, refetch: refetchOrigins } = useOriginsQuery();
+  const { data: units, refetch: refetchUnits } = useUnitsQuery();
 
   const handleOpenChangeStatusDialog = (customer: MaterialType) => {
     setToggleStatusForm(customer);
@@ -59,7 +73,7 @@ export function MaterialList() {
       header: "Hình ảnh",
       cell: (u) => (
         <Image
-          src={u.image[0]}
+          src={getImageUrl(u.image[0])}
           alt={u.name}
           width={50}
           height={50}
@@ -73,19 +87,19 @@ export function MaterialList() {
       header: "Mã nguyên liệu",
     },
     {
-      id: "count",
+      id: "quantity",
       header: "Số lượng",
-      cell: (u) => u.count,
+      cell: (u) => u.quantity,
     },
     {
       id: "unit",
       header: "Đơn vị",
-      cell: (u) => u.unit,
+      cell: (u) => units?.data.find((unit) => unit.value == u.unit)?.label ?? u.unit,
     },
     {
       id: "origin",
       header: "Xuất xứ",
-      cell: (u) => u.origin,
+      cell: (u) => origins?.data.find((origin) => origin.value == u.origin)?.label ?? u.origin,
     },
     {
       id: "isActive",
@@ -139,6 +153,12 @@ export function MaterialList() {
     },
   ];
 
+  const handleRefresh = () => {
+    refetch();
+    refetchOrigins();
+    refetchUnits();
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-4 md:flex-row justify-between md:space-y-0 w-full">
@@ -146,7 +166,7 @@ export function MaterialList() {
           <h2 className="text-2xl font-bold tracking-tight">
             Quản lý nguyên liệu
           </h2>
-          <p className="text-muted-foreground">Quản lý thông tin nguyên liệu</p>
+          <p className="text-muted-foreground">Quản lý thông tin nguyên liệu </p>
         </div>
 
         <CreateMaterialForm />
@@ -157,9 +177,58 @@ export function MaterialList() {
           <TableToolbar
             searchValue={searchValue}
             onSearchChange={setSearchValue}
-            onRefresh={refetch}
+            onRefresh={handleRefresh}
             refreshing={isFetching}
-          />
+          >
+            <Select value={filterOrigin} onValueChange={setFilterOrigin}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Lọc theo xuất xứ" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={KEY_EMPTY_SELECT}>Tất cả xuất xứ</SelectItem>
+                {origins &&
+                  origins?.data.map((origin: SelectOption) => (
+                    <SelectItem key={origin.value} value={String(origin.value)}>
+                      {origin.label}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={filterUnit}
+              onValueChange={(filterUnit) => setFilterUnit(filterUnit)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Lọc theo đơn vị" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={KEY_EMPTY_SELECT}>
+                  Tất cả đơn vị
+                </SelectItem>
+                {units &&
+                  units?.data.map((unit: SelectOption) => (
+                    <SelectItem key={unit.value} value={String(unit.value)}>
+                      {unit.label}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={filterStatus}
+              onValueChange={(filterStatus) => setFilterStatus(filterStatus)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Lọc theo trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={KEY_EMPTY_SELECT}>
+                  Tất cả trạng thái
+                </SelectItem>
+                <SelectItem value="1">Còn hàng</SelectItem>
+                <SelectItem value="0">Hết hàng</SelectItem>
+              </SelectContent>
+            </Select>
+          </TableToolbar>
 
           <DataTable<MaterialType>
             data={materials?.data}

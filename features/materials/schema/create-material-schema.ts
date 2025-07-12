@@ -1,22 +1,5 @@
 import { z } from "zod";
 
-const imageSchema = z
-  .array(
-    z
-      .instanceof(File)
-      .refine(
-        (f) => ["image/jpeg", "image/png", "image/webp"].includes(f.type),
-        {
-          message: "Chỉ chấp nhận JPG, PNG, WEBP",
-        }
-      )
-      .refine((f) => f.size <= 5 * 1024 * 1024, {
-        message: "Mỗi ảnh tối đa 5 MB",
-      })
-  )
-  .min(1, { message: "Phải chọn ít nhất 1 ảnh" })
-  .max(5, { message: "Không được quá 5 ảnh" });
-
 export const createMaterialInputSchema = z.object({
   image: z
     .array(z.string())
@@ -32,8 +15,8 @@ export const createMaterialInputSchema = z.object({
     .trim()
     .min(1, { message: "Tên vật tư không được trống" })
     .max(100, { message: "Tên vật tư tối đa 100 ký tự" }),
-  count: z
-    .number({ invalid_type_error: "Số lượng phải là số" })
+  quantity: z
+    .number()
     .int({ message: "Số lượng phải là số nguyên" })
     .positive({ message: "Số lượng phải > 0" }),
   unit: z
@@ -46,12 +29,8 @@ export const createMaterialInputSchema = z.object({
     .trim()
     .min(1, { message: "Xuất xứ không được trống" })
     .max(64, { message: "Xuất xứ tối đa 64 ký tự" }),
-  description: z
-    .string()
-    .trim()
-    .max(255, { message: "Mô tả tối đa 255 ký tự" })
-    .optional()
-    .or(z.literal("")),
+  description: z.string().trim().optional().or(z.literal("")),
+  isActive: z.boolean().default(true).optional(),
 });
 
 export type CreateMaterialInputType = z.infer<typeof createMaterialInputSchema>;

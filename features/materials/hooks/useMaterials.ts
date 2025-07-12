@@ -2,8 +2,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   changeStatusMaterial,
   createMaterial,
-  deleteMaterial,
   getMaterials,
+  getOrigins,
+  getUnits,
   updateMaterial,
 } from "../services";
 import { MaterialFilterInput } from "../type";
@@ -12,6 +13,8 @@ import { useToast } from "@/components/ui/use-toast";
 export enum MATERIALS_KEY {
   GET_MATERIALS = "materials",
   CREATE_MATERIAL = "create_material",
+  GET_ORIGINS = "origins",
+  GET_UNITS = "units",
 }
 
 export const useMaterialsQuery = (params?: MaterialFilterInput) => {
@@ -57,23 +60,6 @@ export const useUpdateMaterialMutation = () => {
   });
 };
 
-export const useDeleteMaterialMutation = () => {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: deleteMaterial,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [MATERIALS_KEY.GET_MATERIALS],
-      });
-      toast({
-        title: "Thành công",
-        description: "Nguyên liệu đã được xóa thành công.",
-      });
-    },
-  });
-};
 
 export const useChangeStatusMaterialMutation = () => {
   const queryClient = useQueryClient();
@@ -90,5 +76,20 @@ export const useChangeStatusMaterialMutation = () => {
         description: "Nguyên liệu đã được thay đổi trạng thái thành công.",
       });
     },
+  });
+};
+
+
+export const useOriginsQuery = () => {
+  return useQuery({
+    queryKey: [MATERIALS_KEY.GET_ORIGINS],
+    queryFn: () => getOrigins(),
+  });
+};
+
+export const useUnitsQuery = () => {
+  return useQuery({
+    queryKey: [MATERIALS_KEY.GET_UNITS],
+    queryFn: () => getUnits(),
   });
 };
