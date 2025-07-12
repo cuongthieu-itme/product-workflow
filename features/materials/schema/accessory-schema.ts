@@ -11,6 +11,7 @@ export const accessoryInputSchema = z.object({
         message: "Phải chọn ít nhất 1 ảnh",
     }),
     description: z.string().trim().optional().nullable(),
+    quantity: z.number().int({ message: "Số lượng phải là số nguyên" }).positive({ message: "Số lượng phải > 0" }),
     isActive: z.boolean().default(true).optional(),
 });
 
