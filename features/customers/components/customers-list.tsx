@@ -25,8 +25,11 @@ import {
 } from "@/components/ui/select";
 import { useDebounce } from "@/hooks/use-debounce";
 import { KEY_EMPTY_SELECT } from "@/components/form/select";
+import { useGetUserInfoQuery } from "@/features/auth/hooks";
+import { UserRoleEnum } from "@/features/auth/constants";
 
 export function CustomerList() {
+  const { data: user } = useGetUserInfoQuery();
   const [page, setPage] = useState(PAGE);
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearch = useDebounce(searchValue, 400);
@@ -42,6 +45,7 @@ export function CustomerList() {
     limit: LIMIT,
     fullName: debouncedSearch,
     source: sourceFilter,
+    userId: user?.role === UserRoleEnum.USER ? user.id : undefined,
   });
   const [editingCustomer, setEditingCustomer] = useState<CustomerType | null>(
     null
