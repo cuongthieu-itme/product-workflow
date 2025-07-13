@@ -174,7 +174,6 @@ export function AppSidebar({
       title: "Khách hàng",
       href: "/dashboard/customers",
       icon: <Users className="h-4 w-4" />,
-      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
     },
   ];
 
