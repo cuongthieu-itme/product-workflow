@@ -26,17 +26,16 @@ import { WorkflowItem } from "./workflow-item";
 
 interface StepsListProps {
   handleOpenStepModal: () => void;
-  onEditStep: (index: number) => void;
   onRemoveStep: (index: number) => void;
 }
 
 export function StepsList({
   handleOpenStepModal,
-  onEditStep,
   onRemoveStep,
 }: StepsListProps) {
   const {
     control,
+    getValues,
     formState: { errors },
   } = useFormContext<CreateWorkflowInputType>();
 
@@ -85,7 +84,7 @@ export function StepsList({
           </div>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="pt-6">
           <SortableContext items={fields}>
             <div className="space-y-4 h-full">
               {fields.length === 0 && (
@@ -96,12 +95,12 @@ export function StepsList({
                 </div>
               )}
               <div className="space-y-4">
-                {fields.map((step, index) => (
+                {getValues("subprocesses").map((step, index) => (
                   <WorkflowItem
-                    key={step.id}
+                    key={index}
                     data={step}
-                    onEditStep={() => onEditStep(index)}
                     onRemoveStep={() => onRemoveStep(index)}
+                    stepIndex={index}
                   />
                 ))}
               </div>

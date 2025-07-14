@@ -11,15 +11,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createWorkflowInputSchema,
   CreateWorkflowInputType,
-  StepInputType,
+  SubProcessInputType,
 } from "../../schema/create-workflow-schema";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { WorkflowInfoForm } from "./workflow-info-form";
 import { StepsList } from "./steps-list";
-import { StepModal } from "./step-modal";
+import { StepModalUpdate } from "./step-modal-update";
 import { useCreateWorkflowProcessMutation } from "../../hooks/useWorkFlowProcessQuery";
+import { StepModalCreate } from "./step-modal-create";
 
 export function CreateWorkflowProcessForm() {
   const { toast } = useToast();
@@ -34,7 +35,8 @@ export function CreateWorkflowProcessForm() {
   });
 
   const { control, handleSubmit } = methods;
-  const [isStepModalOpen, setIsStepModalOpen] = useState(false);
+  const [isUpdateStepModalOpen, setIsUpdateStepModalOpen] = useState(false);
+  const [isCreateStepModalOpen, setIsCreateStepModalOpen] = useState(false);
   const [stepIndex, setStepIndex] = useState<number>(0);
 
   const { fields, append, remove, update } = useFieldArray({
@@ -42,38 +44,16 @@ export function CreateWorkflowProcessForm() {
     name: "subprocesses",
   });
 
-  console.log("fields", fields);
-
   const handleOpenStepModal = () => {
-    setIsStepModalOpen(true);
-    setStepIndex(fields.length);
+    setIsCreateStepModalOpen(true);
   };
 
-  const handleCloseStepModal = () => {
-    setIsStepModalOpen(false);
-    setStepIndex(0);
-  };
-
-  const handleEditStep = (index: number) => {
-    setIsStepModalOpen(true);
-    setStepIndex(index);
-  };
-
-  const handleSaveStep = (stepData: StepInputType) => {
-    const newStepData = {
+  const handleCreateStep = (stepData: SubProcessInputType) => {
+    append({
       ...stepData,
-      step: stepIndex + 1,
-    };
-
-    // Clear the form before appending to prevent duplication
-    if (stepIndex === fields.length) {
-      append(newStepData);
-    } else {
-      update(stepIndex, newStepData);
-    }
-
-    // Close the modal after saving
-    handleCloseStepModal();
+      step: fields.length + 1,
+    });
+    setIsCreateStepModalOpen(false);
   };
 
   const handleRemoveStep = (index: number) => {
@@ -110,7 +90,6 @@ export function CreateWorkflowProcessForm() {
 
         <StepsList
           handleOpenStepModal={handleOpenStepModal}
-          onEditStep={handleEditStep}
           onRemoveStep={handleRemoveStep}
         />
 
@@ -122,12 +101,10 @@ export function CreateWorkflowProcessForm() {
         </div>
       </form>
 
-      <StepModal
-        stepIndex={stepIndex}
-        isOpen={isStepModalOpen}
-        onClose={() => setIsStepModalOpen(false)}
-        handleSaveStep={handleSaveStep}
-        editingStep={fields[stepIndex]}
+      <StepModalCreate
+        isOpen={isCreateStepModalOpen}
+        onClose={() => setIsCreateStepModalOpen(false)}
+        handleSaveStep={handleCreateStep}
       />
     </FormProvider>
   );

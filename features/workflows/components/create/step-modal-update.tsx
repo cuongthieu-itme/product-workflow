@@ -9,32 +9,30 @@ import {
 import { useWatch, useFormContext } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import {
-  CreateWorkflowInputType,
-  StepInputType,
-} from "../../schema/create-workflow-schema";
+import { CreateWorkflowInputType } from "../../schema/create-workflow-schema";
 import React, { useEffect } from "react";
 import { InputCustom } from "@/components/form/input";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { Label } from "@radix-ui/react-label";
 import { useDepartmentsQuery } from "@/features/departments/hooks";
 import { SelectCustom } from "@/components/form/select";
+import { SubProcessInputType } from "../../schema/create-workflow-schema";
 
-interface StepModalProps {
+interface StepModalUpdateProps {
   isOpen: boolean;
   onClose: () => void;
-  editingStep?: StepInputType;
+  editingStep?: SubProcessInputType;
   stepIndex: number;
-  handleSaveStep: (stepData: StepInputType) => void;
+  handleSaveStep: (stepData: SubProcessInputType) => void;
 }
 
-export function StepModal({
+export function StepModalUpdate({
   isOpen,
   onClose,
   editingStep,
   stepIndex,
   handleSaveStep,
-}: StepModalProps) {
+}: StepModalUpdateProps) {
   const {
     formState: { errors },
     setValue,
@@ -88,7 +86,7 @@ export function StepModal({
       const values = getValues(`subprocesses.${stepIndex}`);
 
       // Create the step data with proper types
-      const stepData: StepInputType = {
+      const stepData: SubProcessInputType = {
         ...values,
         estimatedNumberOfDays: Number(values.estimatedNumberOfDays),
         numberOfDaysBeforeDeadline: Number(values.numberOfDaysBeforeDeadline),

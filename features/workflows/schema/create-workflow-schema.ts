@@ -47,4 +47,4 @@ export const createWorkflowInputSchema = z.object({
 
 export type CreateWorkflowInputType = z.infer<typeof createWorkflowInputSchema>;
 
-export type StepInputType = z.infer<typeof subprocessesSchema>;
+export type SubProcessInputType = z.infer<typeof subprocessesSchema>;

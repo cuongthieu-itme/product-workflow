@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { StepInputType } from "../../schema/create-workflow-schema";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import {
   Calendar,
@@ -14,17 +13,19 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SubProcessInputType } from "../../schema/create-workflow-schema";
+import { StepModalUpdate } from "./step-modal-update";
 
 interface WorkflowItemProps {
-  data: StepInputType;
-  onEditStep: () => void;
+  data: SubProcessInputType;
   onRemoveStep: () => void;
+  stepIndex: number;
 }
 
 export function WorkflowItem({
   data,
-  onEditStep,
   onRemoveStep,
+  stepIndex,
 }: WorkflowItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
@@ -36,8 +37,14 @@ export function WorkflowItem({
     transition,
   };
 
+  const [isUpdateStepModalOpen, setIsUpdateStepModalOpen] = useState(false);
+
+  const handleEditStep = () => {
+    setIsUpdateStepModalOpen(true);
+  };
+
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between py-3">
           <div className="flex items-center gap-2">
@@ -73,14 +80,20 @@ export function WorkflowItem({
             <Button variant="ghost" size="sm">
               <FileText className="h-4 w-4 mr-1" /> Trường dữ liệu
             </Button>
-            <Button variant="ghost" size="icon" onClick={onEditStep}>
+            <Button
+              variant="ghost"
+              size="icon"
+              type="button"
+              onClick={handleEditStep}
+            >
               <Edit className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
+              type="button"
               className="text-destructive"
-              onClick={onEditStep}
+              onClick={onRemoveStep}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -109,6 +122,16 @@ export function WorkflowItem({
           </div>
         </CardContent>
       </Card>
+
+      <StepModalUpdate
+        stepIndex={stepIndex}
+        isOpen={isUpdateStepModalOpen}
+        onClose={() => setIsUpdateStepModalOpen(false)}
+        handleSaveStep={() => {
+          console.log("handleSaveStep");
+        }}
+        editingStep={data}
+      />
     </div>
   );
 }
