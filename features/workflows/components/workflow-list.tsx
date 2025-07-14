@@ -41,17 +41,24 @@ export function WorkflowProcessList() {
   };
 
   const columns: Column<WorkFlowProcessType>[] = [
-    { id: "name", header: "Tên quy trình" },
     {
+      className: "min-w-5",
+      id: "name",
+      header: "Tên quy trình",
+    },
+    {
+      className: "min-w-5",
       id: "description",
       header: "Chi tiết quy trình",
     },
     {
+      className: "min-w-5",
       id: "createdAt",
       header: "Ngày tạo",
       cell: (u) => format(new Date(u.createdAt), "dd/MM/yyyy hh:mm"),
     },
     {
+      className: "min-w-5",
       id: "updatedAt",
       header: "Ngày cập nhật",
       cell: (u) => format(new Date(u.updatedAt), "dd/MM/yyyy hh:mm"),
@@ -59,7 +66,7 @@ export function WorkflowProcessList() {
     {
       id: "actions",
       header: "Thao tác",
-      className: "text-right w-1",
+      className: "text-right min-w-5",
       cell: (u) => (
         <div className="flex justify-end gap-2">
           <Button variant="outline" size="sm" asChild>

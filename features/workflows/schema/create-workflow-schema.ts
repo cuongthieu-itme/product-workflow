@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-export const stepSchema = z.object({
+export const subprocessesSchema = z.object({
+  id: z.string().or(z.number()).optional().nullable(),
   name: z
     .string()
     .min(3, "Tên bước phải có ít nhất 3 ký tự")
@@ -11,23 +12,25 @@ export const stepSchema = z.object({
     .min(3, "Mô tả bước phải có ít nhất 3 ký tự")
     .max(100, "Mô tả bước phải có nhiều nhất 100 ký tự")
     .or(z.string()),
-  estimatedDays: z
+  estimatedNumberOfDays: z
     .number()
     .min(1, "Số ngày phải lớn hơn 0")
     .max(365, "Số ngày phải nhỏ hơn 365")
     .or(z.string()),
-  roleUserEnsure: z
-    .string()
-    .min(3, "Vai trò người đảm bảo phải có ít nhất 3 ký tự")
-    .max(100, "Vai trò người đảm bảo phải có nhiều nhất 100 ký tự")
-    .or(z.string()),
-  notifyBeforeDeadline: z
+  numberOfDaysBeforeDeadline: z
     .number()
     .min(1, "Số ngày thông báo trước hạn phải lớn hơn 0")
     .max(365, "Số ngày thông báo trước hạn phải nhỏ hơn 365")
     .or(z.string()),
-  stepRequired: z.any(),
-  stepWithCost: z.any(),
+  roleOfThePersonInCharge: z
+    .string()
+    .min(3, "Vai trò người đảm bảo phải có ít nhất 3 ký tự")
+    .max(100, "Vai trò người đảm bảo phải có nhiều nhất 100 ký tự")
+    .or(z.string()),
+  departmentId: z.number().or(z.string()),
+  isRequired: z.any(),
+  isStepWithCost: z.any(),
+  step: z.number().min(1).optional(),
 });
 
 export const createWorkflowInputSchema = z.object({
@@ -39,9 +42,9 @@ export const createWorkflowInputSchema = z.object({
     .string()
     .min(3, "Mô tả phải có ít nhất 3 ký tự")
     .max(100, "Mô tả phải có nhiều nhất 100 ký tự"),
-  steps: z.array(stepSchema),
+  subprocesses: z.array(subprocessesSchema).min(1, "Phải có ít nhất 1 bước"),
 });
 
 export type CreateWorkflowInputType = z.infer<typeof createWorkflowInputSchema>;
 
-export type StepInputType = z.infer<typeof stepSchema>;
+export type StepInputType = z.infer<typeof subprocessesSchema>;

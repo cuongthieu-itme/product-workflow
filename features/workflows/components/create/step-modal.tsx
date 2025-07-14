@@ -6,62 +6,109 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useWatch } from "react-hook-form";
+import { useWatch, useFormContext } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
   CreateWorkflowInputType,
   StepInputType,
 } from "../../schema/create-workflow-schema";
-import { useFormContext } from "react-hook-form";
-import React from "react";
+import React, { useEffect } from "react";
 import { InputCustom } from "@/components/form/input";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { Label } from "@radix-ui/react-label";
+import { useDepartmentsQuery } from "@/features/departments/hooks";
+import { SelectCustom } from "@/components/form/select";
 
 interface StepModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (stepData: StepInputType) => void;
   editingStep?: StepInputType;
+  stepIndex: number;
+  handleSaveStep: (stepData: StepInputType) => void;
 }
 
 export function StepModal({
   isOpen,
   onClose,
-  onSave,
   editingStep,
+  stepIndex,
+  handleSaveStep,
 }: StepModalProps) {
   const {
     formState: { errors },
-    handleSubmit,
     setValue,
-    watch,
     control,
+    getValues,
   } = useFormContext<CreateWorkflowInputType>();
 
-  React.useEffect(() => {
-    if (editingStep) {
-      setValue("steps.0.name", editingStep.name);
-      setValue("steps.0.description", editingStep.description);
-      setValue("steps.0.estimatedDays", editingStep.estimatedDays);
+  useEffect(() => {
+    if (editingStep && stepIndex !== undefined) {
+      setValue(`subprocesses.${stepIndex}.name`, editingStep.name);
       setValue(
-        "steps.0.notifyBeforeDeadline",
-        editingStep.notifyBeforeDeadline
+        `subprocesses.${stepIndex}.description`,
+        editingStep.description
       );
-      setValue("steps.0.roleUserEnsure", editingStep.roleUserEnsure);
-      setValue("steps.0.stepRequired", editingStep.stepRequired);
-      setValue("steps.0.stepWithCost", editingStep.stepWithCost);
+      setValue(
+        `subprocesses.${stepIndex}.estimatedNumberOfDays`,
+        editingStep.estimatedNumberOfDays
+      );
+      setValue(
+        `subprocesses.${stepIndex}.numberOfDaysBeforeDeadline`,
+        editingStep.numberOfDaysBeforeDeadline
+      );
+      setValue(
+        `subprocesses.${stepIndex}.roleOfThePersonInCharge`,
+        editingStep.roleOfThePersonInCharge
+      );
+      setValue(`subprocesses.${stepIndex}.isRequired`, editingStep.isRequired);
+      setValue(
+        `subprocesses.${stepIndex}.isStepWithCost`,
+        editingStep.isStepWithCost
+      );
+      setValue(`subprocesses.${stepIndex}.step`, editingStep.step);
     }
-  }, [editingStep, setValue]);
+  }, [editingStep, setValue, stepIndex]);
 
-  const stepRequired = useWatch({ name: "steps.0.stepRequired" });
-  const stepWithCost = useWatch({ name: "steps.0.stepWithCost" });
-
-  const handleSave = handleSubmit((data: CreateWorkflowInputType) => {
-    onSave(data.steps[0]);
-    onClose();
+  const stepRequired = useWatch({
+    name: `subprocesses.${stepIndex}.isRequired`,
   });
+  const stepWithCost = useWatch({
+    name: `subprocesses.${stepIndex}.isStepWithCost`,
+  });
+
+  const { trigger } = useFormContext<CreateWorkflowInputType>();
+
+  const onSave = async () => {
+    // Validate all required fields
+    const ok = await trigger(`subprocesses.${stepIndex}`);
+
+    if (ok) {
+      // Get all values from the form
+      const values = getValues(`subprocesses.${stepIndex}`);
+
+      // Create the step data with proper types
+      const stepData: StepInputType = {
+        ...values,
+        estimatedNumberOfDays: Number(values.estimatedNumberOfDays),
+        numberOfDaysBeforeDeadline: Number(values.numberOfDaysBeforeDeadline),
+        departmentId: values.departmentId,
+        isRequired: Boolean(values.isRequired),
+        isStepWithCost: Boolean(values.isStepWithCost),
+        step: Number(values.step),
+      };
+
+      handleSaveStep(stepData);
+      onClose();
+    }
+  };
+
+  const { data: departments } = useDepartmentsQuery({ limit: 1000 });
+  const departmentList =
+    departments?.data?.map((department) => ({
+      value: String(department.id),
+      label: department.name,
+    })) ?? [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -71,41 +118,49 @@ export function StepModal({
             {editingStep ? "Chỉnh sửa bước" : "Thêm bước mới"}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSave} className="space-y-4">
+        <form className="space-y-4" noValidate>
           <InputCustom
             control={control}
-            name="steps.0.name"
+            name={`subprocesses.${stepIndex}.name`}
             placeholder="Nhập tên bước"
-            className={errors.steps?.[0]?.name ? "border-destructive" : ""}
+            className={
+              errors.subprocesses?.[stepIndex]?.name ? "border-destructive" : ""
+            }
             label="Tên bước"
           />
 
           <TextAreaCustom
             control={control}
-            name="steps.0.description"
+            name={`subprocesses.${stepIndex}.description`}
             placeholder="Mô tả bước"
             className={
-              errors.steps?.[0]?.description ? "border-destructive" : ""
+              errors.subprocesses?.[stepIndex]?.description
+                ? "border-destructive"
+                : ""
             }
             label="Mô tả"
           />
 
           <div className="grid grid-cols-2 gap-4">
             <InputCustom
+              type="number"
               control={control}
-              name="steps.0.estimatedDays"
+              name={`subprocesses.${stepIndex}.estimatedNumberOfDays`}
               placeholder="Nhập số ngày ước lượng"
               className={
-                errors.steps?.[0]?.estimatedDays ? "border-destructive" : ""
+                errors.subprocesses?.[stepIndex]?.estimatedNumberOfDays
+                  ? "border-destructive"
+                  : ""
               }
               label="Số ngày ước lượng"
             />
             <InputCustom
+              type="number"
               control={control}
-              name="steps.0.notifyBeforeDeadline"
+              name={`subprocesses.${stepIndex}.numberOfDaysBeforeDeadline`}
               placeholder="Nhập số ngày thông báo trước hạn"
               className={
-                errors.steps?.[0]?.notifyBeforeDeadline
+                errors.subprocesses?.[stepIndex]?.numberOfDaysBeforeDeadline
                   ? "border-destructive"
                   : ""
               }
@@ -113,12 +168,28 @@ export function StepModal({
             />
           </div>
 
+          <SelectCustom
+            valueType="number"
+            control={control}
+            name={`subprocesses.${stepIndex}.departmentId`}
+            placeholder="Chọn phòng ban"
+            options={departmentList}
+            className={
+              errors.subprocesses?.[stepIndex]?.departmentId
+                ? "border-destructive"
+                : ""
+            }
+            label="Phòng ban"
+          />
+
           <InputCustom
             control={control}
-            name="steps.0.roleUserEnsure"
+            name={`subprocesses.${stepIndex}.roleOfThePersonInCharge`}
             placeholder="Nhập vai trò người đảm bảo"
             className={
-              errors.steps?.[0]?.roleUserEnsure ? "border-destructive" : ""
+              errors.subprocesses?.[stepIndex]?.roleOfThePersonInCharge
+                ? "border-destructive"
+                : ""
             }
             label="Vai trò người đảm bảo"
           />
@@ -129,7 +200,7 @@ export function StepModal({
                 id="stepRequired"
                 checked={stepRequired}
                 onCheckedChange={(checked) =>
-                  setValue(`steps.0.stepRequired`, checked)
+                  setValue(`subprocesses.${stepIndex}.isRequired`, checked)
                 }
               />
               <Label htmlFor="stepRequired">Bước bắt buộc</Label>
@@ -139,7 +210,7 @@ export function StepModal({
                 id="stepWithCost"
                 checked={stepWithCost}
                 onCheckedChange={(checked) =>
-                  setValue(`steps.0.stepWithCost`, checked)
+                  setValue(`subprocesses.${stepIndex}.isStepWithCost`, checked)
                 }
               />
               <Label htmlFor="stepWithCost">Bước có chi phí</Label>
@@ -150,21 +221,7 @@ export function StepModal({
             <Button type="button" variant="outline" onClick={onClose}>
               Hủy bỏ
             </Button>
-            <Button
-              type="button"
-              onClick={() => {
-                const formData = {
-                  name: watch("steps.0.name"),
-                  description: watch("steps.0.description"),
-                  estimatedDays: watch("steps.0.estimatedDays"),
-                  notifyBeforeDeadline: watch("steps.0.notifyBeforeDeadline"),
-                  roleUserEnsure: watch("steps.0.roleUserEnsure"),
-                  stepRequired: stepRequired,
-                  stepWithCost: stepWithCost,
-                };
-                onSave(formData);
-              }}
-            >
+            <Button type="button" onClick={onSave}>
               {editingStep ? "Cập nhật" : "Thêm bước"}
             </Button>
           </div>

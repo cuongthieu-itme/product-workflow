@@ -1,14 +1,39 @@
 import request from "@/configs/axios-config";
-import { mockWorkFlowProcess } from "./mock";
-import { WorkFlowProcessFilterInput } from "./types";
+import { WorkFlowProcessFilterInput, WorkFlowProcessType } from "./types";
+import { PaginatedResult } from "@/types/common";
+import { omitVoid } from "@/utils/removeParams";
+import { CreateWorkflowInputType } from "./schema/create-workflow-schema";
 
-export const getWorkflowProcesses = (params?: WorkFlowProcessFilterInput) => {
-  return mockWorkFlowProcess;
+export const getWorkflowProcesses = async (
+  params?: WorkFlowProcessFilterInput
+) => {
+  try {
+    const response = await request.get<
+      PaginatedResult<"data", WorkFlowProcessType>
+    >("/procedures", { params: omitVoid(params) });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const deleteWorkflowProcess = async (id: number) => {
   try {
-    const response = await request.delete(`/workflowProcesses/${id}`);
+    const response = await request.delete<WorkFlowProcessType>(
+      `/procedures/${id}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createWorkflowProcess = async (data: CreateWorkflowInputType) => {
+  try {
+    const response = await request.post<WorkFlowProcessType>(
+      "/procedures/create-or-update",
+      data
+    );
     return response.data;
   } catch (error) {
     throw error;

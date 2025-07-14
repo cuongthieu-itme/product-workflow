@@ -37,7 +37,7 @@ export function DataTable<T extends Record<string, unknown>>({
         <TableHeader>
           <TableRow>
             {columns.map((col) => (
-              <TableHead key={col.id} className={col.className}>
+              <TableHead key={col.id} className={cn(col.className, "min-w-5")}>
                 {col.header}
               </TableHead>
             ))}

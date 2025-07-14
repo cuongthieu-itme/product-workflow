@@ -6,96 +6,101 @@ import {
   SubmitHandler,
   FormProvider,
 } from "react-hook-form";
+import crypto from "crypto";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createWorkflowInputSchema,
   CreateWorkflowInputType,
   StepInputType,
 } from "../../schema/create-workflow-schema";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, DollarSign, Edit, FileText } from "lucide-react";
 import { WorkflowInfoForm } from "./workflow-info-form";
 import { StepsList } from "./steps-list";
 import { StepModal } from "./step-modal";
+import { useCreateWorkflowProcessMutation } from "../../hooks/useWorkFlowProcessQuery";
 
 export function CreateWorkflowProcessForm() {
   const { toast } = useToast();
   const methods = useForm<CreateWorkflowInputType>({
     resolver: zodResolver(createWorkflowInputSchema),
+    mode: "onChange",
     defaultValues: {
       name: "",
       description: "",
-      steps: [],
+      subprocesses: [],
     },
   });
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    watch,
-  } = methods;
-
+  const { control, handleSubmit } = methods;
   const [isStepModalOpen, setIsStepModalOpen] = useState(false);
-  const [editingStepIndex, setEditingStepIndex] = useState<number | null>(null);
+  const [stepIndex, setStepIndex] = useState<number>(0);
 
-  const { fields } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     control,
-    name: "steps",
+    name: "subprocesses",
   });
 
-  const handleAddStep = () => {
+  console.log("fields", fields);
+
+  const handleOpenStepModal = () => {
     setIsStepModalOpen(true);
-    setEditingStepIndex(null);
+    setStepIndex(fields.length);
+  };
+
+  const handleCloseStepModal = () => {
+    setIsStepModalOpen(false);
+    setStepIndex(0);
   };
 
   const handleEditStep = (index: number) => {
     setIsStepModalOpen(true);
-    setEditingStepIndex(index);
+    setStepIndex(index);
   };
 
   const handleSaveStep = (stepData: StepInputType) => {
-    if (editingStepIndex !== null) {
-      setValue(`steps.${editingStepIndex}`, stepData);
+    const newStepData = {
+      ...stepData,
+      step: stepIndex + 1,
+    };
+
+    // Clear the form before appending to prevent duplication
+    if (stepIndex === fields.length) {
+      append(newStepData);
     } else {
-      setValue("steps", [...fields, stepData]);
+      update(stepIndex, newStepData);
     }
-    setIsStepModalOpen(false);
+
+    // Close the modal after saving
+    handleCloseStepModal();
   };
 
   const handleRemoveStep = (index: number) => {
     if (fields.length > 1) {
-      setValue("steps", [
-        ...fields.slice(0, index),
-        ...fields.slice(index + 1),
-      ]);
+      remove(index);
     } else {
       toast({
         title: "Cảnh báo",
-        description: "Phải có ít nhất 1 bước trong quy trình",
+        description: "Quy trình phải có ít nhất 1 bước",
         variant: "destructive",
       });
     }
   };
 
+  const { mutate: createWorkflowProcess } = useCreateWorkflowProcessMutation();
+
   const onSubmit: SubmitHandler<CreateWorkflowInputType> = (data) => {
-    console.log(data);
+    const subprocesses = data.subprocesses.map((subprocess) => {
+      const { id, ...rest } = subprocess;
+      return {
+        ...rest,
+      };
+    });
+    createWorkflowProcess({
+      ...data,
+      subprocesses,
+    });
   };
 
   return (
@@ -104,7 +109,7 @@ export function CreateWorkflowProcessForm() {
         <WorkflowInfoForm />
 
         <StepsList
-          onAddStep={handleAddStep}
+          handleOpenStepModal={handleOpenStepModal}
           onEditStep={handleEditStep}
           onRemoveStep={handleRemoveStep}
         />
@@ -118,12 +123,11 @@ export function CreateWorkflowProcessForm() {
       </form>
 
       <StepModal
+        stepIndex={stepIndex}
         isOpen={isStepModalOpen}
         onClose={() => setIsStepModalOpen(false)}
-        onSave={handleSaveStep}
-        editingStep={
-          editingStepIndex !== null ? fields[editingStepIndex] : undefined
-        }
+        handleSaveStep={handleSaveStep}
+        editingStep={fields[stepIndex]}
       />
     </FormProvider>
   );
