@@ -16,6 +16,8 @@ import { createProductInputSchema, CreateProductInputType } from "../schema";
 import { useCreateProductMutation } from "../hooks";
 import { useCategoriesQuery } from "@/features/categories/hooks";
 import { useToast } from "@/components/ui/use-toast";
+import { TextAreaCustom } from "@/components/form/textarea";
+import { CreateCategoryPopover } from "./create-category-popover";
 
 export function CreateProductForm({
   onCustomerAdded,
@@ -126,7 +128,7 @@ export function CreateProductForm({
                   disabled={isPending}
                 />
 
-                <InputCustom
+                <TextAreaCustom
                   control={control}
                   name="description"
                   label="Chi tiết sản phẩm"
@@ -135,16 +137,24 @@ export function CreateProductForm({
                   disabled={isPending}
                 />
 
-                <SelectCustom
-                  valueType="number"
-                  name="categoryId"
-                  control={control}
-                  label="Danh mục sản phẩm"
-                  options={categoryOptions}
-                  required
-                  placeholder="Chọn danh mục sản phẩm"
-                  disabled={isPending}
-                />
+                <div className="flex gap-2 items-end">
+                  <SelectCustom
+                    valueType="number"
+                    name="categoryId"
+                    control={control}
+                    label="Danh mục sản phẩm"
+                    options={categoryOptions}
+                    required
+                    placeholder="Chọn danh mục sản phẩm"
+                    disabled={isPending}
+                    emptyOption={{
+                      label: "Chọn danh mục sản phẩm",
+                    }}
+                    containerClassName="flex-1"
+                  />
+
+                  <CreateCategoryPopover />
+                </div>
               </div>
 
               <DialogFooter className="flex justify-end gap-2">

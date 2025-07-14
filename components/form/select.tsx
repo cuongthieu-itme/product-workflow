@@ -84,7 +84,7 @@ export const SelectCustom = <T extends FieldValues>({
 
       <div className="space-y-1">
         <Select
-          value={String(value)}
+          value={value === undefined ? KEY_EMPTY_SELECT : String(value)}
           onValueChange={(v) =>
             onChange(valueType === "number" ? Number(v) : v)
           }

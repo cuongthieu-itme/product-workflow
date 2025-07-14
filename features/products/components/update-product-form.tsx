@@ -9,7 +9,7 @@ import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { InputCustom } from "@/components/form/input";
-import { SelectCustom } from "@/components/form/select";
+import { KEY_EMPTY_SELECT, SelectCustom } from "@/components/form/select";
 import { BaseDialog } from "@/components/dialog";
 import { updateProductInputSchema, UpdateProductInputType } from "../schema";
 import { useUpdateProductMutation } from "../hooks";
@@ -17,6 +17,7 @@ import { ProductType } from "../types";
 import { useCategoriesQuery } from "@/features/categories/hooks";
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { TextAreaCustom } from "@/components/form/textarea";
 
 export function UpdateProductForm({
   onCustomerAdded,
@@ -35,7 +36,7 @@ export function UpdateProductForm({
       description: product?.description || "",
       id: product?.id || 0,
       name: product?.name || "",
-      categoryId: product?.categoryId || undefined,
+      categoryId: product?.categoryId ?? undefined,
     },
     resolver: zodResolver(updateProductInputSchema),
   });
@@ -122,7 +123,7 @@ export function UpdateProductForm({
                 required
               />
 
-              <InputCustom
+              <TextAreaCustom
                 control={control}
                 name="description"
                 label="Mô tả"
@@ -139,7 +140,6 @@ export function UpdateProductForm({
                 placeholder="Chọn danh mục sản phẩm"
                 emptyOption={{
                   label: "Chọn danh mục sản phẩm",
-
                 }}
               />
             </div>

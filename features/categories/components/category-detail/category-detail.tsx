@@ -2,7 +2,6 @@
 
 import { useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -53,23 +52,12 @@ export function CategoryDetail() {
           </Button>
         </div>
       </div>
-      <div className="container mx-auto py-6 space-y-6">
+      <div className="mx-auto py-6 space-y-6">
         <h1 className="text-2xl font-bold">
           Chi tiết danh mục: {category.data.name}
         </h1>
 
-        <Tabs defaultValue="info">
-          <TabsList>
-            <TabsTrigger value="info">Thông tin</TabsTrigger>
-            {/* <TabsTrigger value="requests">Yêu cầu</TabsTrigger> */}
-          </TabsList>
-          <TabsContent value="info" className="mt-4">
-            <CategoryInformation categoryId={categoryId} />
-          </TabsContent>
-          {/* <TabsContent value="requests" className="mt-4">
-            <CustomerRequests customerId={customerId} />
-          </TabsContent> */}
-        </Tabs>
+        <CategoryInformation categoryId={categoryId} />
       </div>
     </div>
   );

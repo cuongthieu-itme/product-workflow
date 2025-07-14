@@ -72,19 +72,26 @@ export function CategoryInformation({ categoryId }: CategoryInformationProps) {
             <Calendar className="text-muted-foreground h-5 w-5 mt-1 flex-shrink-0" />
             <div>
               <p className="text-sm text-muted-foreground">Ngày tạo</p>
-              <p className="text-sm">{format(category.data.createdAt, "dd/MM/yyyy HH:mm")}</p>
+              <p className="text-sm">
+                {format(category.data.createdAt, "dd/MM/yyyy HH:mm")}
+              </p>
             </div>
           </div>
 
-          {category.data.updatedAt && category.data.updatedAt !== category.data.createdAt && (
-            <div className="flex items-start gap-3">
-              <Clock className="text-muted-foreground h-5 w-5 mt-1 flex-shrink-0" />
-              <div>
-                <p className="text-sm text-muted-foreground">Cập nhật lần cuối</p>
-                <p className="text-sm">{format(category.data.updatedAt, "dd/MM/yyyy HH:mm")}</p>
+          {category.data.updatedAt &&
+            category.data.updatedAt !== category.data.createdAt && (
+              <div className="flex items-start gap-3">
+                <Clock className="text-muted-foreground h-5 w-5 mt-1 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Cập nhật lần cuối
+                  </p>
+                  <p className="text-sm">
+                    {format(category.data.updatedAt, "dd/MM/yyyy HH:mm")}
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </CardContent>
 
         <UpdateCategoryForm
@@ -116,13 +123,21 @@ export function CategoryInformation({ categoryId }: CategoryInformationProps) {
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell className="font-medium">{p.name}</TableCell>
                       <TableCell>{p.description || "N/A"}</TableCell>
-                      <TableCell>{format(p.createdAt, "dd/MM/yyyy HH:mm")}</TableCell>
-                      <TableCell>{format(p.updatedAt, "dd/MM/yyyy HH:mm")}</TableCell>
+                      <TableCell>
+                        {format(p.createdAt, "dd/MM/yyyy HH:mm")}
+                      </TableCell>
+                      <TableCell>
+                        {format(p.updatedAt, "dd/MM/yyyy HH:mm")}
+                      </TableCell>
                       <TableCell>
                         <Button variant="outline" size="sm">
-                          <Link href={`/dashboard/products/${p.id}`} className="flex items-center gap-1">
+                          <Link
+                            href={`/dashboard/products/${p.id}`}
+                            className="flex items-center gap-1"
+                          >
                             <Eye className="mr-2 h-4 w-4" />
-                            Chi tiết</Link>
+                            Chi tiết
+                          </Link>
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -130,11 +145,13 @@ export function CategoryInformation({ categoryId }: CategoryInformationProps) {
                 </TableBody>
               </Table>
             ) : (
-              <p className="text-sm text-muted-foreground">Chưa có sản phẩm nào</p>
+              <p className="text-sm text-muted-foreground">
+                Chưa có sản phẩm nào
+              </p>
             )}
           </div>
         </CardContent>
-      </Card  >
+      </Card>
     </div>
   );
 }
