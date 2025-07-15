@@ -1,4 +1,4 @@
-import { SubProcessInputType } from "./schema/create-workflow-schema";
+import { DepartmentType } from "../departments/type";
 
 export type WorkFlowStepType = {
   id: number;
@@ -9,6 +9,8 @@ export type WorkFlowStepType = {
   numberOfDaysBeforeDeadline: number;
   isRequired: boolean;
   isStepWithCost: boolean;
+  department: DepartmentType;
+  step: number;
 };
 
 export type WorkFlowProcessType = {
@@ -17,7 +19,7 @@ export type WorkFlowProcessType = {
   description: string;
   createdAt: string;
   updatedAt: string;
-  subprocesses: Array<SubProcessInputType>;
+  subprocesses: Array<WorkFlowStepType>;
   version: number;
   updateAt: string;
 };

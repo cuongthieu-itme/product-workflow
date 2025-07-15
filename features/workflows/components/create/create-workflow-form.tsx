@@ -26,6 +26,7 @@ import { nanoid } from "nanoid";
 import { useParams } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { convertSubProcessFormData } from "../../helper";
 
 export function CreateWorkflowProcessForm() {
   const { workflowId } = useParams<{ workflowId: string }>();
@@ -57,7 +58,7 @@ export function CreateWorkflowProcessForm() {
     if (data) {
       setValue("name", data.name);
       setValue("description", data.description);
-      setValue("subprocesses", data.subprocesses);
+      setValue("subprocesses", convertSubProcessFormData(data.subprocesses));
     }
   }, [data]);
 
