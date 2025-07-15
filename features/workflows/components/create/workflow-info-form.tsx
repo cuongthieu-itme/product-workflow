@@ -7,6 +7,8 @@ import { TextAreaCustom } from "@/components/form/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreateWorkflowInputType } from "../../schema/create-workflow-schema";
 import { format } from "date-fns";
+import { useParams } from "next/navigation";
+import { useGetWorkflowProcessByIdQuery } from "../../hooks";
 
 export function WorkflowInfoForm() {
   const {
@@ -14,16 +16,24 @@ export function WorkflowInfoForm() {
     control,
   } = useFormContext<CreateWorkflowInputType>();
 
+  const { workflowId } = useParams<{ workflowId: string }>();
+  const { data } = useGetWorkflowProcessByIdQuery(Number(workflowId));
+
+  const lastUpdate = data?.updatedAt
+    ? format(new Date(data.updatedAt), "dd/MM/yyyy")
+    : format(new Date(), "dd/MM/yyyy");
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>Quy trình</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Phiên bản: 1 | Cập nhật lần cuối: {format(new Date(), "dd/MM/yyyy")}
+            Phiên bản: {data?.version ?? 1} | Cập nhật lần cuối: {lastUpdate}
           </p>
         </div>
       </CardHeader>
+
       <CardContent className="space-y-4">
         <InputCustom
           label="Tên quy trình "

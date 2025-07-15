@@ -25,12 +25,15 @@ import { StepModalCreate } from "./step-modal-create";
 import { nanoid } from "nanoid";
 import { useParams } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CheckCircle, AlertCircle } from "lucide-react";
+import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 
 export function CreateWorkflowProcessForm() {
-  const params = useParams();
+  const { workflowId } = useParams<{ workflowId: string }>();
   const { toast } = useToast();
-  const { data, isLoading } = useGetWorkflowProcessByIdQuery(Number(params.id));
+  const { data, isLoading } = useGetWorkflowProcessByIdQuery(
+    Number(workflowId)
+  );
+  const [isCreateStepModalOpen, setIsCreateStepModalOpen] = useState(false);
 
   const methods = useForm<CreateWorkflowInputType>({
     resolver: zodResolver(createWorkflowInputSchema),
@@ -42,8 +45,7 @@ export function CreateWorkflowProcessForm() {
     },
   });
 
-  const { control, handleSubmit, setValue, formState } = methods;
-  const [isCreateStepModalOpen, setIsCreateStepModalOpen] = useState(false);
+  const { control, handleSubmit, setValue } = methods;
 
   const { fields, remove } = useFieldArray({
     control,
@@ -94,7 +96,30 @@ export function CreateWorkflowProcessForm() {
   } = useCreateWorkflowProcessMutation();
 
   const onSubmit: SubmitHandler<CreateWorkflowInputType> = (formData) => {
-    createWorkflowProcess(formData);
+    const normalizedSubprocesses = formData.subprocesses.map((subprocess) => {
+      if (typeof subprocess.id === "string") {
+        return {
+          ...subprocess,
+        };
+      }
+
+      return subprocess;
+    });
+
+    if (data?.id) {
+      console.log("DATA: ", {
+        name: formData.name,
+        description: formData.description,
+        subprocesses: normalizedSubprocesses,
+      });
+      return;
+    }
+
+    createWorkflowProcess({
+      name: formData.name,
+      description: formData.description,
+      subprocesses: normalizedSubprocesses,
+    });
   };
 
   if (isLoading)
@@ -136,7 +161,11 @@ export function CreateWorkflowProcessForm() {
           <Button type="button" variant="outline">
             Hủy bỏ
           </Button>
-          <Button type="submit">Tạo quy trình</Button>
+          <Button type="submit">
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+
+            {workflowId ? "Cập nhật" : "Tạo quy trình"}
+          </Button>
         </div>
       </form>
 
