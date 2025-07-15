@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { TablePagination } from "@/components/data-table/pagination";
-import { Edit, Power } from "lucide-react";
+import { Edit, Package, Power, Trash2 } from "lucide-react";
 import type { Column } from "@/components/data-table/types";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -18,7 +18,13 @@ import { Badge } from "@/components/ui/badge";
 import { getImageUrl } from "@/features/settings/utils";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useOriginsQuery, useUnitsQuery } from "../hooks/useMaterials";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { KEY_EMPTY_SELECT, SelectOption } from "@/components/form/select";
 import { ToolbarFilters } from "@/components/data-table/toolbar-filter";
 import { ImageDialog } from "./image-dialog";
@@ -39,7 +45,10 @@ export function MaterialList() {
     limit: LIMIT,
     name: debouncedSearchValue,
     origin: filterOrigin,
-    isActive: filterStatus === KEY_EMPTY_SELECT ? undefined : Boolean(Number(filterStatus)),
+    isActive:
+      filterStatus === KEY_EMPTY_SELECT
+        ? undefined
+        : Boolean(Number(filterStatus)),
     unit: filterUnit,
   });
   const [editForm, setEditForm] = useState<MaterialType | null>(null);
@@ -110,12 +119,15 @@ export function MaterialList() {
     {
       id: "unit",
       header: "Đơn vị",
-      cell: (u) => units?.data.find((unit) => unit.value == u.unit)?.label ?? u.unit,
+      cell: (u) =>
+        units?.data.find((unit) => unit.value == u.unit)?.label ?? u.unit,
     },
     {
       id: "origin",
       header: "Xuất xứ",
-      cell: (u) => origins?.data.find((origin) => origin.value == u.origin)?.label ?? u.origin,
+      cell: (u) =>
+        origins?.data.find((origin) => origin.value == u.origin)?.label ??
+        u.origin,
     },
     {
       id: "isActive",
@@ -188,7 +200,9 @@ export function MaterialList() {
           <h2 className="text-2xl font-bold tracking-tight">
             Quản lý nguyên liệu
           </h2>
-          <p className="text-muted-foreground">Quản lý thông tin nguyên liệu </p>
+          <p className="text-muted-foreground">
+            Quản lý thông tin nguyên liệu{" "}
+          </p>
         </div>
 
         <CreateMaterialForm />
@@ -230,14 +244,74 @@ export function MaterialList() {
                 },
               ]}
             />
-
           </TableToolbar>
 
-          <DataTable<MaterialType>
-            data={materials?.data}
-            columns={columns}
-            loading={isFetching}
-          />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 py-6">
+            {materials?.data.length === 0 ? (
+              <div className="py-6 col-span-full flex flex-col items-center justify-center text-gray-500 border border-dashed rounded-lg">
+                <Package className="h-12 w-12 mb-3 opacity-60" />
+                <p className="text-sm">Không có dữ liệu phụ kiện</p>
+              </div>
+            ) : (
+              materials?.data.map((material) => (
+                <div
+                  key={material.id}
+                  className="border rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                >
+                  <div className="relative h-48 w-full cursor-pointer overflow-hidden">
+                    <Image
+                      onClick={() => {
+                        handleOpenImageDialog(material.image, material.name);
+                      }}
+                      src={getImageUrl(material.image[0]) || "/placeholder.svg"}
+                      alt={material.name}
+                      fill
+                      className="object-contain transition-transform duration-300 hover:scale-110"
+                    />
+                    <Badge
+                      className="absolute top-2 right-2"
+                      variant={material.isActive ? "default" : "destructive"}
+                    >
+                      {material.isActive ? "Còn hàng" : "Hết hàng"}
+                    </Badge>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="font-medium text-lg truncate text-gray-900">
+                      {material.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 truncate mt-1">
+                      {material.code}
+                    </p>
+                    <div className="mt-4 flex justify-between items-center">
+                      <span className="text-sm">
+                        SL: {material.quantity ?? 0}
+                      </span>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            handleOpenEditDialog(material);
+                          }}
+                        >
+                          <Edit className="h-5 w-5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            handleOpenChangeStatusDialog(material);
+                          }}
+                        >
+                          <Power className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
 
           <TablePagination
             page={page}
