@@ -19,6 +19,7 @@ import {
 import { useCreateProductStatusMutation } from "../hooks";
 import { useToast } from "@/components/ui/use-toast";
 import { ChooseColorProductStatus } from "./choose-color-product-status";
+import { useWorkFlowProcessesQuery } from "@/features/workflows/hooks";
 
 export function CreateProductStatusForm({
   onCustomerAdded,
@@ -67,6 +68,16 @@ export function CreateProductStatusForm({
     reset();
     resetMutation();
   }, [isDialogOpen]);
+
+  const { data: procedures } = useWorkFlowProcessesQuery({
+    limit: 1000,
+  });
+
+  const proceduresOptions =
+    procedures?.data?.map((p) => ({
+      value: p.id,
+      label: p.name,
+    })) ?? [];
 
   return (
     <>
@@ -141,11 +152,7 @@ export function CreateProductStatusForm({
                   emptyOption={{
                     label: "Chọn quy trình",
                   }}
-                  options={[
-                    { value: "11111", label: "Quy trình 1" },
-                    { value: "22222", label: "Quy trình 2" },
-                    { value: "33333", label: "Quy trình 3" },
-                  ]}
+                  options={proceduresOptions}
                   required
                   placeholder="Chọn quy trình"
                   disabled={isPending}

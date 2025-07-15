@@ -2,11 +2,11 @@ export type WorkFlowStepType = {
   id: number;
   name: string;
   description: string;
-  estimatedDays: number;
-  roleUserEnsure: string;
-  notifyBeforeDeadline: number;
-  stepRequired: boolean;
-  stepWithCost: boolean;
+  estimatedNumberOfDays: number;
+  roleOfThePersonInCharge: string;
+  numberOfDaysBeforeDeadline: number;
+  isRequired: boolean;
+  isStepWithCost: boolean;
 };
 
 export type WorkFlowProcessType = {

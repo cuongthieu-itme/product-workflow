@@ -23,7 +23,7 @@ export function WorkflowProcessList() {
     useState<WorkFlowProcessType | null>(null);
   const searchValueDebounced = useDebounce(searchValue, 400);
   const {
-    data: products,
+    data: workflow,
     isFetching,
     refetch,
   } = useWorkFlowProcessesQuery({
@@ -32,8 +32,8 @@ export function WorkflowProcessList() {
     name: searchValueDebounced,
   });
 
-  const totalPages = products
-    ? Math.max(PAGE, Math.ceil(products.total / LIMIT))
+  const totalPages = workflow
+    ? Math.max(PAGE, Math.ceil(workflow.total / LIMIT))
     : PAGE;
 
   const handleOpenDeleteDialog = (workflow: WorkFlowProcessType) => {
@@ -76,9 +76,11 @@ export function WorkflowProcessList() {
             </Link>
           </Button>
 
-          <Button variant="outline" size="sm">
-            <Edit className="h-4 w-4 mr-2" />
-            Chỉnh Sửa
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/dashboard/workflows/update/${u.id}`}>
+              <Edit className="h-4 w-4 mr-2" />
+              Chỉnh sửa
+            </Link>
           </Button>
           <Button
             variant="outline"
@@ -127,7 +129,7 @@ export function WorkflowProcessList() {
           />
 
           <DataTable<WorkFlowProcessType>
-            data={products?.data}
+            data={workflow?.data}
             columns={columns}
             loading={isFetching}
           />
