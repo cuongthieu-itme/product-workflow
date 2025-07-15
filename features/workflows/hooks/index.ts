@@ -1,1 +1,4 @@
-export { useWorkFlowProcessesQuery } from "./useWorkFlowProcessQuery";
+export {
+  useWorkFlowProcessesQuery,
+  useGetWorkflowProcessByIdQuery,
+} from "./useWorkFlowProcessQuery";

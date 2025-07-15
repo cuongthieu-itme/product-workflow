@@ -15,7 +15,9 @@ export type WorkFlowProcessType = {
   description: string;
   createdAt: string;
   updatedAt: string;
-  steps: Array<WorkFlowStepType>;
+  subprocesses: Array<WorkFlowStepType>;
+  version: number;
+  updateAt: string;
 };
 
 export type WorkFlowProcessFilterInput = {

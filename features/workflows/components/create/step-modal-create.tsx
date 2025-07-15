@@ -51,8 +51,6 @@ export function StepModalCreate({
     resolver: zodResolver(subprocessesSchema),
   });
 
-  console.log(errors);
-
   const onSubmit: SubmitHandler<SubProcessInputType> = (data) => {
     handleSaveStep(data);
     onClose();

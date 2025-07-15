@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SubProcessInputType } from "../../schema/create-workflow-schema";
 import { StepModalUpdate } from "./step-modal-update";
+import { nanoid } from "nanoid";
 
 interface WorkflowItemProps {
   data: SubProcessInputType;
@@ -29,26 +30,41 @@ export function WorkflowItem({
 }: WorkflowItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
-      id: data.id ?? 1,
+      id: data.id || nanoid(),
+      disabled: false,
     });
+
+  // Prevent click event from being handled by DnD
+  const handleButtonClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+  };
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: `all 0.2s ease-in-out`,
   };
 
   const [isUpdateStepModalOpen, setIsUpdateStepModalOpen] = useState(false);
 
   const handleEditStep = () => {
+    console.log("handleEditStep");
     setIsUpdateStepModalOpen(true);
   };
 
   return (
-    <div>
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      style={style}
+      className="cursor-move"
+    >
       <Card>
         <CardHeader className="flex flex-row items-center justify-between py-3">
           <div className="flex items-center gap-2">
             <div
+              {...attributes}
+              {...listeners}
               className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-100"
               title="Kéo để sắp xếp lại"
             >
@@ -84,7 +100,10 @@ export function WorkflowItem({
               variant="ghost"
               size="icon"
               type="button"
-              onClick={handleEditStep}
+              onClick={(e) => {
+                handleButtonClick(e);
+                handleEditStep();
+              }}
             >
               <Edit className="h-4 w-4" />
             </Button>
@@ -93,7 +112,10 @@ export function WorkflowItem({
               size="icon"
               type="button"
               className="text-destructive"
-              onClick={onRemoveStep}
+              onClick={(e) => {
+                handleButtonClick(e);
+                onRemoveStep();
+              }}
             >
               <Trash2 className="h-4 w-4" />
             </Button>

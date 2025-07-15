@@ -1,6 +1,6 @@
 import request from "@/configs/axios-config";
 import { WorkFlowProcessFilterInput, WorkFlowProcessType } from "./types";
-import { PaginatedResult } from "@/types/common";
+import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
 import { CreateWorkflowInputType } from "./schema/create-workflow-schema";
 
@@ -35,6 +35,17 @@ export const createWorkflowProcess = async (data: CreateWorkflowInputType) => {
       data
     );
     return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getWorkflowProcessById = async (id: number) => {
+  try {
+    const response = await request.get<BaseResultQuery<WorkFlowProcessType>>(
+      `/procedures/${id}`
+    );
+    return response.data.data;
   } catch (error) {
     throw error;
   }

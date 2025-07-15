@@ -6,7 +6,6 @@ import {
   SubmitHandler,
   FormProvider,
 } from "react-hook-form";
-import crypto from "crypto";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createWorkflowInputSchema,
@@ -15,33 +14,41 @@ import {
 } from "../../schema/create-workflow-schema";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { WorkflowInfoForm } from "./workflow-info-form";
 import { StepsList } from "./steps-list";
-import { StepModalUpdate } from "./step-modal-update";
-import { useCreateWorkflowProcessMutation } from "../../hooks/useWorkFlowProcessQuery";
+import {
+  useCreateWorkflowProcessMutation,
+  useGetWorkflowProcessByIdQuery,
+} from "../../hooks/useWorkFlowProcessQuery";
 import { StepModalCreate } from "./step-modal-create";
+import { nanoid } from "nanoid";
+import { useParams } from "next/navigation";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { CheckCircle, AlertCircle } from "lucide-react";
 
 export function CreateWorkflowProcessForm() {
+  const params = useParams();
   const { toast } = useToast();
+  const { data, isLoading } = useGetWorkflowProcessByIdQuery(Number(params.id));
+
   const methods = useForm<CreateWorkflowInputType>({
     resolver: zodResolver(createWorkflowInputSchema),
     mode: "onChange",
     defaultValues: {
-      name: "",
-      description: "",
-      subprocesses: [],
+      name: data?.name ?? "",
+      description: data?.description ?? "",
+      subprocesses: data?.subprocesses ?? [],
     },
   });
 
-  const { control, handleSubmit } = methods;
-  const [isUpdateStepModalOpen, setIsUpdateStepModalOpen] = useState(false);
+  const { control, handleSubmit, setValue } = methods;
   const [isCreateStepModalOpen, setIsCreateStepModalOpen] = useState(false);
-  const [stepIndex, setStepIndex] = useState<number>(0);
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, remove } = useFieldArray({
     control,
     name: "subprocesses",
+    keyName: "id",
   });
 
   const handleOpenStepModal = () => {
@@ -49,10 +56,14 @@ export function CreateWorkflowProcessForm() {
   };
 
   const handleCreateStep = (stepData: SubProcessInputType) => {
-    append({
+    const newStep = {
       ...stepData,
       step: fields.length + 1,
-    });
+      id: nanoid(),
+    };
+
+    const updatedFields = [...fields, newStep];
+    setValue("subprocesses", updatedFields, { shouldValidate: true });
     setIsCreateStepModalOpen(false);
   };
 
@@ -68,24 +79,50 @@ export function CreateWorkflowProcessForm() {
     }
   };
 
-  const { mutate: createWorkflowProcess } = useCreateWorkflowProcessMutation();
+  const {
+    mutate: createWorkflowProcess,
+    error,
+    isSuccess,
+  } = useCreateWorkflowProcessMutation();
 
   const onSubmit: SubmitHandler<CreateWorkflowInputType> = (data) => {
-    const subprocesses = data.subprocesses.map((subprocess) => {
-      const { id, ...rest } = subprocess;
-      return {
-        ...rest,
-      };
-    });
-    createWorkflowProcess({
-      ...data,
-      subprocesses,
-    });
+    if (params.id) {
+      console.log("DATA: ", data);
+      return;
+    }
+
+    // Gửi dữ liệu nguyên vẹn, bao gồm id
+    createWorkflowProcess(data);
   };
+
+  if (isLoading)
+    return (
+      <div>
+        <p>Loading...</p>
+      </div>
+    );
 
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Lỗi</AlertTitle>
+            <AlertDescription>{error.message}</AlertDescription>
+          </Alert>
+        )}
+
+        {isSuccess && (
+          <Alert className="bg-green-50 border-green-200">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertTitle className="text-green-800">Thành công!</AlertTitle>
+            <AlertDescription className="text-green-700">
+              Quy trình đã được tạo thành công.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <WorkflowInfoForm />
 
         <StepsList

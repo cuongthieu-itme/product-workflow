@@ -5,23 +5,16 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
-import {
-  GripVertical,
-  DollarSign,
-  Edit,
-  Trash2,
-  Calendar,
-  User,
-  FileText,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { useFormContext, useFieldArray } from "react-hook-form";
+import { useFormContext, useFieldArray, Control } from "react-hook-form";
 import { CreateWorkflowInputType } from "../../schema/create-workflow-schema";
 import { Button } from "@/components/ui/button";
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import { SortableContext } from "@dnd-kit/sortable";
+import { DndContext, DragEndEvent, useDraggable } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
 import { WorkflowItem } from "./workflow-item";
 
 interface StepsListProps {
@@ -34,33 +27,50 @@ export function StepsList({
   onRemoveStep,
 }: StepsListProps) {
   const {
+    setValue,
     control,
-    getValues,
     formState: { errors },
   } = useFormContext<CreateWorkflowInputType>();
 
-  const { fields, move, update } = useFieldArray<CreateWorkflowInputType>({
+  const { fields } = useFieldArray<CreateWorkflowInputType>({
     control,
     name: "subprocesses",
   });
 
   const onDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    const activeId = active.id;
+    const overId = over?.id;
 
-    if (over && active.id !== over.id) {
-      const oldIndex = fields.findIndex((item) => item.id === active.id);
-      const newIndex = fields.findIndex((item) => item.id === over.id);
+    if (!over || activeId === overId) return;
 
-      if (oldIndex >= 0 && newIndex >= 0) {
-        move(oldIndex, newIndex);
+    const oldIndex = fields.findIndex((item) => item.id === activeId);
+    const newIndex = fields.findIndex((item) => item.id === overId);
 
-        fields.forEach((field, index) => {
-          update(index, {
-            ...field,
-            step: index + 1,
-          });
-        });
-      }
+    if (oldIndex >= 0 && newIndex >= 0) {
+      // Update fields using arrayMove
+      const newFields = arrayMove(fields, oldIndex, newIndex);
+
+      // Update step numbers
+      const updatedFields = newFields.map((field, index) => ({
+        ...field,
+        step: index + 1,
+      }));
+
+      // Update form values
+      setValue("subprocesses", updatedFields, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+
+      // Debug log
+      console.log("Drag end:", {
+        activeId,
+        overId,
+        oldIndex,
+        newIndex,
+        fields: updatedFields.map((f) => f.id),
+      });
     }
   };
 
@@ -85,7 +95,11 @@ export function StepsList({
         </CardHeader>
 
         <CardContent className="pt-6">
-          <SortableContext items={fields}>
+          <SortableContext
+            items={fields}
+            id="subprocesses"
+            strategy={verticalListSortingStrategy}
+          >
             <div className="space-y-4 h-full">
               {fields.length === 0 && (
                 <div className="flex items-center justify-center h-full">
@@ -95,9 +109,9 @@ export function StepsList({
                 </div>
               )}
               <div className="space-y-4">
-                {getValues("subprocesses").map((step, index) => (
+                {fields.map((step, index) => (
                   <WorkflowItem
-                    key={index}
+                    key={step.id}
                     data={step}
                     onRemoveStep={() => onRemoveStep(index)}
                     stepIndex={index}
