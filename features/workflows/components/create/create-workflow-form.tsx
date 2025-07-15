@@ -36,13 +36,13 @@ export function CreateWorkflowProcessForm() {
     resolver: zodResolver(createWorkflowInputSchema),
     mode: "onChange",
     defaultValues: {
-      name: data?.name ?? "",
-      description: data?.description ?? "",
-      subprocesses: data?.subprocesses ?? [],
+      name: "",
+      description: "",
+      subprocesses: [],
     },
   });
 
-  const { control, handleSubmit, setValue } = methods;
+  const { control, handleSubmit, setValue, formState } = methods;
   const [isCreateStepModalOpen, setIsCreateStepModalOpen] = useState(false);
 
   const { fields, remove } = useFieldArray({
@@ -50,6 +50,14 @@ export function CreateWorkflowProcessForm() {
     name: "subprocesses",
     keyName: "id",
   });
+
+  useEffect(() => {
+    if (data) {
+      setValue("name", data.name);
+      setValue("description", data.description);
+      setValue("subprocesses", data.subprocesses);
+    }
+  }, [data]);
 
   const handleOpenStepModal = () => {
     setIsCreateStepModalOpen(true);
@@ -85,14 +93,8 @@ export function CreateWorkflowProcessForm() {
     isSuccess,
   } = useCreateWorkflowProcessMutation();
 
-  const onSubmit: SubmitHandler<CreateWorkflowInputType> = (data) => {
-    if (params.id) {
-      console.log("DATA: ", data);
-      return;
-    }
-
-    // Gửi dữ liệu nguyên vẹn, bao gồm id
-    createWorkflowProcess(data);
+  const onSubmit: SubmitHandler<CreateWorkflowInputType> = (formData) => {
+    createWorkflowProcess(formData);
   };
 
   if (isLoading)

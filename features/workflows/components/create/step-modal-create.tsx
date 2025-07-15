@@ -32,11 +32,7 @@ export function StepModalCreate({
   onClose,
   handleSaveStep,
 }: StepModalProps) {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SubProcessInputType>({
+  const { control, handleSubmit, reset } = useForm<SubProcessInputType>({
     defaultValues: {
       name: "",
       description: "",
@@ -54,6 +50,7 @@ export function StepModalCreate({
   const onSubmit: SubmitHandler<SubProcessInputType> = (data) => {
     handleSaveStep(data);
     onClose();
+    reset();
   };
 
   const { data: departments } = useDepartmentsQuery({ limit: 1000 });
@@ -63,6 +60,12 @@ export function StepModalCreate({
       value: String(department.id),
       label: department.name,
     })) ?? [];
+
+  useEffect(() => {
+    if (isOpen) {
+      reset();
+    }
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

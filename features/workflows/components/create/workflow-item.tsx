@@ -28,41 +28,33 @@ export function WorkflowItem({
   onRemoveStep,
   stepIndex,
 }: WorkflowItemProps) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
-      id: data.id || nanoid(),
-      disabled: false,
-    });
-
-  // Prevent click event from being handled by DnD
-  const handleButtonClick = (event: React.MouseEvent) => {
-    event.stopPropagation();
-  };
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: data.id || nanoid() });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: `all 0.2s ease-in-out`,
+    transition,
   };
 
   const [isUpdateStepModalOpen, setIsUpdateStepModalOpen] = useState(false);
 
   const handleEditStep = () => {
-    console.log("handleEditStep");
     setIsUpdateStepModalOpen(true);
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      {...attributes}
-      {...listeners}
-      style={style}
-      className="cursor-move"
-    >
+    <div ref={setNodeRef} style={style}>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between py-3">
           <div className="flex items-center gap-2">
             <div
+              ref={setActivatorNodeRef}
               {...attributes}
               {...listeners}
               className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-100"
@@ -100,8 +92,7 @@ export function WorkflowItem({
               variant="ghost"
               size="icon"
               type="button"
-              onClick={(e) => {
-                handleButtonClick(e);
+              onClick={() => {
                 handleEditStep();
               }}
             >
@@ -112,8 +103,7 @@ export function WorkflowItem({
               size="icon"
               type="button"
               className="text-destructive"
-              onClick={(e) => {
-                handleButtonClick(e);
+              onClick={() => {
                 onRemoveStep();
               }}
             >

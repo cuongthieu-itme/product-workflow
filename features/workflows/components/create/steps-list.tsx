@@ -9,11 +9,19 @@ import {
 import { useFormContext, useFieldArray, Control } from "react-hook-form";
 import { CreateWorkflowInputType } from "../../schema/create-workflow-schema";
 import { Button } from "@/components/ui/button";
-import { DndContext, DragEndEvent, useDraggable } from "@dnd-kit/core";
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import {
   SortableContext,
-  verticalListSortingStrategy,
   arrayMove,
+  sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import { WorkflowItem } from "./workflow-item";
 
@@ -36,6 +44,13 @@ export function StepsList({
     control,
     name: "subprocesses",
   });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const onDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -75,7 +90,11 @@ export function StepsList({
   };
 
   return (
-    <DndContext onDragEnd={onDragEnd}>
+    <DndContext
+      onDragEnd={onDragEnd}
+      sensors={sensors}
+      collisionDetection={closestCenter}
+    >
       <Card
         className={`transition-all duration-200 ${
           errors.subprocesses ? "border-destructive bg-destructive/5" : ""
@@ -95,11 +114,7 @@ export function StepsList({
         </CardHeader>
 
         <CardContent className="pt-6">
-          <SortableContext
-            items={fields}
-            id="subprocesses"
-            strategy={verticalListSortingStrategy}
-          >
+          <SortableContext items={fields} id="subprocesses">
             <div className="space-y-4 h-full">
               {fields.length === 0 && (
                 <div className="flex items-center justify-center h-full">

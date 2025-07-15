@@ -1,3 +1,5 @@
+import { SubProcessInputType } from "./schema/create-workflow-schema";
+
 export type WorkFlowStepType = {
   id: number;
   name: string;
@@ -15,7 +17,7 @@ export type WorkFlowProcessType = {
   description: string;
   createdAt: string;
   updatedAt: string;
-  subprocesses: Array<WorkFlowStepType>;
+  subprocesses: Array<SubProcessInputType>;
   version: number;
   updateAt: string;
 };

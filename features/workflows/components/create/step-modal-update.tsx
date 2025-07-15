@@ -216,7 +216,14 @@ export function StepModalUpdate({
           </div>
 
           <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button
+              type="button"
+              variant="outline"
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+            >
               Hủy bỏ
             </Button>
             <Button type="button" onClick={onSave}>
