@@ -16,8 +16,8 @@ export function WorkflowInfoForm() {
     control,
   } = useFormContext<CreateWorkflowInputType>();
 
-  const { workflowId } = useParams<{ workflowId: string }>();
-  const { data } = useGetWorkflowProcessByIdQuery(Number(workflowId));
+  const { id } = useParams<{ id: string }>();
+  const { data } = useGetWorkflowProcessByIdQuery(Number(id));
 
   const lastUpdate = data?.updatedAt
     ? format(new Date(data.updatedAt), "dd/MM/yyyy")

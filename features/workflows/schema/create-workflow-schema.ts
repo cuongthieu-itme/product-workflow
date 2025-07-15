@@ -34,6 +34,7 @@ export const subprocessesSchema = z.object({
 });
 
 export const createWorkflowInputSchema = z.object({
+  id: z.number().optional(),
   name: z
     .string()
     .min(3, "Tên phải có ít nhất 3 ký tự")

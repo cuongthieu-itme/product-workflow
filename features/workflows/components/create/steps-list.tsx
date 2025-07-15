@@ -37,10 +37,11 @@ export function StepsList({
   const {
     setValue,
     control,
+    getValues,
     formState: { errors },
   } = useFormContext<CreateWorkflowInputType>();
 
-  const { fields } = useFieldArray<CreateWorkflowInputType>({
+  const { fields, move } = useFieldArray<CreateWorkflowInputType>({
     control,
     name: "subprocesses",
   });
@@ -63,29 +64,19 @@ export function StepsList({
     const newIndex = fields.findIndex((item) => item.id === overId);
 
     if (oldIndex >= 0 && newIndex >= 0) {
-      // Update fields using arrayMove
-      const newFields = arrayMove(fields, oldIndex, newIndex);
+      // Use move method from useFieldArray to preserve field IDs
+      move(oldIndex, newIndex);
 
-      // Update step numbers
-      const updatedFields = newFields.map((field, index) => ({
-        ...field,
-        step: index + 1,
-      }));
-
-      // Update form values
-      setValue("subprocesses", updatedFields, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-
-      // Debug log
-      console.log("Drag end:", {
-        activeId,
-        overId,
-        oldIndex,
-        newIndex,
-        fields: updatedFields.map((f) => f.id),
-      });
+      // Update step numbers after move
+      setTimeout(() => {
+        const currentSubprocesses = getValues("subprocesses");
+        currentSubprocesses.forEach((_, index) => {
+          setValue(`subprocesses.${index}.step`, index + 1, {
+            shouldValidate: true,
+            shouldDirty: true,
+          });
+        });
+      }, 0);
     }
   };
 

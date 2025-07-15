@@ -29,11 +29,9 @@ import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { convertSubProcessFormData } from "../../helper";
 
 export function CreateWorkflowProcessForm() {
-  const { workflowId } = useParams<{ workflowId: string }>();
+  const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
-  const { data, isLoading } = useGetWorkflowProcessByIdQuery(
-    Number(workflowId)
-  );
+  const { data, isLoading } = useGetWorkflowProcessByIdQuery(Number(id));
   const [isCreateStepModalOpen, setIsCreateStepModalOpen] = useState(false);
 
   const methods = useForm<CreateWorkflowInputType>({
@@ -108,11 +106,13 @@ export function CreateWorkflowProcessForm() {
     });
 
     if (data?.id) {
-      console.log("DATA: ", {
+      createWorkflowProcess({
+        id: data.id,
         name: formData.name,
         description: formData.description,
         subprocesses: normalizedSubprocesses,
       });
+
       return;
     }
 
@@ -165,7 +165,7 @@ export function CreateWorkflowProcessForm() {
           <Button type="submit">
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 
-            {workflowId ? "Cập nhật" : "Tạo quy trình"}
+            {id ? "Cập nhật" : "Tạo quy trình"}
           </Button>
         </div>
       </form>
