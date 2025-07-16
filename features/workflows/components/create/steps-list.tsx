@@ -20,20 +20,15 @@ import {
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  arrayMove,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import { WorkflowItem } from "./workflow-item";
 
 interface StepsListProps {
   handleOpenStepModal: () => void;
-  onRemoveStep: (index: number) => void;
 }
 
-export function StepsList({
-  handleOpenStepModal,
-  onRemoveStep,
-}: StepsListProps) {
+export function StepsList({ handleOpenStepModal }: StepsListProps) {
   const {
     setValue,
     control,
@@ -41,9 +36,14 @@ export function StepsList({
     formState: { errors },
   } = useFormContext<CreateWorkflowInputType>();
 
-  const { fields, move } = useFieldArray<CreateWorkflowInputType>({
+  const { fields, move, update, replace } = useFieldArray<
+    CreateWorkflowInputType,
+    "subprocesses",
+    "fieldId"
+  >({
     control,
     name: "subprocesses",
+    keyName: "fieldId",
   });
 
   const sensors = useSensors(
@@ -60,24 +60,32 @@ export function StepsList({
 
     if (!over || activeId === overId) return;
 
-    const oldIndex = fields.findIndex((item) => item.id === activeId);
-    const newIndex = fields.findIndex((item) => item.id === overId);
+    const oldIndex = fields.findIndex((item) => item.fieldId === activeId);
+    const newIndex = fields.findIndex((item) => item.fieldId === overId);
 
     if (oldIndex >= 0 && newIndex >= 0) {
-      // Use move method from useFieldArray to preserve field IDs
       move(oldIndex, newIndex);
 
-      // Update step numbers after move
-      setTimeout(() => {
-        const currentSubprocesses = getValues("subprocesses");
-        currentSubprocesses.forEach((_, index) => {
-          setValue(`subprocesses.${index}.step`, index + 1, {
-            shouldValidate: true,
-            shouldDirty: true,
-          });
+      // Cập nhật lại step cho từng subprocess ngay sau khi move
+      const currentSubprocesses = getValues("subprocesses");
+      currentSubprocesses.forEach((_, index) => {
+        setValue(`subprocesses.${index}.step`, index + 1, {
+          shouldValidate: true,
+          shouldDirty: true,
         });
-      }, 0);
+      });
     }
+  };
+
+  const handleRemoveStep = (index: number) => {
+    const newSubprocesses = fields
+      .filter((_, i) => i !== index)
+      .map((step, i) => ({
+        ...step,
+        step: i + 1,
+      }));
+
+    replace(newSubprocesses);
   };
 
   return (
@@ -105,7 +113,10 @@ export function StepsList({
         </CardHeader>
 
         <CardContent className="pt-6">
-          <SortableContext items={fields} id="subprocesses">
+          <SortableContext
+            items={fields.map((item) => item.fieldId)}
+            id="subprocesses"
+          >
             <div className="space-y-4 h-full">
               {fields.length === 0 && (
                 <div className="flex items-center justify-center h-full">
@@ -115,14 +126,19 @@ export function StepsList({
                 </div>
               )}
               <div className="space-y-4">
-                {fields.map((step, index) => (
-                  <WorkflowItem
-                    key={step.id}
-                    data={step}
-                    onRemoveStep={() => onRemoveStep(index)}
-                    stepIndex={index}
-                  />
-                ))}
+                {fields.map((step, index) => {
+                  const { fieldId, ...rest } = step;
+
+                  return (
+                    <WorkflowItem
+                      fieldId={fieldId}
+                      key={fieldId}
+                      data={rest}
+                      onRemoveStep={() => handleRemoveStep(index)}
+                      onUpdateStep={(data) => update(index, data)}
+                    />
+                  );
+                })}
               </div>
             </div>
           </SortableContext>

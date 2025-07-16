@@ -49,7 +49,7 @@ export function CreateWorkflowProcessForm() {
   const { fields, remove } = useFieldArray({
     control,
     name: "subprocesses",
-    keyName: "id",
+    keyName: "fieldId",
   });
 
   useEffect(() => {
@@ -68,24 +68,12 @@ export function CreateWorkflowProcessForm() {
     const newStep = {
       ...stepData,
       step: fields.length + 1,
-      id: nanoid(),
+      fieldId: nanoid(),
     };
 
     const updatedFields = [...fields, newStep];
     setValue("subprocesses", updatedFields, { shouldValidate: true });
     setIsCreateStepModalOpen(false);
-  };
-
-  const handleRemoveStep = (index: number) => {
-    if (fields.length > 1) {
-      remove(index);
-    } else {
-      toast({
-        title: "Cảnh báo",
-        description: "Quy trình phải có ít nhất 1 bước",
-        variant: "destructive",
-      });
-    }
   };
 
   const {
@@ -95,15 +83,14 @@ export function CreateWorkflowProcessForm() {
   } = useCreateWorkflowProcessMutation();
 
   const onSubmit: SubmitHandler<CreateWorkflowInputType> = (formData) => {
-    const normalizedSubprocesses = formData.subprocesses.map((subprocess) => {
-      if (typeof subprocess.id === "string") {
+    const normalizedSubprocesses = formData.subprocesses.map(
+      (subprocess, index) => {
         return {
           ...subprocess,
+          step: index + 1,
         };
       }
-
-      return subprocess;
-    });
+    );
 
     if (data?.id) {
       createWorkflowProcess({
@@ -146,17 +133,16 @@ export function CreateWorkflowProcessForm() {
             <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertTitle className="text-green-800">Thành công!</AlertTitle>
             <AlertDescription className="text-green-700">
-              Quy trình đã được tạo thành công.
+              {id
+                ? "Quy trình đã được cập nhật"
+                : "Quy trình đã được tạo thành công"}
             </AlertDescription>
           </Alert>
         )}
 
         <WorkflowInfoForm />
 
-        <StepsList
-          handleOpenStepModal={handleOpenStepModal}
-          onRemoveStep={handleRemoveStep}
-        />
+        <StepsList handleOpenStepModal={handleOpenStepModal} />
 
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline">

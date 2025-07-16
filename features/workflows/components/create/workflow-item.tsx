@@ -16,17 +16,20 @@ import { Button } from "@/components/ui/button";
 import { SubProcessInputType } from "../../schema/create-workflow-schema";
 import { StepModalUpdate } from "./step-modal-update";
 import { nanoid } from "nanoid";
+import { StepModalCreate } from "./step-modal-create";
 
 interface WorkflowItemProps {
   data: SubProcessInputType;
   onRemoveStep: () => void;
-  stepIndex: number;
+  fieldId: string;
+  onUpdateStep: (data: SubProcessInputType) => void;
 }
 
 export function WorkflowItem({
   data,
   onRemoveStep,
-  stepIndex,
+  fieldId,
+  onUpdateStep,
 }: WorkflowItemProps) {
   const {
     attributes,
@@ -35,7 +38,7 @@ export function WorkflowItem({
     setActivatorNodeRef,
     transform,
     transition,
-  } = useSortable({ id: data.id || nanoid() });
+  } = useSortable({ id: fieldId });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -135,14 +138,13 @@ export function WorkflowItem({
         </CardContent>
       </Card>
 
-      <StepModalUpdate
-        stepIndex={stepIndex}
+      <StepModalCreate
         isOpen={isUpdateStepModalOpen}
         onClose={() => setIsUpdateStepModalOpen(false)}
-        handleSaveStep={() => {
-          console.log("handleSaveStep");
+        handleSaveStep={(data) => {
+          onUpdateStep(data);
         }}
-        editingStep={data}
+        data={data}
       />
     </div>
   );

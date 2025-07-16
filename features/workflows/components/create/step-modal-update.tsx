@@ -80,6 +80,7 @@ export function StepModalUpdate({
   const onSave = async () => {
     // Validate all required fields
     const ok = await trigger(`subprocesses.${stepIndex}`);
+    console.log("ok", ok);
 
     if (ok) {
       // Get all values from the form

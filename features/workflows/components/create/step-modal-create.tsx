@@ -15,7 +15,6 @@ import {
 import React, { useEffect } from "react";
 import { InputCustom } from "@/components/form/input";
 import { TextAreaCustom } from "@/components/form/textarea";
-import { Label } from "@radix-ui/react-label";
 import { useDepartmentsQuery } from "@/features/departments/hooks";
 import { SelectCustom } from "@/components/form/select";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,32 +24,32 @@ interface StepModalProps {
   isOpen: boolean;
   onClose: () => void;
   handleSaveStep: (stepData: SubProcessInputType) => void;
+  data?: SubProcessInputType;
 }
 
 export function StepModalCreate({
   isOpen,
   onClose,
   handleSaveStep,
+  data,
 }: StepModalProps) {
   const { control, handleSubmit, reset } = useForm<SubProcessInputType>({
     defaultValues: {
-      name: "",
-      description: "",
-      estimatedNumberOfDays: 1,
-      numberOfDaysBeforeDeadline: 1,
-      roleOfThePersonInCharge: "",
-      departmentId: "",
-      isRequired: false,
-      isStepWithCost: false,
-      step: 1,
+      name: data?.name || "",
+      description: data?.description || "",
+      estimatedNumberOfDays: data?.estimatedNumberOfDays || 1,
+      numberOfDaysBeforeDeadline: data?.numberOfDaysBeforeDeadline || 1,
+      roleOfThePersonInCharge: data?.roleOfThePersonInCharge || "",
+      departmentId: data?.departmentId,
+      isRequired: data?.isRequired || false,
+      isStepWithCost: data?.isStepWithCost || false,
+      step: data?.step || 1,
     },
     resolver: zodResolver(subprocessesSchema),
   });
 
   const onSubmit: SubmitHandler<SubProcessInputType> = (data) => {
     handleSaveStep(data);
-    onClose();
-    reset();
   };
 
   const { data: departments } = useDepartmentsQuery({ limit: 1000 });
@@ -62,16 +61,14 @@ export function StepModalCreate({
     })) ?? [];
 
   useEffect(() => {
-    if (isOpen) {
-      reset();
-    }
+    reset();
   }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>Thêm bước mới</DialogTitle>
+          <DialogTitle>{data?.id ? "Cập nhật" : "Thêm"} bước mới</DialogTitle>
         </DialogHeader>
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           <InputCustom
@@ -139,7 +136,7 @@ export function StepModalCreate({
             <Button type="button" variant="outline" onClick={onClose}>
               Hủy bỏ
             </Button>
-            <Button type="submit">Thêm bước</Button>
+            <Button type="submit">{data?.id ? "Cập nhật" : "Thêm bước"}</Button>
           </div>
         </form>
       </DialogContent>
