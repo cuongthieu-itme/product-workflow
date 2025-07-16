@@ -157,14 +157,7 @@ export const AccessoryForm: React.FC<AccessoryFormProps> = ({
             noValidate
           >
             <div className="space-y-4">
-              <UploadFile
-                name="image"
-                control={control}
-                accept={{
-                  "image/*": [".jpg", ".jpeg", ".png", ".gif"],
-                  "video/*": [".mp4", ".avi", ".mov", ".mkv", ".webm"],
-                }}
-              />
+              <UploadFile name="image" control={control} />
 
               <InputCustom
                 control={control}
