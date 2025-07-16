@@ -29,13 +29,13 @@ export function CreateProductStatusForm({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  const { control, handleSubmit, reset, watch, formState } =
+  const { control, handleSubmit, reset } =
     useForm<CreateProductStatusInputType>({
       defaultValues: {
         color: "#4f46e5",
         name: "",
         description: "",
-        procedure: KEY_EMPTY_SELECT,
+        procedureId: undefined,
       },
       resolver: zodResolver(createProductStatusInputSchema),
     });
@@ -146,7 +146,8 @@ export function CreateProductStatusForm({
                 <ChooseColorProductStatus control={control} name="color" />
 
                 <SelectCustom
-                  name="procedure"
+                  valueType="number"
+                  name="procedureId"
                   control={control}
                   label="Quy trình"
                   emptyOption={{

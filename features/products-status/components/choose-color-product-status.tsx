@@ -26,7 +26,6 @@ interface ChooseColorProductStatusProps<T extends FieldValues> {
 export function ChooseColorProductStatus<T extends FieldValues>({
   name,
   control,
-  defaultValue = "#4f46e5",
   shouldUnregister,
 }: ChooseColorProductStatusProps<T>) {
   const {
@@ -42,7 +41,10 @@ export function ChooseColorProductStatus<T extends FieldValues>({
 
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-medium">Màu sắc</Label>
+      <div className="flex items-center h-[24px]">
+        <Label className="text-sm font-medium">Màu sắc</Label>
+        <span className="text-red-500 ml-1">*</span>
+      </div>
 
       <div className="flex items-center gap-2">
         <Popover open={open} onOpenChange={setOpen}>

@@ -41,7 +41,7 @@ export function UpdateProductStatusForm({
         id: product?.id || 0,
         name: product?.name || "",
         color: product?.color || "#4f46e5",
-        procedure: product?.procedure || "",
+        procedureId: product?.procedure?.id,
       },
       resolver: zodResolver(updateProductStatusInputSchema),
     });
@@ -145,7 +145,7 @@ export function UpdateProductStatusForm({
               <ChooseColorProductStatus control={control} name="color" />
 
               <SelectCustom
-                name="procedure"
+                name="procedureId"
                 control={control}
                 label="Quy trình"
                 emptyOption={{

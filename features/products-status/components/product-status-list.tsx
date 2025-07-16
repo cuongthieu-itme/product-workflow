@@ -15,10 +15,12 @@ import { DeleteProductStatusDialog } from "./delete-product-status-dialog";
 import { useProductsStatusQuery } from "../hooks";
 import { CreateProductStatusForm } from "./create-product-status-form";
 import { ProductStatusDetail } from "./detail/product-status-detail";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export function ProductStatusList() {
   const [page, setPage] = useState(PAGE);
   const [searchValue, setSearchValue] = useState("");
+  const debouncedSearchValue = useDebounce(searchValue, 500);
   const {
     data: products,
     isLoading,
@@ -26,7 +28,7 @@ export function ProductStatusList() {
   } = useProductsStatusQuery({
     page,
     limit: LIMIT,
-    name: searchValue,
+    name: debouncedSearchValue,
   });
   const [editForm, setEditForm] = useState<ProductStatusType | null>(null);
   const [deleteForm, setDeleteForm] = useState<ProductStatusType | null>(null);

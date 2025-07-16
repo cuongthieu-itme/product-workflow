@@ -10,7 +10,10 @@ export type ProductStatusType = {
   name: string;
   description: string;
   color: string;
-  procedure: string;
+  procedure: {
+    id: number;
+    name: string;
+  };
   createdAt: string;
   updatedAt: string;
 };
