@@ -22,9 +22,15 @@ import {
 } from "../../hooks/useWorkFlowProcess";
 import { StepFormModal } from "./step-form-modal";
 import { nanoid } from "nanoid";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import {
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  ArrowLeft,
+  RefreshCw,
+} from "lucide-react";
 import { convertSubProcessFormData } from "../../helper";
 import { WorkflowSkeleton } from "./skeleton";
 
@@ -32,6 +38,7 @@ export function WorkflowForm() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading } = useGetWorkflowProcessByIdQuery(Number(id));
   const [isCreateStepModalOpen, setIsCreateStepModalOpen] = useState(false);
+  const router = useRouter();
 
   const methods = useForm<CreateWorkflowInputType>({
     resolver: zodResolver(createWorkflowInputSchema),
@@ -112,49 +119,67 @@ export function WorkflowForm() {
   if (isLoading) return <WorkflowSkeleton />;
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {error && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Lỗi</AlertTitle>
-            <AlertDescription>{error.message}</AlertDescription>
-          </Alert>
-        )}
-
-        {isSuccess && (
-          <Alert className="bg-green-50 border-green-200">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertTitle className="text-green-800">Thành công!</AlertTitle>
-            <AlertDescription className="text-green-700">
-              {id
-                ? "Quy trình đã được cập nhật"
-                : "Quy trình đã được tạo thành công"}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <WorkflowInfoForm />
-
-        <StepsList handleOpenStepModal={handleOpenStepModal} />
-
-        <div className="flex justify-end gap-4">
-          <Button type="button" variant="outline">
-            Hủy bỏ
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push("/dashboard/workflows")}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Quay lại
           </Button>
-          <Button type="submit">
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-
-            {id ? "Cập nhật" : "Tạo quy trình"}
-          </Button>
+          <h1 className="text-2xl font-bold">
+            {data ? "Cập nhật quy trình" : "Tạo quy trình mới"}
+          </h1>
         </div>
-      </form>
+      </div>
 
-      <StepFormModal
-        isOpen={isCreateStepModalOpen}
-        onClose={() => setIsCreateStepModalOpen(false)}
-        handleSaveStep={handleCreateStep}
-      />
-    </FormProvider>
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Lỗi</AlertTitle>
+              <AlertDescription>{error.message}</AlertDescription>
+            </Alert>
+          )}
+
+          {isSuccess && (
+            <Alert className="bg-green-50 border-green-200">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <AlertTitle className="text-green-800">Thành công!</AlertTitle>
+              <AlertDescription className="text-green-700">
+                {id
+                  ? "Quy trình đã được cập nhật"
+                  : "Quy trình đã được tạo thành công"}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <WorkflowInfoForm />
+
+          <StepsList handleOpenStepModal={handleOpenStepModal} />
+
+          <div className="flex justify-end gap-4">
+            <Button type="button" variant="outline">
+              Hủy bỏ
+            </Button>
+            <Button type="submit">
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+
+              {id ? "Cập nhật" : "Tạo quy trình"}
+            </Button>
+          </div>
+        </form>
+
+        <StepFormModal
+          isOpen={isCreateStepModalOpen}
+          onClose={() => setIsCreateStepModalOpen(false)}
+          handleSaveStep={handleCreateStep}
+        />
+      </FormProvider>
+    </div>
   );
 }

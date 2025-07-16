@@ -19,7 +19,7 @@ export const DeleteWorkflowDialog = ({
   const { mutate, isPending } = useDeleteWFPMutation();
   const { toast } = useToast();
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!deletingWorkflow) return;
     mutate(deletingWorkflow.id, {
       onSuccess: () => {
@@ -33,6 +33,7 @@ export const DeleteWorkflowDialog = ({
         toast({
           title: "Lỗi",
           description: error.message || "Xóa quy trình thất bại",
+          variant: "destructive",
         });
       },
     });
