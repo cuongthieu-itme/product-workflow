@@ -14,9 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SubProcessInputType } from "../../schema/create-workflow-schema";
-import { StepModalUpdate } from "./step-modal-update";
-import { nanoid } from "nanoid";
-import { StepModalCreate } from "./step-modal-create";
+import { StepFormModal } from "./step-form-modal";
 
 interface WorkflowItemProps {
   data: SubProcessInputType;
@@ -88,9 +86,6 @@ export function WorkflowItem({
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm">
-              <FileText className="h-4 w-4 mr-1" /> Trường dữ liệu
-            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -138,7 +133,7 @@ export function WorkflowItem({
         </CardContent>
       </Card>
 
-      <StepModalCreate
+      <StepFormModal
         isOpen={isUpdateStepModalOpen}
         onClose={() => setIsUpdateStepModalOpen(false)}
         handleSaveStep={(data) => {

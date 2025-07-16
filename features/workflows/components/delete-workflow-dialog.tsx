@@ -4,8 +4,8 @@ import { BaseDialog } from "@/components/dialog";
 import { Button } from "@/components/ui/button";
 import { WorkFlowProcessType } from "../types";
 import { Loader2 } from "lucide-react";
-import { useDeleteWFPMutation } from "../hooks/useDeleteWFPMutation";
 import { useToast } from "@/components/ui/use-toast";
+import { useDeleteWFPMutation } from "../hooks/useWorkFlowProcess";
 
 interface DeleteWorkflowDialogProps {
   deletingWorkflow: WorkFlowProcessType | null;

@@ -1,5 +1,5 @@
-import { CreateWorkflowProcessForm } from "@/features/workflows";
+import { WorkflowForm } from "@/features/workflows";
 
 export default function Page() {
-  return <CreateWorkflowProcessForm />;
+  return <WorkflowForm />;
 }

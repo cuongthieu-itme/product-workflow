@@ -28,7 +28,9 @@ export const deleteWorkflowProcess = async (id: number) => {
   }
 };
 
-export const createWorkflowProcess = async (data: CreateWorkflowInputType) => {
+export const createOfUpdateWorkflowProcess = async (
+  data: CreateWorkflowInputType
+) => {
   try {
     const response = await request.post<WorkFlowProcessType>(
       "/procedures/create-or-update",

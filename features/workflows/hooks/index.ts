@@ -1,4 +1,5 @@
 export {
   useWorkFlowProcessesQuery,
   useGetWorkflowProcessByIdQuery,
-} from "./useWorkFlowProcessQuery";
+  useCreateOfUpdateWPMutation,
+} from "./useWorkFlowProcess";

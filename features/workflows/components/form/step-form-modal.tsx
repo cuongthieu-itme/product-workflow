@@ -27,7 +27,7 @@ interface StepModalProps {
   data?: SubProcessInputType;
 }
 
-export function StepModalCreate({
+export function StepFormModal({
   isOpen,
   onClose,
   handleSaveStep,
