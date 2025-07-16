@@ -9,11 +9,14 @@ import { AlertCircle, Loader2, PlusCircle } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { InputCustom } from "@/components/form/input";
-import { ImageUpload } from "@/components/common/image-upload";
+import { UploadFile } from "@/components/common/upload";
 import { Fragment, useEffect, useState } from "react";
 import { BaseDialog } from "@/components/dialog";
 import { accessoryInputSchema, AccessoryInputType } from "../schema";
-import { useCreateAccessoryMutation, useUpdateAccessoryMutation } from "../hooks";
+import {
+  useCreateAccessoryMutation,
+  useUpdateAccessoryMutation,
+} from "../hooks";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { AccessoryType } from "../type";
 import { useToast } from "@/components/ui/use-toast";
@@ -81,10 +84,7 @@ export const AccessoryForm: React.FC<AccessoryFormProps> = ({
     reset: resetMutation,
   } = useCreateAccessoryMutation();
 
-  const { mutate: updateMaterial } =
-    useUpdateAccessoryMutation();
-
-
+  const { mutate: updateMaterial } = useUpdateAccessoryMutation();
 
   const onSubmit: SubmitHandler<AccessoryInputType> = (data) => {
     if (accessory) {
@@ -129,8 +129,6 @@ export const AccessoryForm: React.FC<AccessoryFormProps> = ({
     }
   }, [isDialogOpen]);
 
-
-
   return (
     <BaseDialog
       open={isDialogOpen}
@@ -159,7 +157,7 @@ export const AccessoryForm: React.FC<AccessoryFormProps> = ({
             noValidate
           >
             <div className="space-y-4">
-              <ImageUpload name="image" control={control} />
+              <UploadFile name="image" control={control} />
 
               <InputCustom
                 control={control}

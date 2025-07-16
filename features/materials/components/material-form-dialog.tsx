@@ -9,7 +9,7 @@ import { AlertCircle, Loader2, PlusCircle } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { InputCustom } from "@/components/form/input";
-import { ImageUpload } from "@/components/common/image-upload";
+import { UploadFile } from "@/components/common/upload";
 import { Fragment, useEffect, useState } from "react";
 import { BaseDialog } from "@/components/dialog";
 import { createMaterialInputSchema, CreateMaterialInputType } from "../schema";
@@ -17,7 +17,11 @@ import { useCreateMaterialMutation } from "../hooks";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { SelectCustom } from "@/components/form/select";
 import { MaterialType } from "../type";
-import { useOriginsQuery, useUnitsQuery, useUpdateMaterialMutation } from "../hooks/useMaterials";
+import {
+  useOriginsQuery,
+  useUnitsQuery,
+  useUpdateMaterialMutation,
+} from "../hooks/useMaterials";
 import { useToast } from "@/components/ui/use-toast";
 
 export function CreateMaterialForm({
@@ -90,8 +94,7 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
     reset: resetMutation,
   } = useCreateMaterialMutation();
 
-  const { mutate: updateMaterial } =
-    useUpdateMaterialMutation();
+  const { mutate: updateMaterial } = useUpdateMaterialMutation();
 
   const { data: origins } = useOriginsQuery();
   const { data: units } = useUnitsQuery();
@@ -143,8 +146,6 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
     }
   }, [isDialogOpen]);
 
-
-
   return (
     <BaseDialog
       open={isDialogOpen}
@@ -173,7 +174,7 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
             noValidate
           >
             <div className="space-y-4">
-              <ImageUpload name="image" control={control} />
+              <UploadFile name="image" control={control} />
 
               <InputCustom
                 control={control}

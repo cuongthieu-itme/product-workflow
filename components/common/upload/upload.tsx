@@ -13,11 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Plus, X, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDropzone } from "react-dropzone";
-import type { FileWithPath } from "react-dropzone";
+import type { Accept, FileWithPath } from "react-dropzone";
 import { getImageUrl } from "@/features/settings/utils";
 import { useFileMutation } from "@/hooks/use-file";
 import { FileType } from "@/types/common";
-import { useToast } from "../ui/use-toast";
+import { useToast } from "../../ui/use-toast";
 import {
   DndContext,
   closestCenter,
@@ -33,78 +33,16 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { PreviewFileItem } from "./preview";
 
-export type ImageUploadProps<T extends FieldValues> = UseControllerProps<T> & {
+export type UploadFileProps<T extends FieldValues> = UseControllerProps<T> & {
   label?: string;
   className?: string;
   maxFiles?: number;
+  accept?: Accept;
 };
 
-// Sortable Image Item Component
-interface SortableImageItemProps {
-  id: string;
-  src: string;
-  index: number;
-  onRemove: (index: number) => void;
-}
-
-const SortableImageItem: React.FC<SortableImageItemProps> = ({
-  id,
-  src,
-  index,
-  onRemove,
-}) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={cn("relative group", isDragging && "opacity-50 z-50")}
-    >
-      <img
-        src={getImageUrl(src)}
-        alt={`preview-${index}`}
-        className="w-full h-24 object-cover rounded-md"
-      />
-
-      {/* Drag Handle */}
-      <div
-        {...attributes}
-        {...listeners}
-        className="absolute top-1 left-1 h-6 w-6 bg-black/50 hover:bg-black/70 text-white rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <GripVertical className="h-3 w-3" />
-      </div>
-
-      {/* Remove Button */}
-      <Button
-        type="button"
-        size="icon"
-        onClick={() => onRemove(index)}
-        className="absolute top-1 right-1 h-6 w-6 bg-destructive hover:bg-destructive/90 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <X className="h-4 w-4" />
-      </Button>
-    </div>
-  );
-};
-
-export const ImageUpload = <T extends FieldValues>({
+export const UploadFile = <T extends FieldValues>({
   name,
   control,
   defaultValue,
@@ -113,7 +51,12 @@ export const ImageUpload = <T extends FieldValues>({
   label = "Hình ảnh",
   className = "",
   maxFiles = 5,
-}: ImageUploadProps<T>) => {
+  accept = {
+    "image/jpeg": [".jpg", ".jpeg"],
+    "image/png": [".png"],
+    "image/webp": [".webp"],
+  },
+}: UploadFileProps<T>) => {
   const { toast } = useToast();
   const {
     field: { value = [], onChange, ...field },
@@ -179,11 +122,7 @@ export const ImageUpload = <T extends FieldValues>({
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      "image/jpeg": [".jpg", ".jpeg"],
-      "image/png": [".png"],
-      "image/webp": [".webp"],
-    },
+    accept,
     maxFiles,
   });
 
@@ -265,7 +204,7 @@ export const ImageUpload = <T extends FieldValues>({
               >
                 <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                   {previews.map((src, i) => (
-                    <SortableImageItem
+                    <PreviewFileItem
                       key={`image-${i}`}
                       id={`image-${i}`}
                       src={src}
