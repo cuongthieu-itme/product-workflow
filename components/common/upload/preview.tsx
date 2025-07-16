@@ -4,11 +4,13 @@ import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, X } from "lucide-react";
+import { FileTypeGen } from "./helper";
 
 interface PreviewFileItemProps {
   id: string;
   src: string;
   index: number;
+  typeFile?: FileTypeGen; // Optional, if you want to display file type
   onRemove: (index: number) => void;
 }
 
@@ -17,6 +19,7 @@ export const PreviewFileItem: React.FC<PreviewFileItemProps> = ({
   src,
   index,
   onRemove,
+  typeFile,
 }) => {
   const {
     attributes,
@@ -38,11 +41,20 @@ export const PreviewFileItem: React.FC<PreviewFileItemProps> = ({
       style={style}
       className={cn("relative group", isDragging && "opacity-50 z-50")}
     >
-      <img
-        src={getImageUrl(src)}
-        alt={`preview-${index}`}
-        className="w-full h-24 object-cover rounded-md"
-      />
+      {/* Preview Image */}
+      {typeFile === "image" ? (
+        <img
+          src={src}
+          alt={`Preview ${id}`}
+          className="w-full h-24 object-cover rounded-md"
+        />
+      ) : (
+        <video
+          src={src}
+          controls
+          className="w-full h-24 object-cover rounded-md"
+        />
+      )}
 
       {/* Drag Handle */}
       <div

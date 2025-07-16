@@ -34,6 +34,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { PreviewFileItem } from "./preview";
+import { FileTypeGen, generateTypeFile } from "./helper";
 
 export type UploadFileProps<T extends FieldValues> = UseControllerProps<T> & {
   label?: string;
@@ -78,44 +79,50 @@ export const UploadFile = <T extends FieldValues>({
   );
 
   // ----- PREVIEW -----
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [previews, setPreviews] = useState<
+    Array<{
+      src: string;
+      typeFile: FileTypeGen;
+    }>
+  >([]);
   const { mutate: uploadMultipleFilesMutation } =
     useFileMutation("uploadMultiple");
   const { mutate: deleteFileMutation } = useFileMutation("delete");
 
-  // Generate / cleanup object-URLs
-  useEffect(() => {
-    if (!Array.isArray(value)) return;
+  // // Generate / cleanup object-URLs
+  // useEffect(() => {
+  //   if (!Array.isArray(value)) return;
 
-    const urls = value as string[];
-    setPreviews(urls);
+  //   const urls = value as string[];
+  //   setPreviews(urls);
 
-    return () => urls.forEach((u) => URL.revokeObjectURL(u));
-  }, [value]);
+  //   return () => urls.forEach((u) => URL.revokeObjectURL(u));
+  // }, [value]);
 
   // ----- DROPZONE -----
   const onDrop = async (accepted: FileWithPath[]) => {
     if (value.length >= maxFiles) {
       toast({
         title: "Lỗi",
-        description: `Bạn chỉ có thể tải lên tối đa ${maxFiles} hình ảnh`,
+        description: `Bạn chỉ có thể tải lên tối đa ${maxFiles} files.`,
         variant: "destructive",
       });
       return;
     }
-    const valid = accepted.filter((f) =>
-      ["image/jpeg", "image/png", "image/webp"].includes(f.type)
-    );
 
-    if (!valid.length) return;
-
-    uploadMultipleFilesMutation(valid, {
+    uploadMultipleFilesMutation(accepted, {
       onSuccess: (data) => {
         const next = [
           ...(value as string[]),
           ...(data as FileType[]).map((f) => f.filename),
         ].slice(0, maxFiles);
         onChange(next);
+        setPreviews(
+          next.map((src) => ({
+            src: getImageUrl(src),
+            typeFile: generateTypeFile(src),
+          }))
+        );
       },
     });
   };
@@ -132,14 +139,20 @@ export const UploadFile = <T extends FieldValues>({
 
     if (active.id !== over?.id) {
       const oldIndex = previews.findIndex(
-        (_, index) => `image-${index}` === active.id
+        (_, index) => `file-${index}` === active.id
       );
       const newIndex = previews.findIndex(
-        (_, index) => `image-${index}` === over?.id
+        (_, index) => `file-${index}` === over?.id
       );
 
-      const newImages = arrayMove(value as string[], oldIndex, newIndex);
+      const newImages = arrayMove(value, oldIndex, newIndex);
       onChange(newImages);
+      setPreviews(
+        arrayMove(previews, oldIndex, newIndex).map((item, index) => ({
+          ...item,
+          src: getImageUrl(newImages[index]),
+        }))
+      );
     }
   };
 
@@ -148,6 +161,7 @@ export const UploadFile = <T extends FieldValues>({
     deleteFileMutation(value[idx], {
       onSuccess: () => {
         const next = (value as string[]).filter((_, i) => i !== idx);
+        setPreviews(previews.filter((_, i) => i !== idx));
         onChange(next);
       },
     });
@@ -199,17 +213,18 @@ export const UploadFile = <T extends FieldValues>({
               onDragEnd={handleDragEnd}
             >
               <SortableContext
-                items={previews.map((_, index) => `image-${index}`)}
+                items={previews.map((_, index) => `file-${index}`)}
                 strategy={verticalListSortingStrategy}
               >
                 <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {previews.map((src, i) => (
+                  {previews.map(({ src, typeFile }, i) => (
                     <PreviewFileItem
-                      key={`image-${i}`}
-                      id={`image-${i}`}
+                      key={`file-${i}`}
+                      id={`file-${i}`}
                       src={src}
                       index={i}
                       onRemove={removeAt}
+                      typeFile={typeFile}
                     />
                   ))}
                 </div>
