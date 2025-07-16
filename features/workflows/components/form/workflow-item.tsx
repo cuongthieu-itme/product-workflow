@@ -3,10 +3,10 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import {
+  Building2,
   Calendar,
   DollarSign,
   Edit,
-  FileText,
   GripVertical,
   Trash2,
   User,
@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SubProcessInputType } from "../../schema/create-workflow-schema";
 import { StepFormModal } from "./step-form-modal";
+import { useDepartmentsQuery } from "@/features/departments/hooks";
 
 interface WorkflowItemProps {
   data: SubProcessInputType;
@@ -48,6 +49,12 @@ export function WorkflowItem({
   const handleEditStep = () => {
     setIsUpdateStepModalOpen(true);
   };
+
+  const { data: departments } = useDepartmentsQuery({ limit: 1000 });
+
+  const departmentName =
+    departments?.data?.find((dept) => dept.id === data.departmentId)?.name ||
+    "Không xác định";
 
   return (
     <div ref={setNodeRef} style={style}>
@@ -110,7 +117,7 @@ export function WorkflowItem({
           </div>
         </CardHeader>
         <CardContent className="py-2">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">Mô tả</p>
               <p className="text-sm">{data.description || "Không có mô tả"}</p>
@@ -128,6 +135,13 @@ export function WorkflowItem({
               <p className="text-sm">
                 {data.roleOfThePersonInCharge || "Chưa xác định"}
               </p>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground flex items-center">
+                <Building2 className="h-3 w-3 mr-1" /> Phòng ban áp dụng
+              </p>
+              <p className="text-sm">{departmentName}</p>
             </div>
           </div>
         </CardContent>

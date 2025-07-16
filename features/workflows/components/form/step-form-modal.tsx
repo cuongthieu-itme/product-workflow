@@ -70,6 +70,7 @@ export function StepFormModal({
         <DialogHeader>
           <DialogTitle>{data?.id ? "Cập nhật" : "Thêm"} bước mới</DialogTitle>
         </DialogHeader>
+
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           <InputCustom
             control={control}
