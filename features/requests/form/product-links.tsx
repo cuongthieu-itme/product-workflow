@@ -39,14 +39,15 @@ export const ProductLinks = () => {
 
       <div className="space-y-2">
         {fields.map((field, index) => (
-          <div key={field.id} className="flex gap-2">
+          <div key={field.id} className="flex gap-2 w-full">
             <InputCustom
               name={`productLink.${index}.url`}
               control={control}
               placeholder={`Nhập link sản phẩm tham khảo ${
                 index > 0 ? `số ${index + 1}` : "(nếu có)"
               }`}
-              className="flex-1"
+              className="flex-1 w-full"
+              containerClassName="flex-1"
             />
             {fields.length > 1 && (
               <Button

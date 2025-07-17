@@ -10,6 +10,7 @@ export const requestInputSchema = z.object({
   specificSource: z.string().optional(),
   userId: z.number().int().nonnegative(),
   statusProductId: z.number().int().nonnegative(),
+  customerId: z.number().int().nonnegative().optional(),
 });
 
 export type RequestInputType = z.infer<typeof requestInputSchema>;

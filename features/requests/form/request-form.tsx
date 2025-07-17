@@ -16,6 +16,14 @@ import { Button } from "@/components/ui/button";
 import { BaseDialog } from "@/components/dialog";
 import { useEffect } from "react";
 import { ProductLinks } from "./product-links";
+import {
+  useCustomerQuery,
+  useCustomersQuery,
+} from "@/features/customers/hooks";
+import { SelectCustom } from "@/components/form/select";
+import { UploadFile } from "@/components/common/upload";
+import { MaterialSelector } from "./material-selector";
+import { StatusProduct } from "./status-product";
 
 interface RequestFormProps {
   isDialogOpen: boolean;
@@ -58,6 +66,14 @@ export function RequestForm({
     });
   };
 
+  const { data: customer } = useCustomersQuery();
+
+  const customerOptions =
+    customer?.data.map((c) => ({
+      value: c.id,
+      label: c.fullName || c.email || "Khách hàng không xác định",
+    })) || [];
+
   useEffect(() => {
     if (isDialogOpen) {
       reset();
@@ -70,7 +86,7 @@ export function RequestForm({
       onClose={() => setIsDialogOpen(false)}
       title="Tạo yêu cầu mới"
       description="Điền thông tin để tạo yêu cầu mới. Nhấn nút Tạo yêu cầu khi hoàn tất."
-      contentClassName="sm:max-w-[400px]"
+      contentClassName="w-[600px] max-w-[800px] "
     >
       <ScrollArea className="max-h-[80vh] pr-4 -mr-4">
         <div className="space-y-6 pr-4">
@@ -101,6 +117,16 @@ export function RequestForm({
               noValidate
             >
               <div className="space-y-4">
+                <SelectCustom
+                  control={control}
+                  name="customerId"
+                  label="Khách hàng"
+                  options={customerOptions}
+                  placeholder="Chọn khách hàng"
+                  required
+                  disabled={isPending}
+                />
+
                 <InputCustom
                   control={control}
                   name="title"
@@ -116,10 +142,22 @@ export function RequestForm({
                   label="Chi tiết yêu cầu"
                   placeholder="Nhập chi tiết yêu cầu"
                   required
+                  rows={5}
                   disabled={isPending}
                 />
 
                 <ProductLinks />
+
+                <UploadFile
+                  control={control}
+                  name="image"
+                  label="Hình ảnh"
+                  disabled={isPending}
+                />
+
+                <MaterialSelector />
+
+                <StatusProduct />
               </div>
 
               <DialogFooter className="flex justify-end gap-2">

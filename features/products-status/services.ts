@@ -53,7 +53,7 @@ export const updateProductStatus = async (
   }
 };
 
-export const getProductStatus = async (id: string) => {
+export const getProductStatus = async (id: string | number) => {
   try {
     const response = await request.get<BaseResultQuery<ProductStatusType>>(
       `${PREFIX_API}/${id}`

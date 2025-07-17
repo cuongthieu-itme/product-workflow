@@ -38,10 +38,10 @@ export const useCreateOfUpdateWPMutation = () => {
   });
 };
 
-export const useGetWorkflowProcessByIdQuery = (id: number) => {
+export const useGetWorkflowProcessByIdQuery = (id: number | undefined) => {
   return useQuery({
     queryKey: [WORKFLOW_PROCESS_QUERY_KEY.WORKFLOW_PROCESS, id],
-    queryFn: () => getWorkflowProcessById(id),
+    queryFn: () => getWorkflowProcessById(id as number),
     enabled: !!id,
   });
 };
