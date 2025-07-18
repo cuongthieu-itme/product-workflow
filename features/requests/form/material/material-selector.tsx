@@ -1,6 +1,7 @@
 "use client";
 
 import { AddMaterialDialog } from "./add-material-dialog";
+import { CreateMaterialDialog } from "./create-material-dialog";
 
 export function MaterialSelector() {
   return (
@@ -8,6 +9,8 @@ export function MaterialSelector() {
       <div className="flex justify-between items-center">
         <div className="flex gap-2">
           <AddMaterialDialog />
+
+          <CreateMaterialDialog />
         </div>
       </div>
     </div>

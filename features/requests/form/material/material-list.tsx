@@ -17,7 +17,7 @@ export const MaterialList = ({
     <div
       key={material.id}
       className={cn(
-        "p-3 cursor-pointer hover:bg-gray-100 transition-colors rounded-md border",
+        "p-3 cursor-pointer hover:bg-gray-100 transition-colors rounded-md border ",
         selectedMaterialId === material.id
           ? "bg-blue-50 border-blue-500 border-2"
           : "border-gray-200"

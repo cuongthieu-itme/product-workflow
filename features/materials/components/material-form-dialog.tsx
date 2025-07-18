@@ -245,7 +245,13 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
                   Hủy
                 </Button>
               </DialogClose>
-              <Button type="submit" disabled={isPending}>
+              <Button
+                type="submit"
+                disabled={isPending}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
