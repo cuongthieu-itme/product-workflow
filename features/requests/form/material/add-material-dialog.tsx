@@ -1,0 +1,170 @@
+import { ChangeEvent, useState } from "react";
+import { Controller, useFormContext } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { BaseDialog } from "@/components/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useMaterialsQuery } from "@/features/materials/hooks";
+import { RequestInputType } from "../../schema";
+import { MaterialType } from "@/features/materials/type";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useDebounce } from "@/hooks/use-debounce";
+import { MaterialList } from "./material-list";
+import { SelectedMaterial } from "./selected-material";
+
+export const AddMaterialDialog = () => {
+  const [showDialog, setShowDialog] = useState(false);
+  const [searchMaterial, setSearchMaterial] = useState("");
+  const debouncedSearch = useDebounce(searchMaterial, 400);
+
+  const { data: materials } = useMaterialsQuery({
+    limit: 1000,
+    page: 1,
+    name: debouncedSearch,
+  });
+
+  const { control, watch, setValue, reset } =
+    useFormContext<RequestInputType>();
+
+  const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(
+    watch("materialId") || null
+  );
+
+  const [materialCount, setMaterialCount] = useState(
+    watch("materialCount") || 1
+  );
+
+  const handleOpenDialog = () => {
+    setShowDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setShowDialog(false);
+    reset();
+  };
+
+  const handleMaterialSelect = (material: MaterialType) => {
+    setSelectedMaterialId(material.id);
+  };
+
+  const selectedMaterial = materials?.data.find(
+    (m) => m.id === selectedMaterialId
+  );
+
+  const handleSubmit = () => {
+    if (selectedMaterialId) {
+      setValue("materialId", selectedMaterialId);
+      setValue("materialCount", watch("materialCount") || 1);
+      handleCloseDialog();
+    }
+  };
+
+  const handleClose = () => {
+    setShowDialog(false);
+    setSelectedMaterialId(null);
+    setMaterialCount(1);
+    reset();
+  };
+
+  // Tách logic xử lý thành một function riêng
+  const handleMaterialCountChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const count = value ? parseInt(value, 10) : 1;
+
+    // Kiểm tra giá trị không hợp lệ
+    if (isNaN(count) || count < 1) {
+      setMaterialCount(1);
+      return;
+    }
+
+    // Kiểm tra vượt quá số lượng có sẵn
+    const maxQuantity = selectedMaterial?.quantity;
+    if (maxQuantity && count > maxQuantity) {
+      setMaterialCount(maxQuantity);
+    } else {
+      setMaterialCount(count);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="shrink-0"
+            onClick={handleOpenDialog}
+          >
+            <Plus className="h-4 w-4 mr-1" /> Thêm nguyên vật liệu
+          </Button>
+
+          <BaseDialog
+            open={showDialog}
+            onClose={handleCloseDialog}
+            title="Thêm nguyên vật liệu"
+          >
+            <Controller
+              name="materialId"
+              control={control}
+              rules={{
+                required: "Vui lòng chọn nguyên vật liệu",
+              }}
+              render={() => (
+                <div className="space-y-2">
+                  <ScrollArea className="max-h-[60vh]">
+                    <div className="space-y-1">
+                      <div className="space-y-2 mb-4">
+                        <Label>Tìm kiếm nguyên vật liệu</Label>
+                        <Input
+                          placeholder="Nhập tên nguyên vật liệu..."
+                          onChange={(e) => setSearchMaterial(e.target.value)}
+                          value={searchMaterial}
+                        />
+                      </div>
+                      <ScrollArea className="max-h-[40vh]">
+                        <MaterialList
+                          materials={materials?.data || []}
+                          selectedMaterialId={selectedMaterialId}
+                          handleMaterialSelect={handleMaterialSelect}
+                        />
+                      </ScrollArea>
+                    </div>
+                  </ScrollArea>
+                </div>
+              )}
+            />
+
+            <SelectedMaterial
+              materialCount={materialCount}
+              selectedMaterial={selectedMaterial}
+            />
+
+            <div className="space-y-2 mb-4">
+              <Label>Nhập số lượng</Label>
+              <Input
+                placeholder="Nhập số lượng..."
+                onChange={handleMaterialCountChange}
+                value={materialCount}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={handleClose}>
+                Hủy
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={!selectedMaterialId}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Thêm nguyên vật liệu
+              </Button>
+            </div>
+          </BaseDialog>
+        </div>
+      </div>
+    </div>
+  );
+};

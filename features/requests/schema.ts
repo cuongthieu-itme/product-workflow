@@ -11,6 +11,8 @@ export const requestInputSchema = z.object({
   userId: z.number().int().nonnegative(),
   statusProductId: z.number().int().nonnegative(),
   customerId: z.number().int().nonnegative().optional(),
+  materialId: z.string().optional(),
+  materialCount: z.number().int().nonnegative().optional(),
 });
 
 export type RequestInputType = z.infer<typeof requestInputSchema>;

@@ -22,7 +22,7 @@ import {
 } from "@/features/customers/hooks";
 import { SelectCustom } from "@/components/form/select";
 import { UploadFile } from "@/components/common/upload";
-import { MaterialSelector } from "./material-selector";
+import { MaterialSelector } from "./material/material-selector";
 import { StatusProduct } from "./status-product";
 
 interface RequestFormProps {
