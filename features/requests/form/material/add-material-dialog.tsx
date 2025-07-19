@@ -41,7 +41,6 @@ export const AddMaterialDialog = () => {
 
   const handleCloseDialog = () => {
     setShowDialog(false);
-    reset();
   };
 
   const handleMaterialSelect = (material: MaterialType) => {
@@ -54,6 +53,9 @@ export const AddMaterialDialog = () => {
 
   const handleSubmit = () => {
     if (selectedMaterialId) {
+      console.log("Selected Material ID:", selectedMaterialId);
+      console.log("Material Count:", materialCount);
+      // Set the selected material ID and count in the form
       setValue("materialId", selectedMaterialId);
       setValue("materialCount", watch("materialCount") || 1);
       handleCloseDialog();
