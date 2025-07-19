@@ -35,9 +35,9 @@ export const MaterialTable = () => {
   const { data: materials } = useMaterialsQuery({ limit: 1000, page: 1 });
   const { watch } = useFormContext<RequestInputType>();
 
-  const ids = watch("materialId");
+  const ids = watch("accessoryIds");
   const selectedMaterials =
-    materials?.data.filter((material) => ids === material.id) ?? [];
+    materials?.data.filter((material) => ids.includes(material.id)) ?? [];
 
   console.log("Selected materials:", ids);
 

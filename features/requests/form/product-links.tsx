@@ -1,6 +1,5 @@
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Plus, X } from "lucide-react";
 import { InputCustom } from "@/components/form/input";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -41,7 +40,7 @@ export const ProductLinks = () => {
         {fields.map((field, index) => (
           <div key={field.id} className="flex gap-2 w-full">
             <InputCustom
-              name={`productLink.${index}.url`}
+              name={`productLink.${index}`}
               control={control}
               placeholder={`Nhập link sản phẩm tham khảo ${
                 index > 0 ? `số ${index + 1}` : "(nếu có)"
@@ -64,9 +63,9 @@ export const ProductLinks = () => {
         ))}
       </div>
 
-      {fields.filter((link) => link.url.trim() !== "").length > 0 && (
+      {fields.filter((field) => field.url.trim() !== "").length > 0 && (
         <div className="text-xs text-muted-foreground">
-          Đã có {fields.filter((link) => link.url.trim() !== "").length} link
+          Đã có {fields.filter((field) => field.url.trim() !== "").length} link
           sản phẩm tham khảo
         </div>
       )}

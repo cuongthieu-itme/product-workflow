@@ -14,24 +14,31 @@ import { ProductLinks } from "./product-links";
 import { UploadFile } from "@/components/common/upload";
 import { MaterialSelector } from "./material/material-selector";
 import { CustomerSelect } from "./customer";
+import { SourceEnum } from "../constants";
+import { sourceAtom } from "../requestAtom";
+import { useAtomValue } from "jotai";
 
 interface RequestFormTabProps {
   onSuccess: () => void;
 }
 
 export const RequestFormTab = ({ onSuccess }: RequestFormTabProps) => {
+  const sourceSelected = useAtomValue(sourceAtom);
   const { toast } = useToast();
 
   const methods = useForm<RequestInputType>({
     defaultValues: {
       title: "",
       description: "",
-      image: [],
-      productLink: [
-        {
-          url: "",
-        },
-      ],
+      productLink: [{ url: "" }],
+      media: [],
+      source: sourceSelected,
+      nameSource: "",
+      specificSource: "",
+      userId: 0,
+      statusProductId: 0,
+      customerId: undefined,
+      accessoryIds: [],
     },
     resolver: zodResolver(requestInputSchema),
   });
@@ -82,8 +89,8 @@ export const RequestFormTab = ({ onSuccess }: RequestFormTabProps) => {
 
           <UploadFile
             control={control}
-            name="image"
-            label="Hình ảnh"
+            name="media"
+            label="Hình ảnh hoặc video"
             disabled={isPending}
           />
 
