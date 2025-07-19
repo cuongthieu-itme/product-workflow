@@ -45,101 +45,126 @@ export const DetailWorkflow = () => {
 
   const renderWorkflowSteps = (steps: WorkFlowStepType[]) => {
     return (
-      <div className="relative">
-        {/* Main line */}
-        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-0.5 bg-gray-200" />
+      <div className="relative space-y-8">
+        {steps.map((step, index) => (
+          <div key={step.id} className="relative group">
+            {/* Connecting line */}
+            {index < steps.length - 1 && (
+              <div className="absolute left-6 top-16 w-0.5 h-16 bg-gradient-to-b from-blue-400 to-blue-200" />
+            )}
 
-        {/* Steps container */}
-        <div className="flex flex-col gap-6">
-          {steps.map((step, index) => (
-            <div key={step.id} className="relative group">
+            <div className="flex items-start gap-6">
               {/* Step indicator */}
-              <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
-                <span className="text-blue-600 font-medium">{index + 1}</span>
+              <div className="relative flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg flex items-center justify-center border-4 border-white">
+                  <span className="text-black font-semibold text-sm">
+                    {index + 1}
+                  </span>
+                </div>
+                {index === 0 && (
+                  <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm" />
+                )}
               </div>
 
               {/* Step content */}
-              <div className="pl-12">
-                <Card className="p-6 group-hover:shadow-lg transition-shadow">
-                  <div className="flex flex-col gap-4">
-                    {/* Step header */}
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-medium text-lg mb-2">
-                          {step?.name}
-                        </h3>
-                        <p className="text-gray-600 mb-2">{step.description}</p>
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4 text-gray-500" />
-                            <span className="text-sm text-gray-600">
-                              {step.estimatedNumberOfDays} ngày
-                            </span>
-                          </div>
+              <div className="flex-1 min-w-0">
+                <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] bg-gradient-to-br from-white to-gray-50/50">
+                  <CardContent className="p-6">
+                    {/* Header section */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="font-semibold text-xl text-gray-800 truncate">
+                            {step?.name}
+                          </h3>
                           {step.isStepWithCost && (
-                            <Badge
-                              variant="outline"
-                              className="bg-yellow-100 text-yellow-800"
-                            >
+                            <Badge className="bg-gradient-to-r from-amber-400 to-orange-400 text-white border-0 shadow-sm">
                               Có chi phí
                             </Badge>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 mt-2">
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm text-gray-500">
-                              Người phụ trách:
-                            </span>
-                            <span className="text-sm text-gray-700">
-                              {step.roleOfThePersonInCharge}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm text-gray-500">
-                              Phòng ban:
-                            </span>
-                            <span className="text-sm text-gray-700">
-                              {step.department?.name}
-                            </span>
-                          </div>
-                        </div>
+                        <p className="text-gray-600 leading-relaxed mb-3">
+                          {step.description}
+                        </p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
-                          <Edit className="mr-2 h-4 w-4" />
-                          Chỉnh sửa
-                        </Button>
-                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="ml-4 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                      >
+                        <Edit className="mr-2 h-4 w-4" />
+                        Chỉnh sửa
+                      </Button>
                     </div>
 
-                    {/* Step details */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm font-medium text-gray-500 mb-1">
-                          Thời gian dự kiến
-                        </p>
-                        <p className="text-sm text-gray-700">
+                    {/* Info grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Clock className="h-4 w-4 text-blue-600" />
+                          <span className="text-sm font-medium text-blue-700">
+                            Thời gian dự kiến
+                          </span>
+                        </div>
+                        <p className="text-blue-800 font-semibold">
                           {step.estimatedNumberOfDays} ngày
                         </p>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-500 mb-1">
-                          Trạng thái
-                        </p>
-                        <Badge
-                          variant="outline"
-                          className="bg-green-100 text-green-800"
-                        >
+
+                      <div className="bg-green-50 rounded-lg p-3 border border-green-100">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-medium text-green-700">
+                            Trạng thái
+                          </span>
+                        </div>
+                        <Badge className="bg-gradient-to-r from-green-400 to-emerald-400 text-white border-0">
                           Chưa bắt đầu
                         </Badge>
                       </div>
+
+                      <div className="bg-purple-50 rounded-lg p-3 border border-purple-100">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-medium text-purple-700">
+                            Tiến độ
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-gray-200 rounded-full h-2">
+                            <div className="bg-gradient-to-r from-purple-400 to-purple-500 h-2 rounded-full w-0"></div>
+                          </div>
+                          <span className="text-sm font-medium text-purple-700">
+                            0%
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+
+                    {/* Responsibility section */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                        <span className="text-sm font-medium text-gray-600 block mb-1">
+                          👤 Người phụ trách
+                        </span>
+                        <span className="text-gray-800 font-medium">
+                          {step.roleOfThePersonInCharge}
+                        </span>
+                      </div>
+
+                      <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                        <span className="text-sm font-medium text-gray-600 block mb-1">
+                          🏢 Phòng ban
+                        </span>
+                        <span className="text-gray-800 font-medium">
+                          {step.department?.name}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
                 </Card>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     );
   };
@@ -227,21 +252,34 @@ export const DetailWorkflow = () => {
       </Card>
 
       {/* Workflow Tree */}
-      <Card className="shadow-lg">
-        <CardHeader>
+      <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50/30">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
           <div className="flex justify-between items-center">
-            <CardTitle className="text-xl">Bước thực hiện</CardTitle>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <ChevronRight className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-xl text-gray-800">
+                  Bước thực hiện
+                </CardTitle>
+                <p className="text-sm text-gray-600 mt-1">
+                  {workflowSteps.length} bước trong quy trình
+                </p>
+              </div>
+            </div>
             <Button
-              variant="outline"
+              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-md"
               size="sm"
-              className="flex items-center gap-2"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 mr-2" />
               Thêm bước
             </Button>
           </div>
         </CardHeader>
-        <CardContent>{renderWorkflowSteps(workflowSteps)}</CardContent>
+        <CardContent className="p-8">
+          {renderWorkflowSteps(workflowSteps)}
+        </CardContent>
       </Card>
     </div>
   );
