@@ -16,16 +16,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useMaterialsQuery } from "@/features/materials/hooks";
 import { useFormContext } from "react-hook-form";
 import { RequestInputType } from "../../schema";
@@ -38,8 +28,6 @@ export const MaterialTable = () => {
   const ids = watch("accessoryIds");
   const selectedMaterials =
     materials?.data.filter((material) => ids.includes(material.id)) ?? [];
-
-  console.log("Selected materials:", ids);
 
   const getStockStatus = (quantity: number) => {
     if (quantity > 10) {

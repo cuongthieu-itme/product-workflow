@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MaterialEnum } from "../constants";
 
 export const createMaterialInputSchema = z.object({
   image: z
@@ -24,13 +25,13 @@ export const createMaterialInputSchema = z.object({
     .trim()
     .min(1, { message: "Đơn vị không được trống" })
     .max(16, { message: "Đơn vị tối đa 16 ký tự" }),
-  origin: z
-    .string()
-    .trim()
+  originId: z
+    .number()
     .min(1, { message: "Xuất xứ không được trống" })
     .max(64, { message: "Xuất xứ tối đa 64 ký tự" }),
   description: z.string().trim().optional().or(z.literal("")),
   isActive: z.boolean().default(true).optional(),
+  type: z.enum([MaterialEnum.ACCESSORY, MaterialEnum.MATERIAL]),
 });
 
 export type CreateMaterialInputType = z.infer<typeof createMaterialInputSchema>;

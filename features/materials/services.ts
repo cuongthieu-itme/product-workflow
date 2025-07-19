@@ -3,18 +3,28 @@ import {
   CreateMaterialInputType,
   UpdateMaterialInputType,
 } from "./schema/create-material-schema";
-import { AccessoryFilterInput, AccessoryType, ChangeStatusAccessoryInput, ChangeStatusMaterialInput, MaterialFilterInput, MaterialType } from "./type";
+import {
+  AccessoryFilterInput,
+  AccessoryType,
+  ChangeStatusAccessoryInput,
+  ChangeStatusMaterialInput,
+  MaterialFilterInput,
+  MaterialType,
+  OriginType,
+} from "./type";
 import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
-import { SelectOption } from "@/components/form/select";
 import { AccessoryInputType } from "./schema";
 import { UpdateAccessoryInputType } from "./schema/accessory-schema";
 
 export const getMaterials = async (params?: MaterialFilterInput) => {
   try {
-    const response = await request.get<PaginatedResult<"data", MaterialType>>("/ingredients", {
-      params: omitVoid(params),
-    });
+    const response = await request.get<PaginatedResult<"data", MaterialType>>(
+      "/materials",
+      {
+        params: omitVoid(params),
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Get materials error:", error);
@@ -24,7 +34,7 @@ export const getMaterials = async (params?: MaterialFilterInput) => {
 
 export const createMaterial = async (data: CreateMaterialInputType) => {
   try {
-    const response = await request.post<MaterialType>("/ingredients", data);
+    const response = await request.post<MaterialType>("/materials", data);
     return response.data;
   } catch (error) {
     console.error("Create material error:", error);
@@ -32,10 +42,13 @@ export const createMaterial = async (data: CreateMaterialInputType) => {
   }
 };
 
-export const updateMaterial = async ({ id, ...data }: UpdateMaterialInputType) => {
+export const updateMaterial = async ({
+  id,
+  ...data
+}: UpdateMaterialInputType) => {
   try {
     const response = await request.patch<MaterialType>(
-      `/ingredients/${id}`,
+      `/materials/${id}`,
       data
     );
     return response.data;
@@ -45,11 +58,12 @@ export const updateMaterial = async ({ id, ...data }: UpdateMaterialInputType) =
   }
 };
 
-
-
-export const changeStatusMaterial = async ({ id, isActive }: ChangeStatusMaterialInput) => {
+export const changeStatusMaterial = async ({
+  id,
+  isActive,
+}: ChangeStatusMaterialInput) => {
   try {
-    const response = await request.patch(`/ingredients/${id}`, {
+    const response = await request.patch(`/materials/${id}`, {
       isActive,
     });
     return response.data;
@@ -59,10 +73,11 @@ export const changeStatusMaterial = async ({ id, isActive }: ChangeStatusMateria
   }
 };
 
-
 export const getOrigins = async () => {
   try {
-    const response = await request.get<BaseResultQuery<SelectOption[]>>("/ingredients/origins");
+    const response = await request.get<BaseResultQuery<OriginType[]>>(
+      "/origins"
+    );
     return response.data;
   } catch (error) {
     console.error("Get origins error:", error);
@@ -72,14 +87,13 @@ export const getOrigins = async () => {
 
 export const getUnits = async () => {
   try {
-    const response = await request.get<BaseResultQuery<SelectOption[]>>("/ingredients/units");
+    const response = await request.get<BaseResultQuery<OriginType[]>>("/units");
     return response.data;
   } catch (error) {
     console.error("Get units error:", error);
     throw error;
   }
 };
-
 
 export const createAccessory = async (data: AccessoryInputType) => {
   try {
@@ -91,7 +105,10 @@ export const createAccessory = async (data: AccessoryInputType) => {
   }
 };
 
-export const updateAccessory = async ({ id, ...data }: UpdateAccessoryInputType) => {
+export const updateAccessory = async ({
+  id,
+  ...data
+}: UpdateAccessoryInputType) => {
   try {
     const response = await request.patch<AccessoryType>(
       `/accessories/${id}`,
@@ -104,8 +121,10 @@ export const updateAccessory = async ({ id, ...data }: UpdateAccessoryInputType)
   }
 };
 
-
-export const changeStatusAccessory = async ({ id, isActive }: ChangeStatusAccessoryInput) => {
+export const changeStatusAccessory = async ({
+  id,
+  isActive,
+}: ChangeStatusAccessoryInput) => {
   try {
     const response = await request.patch(`/accessories/${id}`, {
       isActive,
@@ -117,18 +136,20 @@ export const changeStatusAccessory = async ({ id, isActive }: ChangeStatusAccess
   }
 };
 
-
 export const getAccessories = async (params?: AccessoryFilterInput) => {
   try {
-    const response = await request.get<PaginatedResult<"data", AccessoryType>>("/accessories", {
-      params: omitVoid(params),
-    });
+    const response = await request.get<PaginatedResult<"data", AccessoryType>>(
+      "/accessories",
+      {
+        params: omitVoid(params),
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Get accessories error:", error);
     throw error;
   }
-}
+};
 
 export const getAccessoryDetail = async (id: string) => {
   try {
@@ -138,8 +159,7 @@ export const getAccessoryDetail = async (id: string) => {
     console.error("Get accessory by id error:", error);
     throw error;
   }
-}
-
+};
 
 export const deleteAccessory = async (id: string) => {
   try {
@@ -149,4 +169,4 @@ export const deleteAccessory = async (id: string) => {
     console.error("Delete accessory error:", error);
     throw error;
   }
-}
+};

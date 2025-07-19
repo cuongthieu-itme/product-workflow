@@ -23,6 +23,7 @@ import {
   useUpdateMaterialMutation,
 } from "../hooks/useMaterials";
 import { useToast } from "@/components/ui/use-toast";
+import { MaterialFormWithTabs } from "./material-form-with-tabs";
 
 export function CreateMaterialForm({
   onMaterialAdded,
@@ -49,7 +50,7 @@ export function CreateMaterialForm({
         </Button>
       )}
 
-      <MaterialForm
+      <MaterialFormWithTabs
         material={material}
         isDialogOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
@@ -80,7 +81,7 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
       quantity: material?.quantity || 0,
       image: material?.image || [],
       unit: material?.unit || "",
-      origin: material?.origin || "",
+      originId: material?.originId || 0,
       description: material?.description || "",
       isActive: material?.isActive !== undefined ? material.isActive : true,
     },

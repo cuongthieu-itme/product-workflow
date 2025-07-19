@@ -20,21 +20,29 @@ export const ToggleStatusMaterialDialog = ({
 
   const handleDelete = async () => {
     if (!changeStatusMaterial) return;
-    mutate({ id: changeStatusMaterial.id, isActive: !changeStatusMaterial.isActive }, {
-      onSuccess: () => {
-        setChangeStatusMaterial(null);
-      },
-    });
+    mutate(
+      { id: changeStatusMaterial.id, isActive: !changeStatusMaterial.isActive },
+      {
+        onSuccess: () => {
+          setChangeStatusMaterial(null);
+        },
+      }
+    );
   };
 
   return (
     <BaseDialog
       open={!!changeStatusMaterial}
       onClose={() => setChangeStatusMaterial(null)}
-      title="Xác nhận thay đổi trạng thái nguyên liệu"
+      title="Xác nhận thay đổi trạng thái "
       description={
         <>
-          Bạn có chắc chắn muốn thay đổi trạng thái nguyên liệu <span className="font-bold">{changeStatusMaterial?.name}</span> sang <span className="font-bold">{changeStatusMaterial?.isActive ? "hết hàng" : "còn hàng"}</span>?
+          Bạn có chắc chắn muốn thay đổi trạng thái{" "}
+          <span className="font-bold">{changeStatusMaterial?.name}</span> sang{" "}
+          <span className="font-bold">
+            {changeStatusMaterial?.isActive ? "hết hàng" : "còn hàng"}
+          </span>
+          ?
         </>
       }
       footer={
@@ -46,11 +54,7 @@ export const ToggleStatusMaterialDialog = ({
           >
             Huỷ
           </Button>
-          <Button
-            variant="default"
-            onClick={handleDelete}
-            disabled={isPending}
-          >
+          <Button variant="default" onClick={handleDelete} disabled={isPending}>
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

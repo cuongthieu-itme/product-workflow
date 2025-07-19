@@ -28,6 +28,7 @@ import {
 import { KEY_EMPTY_SELECT, SelectOption } from "@/components/form/select";
 import { ToolbarFilters } from "@/components/data-table/toolbar-filter";
 import { ImageDialog } from "./image-dialog";
+import { MaterialFormWithTabs } from "./material-form-with-tabs";
 
 export function MaterialList() {
   const [page, setPage] = useState(PAGE);
@@ -91,96 +92,6 @@ export function MaterialList() {
     ? Math.max(PAGE, Math.ceil(materials.total / LIMIT))
     : PAGE;
 
-  const columns: Column<MaterialType>[] = [
-    {
-      id: "image",
-      header: "Hình ảnh",
-      cell: (u) => (
-        <Image
-          src={getImageUrl(u.image[0])}
-          alt={u.name}
-          width={50}
-          height={50}
-          className="rounded-sm"
-          onClick={() => handleOpenImageDialog(u.image, u.name)}
-        />
-      ),
-    },
-    { id: "name", header: "Tên nguyên liệu" },
-    {
-      id: "code",
-      header: "Mã nguyên liệu",
-    },
-    {
-      id: "quantity",
-      header: "Số lượng",
-      cell: (u) => u.quantity,
-    },
-    {
-      id: "unit",
-      header: "Đơn vị",
-      cell: (u) =>
-        units?.data.find((unit) => unit.value == u.unit)?.label ?? u.unit,
-    },
-    {
-      id: "origin",
-      header: "Xuất xứ",
-      cell: (u) =>
-        origins?.data.find((origin) => origin.value == u.origin)?.label ??
-        u.origin,
-    },
-    {
-      id: "isActive",
-      header: "Trạng thái",
-      cell: (u) => (
-        <Badge
-          variant={u.isActive ? "default" : "destructive"}
-          className="text-xs"
-        >
-          {u.isActive ? "Còn hàng" : "Hết hàng"}
-        </Badge>
-      ),
-    },
-    {
-      id: "createdAt",
-      header: "Ngày tạo",
-      cell: (u) => format(new Date(u.createdAt), "dd/MM/yyyy hh:mm"),
-    },
-    {
-      id: "updatedAt",
-      header: "Ngày cập nhật",
-      cell: (u) => format(new Date(u.updatedAt), "dd/MM/yyyy hh:mm"),
-    },
-    {
-      id: "actions",
-      header: "Thao tác",
-      className: "text-right w-1",
-      cell: (u) => (
-        <div className="flex justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              handleOpenEditDialog(u);
-            }}
-          >
-            <Edit className="h-4 w-4 mr-2" />
-            Chỉnh Sửa
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleOpenChangeStatusDialog(u)}
-          >
-            <Power className="h-4 w-4" />
-            Thay đổi trạng thái
-          </Button>
-        </div>
-      ),
-    },
-  ];
-
   const handleRefresh = () => {
     refetch();
     refetchOrigins();
@@ -192,6 +103,18 @@ export function MaterialList() {
     { value: "1", label: "Còn hàng" },
     { value: "0", label: "Hết hàng" },
   ];
+
+  const originOptions =
+    origins?.data.map((origin) => ({
+      value: origin.id,
+      label: origin.name,
+    })) ?? [];
+
+  const unitOptions =
+    units?.data.map((unit) => ({
+      value: unit.id,
+      label: unit.name,
+    })) ?? [];
 
   return (
     <div className="space-y-6">
@@ -224,7 +147,7 @@ export function MaterialList() {
                   onChange: setFilterOrigin,
                   options: [
                     { value: KEY_EMPTY_SELECT, label: "Tất cả xuất xứ" },
-                    ...(origins?.data ?? []),
+                    ...originOptions,
                   ],
                 },
                 {
@@ -233,7 +156,7 @@ export function MaterialList() {
                   onChange: setFilterUnit,
                   options: [
                     { value: KEY_EMPTY_SELECT, label: "Tất cả đơn vị" },
-                    ...(units?.data ?? []),
+                    ...unitOptions,
                   ],
                 },
                 {
@@ -320,7 +243,7 @@ export function MaterialList() {
           />
 
           {editForm && (
-            <MaterialForm
+            <MaterialFormWithTabs
               material={editForm}
               isDialogOpen={isEditDialogOpen}
               onClose={handleCloseEditDialog}

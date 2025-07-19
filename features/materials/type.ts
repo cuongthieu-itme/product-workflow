@@ -1,3 +1,5 @@
+import { MaterialEnum } from "./constants";
+
 export type MaterialType = {
   id: string;
   image: string[];
@@ -5,9 +7,10 @@ export type MaterialType = {
   name: string;
   quantity: number;
   unit: string;
-  origin: string;
+  originId: number;
   isActive: boolean;
   description: string;
+  type: MaterialEnum;
   createdAt: string;
   updatedAt: string;
 };
@@ -19,8 +22,8 @@ export type MaterialFilterInput = {
   origin?: string;
   isActive?: boolean;
   unit?: string;
+  type?: MaterialEnum;
 };
-
 
 export type ChangeStatusMaterialInput = {
   id: string;
@@ -44,7 +47,6 @@ export type AccessoryType = {
   updatedAt: string;
 };
 
-
 export type ChangeStatusAccessoryInput = {
   id: string;
   isActive: boolean;
@@ -55,4 +57,9 @@ export type AccessoryFilterInput = {
   limit: number;
   name?: string;
   isActive?: boolean;
+};
+
+export type OriginType = {
+  id: number;
+  name: string;
 };
