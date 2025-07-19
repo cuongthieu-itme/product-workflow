@@ -42,16 +42,16 @@ export function BaseDialog({
         if (!o) onClose();
       }}
     >
-      <DialogContent className={cn(contentClassName, "p-6")}>
-        {
-          title && (
-            <DialogHeader className={headerClassName}>
-              {title && <DialogTitle>{title}</DialogTitle>}
-              {description && <DialogDescription>{description}</DialogDescription>}
-              <DialogClose onClick={onClose} />
-            </DialogHeader>
-          )
-        }
+      <DialogContent className={cn("p-6", contentClassName)}>
+        {title && (
+          <DialogHeader className={headerClassName}>
+            {title && <DialogTitle>{title}</DialogTitle>}
+            {description && (
+              <DialogDescription>{description}</DialogDescription>
+            )}
+            <DialogClose onClick={onClose} />
+          </DialogHeader>
+        )}
 
         {children}
 
