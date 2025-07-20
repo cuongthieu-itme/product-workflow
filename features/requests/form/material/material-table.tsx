@@ -19,7 +19,6 @@ import {
 import { useMaterialsQuery } from "@/features/materials/hooks";
 import { useFormContext } from "react-hook-form";
 import { RequestInputType } from "../../schema";
-import { cn } from "@/lib/utils";
 
 export const MaterialTable = () => {
   const { data: materials } = useMaterialsQuery({ limit: 1000, page: 1 });
@@ -27,36 +26,14 @@ export const MaterialTable = () => {
 
   const ids = watch("materials").map((m) => m.materialId);
   const selectedMaterials =
-    materials?.data.filter((material) => ids.includes(Number(material.id))) ??
-    [];
-
-  const getStockStatus = (quantity: number) => {
-    if (quantity > 10) {
-      return {
-        label: "Còn hàng",
-        variant: "default" as const,
-        icon: CheckCircle,
-        color: "text-green-600",
-        bgColor: "bg-green-50 border-green-200",
-      };
-    } else if (quantity > 0) {
-      return {
-        label: "Sắp hết",
-        variant: "secondary" as const,
-        icon: AlertTriangle,
-        color: "text-yellow-600",
-        bgColor: "bg-yellow-50 border-yellow-200",
-      };
-    } else {
-      return {
-        label: "Hết hàng",
-        variant: "destructive" as const,
-        icon: AlertTriangle,
-        color: "text-red-600",
-        bgColor: "bg-red-50 border-red-200",
-      };
-    }
-  };
+    materials?.data
+      .filter((material) => ids.includes(Number(material.id)))
+      .map((material) => ({
+        ...material,
+        quantity:
+          watch("materials").find((m) => m.materialId === Number(material.id))
+            ?.quantity || 1,
+      })) ?? [];
 
   return selectedMaterials.length > 0 ? (
     <Card className="shadow-sm border-0 bg-gradient-to-br from-white to-gray-50/30">
@@ -95,9 +72,6 @@ export const MaterialTable = () => {
                   Số lượng
                 </TableHead>
                 <TableHead className="text-center font-semibold text-gray-700">
-                  Tình trạng
-                </TableHead>
-                <TableHead className="text-center font-semibold text-gray-700">
                   Yêu cầu nhập
                 </TableHead>
                 <TableHead className="text-right font-semibold text-gray-700">
@@ -106,10 +80,7 @@ export const MaterialTable = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {selectedMaterials.map((material, index) => {
-                const stockStatus = getStockStatus(material.quantity);
-                const StatusIcon = stockStatus.icon;
-
+              {selectedMaterials.map((material) => {
                 return (
                   <TableRow
                     key={material.id}
@@ -141,21 +112,6 @@ export const MaterialTable = () => {
                         <span className="text-sm text-gray-500">
                           ({material.unit})
                         </span>
-                      </div>
-                    </TableCell>
-
-                    <TableCell className="text-center">
-                      <div className="flex items-center justify-center">
-                        <Badge
-                          variant={stockStatus.variant}
-                          className={cn(
-                            "flex items-center gap-1 shadow-sm",
-                            stockStatus.bgColor
-                          )}
-                        >
-                          <StatusIcon className="h-3 w-3" />
-                          {stockStatus.label}
-                        </Badge>
                       </div>
                     </TableCell>
 

@@ -40,7 +40,7 @@ export const ProductLinks = () => {
         {fields.map((field, index) => (
           <div key={field.id} className="flex gap-2 w-full">
             <InputCustom
-              name={`productLink.${index}`}
+              name={`productLink.${index}.url`}
               control={control}
               placeholder={`Nhập link sản phẩm tham khảo ${
                 index > 0 ? `số ${index + 1}` : "(nếu có)"
