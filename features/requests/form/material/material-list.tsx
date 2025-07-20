@@ -1,3 +1,4 @@
+import { MaterialEnum } from "@/features/materials/constants";
 import { MaterialType } from "@/features/materials/type";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
@@ -41,7 +42,12 @@ export const MaterialList = ({
             </div>
           )}
           <div className="text-xs text-gray-400 mt-1">
-            Xuất xứ: {material.origin.name} | Loại: Nguyên liệu
+            Xuất xứ: {material.origin.name} | Loại:{" "}
+            {material.type
+              ? MaterialEnum.MATERIAL
+                ? "Nguyên liệu"
+                : "Phụ kiện"
+              : "Không xác định"}
           </div>
         </div>
         <div className="text-right">

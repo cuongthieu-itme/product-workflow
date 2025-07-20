@@ -6,7 +6,7 @@ import {
   getRequests,
   getSourceOthers,
 } from "../services";
-import { RequestFilterInput } from "../type";
+import { RequestFilterInput, SourceOtherFilterInput } from "../type";
 
 export enum REQUESTS_QUERY_KEY {
   REQUESTS = "requests",
@@ -29,15 +29,22 @@ export const useGetRequestDetailQuery = (id: number) => {
 };
 
 export const useCreateRequestMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: createRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
   });
 };
 
-export const useGetSourceOthersQuery = () => {
+export const useGetSourceOthersQuery = (params: SourceOtherFilterInput) => {
   return useQuery({
-    queryKey: [REQUESTS_QUERY_KEY.SOURCE_OTHERS],
-    queryFn: () => getSourceOthers(),
+    queryKey: [REQUESTS_QUERY_KEY.SOURCE_OTHERS, params],
+    queryFn: () => getSourceOthers(params),
   });
 };
 

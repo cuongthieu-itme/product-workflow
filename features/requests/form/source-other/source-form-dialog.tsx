@@ -1,6 +1,9 @@
 import { BaseDialog } from "@/components/dialog";
 import { useAtom } from "jotai";
-import { openCustomerFormDialogAtom } from "../../requestAtom";
+import {
+  openCustomerFormDialogAtom,
+  openSourceFormDialogAtom,
+} from "../../requestAtom";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { sourceOtherInputSchema, SourceOtherInputType } from "../../schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +15,7 @@ import { InputCustom } from "@/components/form/input";
 import { TextAreaCustom } from "@/components/form/textarea";
 
 export const SourceFormDialog = () => {
-  const [isDialogOpen, setIsDialogOpen] = useAtom(openCustomerFormDialogAtom);
+  const [isDialogOpen, setIsDialogOpen] = useAtom(openSourceFormDialogAtom);
   const { control, reset, handleSubmit } = useForm<SourceOtherInputType>({
     defaultValues: {
       name: "",
@@ -21,8 +24,7 @@ export const SourceFormDialog = () => {
     resolver: zodResolver(sourceOtherInputSchema),
   });
 
-  const { mutate, isPending, isSuccess, error } =
-    useCreateSourceOtherMutation();
+  const { mutate, isPending } = useCreateSourceOtherMutation();
 
   const onSubmit: SubmitHandler<SourceOtherInputType> = (data) => {
     mutate(data, {
@@ -36,8 +38,8 @@ export const SourceFormDialog = () => {
     <BaseDialog
       open={isDialogOpen}
       onClose={() => setIsDialogOpen(false)}
-      title="Tạo khách hàng mới"
-      description="Điền thông tin để tạo khách hàng mới. Nhấn nút Tạo khách hàng khi hoàn tất."
+      title="Tạo nguồn mới"
+      description="Điền thông tin để tạo nguồn mới. Nhấn nút Tạo nguồn khi hoàn tất."
       contentClassName="sm:max-w-[400px]"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
@@ -74,7 +76,7 @@ export const SourceFormDialog = () => {
                 Đang xử lý...
               </>
             ) : (
-              "Tạo khách hàng"
+              "Tạo nguồn"
             )}
           </Button>
         </DialogFooter>

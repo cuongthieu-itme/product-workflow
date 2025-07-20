@@ -14,6 +14,7 @@ import { CustomerFormDialog } from "./customer";
 import { UserInfoCard } from "./user-info-card";
 import { RequestFormTab } from "./request-form-tab";
 import { SourceEnum } from "../constants";
+import { SourceFormDialog } from "./source-other";
 
 interface RequestFormProps {
   isDialogOpen: boolean;
@@ -40,6 +41,7 @@ export function RequestForm({
         title="Tạo yêu cầu mới"
         description="Điền thông tin để tạo yêu cầu mới. Nhấn nút Tạo yêu cầu khi hoàn tất."
         contentClassName="w-[900px] max-w-[95vw]"
+        width="50vw"
       >
         <ScrollArea className="max-h-[80vh] pr-4 -mr-4">
           <div className="space-y-6 pr-4">
@@ -124,6 +126,7 @@ export function RequestForm({
         onClose={() => setOpen(false)}
       />
       <CustomerFormDialog />
+      <SourceFormDialog />
     </>
   );
 }

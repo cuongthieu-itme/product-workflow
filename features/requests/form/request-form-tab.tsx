@@ -17,6 +17,7 @@ import { CustomerSelect } from "./customer";
 import { SourceEnum } from "../constants";
 import { sourceAtom } from "../requestAtom";
 import { useAtomValue } from "jotai";
+import { SourceSelect } from "./source-other";
 
 interface RequestFormTabProps {
   onSuccess: () => void;
@@ -60,7 +61,11 @@ export const RequestFormTab = ({ onSuccess }: RequestFormTabProps) => {
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
         <div className="space-y-4">
-          <CustomerSelect />
+          {sourceSelected === SourceEnum.OTHER ? (
+            <SourceSelect />
+          ) : (
+            <CustomerSelect />
+          )}
 
           <InputCustom
             control={control}

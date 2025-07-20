@@ -5,15 +5,15 @@ import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { RequestInputType } from "../../schema";
-import { useAtom, useSetAtom } from "jotai";
-import { openCustomerFormDialogAtom } from "../../requestAtom";
+import { useSetAtom } from "jotai";
+import { openSourceFormDialogAtom } from "../../requestAtom";
 import { useGetSourceOthersQuery } from "../../hooks/useRequest";
 
 export const SourceSelect = () => {
-  const { data: sources } = useGetSourceOthersQuery();
-  const setOpenCustomerFormDialog = useSetAtom(openCustomerFormDialogAtom);
-  const handleOpenCustomerFormDialog = () => {
-    setOpenCustomerFormDialog(true);
+  const { data: sources } = useGetSourceOthersQuery({limit: 1000});
+  const setOpenSourceFormDialog = useSetAtom(openSourceFormDialogAtom);
+  const handleOpenSourceFormDialog = () => {
+    setOpenSourceFormDialog(true);
   };
 
   const sourceOptions =
@@ -42,7 +42,7 @@ export const SourceSelect = () => {
       />
 
       <Button
-        onClick={handleOpenCustomerFormDialog}
+        onClick={handleOpenSourceFormDialog}
         type="button"
         variant="outline"
         className={cn("shrink-0 mt-8", errors.customerId && "mb-2")}

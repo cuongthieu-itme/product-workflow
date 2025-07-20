@@ -4,6 +4,7 @@ import {
   RequestFilterInput,
   RequestsType,
   RequestType,
+  SourceOtherFilterInput,
   SourceOthersType,
 } from "./type";
 import { BaseResultQuery } from "@/types/common";
@@ -46,9 +47,11 @@ export const createRequest = async (data: RequestInputType) => {
   }
 };
 
-export const getSourceOthers = async () => {
+export const getSourceOthers = async (params: SourceOtherFilterInput) => {
   try {
-    const response = await request.get<SourceOthersType>("/source-others");
+    const response = await request.get<SourceOthersType>("/source-others", {
+      params: omitVoid(params),
+    });
     return response.data.data;
   } catch (error) {
     console.error("Error fetching source others:", error);

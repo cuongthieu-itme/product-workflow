@@ -23,6 +23,7 @@ export interface BaseDialogProps {
   contentClassName?: string;
   /** Thêm class tùy chỉnh cho header */
   headerClassName?: string;
+  width?: string;
 }
 
 export function BaseDialog({
@@ -34,6 +35,7 @@ export function BaseDialog({
   footer,
   contentClassName = "sm:max-w-[425px]",
   headerClassName,
+  width = "40vw",
 }: BaseDialogProps) {
   return (
     <Dialog
@@ -42,7 +44,12 @@ export function BaseDialog({
         if (!o) onClose();
       }}
     >
-      <DialogContent className={cn("p-6", contentClassName)}>
+      <DialogContent
+        className={cn("p-6", contentClassName)}
+        style={{
+          width,
+        }}
+      >
         {title && (
           <DialogHeader className={headerClassName}>
             {title && <DialogTitle>{title}</DialogTitle>}

@@ -33,3 +33,10 @@ export type SourceOtherType = {
 };
 
 export type SourceOthersType = PaginatedResult<"data", SourceOtherType>;
+
+export interface SourceOtherFilterInput {
+  name?: string;
+  page?: number;
+  limit?: number;
+  specifically?: string;
+}

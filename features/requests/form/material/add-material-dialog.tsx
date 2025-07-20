@@ -15,9 +15,12 @@ import { SelectedMaterial } from "./selected-material";
 import { useToast } from "@/hooks/use-toast";
 
 export const AddMaterialDialog = () => {
+  const { watch } = useFormContext<RequestInputType>();
   const [showDialog, setShowDialog] = useState(false);
   const [searchMaterial, setSearchMaterial] = useState("");
-  const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(null);
+  const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(
+    null
+  );
   const [materialCount, setMaterialCount] = useState(1);
   const debouncedSearch = useDebounce(searchMaterial, 400);
   const { toast } = useToast();
@@ -29,7 +32,7 @@ export const AddMaterialDialog = () => {
   });
 
   const { control } = useFormContext<RequestInputType>();
-  
+
   const { fields, append } = useFieldArray({
     control,
     name: "materials",
@@ -43,21 +46,24 @@ export const AddMaterialDialog = () => {
     setShowDialog(true);
   };
 
-  const handleCloseDialog = () => {
-    setShowDialog(false);
-  };
-
   const handleMaterialSelect = (material: MaterialType) => {
     setSelectedMaterialId(material.id);
+  };
+
+  const handleCloseDialog = () => {
+    setShowDialog(false);
+    setSelectedMaterialId(null);
+    setMaterialCount(1);
+    setSearchMaterial("");
   };
 
   const handleSubmit = () => {
     if (selectedMaterialId) {
       // Kiểm tra xem vật liệu đã được thêm chưa
       const existingMaterial = fields.find(
-        field => field.materialId === Number(selectedMaterialId)
+        (field) => field.materialId === Number(selectedMaterialId)
       );
-      
+
       if (existingMaterial) {
         toast({
           title: "Thông báo",
@@ -71,22 +77,16 @@ export const AddMaterialDialog = () => {
       append({
         materialId: Number(selectedMaterialId),
         quantity: materialCount,
+        materialType: selectedMaterial?.type || undefined,
       });
-      
+
       toast({
         title: "Thành công",
         description: "Đã thêm vật liệu vào danh sách",
       });
-      
+
       handleCloseDialog();
     }
-  };
-
-  const handleClose = () => {
-    setShowDialog(false);
-    setSelectedMaterialId(null);
-    setMaterialCount(1);
-    setSearchMaterial("");
   };
 
   // Tách logic xử lý thành một function riêng
@@ -108,6 +108,13 @@ export const AddMaterialDialog = () => {
       setMaterialCount(count);
     }
   };
+
+  const materialList = materials?.data.filter(
+    (material) =>
+      !watch("materials").some(
+        (m) => Number(m.materialId) === Number(material.id)
+      )
+  );
 
   return (
     <Fragment>
@@ -131,27 +138,25 @@ export const AddMaterialDialog = () => {
           control={control}
           render={() => (
             <div className="space-y-2">
-              <ScrollArea className="max-h-[60vh]">
-                <div className="space-y-1">
-                  <div className="space-y-2 mb-4">
-                    <Label>Tìm kiếm nguyên vật liệu</Label>
-                    <Input
-                      placeholder="Nhập tên nguyên vật liệu..."
-                      onChange={(e) => setSearchMaterial(e.target.value)}
-                      value={searchMaterial}
+              <div className="space-y-1">
+                <div className="space-y-2 mb-4">
+                  <Label>Tìm kiếm nguyên vật liệu</Label>
+                  <Input
+                    placeholder="Nhập tên nguyên vật liệu..."
+                    onChange={(e) => setSearchMaterial(e.target.value)}
+                    value={searchMaterial}
+                  />
+                </div>
+                <ScrollArea className="max-h-[200px] overflow-y-auto py-2">
+                  <div className="flex flex-col gap-2">
+                    <MaterialList
+                      materials={materialList || []}
+                      selectedMaterialId={selectedMaterialId}
+                      handleMaterialSelect={handleMaterialSelect}
                     />
                   </div>
-                  <ScrollArea className="max-h-[40vh] ">
-                    <div className="flex flex-col gap-2 mb-4">
-                      <MaterialList
-                        materials={materials?.data || []}
-                        selectedMaterialId={selectedMaterialId}
-                        handleMaterialSelect={handleMaterialSelect}
-                      />
-                    </div>
-                  </ScrollArea>
-                </div>
-              </ScrollArea>
+                </ScrollArea>
+              </div>
             </div>
           )}
         />
@@ -171,7 +176,7 @@ export const AddMaterialDialog = () => {
         </div>
 
         <div className="flex justify-end gap-2 pt-4">
-          <Button type="button" variant="outline" onClick={handleClose}>
+          <Button type="button" variant="outline" onClick={handleCloseDialog}>
             Hủy
           </Button>
           <Button

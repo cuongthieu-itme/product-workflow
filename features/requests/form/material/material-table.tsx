@@ -17,12 +17,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useMaterialsQuery } from "@/features/materials/hooks";
-import { useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { RequestInputType } from "../../schema";
 
 export const MaterialTable = () => {
   const { data: materials } = useMaterialsQuery({ limit: 1000, page: 1 });
-  const { watch } = useFormContext<RequestInputType>();
+  const { watch, setValue, control } = useFormContext<RequestInputType>();
 
   const ids = watch("materials").map((m) => m.materialId);
   const selectedMaterials =
@@ -34,6 +34,13 @@ export const MaterialTable = () => {
           watch("materials").find((m) => m.materialId === Number(material.id))
             ?.quantity || 1,
       })) ?? [];
+
+  const removeMaterial = (materialId: number) => {
+    const updatedMaterials = watch("materials").filter(
+      (m) => m.materialId !== materialId
+    );
+    setValue("materials", updatedMaterials);
+  };
 
   return selectedMaterials.length > 0 ? (
     <Card className="shadow-sm border-0 bg-gradient-to-br from-white to-gray-50/30">
@@ -131,6 +138,10 @@ export const MaterialTable = () => {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
+                              type="button"
+                              onClick={() =>
+                                removeMaterial(Number(material.id))
+                              }
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors duration-200"

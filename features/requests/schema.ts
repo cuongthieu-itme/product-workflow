@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { SourceEnum } from "./constants";
+import { MaterialEnum } from "../materials/constants";
 
 export const requestInputSchema = z
   .object({
@@ -22,6 +23,9 @@ export const requestInputSchema = z
         z.object({
           materialId: z.number().int().nonnegative(),
           quantity: z.number().int().nonnegative(),
+          materialType: z
+            .enum([MaterialEnum.MATERIAL, MaterialEnum.ACCESSORY])
+            .optional(),
         })
       )
       .min(1, {
