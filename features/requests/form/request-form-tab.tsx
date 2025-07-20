@@ -18,41 +18,76 @@ import { SourceEnum } from "../constants";
 import { sourceAtom } from "../requestAtom";
 import { useAtomValue } from "jotai";
 import { SourceSelect } from "./source-other";
+import { RequestDetail } from "../type";
+import { toRequestFormInput } from "../helpers";
+import { useUpdateRequestMutation } from "../hooks/useRequest";
 
 interface RequestFormTabProps {
   onSuccess: () => void;
+  defaultValues?: RequestDetail;
 }
 
-export const RequestFormTab = ({ onSuccess }: RequestFormTabProps) => {
+export const RequestFormTab = ({
+  onSuccess,
+  defaultValues,
+}: RequestFormTabProps) => {
   const sourceSelected = useAtomValue(sourceAtom);
   const { toast } = useToast();
 
   const methods = useForm<RequestInputType>({
-    defaultValues: {
-      title: "",
-      description: "",
-      productLink: [{ url: "" }],
-      media: [],
-      source: sourceSelected,
-      customerId: undefined,
-      materials: [],
-    },
+    defaultValues: toRequestFormInput({
+      detail: defaultValues,
+      sourceSelected,
+    }),
     resolver: zodResolver(requestInputSchema),
   });
 
   const { control, handleSubmit, reset } = methods;
 
   const { mutate, isPending } = useCreateRequestMutation();
+  const { mutate: updateMutate, isPending: isUpdatePending } =
+    useUpdateRequestMutation();
 
   const onSubmit: SubmitHandler<RequestInputType> = (data) => {
+    if (defaultValues?.id) {
+      updateMutate(
+        { ...data, id: defaultValues.id },
+        {
+          onSuccess: () => {
+            toast({
+              title: "Cập nhật yêu cầu thành công",
+              description: "Yêu cầu đã được cập nhật thành công.",
+            });
+            reset();
+            onSuccess();
+          },
+          onError: (error) => {
+            toast({
+              title: "Cập nhật yêu cầu thất bại",
+              description: error.message,
+              variant: "destructive",
+            });
+          },
+        }
+      );
+
+      return;
+    }
     mutate(data, {
       onSuccess: () => {
-        reset();
         toast({
-          title: "Thành công",
-          description: "Yêu cầu đã được thêm thành công.",
+          title: "Tạo yêu cầu thành công",
+          description: "Yêu cầu đã được tạo thành công.",
         });
+        reset();
         onSuccess();
+      },
+      onError: (error) => {
+        toast({
+          title: "Tạo yêu cầu thất bại",
+          description: error.message,
+          variant: "destructive",
+        });
       },
     });
   };
@@ -73,7 +108,7 @@ export const RequestFormTab = ({ onSuccess }: RequestFormTabProps) => {
             label="Tiêu đề"
             placeholder="Nhập tiêu đề"
             required
-            disabled={isPending}
+            disabled={isPending || isUpdatePending}
           />
 
           <TextAreaCustom
@@ -83,7 +118,7 @@ export const RequestFormTab = ({ onSuccess }: RequestFormTabProps) => {
             placeholder="Nhập chi tiết yêu cầu"
             required
             rows={5}
-            disabled={isPending}
+            disabled={isPending || isUpdatePending}
           />
 
           <ProductLinks />
@@ -92,7 +127,7 @@ export const RequestFormTab = ({ onSuccess }: RequestFormTabProps) => {
             control={control}
             name="media"
             label="Hình ảnh hoặc video"
-            disabled={isPending}
+            disabled={isPending || isUpdatePending}
           />
 
           <MaterialSelector />
@@ -104,12 +139,14 @@ export const RequestFormTab = ({ onSuccess }: RequestFormTabProps) => {
               Hủy
             </Button>
           </DialogClose>
-          <Button type="submit" disabled={isPending}>
-            {isPending ? (
+          <Button type="submit" disabled={isPending || isUpdatePending}>
+            {isPending || isUpdatePending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Đang xử lý...
               </>
+            ) : defaultValues?.id ? (
+              "Cập nhật yêu cầu"
             ) : (
               "Tạo yêu cầu"
             )}

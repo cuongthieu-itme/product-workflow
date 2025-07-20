@@ -23,6 +23,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { CreateRequestButton } from "./create-request-button";
+import { RequestForm } from "../form";
 
 export function RequestList() {
   const [page, setPage] = useState(PAGE);
@@ -36,6 +37,13 @@ export function RequestList() {
     page,
     limit: LIMIT,
     title: debouncedSearch,
+  });
+  const [openRequestFormEdit, setOpenRequestFormEdit] = useState<{
+    isOpen: boolean;
+    requestId: number | undefined;
+  }>({
+    isOpen: false,
+    requestId: undefined,
   });
 
   const totalPages = requests
@@ -69,7 +77,16 @@ export function RequestList() {
             Chi tiết
           </Button>
 
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setOpenRequestFormEdit({
+                isOpen: true,
+                requestId: u.id,
+              });
+            }}
+          >
             <Edit className="h-4 w-4 mr-2" />
             Chỉnh Sửa
           </Button>
@@ -190,6 +207,14 @@ export function RequestList() {
           /> */}
         </div>
       </Card>
+
+      <RequestForm
+        isDialogOpen={openRequestFormEdit.isOpen}
+        setIsDialogOpen={(open) =>
+          setOpenRequestFormEdit({ ...openRequestFormEdit, isOpen: open })
+        }
+        requestId={openRequestFormEdit.requestId}
+      />
     </div>
   );
 }

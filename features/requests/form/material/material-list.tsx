@@ -5,7 +5,7 @@ import { Check } from "lucide-react";
 
 interface MaterialListProps {
   materials: MaterialType[];
-  selectedMaterialId: string | null;
+  selectedMaterialId: number | null;
   handleMaterialSelect: (material: MaterialType) => void;
 }
 

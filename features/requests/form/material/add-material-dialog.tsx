@@ -18,7 +18,7 @@ export const AddMaterialDialog = () => {
   const { watch } = useFormContext<RequestInputType>();
   const [showDialog, setShowDialog] = useState(false);
   const [searchMaterial, setSearchMaterial] = useState("");
-  const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(
+  const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(
     null
   );
   const [materialCount, setMaterialCount] = useState(1);

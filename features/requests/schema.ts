@@ -17,7 +17,12 @@ export const requestInputSchema = z
     source: z.enum([SourceEnum.CUSTOMER, SourceEnum.OTHER], {
       message: "Nguồn yêu cầu phải là 'Khách hàng' hoặc 'Khác'",
     }),
-    customerId: z.number().int().nonnegative().optional(),
+    customerId: z
+      .number()
+      .int()
+      .nonnegative()
+      .optional()
+      .or(z.string().optional()),
     materials: z
       .array(
         z.object({
@@ -31,7 +36,12 @@ export const requestInputSchema = z
       .min(1, {
         message: "Vui lòng chọn ít nhất một vật liệu",
       }),
-    sourceOtherId: z.number().int().nonnegative().optional(),
+    sourceOtherId: z
+      .number()
+      .int()
+      .nonnegative()
+      .optional()
+      .or(z.string().optional()),
   })
   .superRefine((v, ctx) => {
     if (v.source === SourceEnum.CUSTOMER && v.customerId == null) {

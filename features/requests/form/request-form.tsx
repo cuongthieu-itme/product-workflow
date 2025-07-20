@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle2, AlertCircle, Users, Package2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useCreateRequestMutation } from "../hooks";
+import { useCreateRequestMutation, useGetRequestDetailQuery } from "../hooks";
 import { BaseDialog } from "@/components/dialog";
 import { MaterialForm, MaterialFormWithTabs } from "@/features/materials";
 import { openMaterialDialogAtom, sourceAtom } from "../requestAtom";
@@ -15,23 +15,33 @@ import { UserInfoCard } from "./user-info-card";
 import { RequestFormTab } from "./request-form-tab";
 import { SourceEnum } from "../constants";
 import { SourceFormDialog } from "./source-other";
+import { useEffect } from "react";
 
 interface RequestFormProps {
   isDialogOpen: boolean;
   setIsDialogOpen: (open: boolean) => void;
+  requestId?: number;
 }
 
 export function RequestForm({
   isDialogOpen,
   setIsDialogOpen,
+  requestId,
 }: RequestFormProps) {
   const [open, setOpen] = useAtom(openMaterialDialogAtom);
   const [activeTab, setActiveTab] = useAtom(sourceAtom);
   const { isSuccess, error } = useCreateRequestMutation();
+  const { data } = useGetRequestDetailQuery(requestId);
 
   const handleSuccess = () => {
     setIsDialogOpen(false);
   };
+
+  useEffect(() => {
+    if (data) {
+      setActiveTab(data.source as SourceEnum);
+    }
+  }, [data, setActiveTab]);
 
   return (
     <>
@@ -99,7 +109,10 @@ export function RequestForm({
                       Tạo yêu cầu từ nguồn khách hàng
                     </p>
                   </div>
-                  <RequestFormTab onSuccess={handleSuccess} />
+                  <RequestFormTab
+                    onSuccess={handleSuccess}
+                    defaultValues={data}
+                  />
                 </div>
               </TabsContent>
 
@@ -113,7 +126,10 @@ export function RequestForm({
                       Tạo yêu cầu từ nguồn khác
                     </p>
                   </div>
-                  <RequestFormTab onSuccess={handleSuccess} />
+                  <RequestFormTab
+                    onSuccess={handleSuccess}
+                    defaultValues={data}
+                  />
                 </div>
               </TabsContent>
             </Tabs>

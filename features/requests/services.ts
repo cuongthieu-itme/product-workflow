@@ -1,6 +1,7 @@
 import request from "@/configs/axios-config";
 import { RequestInputType, SourceOtherInputType } from "./schema";
 import {
+  RequestDetail,
   RequestFilterInput,
   RequestsType,
   RequestType,
@@ -24,7 +25,7 @@ export const getRequests = async (params?: RequestFilterInput) => {
 
 export const getDetailRequest = async (id: number) => {
   try {
-    const response = await request.get<BaseResultQuery<RequestType>>(
+    const response = await request.get<BaseResultQuery<RequestDetail>>(
       `/requests/${id}`
     );
     return response.data.data;
@@ -65,6 +66,22 @@ export const createSourceOther = async (data: SourceOtherInputType) => {
     return response.data;
   } catch (error) {
     console.error("Error creating source other:", error);
+    throw error;
+  }
+};
+
+export const updateRequest = async ({
+  id,
+  ...data
+}: RequestInputType & { id: number }) => {
+  try {
+    const response = await request.put(`/requests/${id}`, {
+      ...data,
+      productLink: data.productLink.map((link) => link.url),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating request:", error);
     throw error;
   }
 };

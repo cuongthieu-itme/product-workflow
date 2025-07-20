@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import {
   useController,
   type UseControllerProps,
@@ -166,6 +166,19 @@ export const UploadFile = <T extends FieldValues>({
       },
     });
   };
+
+  useEffect(() => {
+    if (value.length > 0) {
+      setPreviews(
+        value.map((src) => ({
+          src: getImageUrl(src),
+          typeFile: generateTypeFile(src),
+        }))
+      );
+    } else {
+      setPreviews([]);
+    }
+  }, [value]);
 
   // ----- UI -----
   return (

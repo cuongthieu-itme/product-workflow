@@ -1,7 +1,7 @@
 import { MaterialEnum } from "./constants";
 
 export type MaterialType = {
-  id: string;
+  id: number;
   image: string[];
   code: string;
   name: string;

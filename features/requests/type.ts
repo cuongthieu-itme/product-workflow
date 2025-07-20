@@ -1,7 +1,9 @@
 import { PaginatedResult } from "@/types/common";
+import { MaterialType } from "../materials/type";
+import { SourceEnum } from "./constants";
 
 export type RequestType = {
-  id: string;
+  id: number;
   title: string;
   description: string;
   productLink: string[];
@@ -39,4 +41,37 @@ export interface SourceOtherFilterInput {
   page?: number;
   limit?: number;
   specifically?: string;
+}
+
+export interface Origin {
+  id: number;
+  name: string;
+}
+
+export interface RequestMaterial {
+  id: number;
+  quantity: number;
+  material: MaterialType;
+}
+
+export interface Customer {
+  id: number;
+  fullName: string;
+  email: string;
+}
+
+export interface RequestDetail {
+  id: number;
+  title: string;
+  description: string;
+  productLink: string[];
+  media: string[];
+  source: SourceEnum.CUSTOMER | SourceEnum.OTHER;
+  customerId: number | null;
+  sourceOtherId: number | null;
+  createdAt: string;
+  updatedAt: string;
+  customer: Customer | null;
+  sourceOther: unknown | null; // chưa có schema chi tiết
+  requestMaterials: RequestMaterial[];
 }
