@@ -35,7 +35,6 @@ export const RequestFormTab = ({ onSuccess }: RequestFormTabProps) => {
       source: sourceSelected,
       customerId: undefined,
       materials: [],
-      materialType: "INGREDIENT",
     },
     resolver: zodResolver(requestInputSchema),
   });

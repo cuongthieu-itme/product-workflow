@@ -26,7 +26,6 @@ export const requestInputSchema = z.object({
     .min(1, {
       message: "Vui lòng chọn ít nhất một vật liệu",
     }),
-  materialType: z.string(),
 });
 
 export type RequestInputType = z.infer<typeof requestInputSchema>;
