@@ -1,6 +1,11 @@
 import request from "@/configs/axios-config";
-import { RequestInputType } from "./schema";
-import { RequestFilterInput, RequestsType, RequestType } from "./type";
+import { RequestInputType, SourceOtherInputType } from "./schema";
+import {
+  RequestFilterInput,
+  RequestsType,
+  RequestType,
+  SourceOthersType,
+} from "./type";
 import { BaseResultQuery } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
 
@@ -37,6 +42,26 @@ export const createRequest = async (data: RequestInputType) => {
     return response.data;
   } catch (error) {
     console.error("Error creating request:", error);
+    throw error;
+  }
+};
+
+export const getSourceOthers = async () => {
+  try {
+    const response = await request.get<SourceOthersType>("/source-others");
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching source others:", error);
+    throw error;
+  }
+};
+
+export const createSourceOther = async (data: SourceOtherInputType) => {
+  try {
+    const response = await request.post("/source-others", data);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating source other:", error);
     throw error;
   }
 };

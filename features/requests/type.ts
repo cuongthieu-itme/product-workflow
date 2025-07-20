@@ -23,3 +23,13 @@ export interface RequestFilterInput {
 }
 
 export type RequestsType = PaginatedResult<"data", RequestType>;
+
+export type SourceOtherType = {
+  id: number;
+  name: string;
+  specifically: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SourceOthersType = PaginatedResult<"data", SourceOtherType>;
