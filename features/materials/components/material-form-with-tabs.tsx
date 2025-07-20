@@ -60,7 +60,7 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
       quantity: material?.quantity || 0,
       image: material?.image || [],
       unit: material?.unit || "",
-      originId: material?.origin.id || undefined,
+      originId: material?.origin.id || 0,
       description: material?.description || "",
       isActive: material?.isActive !== undefined ? material.isActive : true,
       type: material?.type ?? activeTab,
@@ -162,12 +162,6 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
       label: origin.name,
     })) ?? [];
 
-  //   const unitOptions =
-  //     units?.data.map((unit) => ({
-  //       value: unit.id,
-  //       label: unit.name,
-  //     })) ?? [];
-
   const renderForm = () => (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
       <div className="space-y-4">
@@ -224,8 +218,7 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
         />
 
         <div className="flex gap-2 flex-row w-full justify-between">
-          {/* <SelectCustom
-            options={unitOptions}
+          <InputCustom
             control={control}
             name="unit"
             label="Đơn vị"
@@ -234,15 +227,6 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
             disabled={isPending}
             containerClassName="w-full"
             className="w-full"
-          /> */}
-
-          <InputCustom
-            control={control}
-            name="unit"
-            label="Đơn vị"
-            placeholder="Nhập đơn vị"
-            required
-            disabled={isPending}
           />
 
           <InputCustom
