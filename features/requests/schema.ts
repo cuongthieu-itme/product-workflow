@@ -9,20 +9,24 @@ export const requestInputSchema = z.object({
       url: z.string(),
     })
   ),
-  media: z.array(z.string()).min(10, {
-    message: "Vui lòng tải lên ít nhất 10 hình ảnh hoặc video",
+  media: z.array(z.string()).min(1, {
+    message: "Vui lòng tải lên ít nhất 1 hình ảnh hoặc video",
   }),
   source: z.enum([SourceEnum.CUSTOMER, SourceEnum.OTHER], {
     message: "Nguồn yêu cầu phải là 'Khách hàng' hoặc 'Khác'",
   }),
-  nameSource: z.string(),
-  specificSource: z.string().optional(),
-  userId: z.number().int().nonnegative(),
-  statusProductId: z.number().int().nonnegative(),
   customerId: z.number().int().nonnegative().optional(),
-  accessoryIds: z.array(z.string()).min(1, {
-    message: "Vui lòng chọn ít nhất một vật liệu",
-  }),
+  materials: z
+    .array(
+      z.object({
+        materialId: z.number().int().nonnegative(),
+        quantity: z.number().int().nonnegative(),
+      })
+    )
+    .min(1, {
+      message: "Vui lòng chọn ít nhất một vật liệu",
+    }),
+  materialType: z.string(),
 });
 
 export type RequestInputType = z.infer<typeof requestInputSchema>;

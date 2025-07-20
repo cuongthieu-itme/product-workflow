@@ -25,9 +25,10 @@ export const MaterialTable = () => {
   const { data: materials } = useMaterialsQuery({ limit: 1000, page: 1 });
   const { watch } = useFormContext<RequestInputType>();
 
-  const ids = watch("accessoryIds");
+  const ids = watch("materials").map((m) => m.materialId);
   const selectedMaterials =
-    materials?.data.filter((material) => ids.includes(material.id)) ?? [];
+    materials?.data.filter((material) => ids.includes(Number(material.id))) ??
+    [];
 
   const getStockStatus = (quantity: number) => {
     if (quantity > 10) {
@@ -69,7 +70,12 @@ export const MaterialTable = () => {
               Nguyên vật liệu đã chọn
             </CardTitle>
             <p className="text-sm text-gray-600 mt-1">
-              {selectedMaterials.length} vật liệu được chọn
+              {selectedMaterials.length} vật liệu được chọn • Tổng:{" "}
+              {selectedMaterials.reduce(
+                (total, item) => total + item.quantity,
+                0
+              )}{" "}
+              sản phẩm
             </p>
           </div>
         </div>

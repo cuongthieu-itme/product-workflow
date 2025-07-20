@@ -87,8 +87,9 @@ export const getOrigins = async () => {
 
 export const getUnits = async () => {
   try {
-    const response = await request.get<BaseResultQuery<OriginType[]>>("/units");
-    return response.data;
+    return {
+      data: [],
+    };
   } catch (error) {
     console.error("Get units error:", error);
     throw error;

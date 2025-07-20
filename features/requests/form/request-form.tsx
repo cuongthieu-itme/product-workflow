@@ -8,7 +8,7 @@ import { CheckCircle2, AlertCircle, Users, Package2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCreateRequestMutation } from "../hooks";
 import { BaseDialog } from "@/components/dialog";
-import { MaterialForm } from "@/features/materials";
+import { MaterialForm, MaterialFormWithTabs } from "@/features/materials";
 import { openMaterialDialogAtom, sourceAtom } from "../requestAtom";
 import { useAtom } from "jotai";
 import { CustomerFormDialog } from "./customer";
@@ -120,7 +120,10 @@ export function RequestForm({
         </ScrollArea>
       </BaseDialog>
 
-      <MaterialForm isDialogOpen={open} onClose={() => setOpen(false)} />
+      <MaterialFormWithTabs
+        isDialogOpen={open}
+        onClose={() => setOpen(false)}
+      />
       <CustomerFormDialog />
     </>
   );

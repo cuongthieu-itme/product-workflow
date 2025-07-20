@@ -81,7 +81,7 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
       quantity: material?.quantity || 0,
       image: material?.image || [],
       unit: material?.unit || "",
-      originId: material?.originId || 0,
+      originId: material?.origin.id || 0,
       description: material?.description || "",
       isActive: material?.isActive !== undefined ? material.isActive : true,
     },
@@ -139,6 +139,11 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
       },
     });
   };
+
+  const originsOptions = origins?.data.map((origin) => ({
+    value: origin.id,
+    label: origin.name,
+  }));
 
   useEffect(() => {
     if (isDialogOpen) {
@@ -230,9 +235,9 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
               </div>
 
               <SelectCustom
-                options={origins?.data || []}
+                options={originsOptions || []}
                 control={control}
-                name="origin"
+                name="originId"
                 label="Xuất xứ"
                 placeholder="Nhập xuất xứ"
                 required

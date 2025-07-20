@@ -30,7 +30,10 @@ export const getDetailRequest = async (id: number) => {
 
 export const createRequest = async (data: RequestInputType) => {
   try {
-    const response = await request.post("/requests", data);
+    const response = await request.post("/requests", {
+      ...data,
+      productLink: data.productLink.map((link) => link.url),
+    });
     return response.data;
   } catch (error) {
     console.error("Error creating request:", error);

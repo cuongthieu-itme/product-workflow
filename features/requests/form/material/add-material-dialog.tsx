@@ -1,5 +1,5 @@
 import { ChangeEvent, Fragment, useState } from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { BaseDialog } from "@/components/dialog";
@@ -12,11 +12,15 @@ import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/use-debounce";
 import { MaterialList } from "./material-list";
 import { SelectedMaterial } from "./selected-material";
+import { useToast } from "@/hooks/use-toast";
 
 export const AddMaterialDialog = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [searchMaterial, setSearchMaterial] = useState("");
+  const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(null);
+  const [materialCount, setMaterialCount] = useState(1);
   const debouncedSearch = useDebounce(searchMaterial, 400);
+  const { toast } = useToast();
 
   const { data: materials } = useMaterialsQuery({
     limit: 1000,
@@ -24,15 +28,15 @@ export const AddMaterialDialog = () => {
     name: debouncedSearch,
   });
 
-  const { control, watch, setValue, reset } =
-    useFormContext<RequestInputType>();
+  const { control } = useFormContext<RequestInputType>();
+  
+  const { fields, append } = useFieldArray({
+    control,
+    name: "materials",
+  });
 
-  const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(
-    watch("materialId") || null
-  );
-
-  const [materialCount, setMaterialCount] = useState(
-    watch("materialCount") || 1
+  const selectedMaterial = materials?.data.find(
+    (m) => m.id === selectedMaterialId
   );
 
   const handleOpenDialog = () => {
@@ -47,17 +51,33 @@ export const AddMaterialDialog = () => {
     setSelectedMaterialId(material.id);
   };
 
-  const selectedMaterial = materials?.data.find(
-    (m) => m.id === selectedMaterialId
-  );
-
   const handleSubmit = () => {
     if (selectedMaterialId) {
-      console.log("Selected Material ID:", selectedMaterialId);
-      console.log("Material Count:", materialCount);
-      // Set the selected material ID and count in the form
-      setValue("materialId", selectedMaterialId);
-      setValue("materialCount", watch("materialCount") || 1);
+      // Kiểm tra xem vật liệu đã được thêm chưa
+      const existingMaterial = fields.find(
+        field => field.materialId === Number(selectedMaterialId)
+      );
+      
+      if (existingMaterial) {
+        toast({
+          title: "Thông báo",
+          description: "Vật liệu này đã được thêm vào danh sách",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Thêm vật liệu mới vào array
+      append({
+        materialId: Number(selectedMaterialId),
+        quantity: materialCount,
+      });
+      
+      toast({
+        title: "Thành công",
+        description: "Đã thêm vật liệu vào danh sách",
+      });
+      
       handleCloseDialog();
     }
   };
@@ -66,7 +86,7 @@ export const AddMaterialDialog = () => {
     setShowDialog(false);
     setSelectedMaterialId(null);
     setMaterialCount(1);
-    reset();
+    setSearchMaterial("");
   };
 
   // Tách logic xử lý thành một function riêng
@@ -107,11 +127,8 @@ export const AddMaterialDialog = () => {
         contentClassName="w-[600px] max-w-[800px]"
       >
         <Controller
-          name="materialId"
+          name="materials"
           control={control}
-          rules={{
-            required: "Vui lòng chọn nguyên vật liệu",
-          }}
           render={() => (
             <div className="space-y-2">
               <ScrollArea className="max-h-[60vh]">

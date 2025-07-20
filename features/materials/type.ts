@@ -7,7 +7,10 @@ export type MaterialType = {
   name: string;
   quantity: number;
   unit: string;
-  originId: number;
+  origin: {
+    id: number;
+    name: string;
+  };
   isActive: boolean;
   description: string;
   type: MaterialEnum;

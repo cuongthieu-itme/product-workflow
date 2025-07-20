@@ -29,6 +29,7 @@ export const CustomerSelect = () => {
   return (
     <div className="flex items-center gap-2">
       <SelectCustom
+        valueType="number"
         searchable
         control={control}
         name="customerId"

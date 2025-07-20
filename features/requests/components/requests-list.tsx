@@ -98,11 +98,11 @@ export function RequestList() {
             loading={isFetching}
           />
 
-          <TablePagination
+          {/* <TablePagination
             page={page}
             totalPages={totalPages}
             onPageChange={setPage}
-          />
+          /> */}
         </div>
       </Card>
     </div>

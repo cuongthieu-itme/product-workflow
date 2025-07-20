@@ -63,9 +63,9 @@ export const ProductLinks = () => {
         ))}
       </div>
 
-      {fields.filter((field) => field.url.trim() !== "").length > 0 && (
+      {fields.filter((field) => field.id.trim() !== "").length > 0 && (
         <div className="text-xs text-muted-foreground">
-          Đã có {fields.filter((field) => field.url.trim() !== "").length} link
+          Đã có {fields.filter((field) => field.id.trim() !== "").length} link
           sản phẩm tham khảo
         </div>
       )}
