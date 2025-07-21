@@ -17,18 +17,14 @@ import { ToggleStatusMaterialDialog } from "./toggle-status-material-dialog";
 import { Badge } from "@/components/ui/badge";
 import { getImageUrl } from "@/features/settings/utils";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useOriginsQuery, useUnitsQuery } from "../hooks/useMaterials";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useOriginsQuery } from "../hooks/useMaterials";
+
 import { KEY_EMPTY_SELECT, SelectOption } from "@/components/form/select";
 import { ToolbarFilters } from "@/components/data-table/toolbar-filter";
 import { ImageDialog } from "./image-dialog";
 import { MaterialFormWithTabs } from "./material-form-with-tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
 
 export function MaterialList() {
   const [page, setPage] = useState(PAGE);
@@ -36,7 +32,6 @@ export function MaterialList() {
   const debouncedSearchValue = useDebounce(searchValue, 500);
   const [filterOrigin, setFilterOrigin] = useState(KEY_EMPTY_SELECT);
   const [filterStatus, setFilterStatus] = useState(KEY_EMPTY_SELECT);
-  const [filterUnit, setFilterUnit] = useState(KEY_EMPTY_SELECT);
   const {
     data: materials,
     isFetching,
@@ -50,7 +45,6 @@ export function MaterialList() {
       filterStatus === KEY_EMPTY_SELECT
         ? undefined
         : Boolean(Number(filterStatus)),
-    unit: filterUnit,
   });
   const [editForm, setEditForm] = useState<MaterialType | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -72,7 +66,6 @@ export function MaterialList() {
   };
 
   const { data: origins, refetch: refetchOrigins } = useOriginsQuery();
-  const { data: units, refetch: refetchUnits } = useUnitsQuery();
 
   const handleOpenChangeStatusDialog = (customer: MaterialType) => {
     setToggleStatusForm(customer);
@@ -95,7 +88,6 @@ export function MaterialList() {
   const handleRefresh = () => {
     refetch();
     refetchOrigins();
-    refetchUnits();
   };
 
   const statusOptions = [
@@ -108,12 +100,6 @@ export function MaterialList() {
     origins?.data.map((origin) => ({
       value: origin.id,
       label: origin.name,
-    })) ?? [];
-
-  const unitOptions =
-    units?.data.map((unit) => ({
-      value: unit.id,
-      label: unit.name,
     })) ?? [];
 
   return (
@@ -150,15 +136,7 @@ export function MaterialList() {
                     ...originOptions,
                   ],
                 },
-                {
-                  placeholder: "Lọc theo đơn vị",
-                  value: filterUnit,
-                  onChange: setFilterUnit,
-                  options: [
-                    { value: KEY_EMPTY_SELECT, label: "Tất cả đơn vị" },
-                    ...unitOptions,
-                  ],
-                },
+
                 {
                   placeholder: "Lọc theo trạng thái",
                   value: filterStatus,
@@ -170,10 +148,22 @@ export function MaterialList() {
           </TableToolbar>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 py-6">
-            {materials?.data.length === 0 ? (
+            {isFetching ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 py-6">
+                {[...Array(4)].map((_, index) => (
+                  <Card key={index} className="p-4">
+                    <Skeleton className="h-48 w-full mb-4" />
+                    <Skeleton className="h-4 w-48 mb-2" />
+                    <Skeleton className="h-4 w-32 mb-4" />
+                    <Skeleton className="h-4 w-24" />
+                  </Card>
+                ))}
+              </div>
+            ) : materials?.data.length === 0 ? (
               <div className="py-6 col-span-full flex flex-col items-center justify-center text-gray-500 border border-dashed rounded-lg">
                 <Package className="h-12 w-12 mb-3 opacity-60" />
-                <p className="text-sm">Không có dữ liệu phụ kiện</p>
+                <p className="text-sm">Không có dữ liệu nguyên liệu</p>
+                <p className="text-sm mt-2 text-gray-400">Bạn có thể thêm nguyên liệu bằng cách nhấn nút "Thêm mới" ở trên</p>
               </div>
             ) : (
               materials?.data.map((material) => (

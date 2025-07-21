@@ -8,14 +8,14 @@ import { TableToolbar } from "@/components/data-table/toolbar";
 import { LIMIT, PAGE } from "@/constants/pagination";
 import { MaterialType } from "../type";
 import Image from "next/image";
-import { CreateMaterialForm, MaterialForm } from "./material-form-dialog";
+import { CreateMaterialForm } from "./material-form-dialog";
 import { useMaterialsQuery } from "../hooks";
 import { ToggleStatusMaterialDialog } from "./toggle-status-material-dialog";
 import { Badge } from "@/components/ui/badge";
 import { getImageUrl } from "@/features/settings/utils";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useOriginsQuery, useUnitsQuery } from "../hooks/useMaterials";
-import { KEY_EMPTY_SELECT, SelectOption } from "@/components/form/select";
+import { KEY_EMPTY_SELECT } from "@/components/form/select";
 import { ToolbarFilters } from "@/components/data-table/toolbar-filter";
 import { ImageDialog } from "./image-dialog";
 import { MaterialFormWithTabs } from "./material-form-with-tabs";
@@ -27,7 +27,6 @@ export function AccessoryList() {
   const debouncedSearchValue = useDebounce(searchValue, 500);
   const [filterOrigin, setFilterOrigin] = useState(KEY_EMPTY_SELECT);
   const [filterStatus, setFilterStatus] = useState(KEY_EMPTY_SELECT);
-  const [filterUnit, setFilterUnit] = useState(KEY_EMPTY_SELECT);
   const {
     data: materials,
     isFetching,
@@ -41,7 +40,6 @@ export function AccessoryList() {
       filterStatus === KEY_EMPTY_SELECT
         ? undefined
         : Boolean(Number(filterStatus)),
-    unit: filterUnit,
     type: MaterialEnum.ACCESSORY,
   });
   const [editForm, setEditForm] = useState<MaterialType | null>(null);
@@ -64,7 +62,6 @@ export function AccessoryList() {
   };
 
   const { data: origins, refetch: refetchOrigins } = useOriginsQuery();
-  const { data: units, refetch: refetchUnits } = useUnitsQuery();
 
   const handleOpenChangeStatusDialog = (customer: MaterialType) => {
     setToggleStatusForm(customer);
@@ -87,7 +84,6 @@ export function AccessoryList() {
   const handleRefresh = () => {
     refetch();
     refetchOrigins();
-    refetchUnits();
   };
 
   const statusOptions = [
@@ -100,12 +96,6 @@ export function AccessoryList() {
     origins?.data.map((origin) => ({
       value: origin.id,
       label: origin.name,
-    })) ?? [];
-
-  const unitOptions =
-    units?.data.map((unit) => ({
-      value: unit.id,
-      label: unit.name,
     })) ?? [];
 
   return (
@@ -140,15 +130,6 @@ export function AccessoryList() {
                   options: [
                     { value: KEY_EMPTY_SELECT, label: "Tất cả xuất xứ" },
                     ...originOptions,
-                  ],
-                },
-                {
-                  placeholder: "Lọc theo đơn vị",
-                  value: filterUnit,
-                  onChange: setFilterUnit,
-                  options: [
-                    { value: KEY_EMPTY_SELECT, label: "Tất cả đơn vị" },
-                    ...unitOptions,
                   ],
                 },
                 {

@@ -1,7 +1,6 @@
 import { MaterialEnum } from "@/features/materials/constants";
 import { MaterialType } from "@/features/materials/type";
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
 
 interface MaterialListProps {
   materials: MaterialType[];
@@ -14,25 +13,24 @@ export const MaterialList = ({
   selectedMaterialId,
   handleMaterialSelect,
 }: MaterialListProps) => {
+  if (!materials || materials.length === 0) {
+    return <div className="p-4 text-gray-500">Không có vật liệu nào.</div>;
+  }
+
   return materials?.map((material) => (
     <div
       key={material.id}
       className={cn(
-        "p-3 cursor-pointer hover:bg-gray-100 transition-colors rounded-md border ",
+        "p-3 cursor-pointer hover:bg-gray-100 transition-colors",
         selectedMaterialId === material.id
-          ? "bg-blue-50 border-blue-500 border-2"
-          : "border-gray-200"
+          ? "bg-blue-50 border-l-4 border-blue-500"
+          : ""
       )}
       onClick={() => handleMaterialSelect(material)}
     >
       <div className="flex justify-between items-center">
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <div className="font-medium">{material.name}</div>
-            {selectedMaterialId === material.id && (
-              <Check className="h-4 w-4 text-blue-500" />
-            )}
-          </div>
+        <div>
+          <div className="font-medium">{material.name}</div>
           <div className="text-sm text-gray-500">
             Mã: {material.code} | Đơn vị: {material.unit}
           </div>
@@ -43,11 +41,9 @@ export const MaterialList = ({
           )}
           <div className="text-xs text-gray-400 mt-1">
             Xuất xứ: {material.origin.name} | Loại:{" "}
-            {material.type
-              ? MaterialEnum.MATERIAL
-                ? "Nguyên liệu"
-                : "Phụ kiện"
-              : "Không xác định"}
+            {material.type === MaterialEnum.ACCESSORY
+              ? "Phụ kiện"
+              : "Nguyên liệu"}
           </div>
         </div>
         <div className="text-right">
@@ -60,7 +56,7 @@ export const MaterialList = ({
             {material.quantity > 0 ? "Còn hàng" : "Hết hàng"}
           </div>
           <div className="text-xs text-gray-500">
-            Số lượng: {material.quantity} ({material.unit})
+            SL: {material.quantity} {material.unit}
           </div>
         </div>
       </div>

@@ -79,7 +79,6 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
 
   const { data: origins } = useOriginsQuery();
 
-  console.log("activeTab", activeTab);
   const onSubmit: SubmitHandler<CreateMaterialInputType> = (data) => {
     if (material) {
       updateMaterial(
@@ -107,21 +106,27 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
       return;
     }
 
-    mutate(data, {
-      onSuccess: () => {
-        reset();
-        onClose();
-        if (onMaterialAdded) {
-          onMaterialAdded();
-        }
-        toast({
-          title: "Thành công",
-          description: `${
-            activeTab === MaterialEnum.MATERIAL ? "Nguyên liệu" : "Phụ kiện"
-          } đã được thêm thành công.`,
-        });
+    mutate(
+      {
+        ...data,
+        type: activeTab,
       },
-    });
+      {
+        onSuccess: () => {
+          reset();
+          onClose();
+          if (onMaterialAdded) {
+            onMaterialAdded();
+          }
+          toast({
+            title: "Thành công",
+            description: `${
+              activeTab === MaterialEnum.MATERIAL ? "Nguyên liệu" : "Phụ kiện"
+            } đã được thêm thành công.`,
+          });
+        },
+      }
+    );
   };
 
   useEffect(() => {
