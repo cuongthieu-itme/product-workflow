@@ -78,7 +78,6 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
   const { mutate: updateMaterial } = useUpdateMaterialMutation();
 
   const { data: origins } = useOriginsQuery();
-  const { data: units } = useUnitsQuery();
 
   console.log("activeTab", activeTab);
   const onSubmit: SubmitHandler<CreateMaterialInputType> = (data) => {

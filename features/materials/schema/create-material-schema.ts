@@ -36,5 +36,5 @@ export const createMaterialInputSchema = z.object({
 
 export type CreateMaterialInputType = z.infer<typeof createMaterialInputSchema>;
 export type UpdateMaterialInputType = CreateMaterialInputType & {
-  id: string;
+  id: number;
 };
