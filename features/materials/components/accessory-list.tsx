@@ -110,7 +110,7 @@ export function AccessoryList() {
           </p>
         </div>
 
-        <CreateMaterialForm />
+        <CreateMaterialForm defaultTab={MaterialEnum.ACCESSORY} />
       </div>
 
       <div className="space-y-4">
@@ -217,6 +217,7 @@ export function AccessoryList() {
 
           {editForm && (
             <MaterialFormWithTabs
+              defaultTab={MaterialEnum.ACCESSORY}
               material={editForm}
               isDialogOpen={isEditDialogOpen}
               onClose={handleCloseEditDialog}

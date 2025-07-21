@@ -149,21 +149,21 @@ export function MaterialList() {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 py-6">
             {isFetching ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 py-6">
-                {[...Array(4)].map((_, index) => (
-                  <Card key={index} className="p-4">
-                    <Skeleton className="h-48 w-full mb-4" />
-                    <Skeleton className="h-4 w-48 mb-2" />
-                    <Skeleton className="h-4 w-32 mb-4" />
-                    <Skeleton className="h-4 w-24" />
-                  </Card>
-                ))}
+              <div className="flex flex-row gap-6">
+                <Skeleton className="h-24 w-24 mb-3 opacity-60" />
+                <Skeleton className="h-24 w-24 mb-3 opacity-60" />
+                <Skeleton className="h-24 w-24 mb-3 opacity-60" />
+                <Skeleton className="h-24 w-24 mb-3 opacity-60" />
+                <Skeleton className="h-24 w-24 mb-3 opacity-60" />
               </div>
             ) : materials?.data.length === 0 ? (
               <div className="py-6 col-span-full flex flex-col items-center justify-center text-gray-500 border border-dashed rounded-lg">
                 <Package className="h-12 w-12 mb-3 opacity-60" />
                 <p className="text-sm">Không có dữ liệu nguyên liệu</p>
-                <p className="text-sm mt-2 text-gray-400">Bạn có thể thêm nguyên liệu bằng cách nhấn nút "Thêm mới" ở trên</p>
+                <p className="text-sm mt-2 text-gray-400">
+                  Bạn có thể thêm nguyên liệu bằng cách nhấn nút "Thêm mới" ở
+                  trên
+                </p>
               </div>
             ) : (
               materials?.data.map((material) => (

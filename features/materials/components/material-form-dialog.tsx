@@ -24,15 +24,18 @@ import {
 } from "../hooks/useMaterials";
 import { useToast } from "@/components/ui/use-toast";
 import { MaterialFormWithTabs } from "./material-form-with-tabs";
+import { MaterialEnum } from "../constants";
 
 export function CreateMaterialForm({
   onMaterialAdded,
   material,
   children,
+  defaultTab,
 }: {
   onMaterialAdded?: () => void;
   material?: MaterialType;
   children?: React.ReactNode;
+  defaultTab?: MaterialEnum;
 }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -51,6 +54,7 @@ export function CreateMaterialForm({
       )}
 
       <MaterialFormWithTabs
+        defaultTab={defaultTab}
         material={material}
         isDialogOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
