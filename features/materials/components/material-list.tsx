@@ -1,30 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { DataTable } from "@/components/data-table";
 import { TablePagination } from "@/components/data-table/pagination";
-import { Edit, Package, Power, Trash2 } from "lucide-react";
-import type { Column } from "@/components/data-table/types";
+import { Edit, Package, Power } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
 import { TableToolbar } from "@/components/data-table/toolbar";
 import { LIMIT, PAGE } from "@/constants/pagination";
 import { MaterialType } from "../type";
 import Image from "next/image";
-import { CreateMaterialForm, MaterialForm } from "./material-form-dialog";
+import { CreateMaterialForm } from "./material-form-dialog";
 import { useMaterialsQuery } from "../hooks";
 import { ToggleStatusMaterialDialog } from "./toggle-status-material-dialog";
 import { Badge } from "@/components/ui/badge";
 import { getImageUrl } from "@/features/settings/utils";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useOriginsQuery } from "../hooks/useMaterials";
-
-import { KEY_EMPTY_SELECT, SelectOption } from "@/components/form/select";
+import { KEY_EMPTY_SELECT } from "@/components/form/select";
 import { ToolbarFilters } from "@/components/data-table/toolbar-filter";
 import { ImageDialog } from "./image-dialog";
 import { MaterialFormWithTabs } from "./material-form-with-tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card } from "@/components/ui/card";
 
 export function MaterialList() {
   const [page, setPage] = useState(PAGE);
@@ -136,7 +131,6 @@ export function MaterialList() {
                     ...originOptions,
                   ],
                 },
-
                 {
                   placeholder: "Lọc theo trạng thái",
                   value: filterStatus,

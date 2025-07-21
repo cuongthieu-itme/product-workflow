@@ -31,6 +31,22 @@ export const requestInputSchema = z
           materialType: z
             .enum([MaterialEnum.MATERIAL, MaterialEnum.ACCESSORY])
             .optional(),
+          request: z
+            .object({
+              quantity: z
+                .number()
+                .min(1, { message: "Số lượng phải lớn hơn 0" })
+                .int({ message: "Số lượng phải là số nguyên" }),
+              date: z.string().min(1, {
+                message: "",
+              }),
+              supplier: z.string().optional(),
+              sourceCountry: z.string().optional(),
+              price: z.number().optional(),
+              reason: z.string().optional(),
+            })
+            .optional()
+            .nullable(),
         })
       )
       .min(1, {
