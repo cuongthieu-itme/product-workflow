@@ -16,6 +16,7 @@ import { BaseDialog } from "@/components/dialog";
 import { TablePagination } from "@/components/data-table/pagination";
 import { useChangeStatusRequestMutation } from "../../hooks/useRequest";
 import { toast } from "sonner";
+import { RequestDetailDialog } from "./request-detail-dialog";
 
 export function RequestManagementList() {
   const [page, setPage] = useState(PAGE);
@@ -31,6 +32,13 @@ export function RequestManagementList() {
     title: debouncedSearch,
   });
   const [reviewRequest, setReviewRequest] = useState<{
+    isOpen: boolean;
+    request?: RequestType;
+  }>({
+    isOpen: false,
+    request: undefined,
+  });
+  const [viewRequest, setViewRequest] = useState<{
     isOpen: boolean;
     request?: RequestType;
   }>({
@@ -88,7 +96,11 @@ export function RequestManagementList() {
       className: "text-right w-1",
       cell: (u) => (
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setViewRequest({ isOpen: true, request: u })}
+          >
             <Eye className="h-4 w-4 mr-2" />
             Chi tiết
           </Button>
@@ -147,6 +159,12 @@ export function RequestManagementList() {
           />
         </div>
       </Card>
+
+      <RequestDetailDialog
+        open={viewRequest.isOpen}
+        onClose={() => setViewRequest({ isOpen: false, request: undefined })}
+        request={viewRequest.request}
+      />
 
       <BaseDialog
         open={reviewRequest.isOpen}
