@@ -175,7 +175,7 @@ export function NotificationsPopover() {
                               </span>
                             </div>
                             {!notification.isRead && (
-                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                              <div className="w-2 h-2 bg-blue-500 rounded-full" />
                             )}
                           </div>
                         </div>
@@ -238,7 +238,7 @@ export function NotificationsPopover() {
           )}
 
           <Separator />
-          <div className="p-3 bg-muted/30"></div>
+          <div className="bg-white-50/50 dark:bg-blue-950/20 border-l-4 p-3" />
         </div>
       </PopoverContent>
     </Popover>
