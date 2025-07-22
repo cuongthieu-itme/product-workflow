@@ -1,6 +1,7 @@
 import { PaginatedResult } from "@/types/common";
 import { MaterialType } from "../materials/type";
 import { SourceEnum } from "./constants";
+import { MaterialRequestInputType, RequestInputType } from "./schema";
 
 export type RequestType = {
   id: number;
@@ -52,6 +53,7 @@ export interface RequestMaterial {
   id: number;
   quantity: number;
   material: MaterialType;
+  requestInput: MaterialRequestInputType;
 }
 
 export interface Customer {
@@ -74,4 +76,5 @@ export interface RequestDetail {
   customer: Customer | null;
   sourceOther: unknown | null; // chưa có schema chi tiết
   requestMaterials: RequestMaterial[];
+  createdById: number;
 }

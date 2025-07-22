@@ -1,6 +1,17 @@
 import { z } from "zod";
 import { SourceEnum } from "./constants";
-import { MaterialEnum } from "../materials/constants";
+
+export const materialRequestInputSchema = z.object({
+  id: z.number().int().optional().nullable(),
+  quantity: z.number().int().nonnegative(),
+  expectedDate: z.string().min(1, {
+    message: "",
+  }),
+  supplier: z.string().optional(),
+  sourceCountry: z.string().optional(),
+  price: z.number().optional(),
+  reason: z.string().optional(),
+}).optional().nullable();
 
 export const requestInputSchema = z
   .object({
@@ -17,6 +28,7 @@ export const requestInputSchema = z
     source: z.enum([SourceEnum.CUSTOMER, SourceEnum.OTHER], {
       message: "Nguồn yêu cầu phải là 'Khách hàng' hoặc 'Khác'",
     }),
+    createdById: z.number().int().nonnegative().optional().nullable(),
     customerId: z
       .number()
       .int()
@@ -28,25 +40,7 @@ export const requestInputSchema = z
         z.object({
           materialId: z.number().int().nonnegative(),
           quantity: z.number().int().nonnegative(),
-          materialType: z
-            .enum([MaterialEnum.MATERIAL, MaterialEnum.ACCESSORY])
-            .optional(),
-          request: z
-            .object({
-              quantity: z
-                .number()
-                .min(1, { message: "Số lượng phải lớn hơn 0" })
-                .int({ message: "Số lượng phải là số nguyên" }),
-              date: z.string().min(1, {
-                message: "",
-              }),
-              supplier: z.string().optional(),
-              sourceCountry: z.string().optional(),
-              price: z.number().optional(),
-              reason: z.string().optional(),
-            })
-            .optional()
-            .nullable(),
+          requestInput: materialRequestInputSchema.optional().nullable(),
         })
       )
       .min(1, {
@@ -85,3 +79,4 @@ export const sourceOtherInputSchema = z.object({
 
 export type RequestInputType = z.infer<typeof requestInputSchema>;
 export type SourceOtherInputType = z.infer<typeof sourceOtherInputSchema>;
+export type MaterialRequestInputType = z.infer<typeof materialRequestInputSchema>;

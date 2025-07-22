@@ -21,6 +21,7 @@ import { SourceSelect } from "./source-other";
 import { RequestDetail } from "../type";
 import { toRequestFormInput } from "../helpers";
 import { useUpdateRequestMutation } from "../hooks/useRequest";
+import { useGetUserInfoQuery } from "@/features/auth/hooks";
 
 interface RequestFormTabProps {
   onSuccess: () => void;
@@ -33,6 +34,7 @@ export const RequestFormTab = ({
 }: RequestFormTabProps) => {
   const sourceSelected = useAtomValue(sourceAtom);
   const { toast } = useToast();
+  const { data: user } = useGetUserInfoQuery()
 
   const methods = useForm<RequestInputType>({
     defaultValues: toRequestFormInput({
@@ -73,7 +75,10 @@ export const RequestFormTab = ({
 
       return;
     }
-    mutate(data, {
+    mutate({
+      ...data,
+      createdById: user?.id,
+    }, {
       onSuccess: () => {
         toast({
           title: "Tạo yêu cầu thành công",

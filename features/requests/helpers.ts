@@ -11,6 +11,8 @@ export function toRequestFormInput({
   detail,
   sourceSelected,
 }: ToRequestFormInputParams): RequestInputType {
+
+
   return {
     title: detail?.title ?? "",
     description: detail?.description ?? "",
@@ -18,11 +20,12 @@ export function toRequestFormInput({
     media: detail?.media ?? [],
     source: detail?.source ?? sourceSelected,
     customerId: detail?.customerId ?? undefined,
+    createdById: detail?.createdById,
     materials:
       detail?.requestMaterials?.map((rm) => ({
         materialId: rm.material.id,
         quantity: rm.quantity,
-        materialType: rm.material.type,
+        requestInput: rm.requestInput,
       })) ?? [],
     sourceOtherId: detail?.sourceOtherId ?? undefined,
   };

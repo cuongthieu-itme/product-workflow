@@ -77,7 +77,6 @@ export const AddMaterialDialog = () => {
       append({
         materialId: Number(selectedMaterialId),
         quantity: materialCount,
-        materialType: selectedMaterial?.type || undefined,
       });
 
       toast({
