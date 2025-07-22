@@ -11,8 +11,6 @@ export function toRequestFormInput({
   detail,
   sourceSelected,
 }: ToRequestFormInputParams): RequestInputType {
-  console.log(detail);
-
   return {
     title: detail?.title ?? "",
     description: detail?.description ?? "",
