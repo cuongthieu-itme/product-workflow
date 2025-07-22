@@ -17,10 +17,17 @@ interface TablePaginationProps {
 }
 
 export function TablePagination({
-  page,
-  totalPages,
+  page: pageProp,
+  totalPages: totalPagesProp,
   onPageChange,
 }: TablePaginationProps) {
+  const page = !Number.isNaN(pageProp) ? pageProp : 1;
+  const totalPages = !Number.isNaN(totalPagesProp) ? totalPagesProp : 0;
+
+  if (totalPages === 0) {
+    return null;
+  }
+
   const getPageNumbers = (): (number | "…")[] => {
     if (totalPages <= 5)
       return Array.from({ length: totalPages }, (_, i) => i + 1);
