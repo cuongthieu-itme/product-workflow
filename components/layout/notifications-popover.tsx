@@ -237,21 +237,8 @@ export function NotificationsPopover() {
             </>
           )}
 
-          {notifications && notifications.length > 0 && (
-            <>
-              <Separator />
-              <div className="p-3 bg-muted/30">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full text-xs text-muted-foreground hover:text-foreground"
-                  onClick={() => setOpen(false)}
-                >
-                  Xem tất cả thông báo
-                </Button>
-              </div>
-            </>
-          )}
+          <Separator />
+          <div className="p-3 bg-muted/30"></div>
         </div>
       </PopoverContent>
     </Popover>
