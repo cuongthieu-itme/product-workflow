@@ -53,7 +53,6 @@ export interface RequestMaterial {
   id: number;
   quantity: number;
   material: MaterialType;
-  requestInput: MaterialRequestInputType;
 }
 
 export interface Customer {

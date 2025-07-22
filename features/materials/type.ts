@@ -12,6 +12,18 @@ export type MaterialType = {
     name: string;
   };
   isActive: boolean;
+  requestInput: {
+    id: number;
+    quantity: number;
+    expectedDate: string;
+    supplier: string;
+    sourceCountry: string;
+    price: number;
+    reason: string;
+    materialId: number;
+    createdAt: string;
+    updatedAt: string;
+  };
   description: string;
   type: MaterialEnum;
   createdAt: string;
