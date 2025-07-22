@@ -14,6 +14,7 @@ export type RequestType = {
   specificSource: string;
   userId: number;
   statusProductId: number;
+  status: RequestStatus;
   createdAt: string;
   updatedAt: string;
 };
@@ -77,3 +78,14 @@ export interface RequestDetail {
   requestMaterials: RequestMaterial[];
   createdById: number;
 }
+
+export enum RequestStatus {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+}
+
+export type RequestChangeStatusInput = {
+  id: number;
+  status: RequestStatus;
+};

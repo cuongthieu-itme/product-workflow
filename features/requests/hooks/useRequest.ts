@@ -6,12 +6,14 @@ import {
   getRequests,
   getSourceOthers,
   updateRequest,
+  changeStatusRequest,
 } from "../services";
 import { RequestFilterInput, SourceOtherFilterInput } from "../type";
 
 export enum REQUESTS_QUERY_KEY {
   REQUESTS = "requests",
   SOURCE_OTHERS = "source-others",
+  CHANGE_STATUS = "change-status",
 }
 
 export const useGetRequestsQuery = (params?: RequestFilterInput) => {
@@ -69,6 +71,18 @@ export const useUpdateRequestMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useChangeStatusRequestMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: changeStatusRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],

@@ -7,6 +7,7 @@ import {
   RequestType,
   SourceOtherFilterInput,
   SourceOthersType,
+  RequestChangeStatusInput,
 } from "./type";
 import { BaseResultQuery } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
@@ -82,6 +83,19 @@ export const updateRequest = async ({
     return response.data;
   } catch (error) {
     console.error("Error updating request:", error);
+    throw error;
+  }
+};
+
+export const changeStatusRequest = async ({
+  id,
+  status,
+}: RequestChangeStatusInput) => {
+  try {
+    const response = await request.put(`/requests/${id}/status`, { status });
+    return response.data;
+  } catch (error) {
+    console.error("Error changing status request:", error);
     throw error;
   }
 };
