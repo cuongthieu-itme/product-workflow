@@ -1,1 +1,5 @@
-export { RequestManagementList } from "./components/request-management";
+export {
+  RequestManagementList,
+  RequestDetail,
+  RequestList,
+} from "./components";
