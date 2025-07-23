@@ -9,6 +9,7 @@ import {
   changeStatusRequest,
 } from "../services";
 import { RequestFilterInput, SourceOtherFilterInput } from "../type";
+import { useParams } from "next/navigation";
 
 export enum REQUESTS_QUERY_KEY {
   REQUESTS = "requests",
@@ -23,15 +24,13 @@ export const useGetRequestsQuery = (params?: RequestFilterInput) => {
   });
 };
 
-export const useGetRequestDetailQuery = (id?: number) => {
+export const useGetRequestDetailQuery = () => {
+  const { id } = useParams<{ id: string }>();
+
   return useQuery({
     queryKey: [REQUESTS_QUERY_KEY.REQUESTS, id],
-    queryFn: () => getDetailRequest(id as number),
+    queryFn: () => getDetailRequest(Number(id)),
     enabled: id !== undefined && id !== null,
-    staleTime: 0,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    refetchOnMount: false,
   });
 };
 

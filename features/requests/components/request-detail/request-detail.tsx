@@ -8,15 +8,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { WorkFlowTab } from "./workflow-tab";
 import { HistoryTab } from "./history-tab";
 import { ReviewTab } from "./review-tab/review-tab";
 import { ImageTab } from "./image-tab";
 import { MaterialTab } from "./material-tab";
+import { useGetRequestDetailQuery } from "../../hooks";
+import {
+  formatDate,
+  generateRequestStatus,
+  getStatusColor,
+} from "../../helper";
+import { useRouter } from "next/navigation";
 
 export function RequestDetail() {
+  const { data: request, isLoading } = useGetRequestDetailQuery();
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [tempTitle, setTempTitle] = useState("");
@@ -29,25 +36,12 @@ export function RequestDetail() {
     updatedAt: "2023-01-01T00:00:00.000Z",
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "bg-yellow-500 text-white";
-      case "in_progress":
-        return "bg-blue-500 text-white";
-      case "completed":
-        return "bg-green-500 text-white";
-      case "rejected":
-        return "bg-red-500 text-white";
-      case "on_hold":
-        return "bg-gray-500 text-white";
-      default:
-        return "bg-gray-500 text-white";
-    }
-  };
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start gap-4">
         <div>
           {isEditingTitle ? (
@@ -78,37 +72,35 @@ export function RequestDetail() {
               </Button>
             </div>
           ) : (
-            <h1
-              className="text-2xl font-bold flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded"
-              onClick={() => {
-                setTempTitle(mockData.title || "");
-                setIsEditingTitle(true);
-              }}
-            >
-              {mockData.title}
+            <h1 className="text-2xl font-bold flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+              Yêu cầu {request?.title}
               <Edit className="h-4 w-4 opacity-50" />
               <Badge variant="outline" className="ml-2">
-                {mockData.code}
+                {request?.id}
               </Badge>
             </h1>
           )}
           <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
             <Clock className="h-4 w-4" />
             <span>
-              Tạo lúc: {format(new Date(mockData.createdAt), "dd/MM/yyyy")}
+              Tạo lúc: {formatDate(request?.createdAt, "dd/MM/yyyy HH:mm")}
             </span>
             <Separator orientation="vertical" className="h-4" />
             <span>
-              Cập nhật: {format(new Date(mockData.updatedAt), "dd/MM/yyyy")}
+              Cập nhật: {formatDate(request?.updatedAt, "dd/MM/yyyy HH:mm")}
             </span>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge className={cn("px-3 py-1", getStatusColor(mockData.status))}>
-            {mockData.status}
+          <Badge className={cn("px-3 py-1", getStatusColor(request?.status))}>
+            {generateRequestStatus(request?.status)}
           </Badge>
-          <Button variant="outline">Chỉnh sửa</Button>
-          <Button variant="outline">Chuyển thành sản phẩm</Button>
+          <Button variant="outline" disabled>
+            Chỉnh sửa
+          </Button>
+          <Button variant="outline" disabled>
+            Chuyển thành sản phẩm
+          </Button>
         </div>
       </div>
 

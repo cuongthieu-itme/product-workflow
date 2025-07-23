@@ -2,6 +2,7 @@ import { PaginatedResult } from "@/types/common";
 import { MaterialType } from "../materials/type";
 import { SourceEnum } from "./constants";
 import { MaterialRequestInputType, RequestInputType } from "./schema";
+import { User } from "../users/type";
 
 export type RequestType = {
   id: number;
@@ -62,6 +63,12 @@ export interface Customer {
   email: string;
 }
 
+export enum RequestStatus {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+}
+
 export interface RequestDetail {
   id: number;
   title: string;
@@ -74,15 +81,15 @@ export interface RequestDetail {
   createdAt: string;
   updatedAt: string;
   customer: Customer | null;
-  sourceOther: unknown | null; // chưa có schema chi tiết
+  sourceOther: {
+    id: number;
+    name: string;
+    specifically: string;
+  } | null; // chưa có schema chi tiết
   requestMaterials: RequestMaterial[];
   createdById: number;
-}
-
-export enum RequestStatus {
-  PENDING = "PENDING",
-  APPROVED = "APPROVED",
-  REJECTED = "REJECTED",
+  createdBy: User;
+  status: RequestStatus;
 }
 
 export type RequestChangeStatusInput = {

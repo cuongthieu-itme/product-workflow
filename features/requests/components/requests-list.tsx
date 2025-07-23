@@ -24,9 +24,11 @@ import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { CreateRequestButton } from "./create-request-button";
 import { RequestForm } from "../form";
+import { useRouter } from "next/navigation";
 
 export function RequestList() {
   const [page, setPage] = useState(PAGE);
+  const router = useRouter();
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearch = useDebounce(searchValue, 400);
   const {
@@ -72,7 +74,13 @@ export function RequestList() {
       className: "text-right w-1",
       cell: (u) => (
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              router.push(`/dashboard/requests/${u.id}`);
+            }}
+          >
             <Eye className="h-4 w-4 mr-2" />
             Chi tiết
           </Button>
@@ -90,7 +98,14 @@ export function RequestList() {
             <Edit className="h-4 w-4 mr-2" />
             Chỉnh Sửa
           </Button>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              // Handle delete action here
+              console.log("Delete request with ID:", u.id);
+            }}
+          >
             <Trash2 className="h-4 w-4 mr-2 text-red-500" />
             Xóa
           </Button>
@@ -200,11 +215,11 @@ export function RequestList() {
             loading={isFetching}
           />
 
-          {/* <TablePagination
+          <TablePagination
             page={page}
             totalPages={totalPages}
             onPageChange={setPage}
-          /> */}
+          />
         </div>
       </Card>
 

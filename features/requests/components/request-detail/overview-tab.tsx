@@ -18,14 +18,23 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
+import { useGetRequestDetailQuery } from "../../hooks";
+import { format } from "date-fns";
+import {
+  formatDate,
+  generateRequestStatus,
+  getStatusColor,
+} from "../../helper";
+import { useRouter } from "next/navigation";
 
 export const OverViewTab = () => {
+  const { data: request } = useGetRequestDetailQuery();
   const [isEdit, setIsEdit] = useState(false);
   const mockData = {
     code: "REQ-001",
     status: "pending",
-    receiveDate: "2023-01-01",
-    deadline: "2023-01-02",
+    receiveDate: "02/01/2023 12:00",
+    deadline: "02/01/2023 12:00",
     creator: {
       fullName: "John Doe",
       department: "Marketing",
@@ -73,22 +82,7 @@ export const OverViewTab = () => {
     ],
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "bg-yellow-500 text-white";
-      case "in_progress":
-        return "bg-blue-500 text-white";
-      case "completed":
-        return "bg-green-500 text-white";
-      case "rejected":
-        return "bg-red-500 text-white";
-      case "on_hold":
-        return "bg-gray-500 text-white";
-      default:
-        return "bg-gray-500 text-white";
-    }
-  };
+  const router = useRouter();
 
   return (
     <TabsContent value="overview" className="space-y-6">
@@ -106,7 +100,7 @@ export const OverViewTab = () => {
                 <p className="text-sm font-medium text-muted-foreground">
                   Mã yêu cầu
                 </p>
-                <p>{mockData.code}</p>
+                <p>{request?.id}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
@@ -117,10 +111,10 @@ export const OverViewTab = () => {
                   <Badge
                     className={cn(
                       "mt-1 cursor-pointer hover:opacity-80",
-                      getStatusColor(mockData.status)
+                      getStatusColor(request?.status)
                     )}
                   >
-                    {mockData.status}
+                    {generateRequestStatus(request?.status)}
                   </Badge>
                 </div>
               </div>
@@ -128,7 +122,7 @@ export const OverViewTab = () => {
                 <p className="text-sm font-medium text-muted-foreground">
                   Ngày tiếp nhận
                 </p>
-                <p>{mockData.receiveDate}</p>
+                <p>{formatDate(request?.createdAt, "dd/MM/yyyy HH:mm")}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
@@ -136,12 +130,12 @@ export const OverViewTab = () => {
                 </p>
                 <p>{mockData.deadline}</p>
               </div>
-              <div>
+              {/* <div>
                 <p className="text-sm font-medium text-muted-foreground">
                   Độ ưu tiên
                 </p>
                 <p>{mockData.priority}</p>
-              </div>
+              </div> */}
             </div>
           </CardContent>
         </Card>
@@ -158,36 +152,18 @@ export const OverViewTab = () => {
             <div className="flex items-center gap-3">
               <Avatar>
                 <AvatarFallback>
-                  {mockData.creator?.fullName?.charAt(0) || "U"}
+                  {request?.createdBy?.fullName?.charAt(0) || "U"}
                 </AvatarFallback>
               </Avatar>
               <div>
+                <p className="text-sm text-muted-foreground">Người tạo</p>
                 <p className="font-medium">
-                  {mockData.creator?.fullName || "Không có dữ liệu"}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Người tạo • {mockData.creator?.department || ""}
+                  {request?.createdBy?.fullName || "Không có dữ liệu"}
                 </p>
               </div>
             </div>
 
             <Separator />
-
-            <div className="flex items-center gap-3">
-              <Avatar>
-                <AvatarFallback>
-                  {mockData.assignee?.fullName?.charAt(0) || "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-medium">
-                  {mockData.assignee?.fullName || "Chưa phân công"}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Người được giao • {mockData.assignee?.department || ""}
-                </p>
-              </div>
-            </div>
           </CardContent>
         </Card>
 
@@ -200,31 +176,54 @@ export const OverViewTab = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {mockData.dataSource?.type === "customer" ? (
+            {request?.sourceOther ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
                   <Avatar>
                     <AvatarFallback>
-                      {mockData.dataSource?.fullName?.charAt(0) || "K"}
+                      {request.sourceOther?.name?.charAt(0) || "K"}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="font-medium">
-                      {mockData.dataSource?.fullName || "Không có dữ liệu"}
+                      {request.sourceOther?.name || "Không có dữ liệu"}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      ID: {mockData.customerId || mockData.dataSource?.id}
+                      ID: {request.sourceOther?.id}
                     </p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" className="mt-2">
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <Avatar>
+                    <AvatarFallback>
+                      {request?.customer?.fullName?.charAt(0) || "K"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">
+                      {request?.customer?.fullName || "Không có dữ liệu"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      ID: {request?.customer?.id}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2"
+                  onClick={() => {
+                    router.push(
+                      `/dashboard/customers/${request?.customer?.id}`
+                    );
+                  }}
+                >
                   Xem chi tiết khách hàng
                 </Button>
               </div>
-            ) : (
-              <p className="text-muted-foreground">
-                Không có thông tin khách hàng
-              </p>
             )}
           </CardContent>
         </Card>
@@ -285,7 +284,6 @@ export const OverViewTab = () => {
                   : "Yêu cầu này đang tạm dừng. Bạn có thể tiếp tục quy trình khi sẵn sàng."}
               </p>
 
-              {/* Hiển thị lý do từ chối/tạm dừng gần nhất từ requestHistory */}
               {(() => {
                 const latestRejectOrHold = mockData.requestHistory
                   .filter(
@@ -401,7 +399,7 @@ export const OverViewTab = () => {
           ) : (
             <div className="prose max-w-none cursor-pointer hover:bg-gray-50 p-2 rounded flex items-start gap-2">
               <div className="flex-1">
-                {mockData.description || "Không có mô tả"}
+                {request?.description || "Không có mô tả"}
               </div>
               <Edit className="h-4 w-4 opacity-50 mt-1" />
             </div>
