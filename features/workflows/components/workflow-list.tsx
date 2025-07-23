@@ -13,14 +13,11 @@ import { LIMIT, PAGE } from "@/constants/pagination";
 import { WorkFlowProcessType } from "../types";
 import { useWorkFlowProcessesQuery } from "../hooks";
 import { useRouter } from "next/navigation";
-import { DeleteWorkflowDialog } from "./delete-workflow-dialog";
 import { useDebounce } from "@/hooks/use-debounce";
 
 export function WorkflowProcessList() {
   const [page, setPage] = useState(PAGE);
   const [searchValue, setSearchValue] = useState("");
-  const [deleteWorkflow, setDeleteWorkflow] =
-    useState<WorkFlowProcessType | null>(null);
   const searchValueDebounced = useDebounce(searchValue, 400);
   const {
     data: workflow,
@@ -35,10 +32,6 @@ export function WorkflowProcessList() {
   const totalPages = workflow
     ? Math.max(PAGE, Math.ceil(workflow.total / LIMIT))
     : PAGE;
-
-  const handleOpenDeleteDialog = (workflow: WorkFlowProcessType) => {
-    setDeleteWorkflow(workflow);
-  };
 
   const columns: Column<WorkFlowProcessType>[] = [
     {
@@ -81,14 +74,6 @@ export function WorkflowProcessList() {
               <Edit className="h-4 w-4 mr-2" />
               Chỉnh sửa
             </Link>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleOpenDeleteDialog(u)}
-          >
-            <Trash2 className="h-4 w-4 mr-2 text-red-500" />
-            Xóa
           </Button>
         </div>
       ),
@@ -139,13 +124,6 @@ export function WorkflowProcessList() {
             totalPages={totalPages}
             onPageChange={setPage}
           />
-
-          {deleteWorkflow && (
-            <DeleteWorkflowDialog
-              deletingWorkflow={deleteWorkflow}
-              setDeletingWorkflow={setDeleteWorkflow}
-            />
-          )}
         </div>
       </div>
     </div>
