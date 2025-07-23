@@ -81,7 +81,7 @@ export const getNotificationSettings = async (page = 1, limit = 10) => {
 
 export const markAsReadNotification = async (ids: number[]) => {
   try {
-    const response = await request.put<{
+    const response = await request.patch<{
       success: boolean;
       data: NotificationType;
     }>(`/notification-admins/is-read`, { ids });
