@@ -68,7 +68,7 @@ export const generateRequestStatus = (status?: RequestStatus) => {
   }
 };
 
-export const getStatusColor = (status: StatusSubprocessHistory) => {
+export const getStatusColor = (status?: StatusSubprocessHistory) => {
   switch (status) {
     case StatusSubprocessHistory.COMPLETED:
       return "bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700";
@@ -77,6 +77,19 @@ export const getStatusColor = (status: StatusSubprocessHistory) => {
     case StatusSubprocessHistory.PENDING:
       return "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 hover:text-blue-700";
     case StatusSubprocessHistory.CANCELLED:
+      return "bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700";
+    default:
+      return "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 hover:text-blue-700";
+  }
+};
+
+export const getRequestStatusColor = (status?: RequestStatus) => {
+  switch (status) {
+    case RequestStatus.APPROVED:
+      return "bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700";
+    case RequestStatus.PENDING:
+      return "bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100 hover:text-orange-700";
+    case RequestStatus.REJECTED:
       return "bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700";
     default:
       return "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 hover:text-blue-700";

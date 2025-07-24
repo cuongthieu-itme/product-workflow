@@ -18,6 +18,7 @@ import { useGetRequestDetailQuery } from "../../hooks";
 import {
   formatDate,
   generateRequestStatus,
+  getRequestStatusColor,
   getStatusColor,
 } from "../../helpers";
 
@@ -91,7 +92,9 @@ export function RequestDetail() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge className={cn("px-3 py-1", getStatusColor(request?.status))}>
+          <Badge
+            className={cn("px-3 py-1", getRequestStatusColor(request?.status))}
+          >
             {generateRequestStatus(request?.status)}
           </Badge>
           <Button variant="outline" disabled>

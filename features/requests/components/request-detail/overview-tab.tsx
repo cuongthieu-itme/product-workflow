@@ -22,6 +22,7 @@ import { useGetRequestDetailQuery } from "../../hooks";
 import {
   formatDate,
   generateRequestStatus,
+  getRequestStatusColor,
   getStatusColor,
 } from "../../helpers";
 import { useRouter } from "next/navigation";
@@ -110,7 +111,7 @@ export const OverViewTab = () => {
                   <Badge
                     className={cn(
                       "mt-1 cursor-pointer hover:opacity-80",
-                      getStatusColor(request?.status)
+                      getRequestStatusColor(request?.status)
                     )}
                   >
                     {generateRequestStatus(request?.status)}
