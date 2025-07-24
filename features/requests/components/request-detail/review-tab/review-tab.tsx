@@ -4,6 +4,8 @@ import { ReviewForm } from "./components/review-form";
 import { ReviewList } from "./components/review-list";
 import { TabsContent } from "@/components/ui/tabs";
 import { format } from "date-fns";
+import { useGetEvaluatesQuery } from "@/features/requests/hooks/useRequest";
+import { useParams } from "next/navigation";
 
 interface Review {
   id: number;
@@ -49,54 +51,14 @@ const mockReviews = [
 ];
 
 export const ReviewTab = () => {
-  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
-  const [replyingTo, setReplyingTo] = useState<number | null>(null);
-
-  const handleAddReview = (review: any) => {
-    setIsLoadingReviews(true);
-    setTimeout(() => {
-      const newId = mockReviews.length + 1;
-      const newReviewData = {
-        ...review,
-        id: newId,
-        createdAt: new Date().toISOString(),
-        author: review.isAnonymous ? null : { name: "Người đánh giá" },
-        likes: 0,
-        dislikes: 0,
-        replies: [],
-      };
-      mockReviews.push(newReviewData);
-      setIsLoadingReviews(false);
-    }, 1000);
-  };
-
-  const handleReviewReaction = (reviewId: number, type: "like" | "dislike") => {
-    const updatedReviews = mockReviews.map((review) => {
-      if (review.id === reviewId) {
-        const count =
-          type === "like"
-            ? (review.likes || 0) + 1
-            : (review.dislikes || 0) + 1;
-        return {
-          ...review,
-          [type === "like" ? "likes" : "dislikes"]: count,
-        };
-      }
-      return review;
-    });
-    // In a real implementation, you would update the state here
-  };
+  const { id } = useParams<{ id: string }>();
+  const { data } = useGetEvaluatesQuery({ requestId: Number(id) });
 
   return (
     <TabsContent value="reviews" className="space-y-6">
-      <ReviewForm onSubmit={handleAddReview} isLoading={isLoadingReviews} />
+      <ReviewForm />
 
-      <ReviewList
-        reviews={mockReviews}
-        onLike={(id) => handleReviewReaction(id, "like")}
-        onDislike={(id) => handleReviewReaction(id, "dislike")}
-        onReply={setReplyingTo}
-      />
+      <ReviewList reviews={data || []} />
     </TabsContent>
   );
 };

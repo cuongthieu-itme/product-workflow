@@ -1,5 +1,9 @@
 import request from "@/configs/axios-config";
-import { RequestInputType, SourceOtherInputType } from "./schema";
+import {
+  EvaluateInputType,
+  RequestInputType,
+  SourceOtherInputType,
+} from "./schema";
 import {
   RequestDetail,
   RequestFilterInput,
@@ -8,8 +12,10 @@ import {
   SourceOtherFilterInput,
   SourceOthersType,
   RequestChangeStatusInput,
+  EvaluateType,
+  EvaluateFilterInput,
 } from "./type";
-import { BaseResultQuery } from "@/types/common";
+import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
 
 export const getRequests = async (params?: RequestFilterInput) => {
@@ -96,6 +102,31 @@ export const changeStatusRequest = async ({
     return response.data;
   } catch (error) {
     console.error("Error changing status request:", error);
+    throw error;
+  }
+};
+
+export const getEvaluates = async (params: EvaluateFilterInput) => {
+  try {
+    const response = await request.get<PaginatedResult<"data", EvaluateType>>(
+      "/evaluates",
+      {
+        params: omitVoid(params),
+      }
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching evaluates:", error);
+    throw error;
+  }
+};
+
+export const createEvaluate = async (data: EvaluateInputType) => {
+  try {
+    const response = await request.post("/evaluates", data);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating evaluate:", error);
     throw error;
   }
 };

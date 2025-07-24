@@ -7,14 +7,21 @@ import {
   getSourceOthers,
   updateRequest,
   changeStatusRequest,
+  createEvaluate,
+  getEvaluates,
 } from "../services";
-import { RequestFilterInput, SourceOtherFilterInput } from "../type";
+import {
+  EvaluateFilterInput,
+  RequestFilterInput,
+  SourceOtherFilterInput,
+} from "../type";
 import { useParams } from "next/navigation";
 
 export enum REQUESTS_QUERY_KEY {
   REQUESTS = "requests",
   SOURCE_OTHERS = "source-others",
   CHANGE_STATUS = "change-status",
+  EVALUATES = "evaluates",
 }
 
 export const useGetRequestsQuery = (params?: RequestFilterInput) => {
@@ -85,6 +92,25 @@ export const useChangeStatusRequestMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useGetEvaluatesQuery = (params: EvaluateFilterInput) => {
+  return useQuery({
+    queryKey: [REQUESTS_QUERY_KEY.EVALUATES, params],
+    queryFn: () => getEvaluates(params),
+  });
+};
+
+export const useCreateEvaluateMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createEvaluate,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.EVALUATES],
       });
     },
   });

@@ -1,17 +1,20 @@
 import { z } from "zod";
 import { SourceEnum } from "./constants";
 
-export const materialRequestInputSchema = z.object({
-  id: z.number().int().optional().nullable(),
-  quantity: z.number().int().nonnegative(),
-  expectedDate: z.string().min(1, {
-    message: "",
-  }),
-  supplier: z.string().optional(),
-  sourceCountry: z.string().optional(),
-  price: z.number().optional(),
-  reason: z.string().optional(),
-}).optional().nullable();
+export const materialRequestInputSchema = z
+  .object({
+    id: z.number().int().optional().nullable(),
+    quantity: z.number().int().nonnegative(),
+    expectedDate: z.string().min(1, {
+      message: "",
+    }),
+    supplier: z.string().optional(),
+    sourceCountry: z.string().optional(),
+    price: z.number().optional(),
+    reason: z.string().optional(),
+  })
+  .optional()
+  .nullable();
 
 export const requestInputSchema = z
   .object({
@@ -77,6 +80,23 @@ export const sourceOtherInputSchema = z.object({
   }),
 });
 
+export const evaluateInputSchema = z.object({
+  title: z.string().min(1, { message: "Tên đánh giá không được để trống" }),
+  reviewType: z.string().min(1, {
+    message: "Loại đánh giá không được để trống",
+  }),
+  score: z.number().int().nonnegative(),
+  description: z.string().min(1, {
+    message: "Mô tả không được để trống",
+  }),
+  isAnonymous: z.boolean(),
+  requestId: z.number().int().nonnegative(),
+  createdById: z.number().int().nonnegative(),
+});
+
 export type RequestInputType = z.infer<typeof requestInputSchema>;
 export type SourceOtherInputType = z.infer<typeof sourceOtherInputSchema>;
-export type MaterialRequestInputType = z.infer<typeof materialRequestInputSchema>;
+export type MaterialRequestInputType = z.infer<
+  typeof materialRequestInputSchema
+>;
+export type EvaluateInputType = z.infer<typeof evaluateInputSchema>;

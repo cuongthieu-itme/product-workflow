@@ -3,33 +3,13 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Star, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
-interface Review {
-  id: number;
-  title: string;
-  type: string;
-  rating: number;
-  content: string;
-  createdAt: string;
-  author: { name: string } | null;
-  likes: number;
-  dislikes: number;
-  replies: Review[];
-}
+import { EvaluateType } from "@/features/requests/type";
 
 interface ReviewListProps {
-  reviews: Review[];
-  onLike: (reviewId: number) => void;
-  onDislike: (reviewId: number) => void;
-  onReply: (reviewId: number) => void;
+  reviews: EvaluateType[];
 }
 
-export const ReviewList = ({
-  reviews,
-  onLike,
-  onDislike,
-  onReply,
-}: ReviewListProps) => {
+export const ReviewList = ({ reviews }: ReviewListProps) => {
   const renderStarRating = (rating: number) => {
     return (
       <div className="flex items-center gap-1">
@@ -45,18 +25,6 @@ export const ReviewList = ({
         ))}
       </div>
     );
-  };
-
-  const getReviewTypeLabel = (type: string) => {
-    const labels = {
-      general: "Tổng quan",
-      design: "Thiết kế",
-      quality: "Chất lượng",
-      price: "Giá cả",
-      timing: "Thời gian",
-      service: "Dịch vụ",
-    };
-    return labels[type as keyof typeof labels] || "Không xác định";
   };
 
   return (
@@ -77,67 +45,19 @@ export const ReviewList = ({
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-medium">{review.title}</h4>
-                      <Badge variant="outline">
-                        {getReviewTypeLabel(review.type)}
-                      </Badge>
+                      <Badge variant="outline">{review.reviewType}</Badge>
                     </div>
-                    {renderStarRating(review.rating)}
+                    {renderStarRating(review.score)}
                   </div>
-                  <div className="text-right text-sm text-muted-foreground">
-                    <p>{review.author?.name || "Ẩn danh"}</p>
+                  {/* <div className="text-right text-sm text-muted-foreground">
+                    <p>{review.user?.name || "Ẩn danh"}</p>
                     <p>
                       {format(new Date(review.createdAt), "dd/MM/yyyy HH:mm")}
                     </p>
-                  </div>
+                  </div> */}
                 </div>
 
-                <p className="text-gray-700 mb-3">{review.content}</p>
-
-                <div className="flex items-center gap-4 text-sm">
-                  <button
-                    onClick={() => onLike(review.id)}
-                    className="flex items-center gap-1 text-green-600 hover:text-green-700"
-                  >
-                    <ThumbsUp className="w-4 h-4" /> {review.likes}
-                  </button>
-                  <button
-                    onClick={() => onDislike(review.id)}
-                    className="flex items-center gap-1 text-red-600 hover:text-red-700"
-                  >
-                    <ThumbsDown className="w-4 h-4" /> {review.dislikes}
-                  </button>
-                  <button
-                    onClick={() => onReply(review.id)}
-                    className="text-blue-600 hover:text-blue-700"
-                  >
-                    Phản hồi
-                  </button>
-                </div>
-
-                {review.replies?.length > 0 && (
-                  <div className="mt-4 pl-4 border-l-2 border-gray-200">
-                    {review.replies.map((reply) => (
-                      <div key={reply.id} className="space-y-2">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">
-                                {reply.author?.name || "Ẩn danh"}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                {format(
-                                  new Date(reply.createdAt),
-                                  "dd/MM/yyyy HH:mm"
-                                )}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <p className="text-gray-700">{reply.content}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <p className="text-gray-700 mb-3">{review.description}</p>
               </div>
             ))}
           </div>

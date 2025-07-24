@@ -96,3 +96,20 @@ export type RequestChangeStatusInput = {
   id: number;
   status: RequestStatus;
 };
+
+export type EvaluateFilterInput = {
+  requestId?: number;
+  page?: number;
+  limit?: number;
+};
+
+export type EvaluateType = {
+  id: number;
+  title: string;
+  reviewType: string;
+  score: number;
+  description: string;
+  isAnonymous: boolean;
+  requestId: number;
+  createdById: number;
+};
