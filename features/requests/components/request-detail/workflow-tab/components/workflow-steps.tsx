@@ -62,7 +62,7 @@ export const WorkflowSteps = ({ steps }: WorkflowStepsProps) => {
   const getStepFocusColor = (id: string) => {
     const step = selectedStep?.id === id;
     return step
-      ? "shadow-lg ring-4 ring-blue-100 transform -translate-y-1 transition-all duration-300"
+      ? "shadow-lg shadow-lg transform-translate-y-1 transition-all duration-300"
       : "";
   };
 
@@ -92,12 +92,12 @@ export const WorkflowSteps = ({ steps }: WorkflowStepsProps) => {
         {steps.length > 0 ? (
           <div className="space-y-6">
             <div className="overflow-x-auto pb-4">
-              <div className="flex gap-4 min-w-max">
+              <div className="flex gap-4 min-w-max mt-5">
                 {steps.map((step, index) => (
                   <div key={step.id} className="flex items-center">
                     <Button
                       variant="outline"
-                      className={`w-40 ${getStatusColor(
+                      className={`w-44 ${getStatusColor(
                         step.status
                       )} transition-colors duration-200 rounded-lg ${getStepFocusColor(
                         step.id
