@@ -112,4 +112,6 @@ export type EvaluateType = {
   isAnonymous: boolean;
   requestId: number;
   createdById: number;
+  createdBy: User;
+  createdAt: string;
 };
