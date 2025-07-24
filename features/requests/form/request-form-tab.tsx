@@ -148,6 +148,20 @@ export const RequestFormTab = ({
             name="media"
             label="Hình ảnh hoặc video"
             disabled={isPending || isUpdatePending}
+            accept={{
+              "image/jpeg": [".jpg", ".jpeg"],
+              "image/png": [".png"],
+              "image/webp": [".webp"],
+              "video/mp4": [".mp4"],
+              "video/quicktime": [".mov"],
+              "video/x-msvideo": [".avi"],
+              "video/x-ms-wmv": [".wmv"],
+              "video/3gpp": [".3gp"],
+              "video/3gpp2": [".3g2"],
+              "video/mp2t": [".ts"],
+              "video/ogg": [".ogv"],
+              "video/webm": [".webm"],
+            }}
           />
 
           <MaterialSelector />

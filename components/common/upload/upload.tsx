@@ -7,10 +7,11 @@ import {
   type FieldValues,
 } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, X, GripVertical } from "lucide-react";
+import { Plus, X, GripVertical, ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDropzone } from "react-dropzone";
 import type { Accept, FileWithPath } from "react-dropzone";
@@ -41,6 +42,9 @@ export type UploadFileProps<T extends FieldValues> = UseControllerProps<T> & {
   className?: string;
   maxFiles?: number;
   accept?: Accept;
+  hideHeader?: boolean;
+  content?: string;
+  previewClasses?: string;
 };
 
 export const UploadFile = <T extends FieldValues>({
@@ -57,6 +61,9 @@ export const UploadFile = <T extends FieldValues>({
     "image/png": [".png"],
     "image/webp": [".webp"],
   },
+  hideHeader = false,
+  content,
+  previewClasses,
 }: UploadFileProps<T>) => {
   const { toast } = useToast();
   const {
@@ -183,14 +190,16 @@ export const UploadFile = <T extends FieldValues>({
   // ----- UI -----
   return (
     <div className={cn("space-y-2", className)}>
-      <Label htmlFor={name}>{label}</Label>
+      {!hideHeader && <Label htmlFor={name}>{label}</Label>}
 
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">
-            Kéo thả hoặc chọn ảnh
-          </CardTitle>
-        </CardHeader>
+        {!hideHeader && (
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">
+              {label ?? "Kéo thả hoặc chọn file"}
+            </CardTitle>
+          </CardHeader>
+        )}
 
         <CardContent className="p-4">
           {/* Drop zone */}
@@ -204,12 +213,19 @@ export const UploadFile = <T extends FieldValues>({
             )}
           >
             <div className="flex flex-col items-center gap-2 ">
-              <Plus className="h-6 w-6 text-muted-foreground" />
+              <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-sm text-muted-foreground">
                 {value.length >= maxFiles
-                  ? `Đã đạt giới hạn ${maxFiles} ảnh`
-                  : "Kéo thả ảnh hoặc nhấp để chọn"}
+                  ? `Đã đạt giới hạn ${maxFiles} file`
+                  : content ?? "Kéo thả hoặc chọn file"}
               </p>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(accept).map(([type, extensions]) => (
+                  <Badge key={type} variant="outline" className="text-xs">
+                    {extensions.map((ext) => ext.replace(".", "")).join(", ")}
+                  </Badge>
+                ))}
+              </div>
             </div>
             <Input
               {...getInputProps()}
@@ -229,9 +245,10 @@ export const UploadFile = <T extends FieldValues>({
                 items={previews.map((_, index) => `file-${index}`)}
                 strategy={verticalListSortingStrategy}
               >
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
                   {previews.map(({ src, typeFile }, i) => (
                     <PreviewFileItem
+                      previewClasses={previewClasses}
                       key={`file-${i}`}
                       id={`file-${i}`}
                       src={src}

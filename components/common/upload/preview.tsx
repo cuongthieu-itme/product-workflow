@@ -12,6 +12,7 @@ interface PreviewFileItemProps {
   index: number;
   typeFile?: FileTypeGen; // Optional, if you want to display file type
   onRemove: (index: number) => void;
+  previewClasses?: string;
 }
 
 export const PreviewFileItem: React.FC<PreviewFileItemProps> = ({
@@ -20,6 +21,7 @@ export const PreviewFileItem: React.FC<PreviewFileItemProps> = ({
   index,
   onRemove,
   typeFile,
+  previewClasses,
 }) => {
   const {
     attributes,
@@ -46,13 +48,13 @@ export const PreviewFileItem: React.FC<PreviewFileItemProps> = ({
         <img
           src={src}
           alt={`Preview ${id}`}
-          className="w-full h-24 object-cover rounded-md"
+          className={cn("w-full h-24 object-cover", previewClasses)}
         />
       ) : (
         <video
           src={src}
           controls
-          className="w-full h-24 object-cover rounded-md"
+          className={cn("w-full h-24 object-cover", previewClasses)}
         />
       )}
 

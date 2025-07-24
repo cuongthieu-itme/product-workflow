@@ -94,9 +94,16 @@ export const evaluateInputSchema = z.object({
   createdById: z.number().int().nonnegative(),
 });
 
+export const mediaSchema = z.object({
+  media: z.array(z.string()).min(1, {
+    message: "Vui lòng tải lên ít nhất 1 hình ảnh hoặc video",
+  }),
+});
+
 export type RequestInputType = z.infer<typeof requestInputSchema>;
 export type SourceOtherInputType = z.infer<typeof sourceOtherInputSchema>;
 export type MaterialRequestInputType = z.infer<
   typeof materialRequestInputSchema
 >;
 export type EvaluateInputType = z.infer<typeof evaluateInputSchema>;
+export type MediaInputType = z.infer<typeof mediaSchema>;
