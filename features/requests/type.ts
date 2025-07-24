@@ -25,6 +25,7 @@ export interface RequestFilterInput {
   page?: number;
   limit?: number;
   title?: string;
+  procedureId?: number;
 }
 
 export type RequestsType = PaginatedResult<"data", RequestType>;

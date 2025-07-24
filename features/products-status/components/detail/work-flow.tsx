@@ -6,15 +6,75 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Select, SelectItem } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetRequestsQuery } from "@/features/requests/hooks";
 import { useGetWorkflowProcessByIdQuery } from "@/features/workflows/hooks";
 import { AlertCircle, Clock } from "lucide-react";
+import { useState } from "react";
 
 export function WorkFlow({ procedureId }: { procedureId: number }) {
-  const { data: procedure } = useGetWorkflowProcessByIdQuery(procedureId);
-  console.log("procedure", procedure);
+  const { data: procedure, isLoading: isProcedureLoading } =
+    useGetWorkflowProcessByIdQuery(procedureId);
+  const { data: request, isLoading: isRequestLoading } = useGetRequestsQuery({
+    limit: 10000,
+    procedureId: procedureId,
+  });
+  const [selectedRequestId, setSelectedRequestId] = useState<
+    string | undefined
+  >(request?.data[0]?.id.toString() || undefined);
+
+  const isLoading = isProcedureLoading || isRequestLoading;
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-4 w-64" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="relative pl-8 pb-4">
+                <div className="absolute left-0 top-0">
+                  <Skeleton className="h-6 w-6 rounded-full" />
+                </div>
+                <div className="border rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-6 w-24" />
+                  </div>
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <div className="mt-2 flex items-center gap-4">
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
+      <Select
+        value={selectedRequestId}
+        onValueChange={(value) => {
+          setSelectedRequestId(value);
+        }}
+      >
+        {request?.data?.map((req) => (
+          <SelectItem key={req.id} value={String(req.id)}>
+            {req.title}
+          </SelectItem>
+        ))}
+      </Select>
+
       <CardHeader>
         <CardTitle className="text-lg">Các bước trong quy trình</CardTitle>
         <CardDescription>
