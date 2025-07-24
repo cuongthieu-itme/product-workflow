@@ -13,13 +13,13 @@ export const formatDate = (
 export const generateRequestStatus = (status?: RequestStatus) => {
   switch (status) {
     case RequestStatus.PENDING:
-      return "Đang chờ";
+      return "Đang chờ duyệt";
     case RequestStatus.APPROVED:
       return "Đã phê duyệt";
     case RequestStatus.REJECTED:
-      return "Đã hoàn thành";
+      return "Đã từ chối";
     default:
-      return "Đang chờ";
+      return "Đang chờ duyệt";
   }
 };
 
