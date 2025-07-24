@@ -78,16 +78,6 @@ export function UpdateProductStatusForm({
     reset();
   }, [open]);
 
-  const { data: procedures } = useWorkFlowProcessesQuery({
-    limit: 1000,
-  });
-
-  const proceduresOptions =
-    procedures?.data?.map((p) => ({
-      value: p.id,
-      label: p.name,
-    })) ?? [];
-
   return (
     <BaseDialog
       open={open}
@@ -143,19 +133,6 @@ export function UpdateProductStatusForm({
               />
 
               <ChooseColorProductStatus control={control} name="color" />
-
-              <SelectCustom
-                name="procedureId"
-                control={control}
-                label="Quy trình"
-                emptyOption={{
-                  label: "Chọn quy trình",
-                }}
-                options={proceduresOptions}
-                required
-                placeholder="Chọn quy trình"
-                disabled={isPending}
-              />
             </div>
 
             <DialogFooter className="flex justify-end gap-2">

@@ -62,7 +62,11 @@ export function ProductStatusList() {
       id: "description",
       header: "Chi tiết",
     },
-
+    {
+      id: "procedure",
+      header: "Quy trình",
+      cell: (u) => u.procedure?.name || "Không có quy trình",
+    },
     {
       id: "createdAt",
       header: "Ngày tạo",
