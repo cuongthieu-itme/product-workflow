@@ -1,23 +1,23 @@
-import type { Metadata } from 'next'
+import type { Metadata } from "next";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
-} from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ReportsList } from '@/components/reports/reports-list'
-import { ReportFilters } from '@/components/reports/report-filters'
-import { Button } from '@/components/ui/button'
-import { Download, FileText, PlusCircle } from 'lucide-react'
-import { ProductPerformanceChart } from '@/components/reports/product-performance-chart'
-import { MarketingPerformanceChart } from '@/components/reports/marketing-performance-chart'
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ReportsList } from "@/components/reports/reports-list";
+import { ReportFilters } from "@/components/reports/report-filters";
+import { Button } from "@/components/ui/button";
+import { Download, FileText, PlusCircle } from "lucide-react";
+import { ProductPerformanceChart } from "@/components/reports/product-performance-chart";
+import { MarketingPerformanceChart } from "@/components/reports/marketing-performance-chart";
 
 export const metadata: Metadata = {
-  title: 'Báo Cáo - ProductFlow',
-  description: 'Xem và tạo báo cáo về quy trình phát triển sản phẩm'
-}
+  title: "Báo Cáo - ProductFlow",
+  description: "Xem và tạo báo cáo về quy trình phát triển sản phẩm",
+};
 
 export default function ReportsPage() {
   return (
@@ -70,7 +70,7 @@ export default function ReportsPage() {
               <ProductPerformanceChart />
             </CardContent>
           </Card>
-          <ReportsList type="product" />
+          <ReportsList />
         </TabsContent>
         <TabsContent value="marketing" className="space-y-4">
           <Card>
@@ -90,7 +90,7 @@ export default function ReportsPage() {
               <MarketingPerformanceChart />
             </CardContent>
           </Card>
-          <ReportsList type="marketing" />
+          <ReportsList />
         </TabsContent>
         <TabsContent value="custom" className="space-y-4">
           <Card>
@@ -109,5 +109,5 @@ export default function ReportsPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

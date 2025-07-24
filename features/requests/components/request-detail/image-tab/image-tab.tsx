@@ -16,10 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { UploadFile } from "@/components/common/upload";
 import { useUpdateRequestMutation } from "@/features/requests/hooks/useRequest";
 import { useGetUserInfoQuery } from "@/features/auth/hooks";
-import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 
 export const ImageTab = () => {
   const { data: request } = useGetRequestDetailQuery();

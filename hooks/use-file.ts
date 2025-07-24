@@ -3,7 +3,8 @@ import {
   deleteMultipleFiles,
   uploadFile,
   uploadMultipleFiles,
-} from "@/app/api/form";
+} from "@/apis/form";
+
 import { useToast } from "@/components/ui/use-toast";
 import { useMutation, type UseMutationResult } from "@tanstack/react-query";
 

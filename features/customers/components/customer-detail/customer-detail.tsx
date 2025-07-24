@@ -3,7 +3,6 @@
 import { useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CustomerRequests } from "@/components/customers/customer-requests";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CustomerInformation } from "./customer-information";
 import { useCustomerQuery } from "../../hooks";
@@ -68,9 +67,6 @@ export function CustomerDetail() {
           </TabsList>
           <TabsContent value="info" className="mt-4">
             <CustomerInformation customerId={customerId} />
-          </TabsContent>
-          <TabsContent value="requests" className="mt-4">
-            <CustomerRequests customerId={customerId} />
           </TabsContent>
         </Tabs>
       </div>

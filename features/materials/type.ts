@@ -41,7 +41,7 @@ export type MaterialFilterInput = {
 };
 
 export type ChangeStatusMaterialInput = {
-  id: string;
+  id: string | number;
   isActive: boolean;
 };
 
