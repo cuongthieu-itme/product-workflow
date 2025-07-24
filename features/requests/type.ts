@@ -92,11 +92,6 @@ export interface RequestDetail {
   status: RequestStatus;
 }
 
-export type RequestChangeStatusInput = {
-  id: number;
-  status: RequestStatus;
-};
-
 export type EvaluateFilterInput = {
   requestId?: number;
   page?: number;

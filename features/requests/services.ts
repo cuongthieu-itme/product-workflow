@@ -1,5 +1,6 @@
 import request from "@/configs/axios-config";
 import {
+  ConfirmRequestInputType,
   EvaluateInputType,
   RequestInputType,
   SourceOtherInputType,
@@ -11,9 +12,9 @@ import {
   RequestType,
   SourceOtherFilterInput,
   SourceOthersType,
-  RequestChangeStatusInput,
   EvaluateType,
   EvaluateFilterInput,
+  RequestStatus,
 } from "./type";
 import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
@@ -95,13 +96,26 @@ export const updateRequest = async ({
 
 export const changeStatusRequest = async ({
   id,
-  status,
-}: RequestChangeStatusInput) => {
+  ...data
+}: ConfirmRequestInputType) => {
   try {
-    const response = await request.put(`/requests/${id}/status`, { status });
+    const response = await request.put(`/requests/${id}/status`, { ...data });
     return response.data;
   } catch (error) {
     console.error("Error changing status request:", error);
+    throw error;
+  }
+};
+
+export const rejectRequest = async (id: number) => {
+  try {
+    const response = await request.put(`/requests/${id}/status`, {
+      status: RequestStatus.REJECTED,
+      statusProductId: undefined,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error rejecting request:", error);
     throw error;
   }
 };

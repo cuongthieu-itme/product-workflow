@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { SourceEnum } from "./constants";
+import { RequestStatus } from "./type";
 
 export const materialRequestInputSchema = z
   .object({
@@ -100,6 +101,34 @@ export const mediaSchema = z.object({
   }),
 });
 
+export const confirmRequestInputSchema = z.object({
+  id: z
+    .number({
+      message: "Yêu cầu không hợp lệ",
+      required_error: "Yêu cầu là bắt buộc",
+    })
+    .int()
+    .nonnegative()
+    .optional()
+    .nullable(),
+  status: z.enum(
+    [RequestStatus.APPROVED, RequestStatus.REJECTED, RequestStatus.PENDING],
+    {
+      message: "Trạng thái yêu cầu không hợp lệ",
+      required_error: "Trạng thái là bắt buộc",
+    }
+  ),
+  statusProductId: z.union([z.string(), z.number()]).pipe(
+    z.coerce
+      .number({
+        required_error: "Quy trình là bắt buộc",
+        invalid_type_error: "Quy trình không hợp lệ",
+      })
+      .int({ message: "Quy trình phải là số nguyên" })
+      .positive({ message: "Quy trình phải là số dương" })
+  ),
+});
+
 export type RequestInputType = z.infer<typeof requestInputSchema>;
 export type SourceOtherInputType = z.infer<typeof sourceOtherInputSchema>;
 export type MaterialRequestInputType = z.infer<
@@ -107,3 +136,4 @@ export type MaterialRequestInputType = z.infer<
 >;
 export type EvaluateInputType = z.infer<typeof evaluateInputSchema>;
 export type MediaInputType = z.infer<typeof mediaSchema>;
+export type ConfirmRequestInputType = z.infer<typeof confirmRequestInputSchema>;

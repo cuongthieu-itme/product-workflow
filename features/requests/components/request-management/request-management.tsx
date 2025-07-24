@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { DataTable } from "@/components/data-table";
-import { Eye, CheckCircle } from "lucide-react";
+import { Eye, CheckCircle, XCircle, X } from "lucide-react";
 import type { Column } from "@/components/data-table/types";
 import { Button } from "@/components/ui/button";
 import { TableToolbar } from "@/components/data-table/toolbar";
@@ -12,11 +12,10 @@ import { RequestStatus, RequestType } from "../../type";
 import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
-import { BaseDialog } from "@/components/dialog";
 import { TablePagination } from "@/components/data-table/pagination";
-import { useChangeStatusRequestMutation } from "../../hooks/useRequest";
-import { toast } from "sonner";
 import { RequestDetailDialog } from "./request-detail-dialog";
+import { RequestConfirmDialog } from "./request-confirm-dialog";
+import { RequestRejectDialog } from "./request-reject-dialog";
 
 export function RequestManagementList() {
   const [page, setPage] = useState(PAGE);
@@ -45,34 +44,17 @@ export function RequestManagementList() {
     isOpen: false,
     request: undefined,
   });
-
-  const {
-    mutate: changeStatusRequestMutation,
-    isPending: isChangeStatusPending,
-  } = useChangeStatusRequestMutation();
+  const [rejectRequest, setRejectRequest] = useState<{
+    isOpen: boolean;
+    request?: RequestType;
+  }>({
+    isOpen: false,
+    request: undefined,
+  });
 
   const totalPages = requests
     ? Math.max(PAGE, Math.ceil(requests.total / LIMIT))
     : PAGE;
-
-  const handleApprove = async () => {
-    if (!reviewRequest.request) return;
-    changeStatusRequestMutation(
-      {
-        id: reviewRequest.request.id,
-        status: RequestStatus.APPROVED,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Yêu cầu đã được duyệt thành công!");
-          setReviewRequest({ isOpen: false, request: undefined });
-        },
-        onError: (error) => {
-          toast.error(error?.message || "Duyệt yêu cầu thất bại!");
-        },
-      }
-    );
-  };
 
   const columns: Column<RequestType>[] = [
     { id: "title", header: "Tên yêu cầu" },
@@ -104,6 +86,38 @@ export function RequestManagementList() {
             <Eye className="h-4 w-4 mr-2" />
             Chi tiết
           </Button>
+
+          {u.status === RequestStatus.REJECTED ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-32"
+              onClick={() => {
+                setReviewRequest({
+                  isOpen: true,
+                  request: u,
+                });
+              }}
+            >
+              <XCircle className="h-4 w-4 mr-2 text-red-500" />
+              Đã từ chối
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-32"
+              onClick={() => {
+                setRejectRequest({
+                  isOpen: true,
+                  request: u,
+                });
+              }}
+            >
+              <X className="h-4 w-4 mr-2 text-red-500" />
+              Từ chối
+            </Button>
+          )}
 
           {u.status === RequestStatus.APPROVED ? (
             <Button variant="outline" size="sm" disabled className="w-32">
@@ -144,7 +158,7 @@ export function RequestManagementList() {
             onSearchChange={setSearchValue}
             onRefresh={refetch}
             refreshing={isFetching}
-          ></TableToolbar>
+          />
 
           <DataTable<RequestType>
             data={requests?.data}
@@ -166,26 +180,17 @@ export function RequestManagementList() {
         request={viewRequest.request}
       />
 
-      <BaseDialog
-        open={reviewRequest.isOpen}
+      <RequestConfirmDialog
         onClose={() => setReviewRequest({ isOpen: false, request: undefined })}
-        title="Duyệt yêu cầu"
-        description={`Bạn có chắc chắn muốn duyệt yêu cầu "${reviewRequest.request?.title}" không?`}
-      >
-        <div className="flex justify-end gap-4 mt-4">
-          <Button
-            variant="outline"
-            onClick={() =>
-              setReviewRequest({ isOpen: false, request: undefined })
-            }
-          >
-            Hủy
-          </Button>
-          <Button onClick={handleApprove} disabled={isChangeStatusPending}>
-            {isChangeStatusPending ? "Đang xử lý..." : "Xác nhận"}
-          </Button>
-        </div>
-      </BaseDialog>
+        open={reviewRequest.isOpen}
+        request={reviewRequest.request}
+      />
+
+      <RequestRejectDialog
+        onClose={() => setRejectRequest({ isOpen: false, request: undefined })}
+        open={rejectRequest.isOpen}
+        request={rejectRequest.request}
+      />
     </div>
   );
 }

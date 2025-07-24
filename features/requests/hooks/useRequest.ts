@@ -9,6 +9,7 @@ import {
   changeStatusRequest,
   createEvaluate,
   getEvaluates,
+  rejectRequest,
 } from "../services";
 import {
   EvaluateFilterInput,
@@ -111,6 +112,18 @@ export const useCreateEvaluateMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.EVALUATES],
+      });
+    },
+  });
+};
+
+export const useRejectRequestMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: rejectRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
       });
     },
   });
