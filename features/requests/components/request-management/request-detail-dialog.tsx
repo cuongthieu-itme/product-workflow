@@ -11,13 +11,10 @@ interface RequestDetailDialogProps {
 }
 
 export function RequestDetailDialog({
-  request,
   open,
   onClose,
 }: RequestDetailDialogProps) {
-  const { data: requestDetail, isLoading } = useGetRequestDetailQuery(
-    request?.id
-  );
+  const { data: requestDetail, isLoading } = useGetRequestDetailQuery();
 
   return (
     <BaseDialog
@@ -35,7 +32,6 @@ export function RequestDetailDialog({
           <p>
             <strong>Mô tả:</strong> {requestDetail.description}
           </p>
-          {/* Add more details as needed */}
         </div>
       )}
     </BaseDialog>
