@@ -110,9 +110,8 @@ export function RequestDetail() {
         defaultValue="overview"
         value={activeTab}
         onValueChange={setActiveTab}
-        className="w-full"
       >
-        <TabsList className="grid grid-cols-5 md:w-[800px]">
+        <TabsList className="flex justify-start gap-2 whitespace-nowrap">
           <TabsTrigger value="overview">Tổng quan</TabsTrigger>
           <TabsTrigger value="workflow">Quy trình</TabsTrigger>
           <TabsTrigger value="reviews">Đánh giá</TabsTrigger>

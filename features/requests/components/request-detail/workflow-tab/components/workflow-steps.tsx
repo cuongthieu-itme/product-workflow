@@ -74,7 +74,6 @@ export const WorkflowSteps = ({ steps }: WorkflowStepsProps) => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <ChevronRight className="h-5 w-5" />
           Các bước quy trình
         </CardTitle>
         <CardDescription>
