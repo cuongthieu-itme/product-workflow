@@ -1,3 +1,5 @@
+import { StatusSubprocessHistory } from "@/features/requests/type";
+
 export interface WorkflowField {
   id: string;
   name: string;
@@ -21,11 +23,13 @@ export interface WorkflowStep {
     email: string;
   };
   dueDate?: string;
-  status: 'completed' | 'in_progress' | 'not_started';
+  status: StatusSubprocessHistory;
   estimatedTime?: number;
-  estimatedTimeUnit?: 'hours' | 'days';
+  estimatedTimeUnit?: "hours" | "days";
   isOptional?: boolean;
   fields?: WorkflowField[];
+  isRequired: boolean;
+  isStepWithCost: boolean;
 }
 
 export interface CurrentRequest {

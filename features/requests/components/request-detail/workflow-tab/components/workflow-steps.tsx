@@ -5,73 +5,65 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import {
-  CheckCircle,
-  AlertCircle,
-  Circle,
-  ChevronRight,
-  Clock,
-  Calendar,
-  Info,
-} from "lucide-react";
+import { ChevronRight, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { WorkflowStep, CurrentRequest, WorkflowField } from "./types";
-import { useState } from "react";
-import { useGetRequestsQuery } from "@/features/requests/hooks";
+import { WorkflowStep, WorkflowField } from "./types";
+import { useState, useEffect } from "react";
+import { Check, Circle, AlertCircle } from "lucide-react";
 import {
   useGetRequestDetailQuery,
   useGetSubprocessHistoryQuery,
 } from "@/features/requests/hooks/useRequest";
+import { StatusSubprocessHistory } from "@/features/requests/type";
+import { getStatusColor, getStatusText } from "@/features/requests/helpers";
 
 interface WorkflowStepsProps {
   steps: WorkflowStep[];
-  currentRequest: CurrentRequest;
 }
 
-export const WorkflowSteps = ({
-  steps,
-  currentRequest,
-}: WorkflowStepsProps) => {
+export const WorkflowSteps = ({ steps }: WorkflowStepsProps) => {
   const { data: request } = useGetRequestDetailQuery();
   const { data: subprocessHistory } = useGetSubprocessHistoryQuery({
-    procedureId: 6,
+    procedureId: 3,
   });
-  console.log(subprocessHistory);
   const [selectedStep, setSelectedStep] = useState<WorkflowStep | null>(null);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-50 text-green-600 border-green-200";
-      case "in_progress":
-        return "bg-orange-50 text-orange-600 border-orange-200";
-      default:
-        return "bg-blue-50 text-blue-600 border-blue-200";
+  // Auto focus on next step when current step is completed
+  useEffect(() => {
+    if (steps) {
+      // Find the next step after step COMPLETED
+      const completedStepIndex = steps.findIndex(
+        (step) => step.status === StatusSubprocessHistory.COMPLETED
+      );
+      if (completedStepIndex >= 0 && completedStepIndex < steps.length - 1) {
+        const nextStep = steps[completedStepIndex + 1];
+        setSelectedStep(nextStep);
+      }
     }
-  };
+  }, [steps]);
 
-  const getStatusText = (status: string) => {
+  const getStepIcon = (status: StatusSubprocessHistory) => {
     switch (status) {
-      case "completed":
-        return "Hoàn thành";
-      case "in_progress":
-        return "Đang thực hiện";
-      default:
-        return "Chưa bắt đầu";
-    }
-  };
-
-  const getStepIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle className="h-5 w-5" />;
-      case "in_progress":
+      case StatusSubprocessHistory.COMPLETED:
+        return <Check className="h-5 w-5" />;
+      case StatusSubprocessHistory.IN_PROGRESS:
+        return <AlertCircle className="h-5 w-5" />;
+      case StatusSubprocessHistory.PENDING:
+        return <Circle className="h-5 w-5" />;
+      case StatusSubprocessHistory.CANCELLED:
         return <AlertCircle className="h-5 w-5" />;
       default:
         return <Circle className="h-5 w-5" />;
     }
+  };
+
+  const getStepFocusColor = (id: string) => {
+    const step = selectedStep?.id === id;
+    return step
+      ? "shadow-lg ring-4 ring-blue-100 transform -translate-y-1 transition-all duration-300"
+      : "";
   };
 
   const handleStepClick = (step: WorkflowStep) => {
@@ -88,7 +80,9 @@ export const WorkflowSteps = ({
         <CardDescription>
           {steps.length} bước • Tiến độ:{" "}
           {Math.round(
-            (steps.filter((step) => step.status === "completed").length /
+            (steps.filter(
+              (step) => step.status === StatusSubprocessHistory.COMPLETED
+            ).length /
               steps.length) *
               100
           )}
@@ -106,7 +100,9 @@ export const WorkflowSteps = ({
                       variant="outline"
                       className={`w-40 ${getStatusColor(
                         step.status
-                      )} hover:bg-gray-50 transition-colors duration-200 rounded-lg`}
+                      )} transition-colors duration-200 rounded-lg ${getStepFocusColor(
+                        step.id
+                      )}`}
                       onClick={() => handleStepClick(step)}
                     >
                       <div className="flex flex-col items-center justify-center gap-3 p-4">
@@ -155,15 +151,7 @@ export const WorkflowSteps = ({
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <p className="text-sm text-gray-500">Trạng thái</p>
-                    <Badge
-                      variant={
-                        selectedStep.status === "completed"
-                          ? "outline"
-                          : selectedStep.status === "in_progress"
-                          ? "outline"
-                          : "outline"
-                      }
-                    >
+                    <Badge variant="outline">
                       {getStatusText(selectedStep.status)}
                     </Badge>
                   </div>

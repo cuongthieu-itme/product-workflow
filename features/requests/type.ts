@@ -92,7 +92,7 @@ export interface RequestDetail {
     id: number;
     name: string;
     specifically: string;
-  } | null; // chưa có schema chi tiết
+  } | null;
   requestMaterials: RequestMaterial[];
   createdById: number;
   createdBy: User;

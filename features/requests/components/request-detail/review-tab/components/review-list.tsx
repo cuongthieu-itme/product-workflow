@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { useGetEvaluatesQuery } from "@/features/requests/hooks/useRequest";
 import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { formatDate } from "@/features/requests/helper";
+import { formatDate } from "@/features/requests/helpers";
 import { TablePagination } from "@/components/data-table/pagination";
 import { LIMIT, PAGE } from "@/constants/pagination";
 import { useMemo, useState } from "react";

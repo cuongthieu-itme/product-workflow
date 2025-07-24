@@ -11,10 +11,7 @@ export const WorkFlowTab = () => {
           workflow={mockWorkflow}
           currentRequest={mockCurrentRequest}
         />
-        <WorkflowSteps
-          steps={mockWorkflow.steps}
-          currentRequest={mockCurrentRequest}
-        />
+        <WorkflowSteps steps={mockWorkflow.steps} />
       </div>
     </TabsContent>
   );

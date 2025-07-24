@@ -1,12 +1,7 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
 import { WorkflowData, CurrentRequest, WorkflowStep } from "./types";
+import { StatusSubprocessHistory } from "@/features/requests/type";
 
 interface WorkflowInfoProps {
   workflow: WorkflowData;
@@ -18,7 +13,9 @@ export const WorkflowInfo = ({
   currentRequest,
 }: WorkflowInfoProps) => {
   const getProgress = (steps: WorkflowStep[]) => {
-    const completedSteps = steps.filter((step) => step.status === "completed");
+    const completedSteps = steps.filter(
+      (step) => step.status === StatusSubprocessHistory.COMPLETED
+    );
     return Math.round((completedSteps.length / steps.length) * 100);
   };
 
