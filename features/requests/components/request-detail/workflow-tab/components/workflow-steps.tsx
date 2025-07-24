@@ -19,6 +19,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { WorkflowStep, CurrentRequest, WorkflowField } from "./types";
 import { useState } from "react";
+import { useGetRequestsQuery } from "@/features/requests/hooks";
+import {
+  useGetRequestDetailQuery,
+  useGetSubprocessHistoryQuery,
+} from "@/features/requests/hooks/useRequest";
 
 interface WorkflowStepsProps {
   steps: WorkflowStep[];
@@ -29,6 +34,11 @@ export const WorkflowSteps = ({
   steps,
   currentRequest,
 }: WorkflowStepsProps) => {
+  const { data: request } = useGetRequestDetailQuery();
+  const { data: subprocessHistory } = useGetSubprocessHistoryQuery({
+    procedureId: 6,
+  });
+  console.log(subprocessHistory);
   const [selectedStep, setSelectedStep] = useState<WorkflowStep | null>(null);
 
   const getStatusColor = (status: string) => {

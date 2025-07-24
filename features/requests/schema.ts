@@ -129,6 +129,28 @@ export const confirmRequestInputSchema = z.object({
   ),
 });
 
+export const subprocessHistoryInputSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  estimatedNumberOfDays: z.number(),
+  numberOfDaysBeforeDeadline: z.number(),
+  roleOfThePersonInCharge: z.string(),
+  isRequired: z.boolean(),
+  isStepWithCost: z.boolean(),
+  step: z.number(),
+  procedureId: z.number(),
+  departmentId: z.number(),
+  price: z.number(),
+  startDate: z.string(),
+  endDate: z.string(),
+  status: z.enum([
+    RequestStatus.APPROVED,
+    RequestStatus.REJECTED,
+    RequestStatus.PENDING,
+  ]),
+  userId: z.number(),
+});
+
 export type RequestInputType = z.infer<typeof requestInputSchema>;
 export type SourceOtherInputType = z.infer<typeof sourceOtherInputSchema>;
 export type MaterialRequestInputType = z.infer<

@@ -10,11 +10,13 @@ import {
   createEvaluate,
   getEvaluates,
   rejectRequest,
+  getSubprocessHistory,
 } from "../services";
 import {
   EvaluateFilterInput,
   RequestFilterInput,
   SourceOtherFilterInput,
+  SubprocessHistoryFilterInput,
 } from "../type";
 import { useParams } from "next/navigation";
 
@@ -23,6 +25,7 @@ export enum REQUESTS_QUERY_KEY {
   SOURCE_OTHERS = "source-others",
   CHANGE_STATUS = "change-status",
   EVALUATES = "evaluates",
+  SUBPROCESS_HISTORY = "subprocess-history",
 }
 
 export const useGetRequestsQuery = (params?: RequestFilterInput) => {
@@ -126,5 +129,14 @@ export const useRejectRequestMutation = () => {
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
       });
     },
+  });
+};
+
+export const useGetSubprocessHistoryQuery = (
+  params: SubprocessHistoryFilterInput
+) => {
+  return useQuery({
+    queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY, params],
+    queryFn: () => getSubprocessHistory(params),
   });
 };

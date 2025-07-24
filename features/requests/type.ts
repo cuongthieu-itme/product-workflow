@@ -69,6 +69,13 @@ export enum RequestStatus {
   REJECTED = "REJECTED",
 }
 
+export enum StatusSubprocessHistory {
+  PENDING = "PENDING",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
+}
+
 export interface RequestDetail {
   id: number;
   title: string;
@@ -109,4 +116,32 @@ export type EvaluateType = {
   createdById: number;
   createdBy: User;
   createdAt: string;
+};
+
+export type SubprocessHistoryType = {
+  id: number;
+  name: string;
+  description: string;
+  estimatedNumberOfDays: number;
+  numberOfDaysBeforeDeadline: number;
+  roleOfThePersonInCharge: string;
+  isRequired: boolean;
+  isStepWithCost: boolean;
+  step: number;
+  procedureId: number;
+  departmentId: number;
+  price: number;
+  startDate: string;
+  endDate: string;
+  status: StatusSubprocessHistory;
+  userId: number;
+  user: User;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SubprocessHistoryFilterInput = {
+  procedureId?: number;
+  page?: number;
+  limit?: number;
 };

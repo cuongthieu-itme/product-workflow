@@ -19,7 +19,7 @@ import {
   formatDate,
   generateRequestStatus,
   getStatusColor,
-} from "../../helper";
+} from "../../helpers";
 
 export function RequestDetail() {
   const { data: request, isLoading } = useGetRequestDetailQuery();

@@ -15,6 +15,7 @@ import {
   EvaluateType,
   EvaluateFilterInput,
   RequestStatus,
+  SubprocessHistoryFilterInput,
 } from "./type";
 import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
@@ -141,6 +142,23 @@ export const createEvaluate = async (data: EvaluateInputType) => {
     return response.data;
   } catch (error) {
     console.error("Error creating evaluate:", error);
+    throw error;
+  }
+};
+
+export const getSubprocessHistory = async (
+  params: SubprocessHistoryFilterInput
+) => {
+  try {
+    const response = await request.get<PaginatedResult<"data", any>>(
+      "/subprocesses-history",
+      {
+        params: omitVoid(params),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching subprocess history:", error);
     throw error;
   }
 };
