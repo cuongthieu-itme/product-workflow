@@ -20,7 +20,6 @@ import {
   generateRequestStatus,
   getStatusColor,
 } from "../../helper";
-import { useRouter } from "next/navigation";
 
 export function RequestDetail() {
   const { data: request, isLoading } = useGetRequestDetailQuery();
@@ -113,7 +112,6 @@ export function RequestDetail() {
         <TabsList className="grid grid-cols-6 md:w-[800px]">
           <TabsTrigger value="overview">Tổng quan</TabsTrigger>
           <TabsTrigger value="workflow">Quy trình</TabsTrigger>
-          <TabsTrigger value="history">Lịch sử</TabsTrigger>
           <TabsTrigger value="reviews">Đánh giá</TabsTrigger>
           <TabsTrigger value="images">Hình ảnh</TabsTrigger>
           <TabsTrigger value="materials">Vật liệu</TabsTrigger>
@@ -121,7 +119,6 @@ export function RequestDetail() {
 
         <OverViewTab />
         <WorkFlowTab />
-        <HistoryTab />
         <ReviewTab />
         <ImageTab />
         <MaterialTab />
