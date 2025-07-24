@@ -109,7 +109,7 @@ export function RequestDetail() {
         onValueChange={setActiveTab}
         className="w-full"
       >
-        <TabsList className="grid grid-cols-6 md:w-[800px]">
+        <TabsList className="grid grid-cols-5 md:w-[800px]">
           <TabsTrigger value="overview">Tổng quan</TabsTrigger>
           <TabsTrigger value="workflow">Quy trình</TabsTrigger>
           <TabsTrigger value="reviews">Đánh giá</TabsTrigger>

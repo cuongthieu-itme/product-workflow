@@ -114,7 +114,7 @@ export const getEvaluates = async (params: EvaluateFilterInput) => {
         params: omitVoid(params),
       }
     );
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error("Error fetching evaluates:", error);
     throw error;

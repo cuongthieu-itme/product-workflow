@@ -14,30 +14,37 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Star } from "lucide-react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { EvaluateInputType } from "@/features/requests/schema";
+import {
+  evaluateInputSchema,
+  EvaluateInputType,
+} from "@/features/requests/schema";
 import { useGetUserInfoQuery } from "@/features/auth/hooks";
 import { useParams } from "next/navigation";
 import { InputCustom } from "@/components/form/input";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { useCreateEvaluateMutation } from "@/features/requests/hooks/useRequest";
 import { useToast } from "@/components/ui/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export const ReviewForm = () => {
   const { id } = useParams<{ id: string }>();
   const { data: user } = useGetUserInfoQuery();
-  const { control, handleSubmit, setValue } = useForm<EvaluateInputType>({
-    defaultValues: {
-      createdById: user?.id,
-      requestId: Number(id),
-      description: "",
-      score: 0,
-      reviewType: "",
-      title: "",
-      isAnonymous: false,
-    },
-  });
+  const { control, handleSubmit, setValue, reset } = useForm<EvaluateInputType>(
+    {
+      defaultValues: {
+        createdById: user?.id,
+        requestId: Number(id),
+        description: "",
+        score: 0,
+        reviewType: "",
+        title: "",
+        isAnonymous: false,
+      },
+      resolver: zodResolver(evaluateInputSchema),
+    }
+  );
 
-  const { mutate, isPending, reset } = useCreateEvaluateMutation();
+  const { mutate, isPending } = useCreateEvaluateMutation();
   const { toast } = useToast();
 
   const onSubmit: SubmitHandler<EvaluateInputType> = (data) => {
