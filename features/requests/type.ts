@@ -16,6 +16,7 @@ export type RequestType = {
   userId: number;
   statusProductId: number;
   status: RequestStatus;
+  createdBy: User;
   createdAt: string;
   updatedAt: string;
 };

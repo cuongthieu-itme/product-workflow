@@ -16,6 +16,7 @@ import { TablePagination } from "@/components/data-table/pagination";
 import { RequestDetailDialog } from "./request-detail-dialog";
 import { RequestConfirmDialog } from "./request-confirm-dialog";
 import { RequestRejectDialog } from "./request-reject-dialog";
+import { useRouter } from "next/navigation";
 
 export function RequestManagementList() {
   const [page, setPage] = useState(PAGE);
@@ -37,13 +38,6 @@ export function RequestManagementList() {
     isOpen: false,
     request: undefined,
   });
-  const [viewRequest, setViewRequest] = useState<{
-    isOpen: boolean;
-    request?: RequestType;
-  }>({
-    isOpen: false,
-    request: undefined,
-  });
   const [rejectRequest, setRejectRequest] = useState<{
     isOpen: boolean;
     request?: RequestType;
@@ -51,6 +45,8 @@ export function RequestManagementList() {
     isOpen: false,
     request: undefined,
   });
+
+  const router = useRouter();
 
   const totalPages = requests
     ? Math.max(PAGE, Math.ceil(requests.total / LIMIT))
@@ -61,6 +57,12 @@ export function RequestManagementList() {
     {
       id: "description",
       header: "Chi tiết yêu cầu",
+    },
+    {
+      id: "createdBy",
+      header: "Người tạo",
+      cell: (u) =>
+        u.createdBy ? `${u.createdBy.fullName} (${u.createdBy.email})` : "N/A",
     },
     {
       id: "createdAt",
@@ -81,24 +83,16 @@ export function RequestManagementList() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setViewRequest({ isOpen: true, request: u })}
+            onClick={
+              () => router.push(`/dashboard/requests/${u.id}`) // Navigate to request detail page
+            }
           >
             <Eye className="h-4 w-4 mr-2" />
             Chi tiết
           </Button>
 
           {u.status === RequestStatus.REJECTED ? (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-32"
-              onClick={() => {
-                setReviewRequest({
-                  isOpen: true,
-                  request: u,
-                });
-              }}
-            >
+            <Button variant="outline" size="sm" className="w-32">
               <XCircle className="h-4 w-4 mr-2 text-red-500" />
               Đã từ chối
             </Button>
@@ -107,6 +101,7 @@ export function RequestManagementList() {
               variant="outline"
               size="sm"
               className="w-32"
+              disabled={u.status === RequestStatus.APPROVED}
               onClick={() => {
                 setRejectRequest({
                   isOpen: true,
@@ -173,12 +168,6 @@ export function RequestManagementList() {
           />
         </div>
       </Card>
-
-      <RequestDetailDialog
-        open={viewRequest.isOpen}
-        onClose={() => setViewRequest({ isOpen: false, request: undefined })}
-        request={viewRequest.request}
-      />
 
       <RequestConfirmDialog
         onClose={() => setReviewRequest({ isOpen: false, request: undefined })}
