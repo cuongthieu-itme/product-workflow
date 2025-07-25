@@ -110,7 +110,6 @@ export function UpdateDepartmentForm({
       onClose={onClose}
       title="Cập nhật phòng ban"
       description="Điền thông tin để cập nhật phòng ban. Nhấn nút Cập nhật khi hoàn tất."
-      contentClassName="sm:max-w-[400px]"
     >
       <ScrollArea className="max-h-[80vh] pr-4 -mr-4">
         <div className="space-y-6 pr-4">

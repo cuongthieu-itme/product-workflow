@@ -33,7 +33,7 @@ export function BaseDialog({
   description,
   children,
   footer,
-  contentClassName = "sm:max-w-[425px]",
+  contentClassName = "w-[40vw]",
   headerClassName,
   width = "40vw",
 }: BaseDialogProps) {
