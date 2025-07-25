@@ -76,6 +76,7 @@ export enum StatusSubprocessHistory {
   IN_PROGRESS = "IN_PROGRESS",
   COMPLETED = "COMPLETED",
   CANCELLED = "CANCELLED",
+  SKIPPED = "SKIPPED",
 }
 
 export type SubprocessHistoryType = {

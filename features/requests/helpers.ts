@@ -78,6 +78,8 @@ export const getStatusColor = (status?: StatusSubprocessHistory) => {
       return "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 hover:text-blue-700";
     case StatusSubprocessHistory.CANCELLED:
       return "bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700";
+    case StatusSubprocessHistory.SKIPPED:
+      return "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 hover:text-gray-700";
     default:
       return "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 hover:text-blue-700";
   }
@@ -106,6 +108,8 @@ export const getStatusText = (status: StatusSubprocessHistory) => {
       return "Chưa bắt đầu";
     case StatusSubprocessHistory.CANCELLED:
       return "Đã hủy";
+    case StatusSubprocessHistory.SKIPPED:
+      return "Đã bỏ qua";
     default:
       return "Chưa bắt đầu";
   }

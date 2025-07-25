@@ -145,7 +145,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
     skipSubprocessHistory(
       {
         id: step.id,
-        status: StatusSubprocessHistory.CANCELLED,
+        status: StatusSubprocessHistory.SKIPPED,
       },
       {
         onSuccess: () => {

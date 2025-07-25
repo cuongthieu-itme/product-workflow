@@ -75,7 +75,7 @@ export const AddMaterialDialog = ({ request }: AddMaterialDialogProps) => {
   };
 
   const materialList = materials?.data.filter((material) =>
-    request?.requestMaterials.some((m) => Number(m.id) === Number(material.id))
+    request?.requestMaterials.some((m) => Number(m.id) !== Number(material.id))
   );
 
   return (

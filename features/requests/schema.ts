@@ -155,6 +155,7 @@ export const subprocessHistoryFormSchema = z
       StatusSubprocessHistory.COMPLETED,
       StatusSubprocessHistory.IN_PROGRESS,
       StatusSubprocessHistory.PENDING,
+      StatusSubprocessHistory.SKIPPED,
     ]),
   })
   .refine((data) => data.endDate > data.startDate, {
