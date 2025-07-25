@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
+import { useGetUserNoDepartmentsQuery } from "@/features/users/hooks/useUsersQuery";
 
 export function UpdateDepartmentForm({
   onDepartmentAdded,
@@ -66,7 +67,7 @@ export function UpdateDepartmentForm({
     data,
     // reset: resetMutationStatus,
   } = useUpdateDepartmentMutation();
-  const { data: users } = useUsersQuery();
+  const { data: users } = useGetUserNoDepartmentsQuery();
 
   const onSubmit: SubmitHandler<UpdateDepartmentInputType> = (data) => {
     if (!department?.id) return;
