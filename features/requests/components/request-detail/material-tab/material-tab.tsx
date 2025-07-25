@@ -2,14 +2,14 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, Plus, Minus } from "lucide-react";
-
+import { Package } from "lucide-react";
 import { useGetRequestDetailQuery } from "@/features/requests/hooks";
 import { RequestMaterial } from "@/features/requests/type";
 import { MaterialEnum } from "@/features/materials/constants";
+import { AddMaterialDialog } from "./add-material-dialog";
 
 export const MaterialTab = () => {
-  const { data: request, isLoading } = useGetRequestDetailQuery();
+  const { data: request } = useGetRequestDetailQuery();
 
   return (
     <TabsContent value="materials">
@@ -20,10 +20,7 @@ export const MaterialTab = () => {
               <Package className="h-6 w-6 text-primary" />
               <h3 className="text-2xl font-semibold">Vật liệu yêu cầu</h3>
             </div>
-            <Button className="bg-primary hover:bg-primary/90">
-              <Plus className="h-4 w-4 mr-2" />
-              Thêm vật liệu
-            </Button>
+            <AddMaterialDialog request={request} />
           </div>
           <p className="text-muted-foreground">
             Quản lý danh sách vật liệu cần thiết cho yêu cầu này
