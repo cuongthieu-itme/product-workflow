@@ -33,12 +33,14 @@ import {
 } from "lucide-react";
 import { convertSubProcessFormData } from "../../helper";
 import { WorkflowSkeleton } from "./skeleton";
+import { useToast } from "@/components/ui/use-toast";
 
 export function WorkflowForm() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading } = useGetWorkflowProcessByIdQuery(Number(id));
   const [isCreateStepModalOpen, setIsCreateStepModalOpen] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
 
   const methods = useForm<CreateWorkflowInputType>({
     resolver: zodResolver(createWorkflowInputSchema),
@@ -82,11 +84,8 @@ export function WorkflowForm() {
     setIsCreateStepModalOpen(false);
   };
 
-  const {
-    mutate: createWorkflowProcess,
-    error,
-    isSuccess,
-  } = useCreateOfUpdateWPMutation();
+  const { mutate: createWorkflowProcess, error } =
+    useCreateOfUpdateWPMutation();
 
   const onSubmit: SubmitHandler<CreateWorkflowInputType> = (formData) => {
     const normalizedSubprocesses = formData.subprocesses.map(
@@ -99,21 +98,46 @@ export function WorkflowForm() {
     );
 
     if (data?.id) {
-      createWorkflowProcess({
-        id: data.id,
-        name: formData.name,
-        description: formData.description,
-        subprocesses: normalizedSubprocesses,
-      });
+      createWorkflowProcess(
+        {
+          id: data.id,
+          name: formData.name,
+          description: formData.description,
+          subprocesses: normalizedSubprocesses,
+        },
+        {
+          onSuccess: () => {
+            router.push(`/dashboard/workflows/${data.id}`);
+          },
+        }
+      );
 
       return;
     }
 
-    createWorkflowProcess({
-      name: formData.name,
-      description: formData.description,
-      subprocesses: normalizedSubprocesses,
-    });
+    createWorkflowProcess(
+      {
+        name: formData.name,
+        description: formData.description,
+        subprocesses: normalizedSubprocesses,
+      },
+      {
+        onSuccess: (response) => {
+          toast({
+            title: "Thành công",
+            description: "Quy trình đã được tạo thành công.",
+          });
+          router.push(`/dashboard/workflows/${response.id}`);
+        },
+        onError: (error) => {
+          toast({
+            title: "Lỗi",
+            description: error.message,
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   if (isLoading) return <WorkflowSkeleton />;
@@ -143,18 +167,6 @@ export function WorkflowForm() {
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Lỗi</AlertTitle>
               <AlertDescription>{error.message}</AlertDescription>
-            </Alert>
-          )}
-
-          {isSuccess && (
-            <Alert className="bg-green-50 border-green-200">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertTitle className="text-green-800">Thành công!</AlertTitle>
-              <AlertDescription className="text-green-700">
-                {id
-                  ? "Quy trình đã được cập nhật"
-                  : "Quy trình đã được tạo thành công"}
-              </AlertDescription>
             </Alert>
           )}
 

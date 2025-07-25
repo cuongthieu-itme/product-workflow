@@ -27,6 +27,7 @@ export const SourceFormDialog = () => {
     mutate(data, {
       onSuccess: () => {
         reset();
+        setIsDialogOpen(false);
       },
     });
   };

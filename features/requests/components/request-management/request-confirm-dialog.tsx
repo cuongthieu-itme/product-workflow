@@ -75,7 +75,9 @@ export const RequestConfirmDialog = ({
     (option) => option.id == watch("statusProductId")
   );
 
-  const { data: process } = useGetWorkflowProcessByIdQuery(selectedStatus?.id);
+  const { data: process } = useGetWorkflowProcessByIdQuery(
+    selectedStatus?.procedure.id
+  );
 
   useEffect(() => {
     reset();

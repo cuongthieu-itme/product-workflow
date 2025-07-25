@@ -28,7 +28,6 @@ import { WorkFlowStepType } from "../types";
 export const DetailWorkflow = () => {
   const params = useParams();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("overview");
 
   const { data: workflowProcess } = useGetWorkflowProcessByIdQuery(
     Number(params.id)
@@ -56,7 +55,7 @@ export const DetailWorkflow = () => {
             <div className="flex items-start gap-6">
               {/* Step indicator */}
               <div className="relative flex-shrink-0">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg flex items-center justify-center border-4 border-white">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br  shadow-lg flex items-center justify-center border-4 border-white">
                   <span className="text-black font-semibold text-sm">
                     {index + 1}
                   </span>
@@ -87,14 +86,6 @@ export const DetailWorkflow = () => {
                           {step.description}
                         </p>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="ml-4 hover:bg-blue-50 hover:border-blue-300 transition-colors"
-                      >
-                        <Edit className="mr-2 h-4 w-4" />
-                        Chỉnh sửa
-                      </Button>
                     </div>
 
                     {/* Info grid */}
@@ -109,33 +100,6 @@ export const DetailWorkflow = () => {
                         <p className="text-blue-800 font-semibold">
                           {step.estimatedNumberOfDays} ngày
                         </p>
-                      </div>
-
-                      <div className="bg-green-50 rounded-lg p-3 border border-green-100">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium text-green-700">
-                            Trạng thái
-                          </span>
-                        </div>
-                        <Badge className="bg-gradient-to-r from-green-400 to-emerald-400 text-white border-0">
-                          Chưa bắt đầu
-                        </Badge>
-                      </div>
-
-                      <div className="bg-purple-50 rounded-lg p-3 border border-purple-100">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium text-purple-700">
-                            Tiến độ
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 bg-gray-200 rounded-full h-2">
-                            <div className="bg-gradient-to-r from-purple-400 to-purple-500 h-2 rounded-full w-0"></div>
-                          </div>
-                          <span className="text-sm font-medium text-purple-700">
-                            0%
-                          </span>
-                        </div>
                       </div>
                     </div>
 
@@ -188,45 +152,6 @@ export const DetailWorkflow = () => {
                 {workflowProcess.description}
               </CardDescription>
             </div>
-            <div className="flex flex-col md:flex-row gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 md:flex-none"
-              >
-                <Edit className="mr-2 h-4 w-4" />
-                Chỉnh sửa
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                className="flex-1 md:flex-none"
-                onClick={() => {
-                  toast({
-                    title: "Xác nhận xóa",
-                    description: "Bạn có chắc chắn muốn xóa quy trình này?",
-                    action: (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          // Xóa quy trình
-                          toast({
-                            title: "Thành công",
-                            description: "Đã xóa quy trình thành công",
-                          });
-                        }}
-                      >
-                        Xóa
-                      </Button>
-                    ),
-                  });
-                }}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Xóa
-              </Button>
-            </div>
           </div>
         </CardHeader>
         <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -256,9 +181,6 @@ export const DetailWorkflow = () => {
         <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <ChevronRight className="h-4 w-4 text-white" />
-              </div>
               <div>
                 <CardTitle className="text-xl text-gray-800">
                   Bước thực hiện

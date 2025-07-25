@@ -20,6 +20,7 @@ import { useCreateProductStatusMutation } from "../hooks";
 import { useToast } from "@/components/ui/use-toast";
 import { ChooseColorProductStatus } from "./choose-color-product-status";
 import { useWorkFlowProcessesQuery } from "@/features/workflows/hooks";
+import { TextAreaCustom } from "@/components/form/textarea";
 
 export function CreateProductStatusForm({
   onCustomerAdded,
@@ -134,12 +135,13 @@ export function CreateProductStatusForm({
                   disabled={isPending}
                 />
 
-                <InputCustom
+                <TextAreaCustom
                   control={control}
                   name="description"
                   label="Chi tiết"
                   placeholder="Nhập chi tiết"
                   required
+                  rows={5}
                   disabled={isPending}
                 />
 
