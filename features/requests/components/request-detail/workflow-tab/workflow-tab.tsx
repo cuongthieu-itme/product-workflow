@@ -1,17 +1,20 @@
 import { TabsContent } from "@/components/ui/tabs";
 import { WorkflowSteps } from "./components/workflow-steps";
-import { mockWorkflow, mockCurrentRequest } from "./components/mock";
 import { WorkflowInfo } from "./components/workflow-info";
+import { useGetRequestDetailQuery } from "@/features/requests/hooks";
 
 export const WorkFlowTab = () => {
+  const { data: request } = useGetRequestDetailQuery();
+
+  if (!request) return <div>Không tìm thấy yêu cầu</div>;
+
   return (
     <TabsContent value="workflow">
       <div className="space-y-6">
-        <WorkflowInfo
-          workflow={mockWorkflow}
-          currentRequest={mockCurrentRequest}
+        <WorkflowInfo workflow={request?.procedureHistory} />
+        <WorkflowSteps
+          subprocessHistory={request?.procedureHistory.subprocessesHistory}
         />
-        <WorkflowSteps steps={mockWorkflow.steps} />
       </div>
     </TabsContent>
   );

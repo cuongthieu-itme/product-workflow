@@ -40,7 +40,6 @@ export const RequestRejectDialog = ({
 
   return (
     <BaseDialog
-      width="60vw"
       open={open}
       onClose={onClose}
       title="Duyệt yêu cầu"

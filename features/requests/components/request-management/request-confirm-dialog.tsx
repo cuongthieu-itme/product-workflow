@@ -90,8 +90,8 @@ export const RequestConfirmDialog = ({
       contentClassName="sm:max-w-[800px]"
       description={`Bạn có chắc chắn muốn duyệt yêu cầu "${request?.title}" không?`}
     >
-      <ScrollArea className="max-h-[50vh] overflow-y-auto">
-        <form onSubmit={handleSubmit(onSubmit)} className="w-[60vw]">
+      <ScrollArea className="max-h-[50vh] overflow-y-auto pr-4">
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
             <div className="flex flex-col gap-1">
               <p className="text-sm text-gray-700">

@@ -77,6 +77,38 @@ export enum StatusSubprocessHistory {
   CANCELLED = "CANCELLED",
 }
 
+export type SubprocessHistoryType = {
+  id: number;
+  name: string;
+  description: string;
+  estimatedNumberOfDays: number;
+  numberOfDaysBeforeDeadline: number;
+  roleOfThePersonInCharge: string;
+  isRequired: boolean;
+  isStepWithCost: boolean;
+  step: number;
+  procedureHistoryId: number;
+  departmentId: number | null;
+  price: number | null;
+  startDate: string | null;
+  endDate: string | null;
+  status: StatusSubprocessHistory;
+  userId: number | null;
+  user: User | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export interface ProcedureHistory {
+  id: number;
+  name: string;
+  description: string;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  subprocessesHistory: SubprocessHistoryType[];
+}
+
 export interface RequestDetail {
   id: number;
   title: string;
@@ -98,6 +130,7 @@ export interface RequestDetail {
   createdById: number;
   createdBy: User;
   status: RequestStatus;
+  procedureHistory: ProcedureHistory;
 }
 
 export type EvaluateFilterInput = {
@@ -117,28 +150,6 @@ export type EvaluateType = {
   createdById: number;
   createdBy: User;
   createdAt: string;
-};
-
-export type SubprocessHistoryType = {
-  id: number;
-  name: string;
-  description: string;
-  estimatedNumberOfDays: number;
-  numberOfDaysBeforeDeadline: number;
-  roleOfThePersonInCharge: string;
-  isRequired: boolean;
-  isStepWithCost: boolean;
-  step: number;
-  procedureId: number;
-  departmentId: number;
-  price: number;
-  startDate: string;
-  endDate: string;
-  status: StatusSubprocessHistory;
-  userId: number;
-  user: User;
-  createdAt: string;
-  updatedAt: string;
 };
 
 export type SubprocessHistoryFilterInput = {

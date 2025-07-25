@@ -36,7 +36,7 @@ export function toRequestFormInput({
 }
 
 export const calculateCompletionPercentage = (
-  items: SubprocessHistoryType[]
+  items?: SubprocessHistoryType[]
 ) => {
   if (!items || items.length === 0) return 0;
 
@@ -109,4 +109,33 @@ export const getStatusText = (status: StatusSubprocessHistory) => {
     default:
       return "Chưa bắt đầu";
   }
+};
+
+export const calculateCurrentStep = (
+  subprocessHistory?: SubprocessHistoryType[]
+): SubprocessHistoryType => {
+  // Early return if no history exists
+  if (!subprocessHistory?.length) {
+    throw new Error("Subprocess history cannot be empty");
+  }
+
+  // Find the last completed step
+  const lastCompletedIndex =
+    subprocessHistory
+      .map((step, index) => ({ step, index }))
+      .filter(({ step }) => step.status === StatusSubprocessHistory.COMPLETED)
+      .pop()?.index ?? -1;
+
+  // No completed steps - return first step
+  if (lastCompletedIndex === -1) {
+    return subprocessHistory[0];
+  }
+
+  // All steps completed - return last step
+  if (lastCompletedIndex === subprocessHistory.length - 1) {
+    return subprocessHistory[lastCompletedIndex];
+  }
+
+  // Return next step after last completed
+  return subprocessHistory[lastCompletedIndex + 1];
 };

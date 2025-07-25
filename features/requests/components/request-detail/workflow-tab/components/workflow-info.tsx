@@ -1,23 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
-import { WorkflowData, CurrentRequest, WorkflowStep } from "./types";
-import { StatusSubprocessHistory } from "@/features/requests/type";
+import {
+  ProcedureHistory,
+  StatusSubprocessHistory,
+  SubprocessHistoryType,
+} from "@/features/requests/type";
+import {
+  calculateCompletionPercentage,
+  calculateCurrentStep,
+} from "@/features/requests/helpers";
 
 interface WorkflowInfoProps {
-  workflow: WorkflowData;
-  currentRequest: CurrentRequest;
+  workflow: ProcedureHistory;
 }
 
-export const WorkflowInfo = ({
-  workflow,
-  currentRequest,
-}: WorkflowInfoProps) => {
-  const getProgress = (steps: WorkflowStep[]) => {
-    const completedSteps = steps.filter(
-      (step) => step.status === StatusSubprocessHistory.COMPLETED
-    );
-    return Math.round((completedSteps.length / steps.length) * 100);
-  };
+export const WorkflowInfo = ({ workflow }: WorkflowInfoProps) => {
+  const currentStep = calculateCurrentStep(workflow.subprocessesHistory);
 
   return (
     <Card>
@@ -37,23 +35,21 @@ export const WorkflowInfo = ({
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">
-              Loại quy trình
+              Số bước hiển thị
             </p>
+            <p>{workflow.subprocessesHistory.length} bước</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Tiến độ</p>
             <p>
-              {currentRequest.isUsingStandardWorkflow
-                ? "Quy trình chuẩn"
-                : "Quy trình tùy chỉnh"}
+              {calculateCompletionPercentage(workflow.subprocessesHistory)}%
             </p>
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">
-              Số bước hiển thị
+              Bước hiện tại
             </p>
-            <p>{workflow.steps.length} bước</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Tiến độ</p>
-            <p>{getProgress(workflow.steps)}%</p>
+            <p>{currentStep.name}</p>
           </div>
         </div>
 

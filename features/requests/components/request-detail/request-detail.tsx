@@ -44,7 +44,7 @@ export function RequestDetail() {
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start gap-4">
         <div>
-          {isEditingTitle ? (
+          {/* {isEditingTitle ? (
             <div className="flex items-center gap-2">
               <Input
                 value={tempTitle}
@@ -71,15 +71,15 @@ export function RequestDetail() {
                 ✕
               </Button>
             </div>
-          ) : (
-            <h1 className="text-2xl font-bold flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-              Yêu cầu {request?.title}
-              <Edit className="h-4 w-4 opacity-50" />
-              <Badge variant="outline" className="ml-2">
-                {request?.id}
-              </Badge>
-            </h1>
-          )}
+          ) : ( */}
+          <h1 className="text-2xl font-bold flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+            Yêu cầu {request?.title}
+            {/* <Edit className="h-4 w-4 opacity-50" /> */}
+            <Badge variant="outline" className="ml-2">
+              {request?.id}
+            </Badge>
+          </h1>
+          {/* )} */}
           <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
             <Clock className="h-4 w-4" />
             <span>
@@ -97,9 +97,6 @@ export function RequestDetail() {
           >
             {generateRequestStatus(request?.status)}
           </Badge>
-          <Button variant="outline" disabled>
-            Chỉnh sửa
-          </Button>
           <Button variant="outline" disabled>
             Chuyển thành sản phẩm
           </Button>
