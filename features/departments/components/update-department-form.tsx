@@ -16,7 +16,6 @@ import { useUpdateDepartmentMutation } from "../hooks";
 import { InputCustom } from "@/components/form/input";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { SelectCustom } from "@/components/form/select";
-import { useUsersQuery } from "@/features/users/hooks";
 import { DepartmentType } from "../type";
 import { BaseDialog } from "@/components/dialog";
 import { Label } from "@/components/ui/label";

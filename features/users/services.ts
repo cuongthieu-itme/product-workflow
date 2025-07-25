@@ -20,7 +20,7 @@ export const getUsers = async (params?: UserFilterInput) => {
 export const getUserNoDepartments = async () => {
   try {
     const response = await request.get<BaseResultQuery<UserType[]>>(
-      "/users/no-department"
+      "/users/no-department/current"
     );
     return response.data;
   } catch (error) {
