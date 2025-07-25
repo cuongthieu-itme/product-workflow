@@ -39,6 +39,7 @@ import {
   UserCircle,
   Coins,
 } from "lucide-react";
+import { getStatusText } from "@/features/requests/helpers";
 
 export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   const user = step.user;
@@ -70,7 +71,8 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
       </div>
       <div className="flex items-center gap-2">
         {renderStatusIcon(step.status)}
-        <span className="font-semibold">Trạng thái:</span> {step.status}
+        <span className="font-semibold">Trạng thái:</span>{" "}
+        {getStatusText(step.status)}
       </div>
       <div className="flex items-center gap-2">
         <CalendarDays className="text-blue-600 w-5 h-5" />

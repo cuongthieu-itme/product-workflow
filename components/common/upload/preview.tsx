@@ -13,6 +13,7 @@ interface PreviewFileItemProps {
   typeFile?: FileTypeGen; // Optional, if you want to display file type
   onRemove: (index: number) => void;
   previewClasses?: string;
+  disabled?: boolean;
 }
 
 export const PreviewFileItem: React.FC<PreviewFileItemProps> = ({
@@ -22,6 +23,7 @@ export const PreviewFileItem: React.FC<PreviewFileItemProps> = ({
   onRemove,
   typeFile,
   previewClasses,
+  disabled = false,
 }) => {
   const {
     attributes,
@@ -59,23 +61,28 @@ export const PreviewFileItem: React.FC<PreviewFileItemProps> = ({
       )}
 
       {/* Drag Handle */}
-      <div
-        {...attributes}
-        {...listeners}
-        className="absolute top-1 left-1 h-6 w-6 bg-black/50 hover:bg-black/70 text-white rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <GripVertical className="h-3 w-3" />
-      </div>
+      {!disabled && (
+        <div
+          {...attributes}
+          {...listeners}
+          className="absolute top-1 left-1 h-6 w-6 bg-black/50 hover:bg-black/70 text-white rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <GripVertical className="h-3 w-3" />
+        </div>
+      )}
 
       {/* Remove Button */}
-      <Button
-        type="button"
-        size="icon"
-        onClick={() => onRemove(index)}
-        className="absolute top-1 right-1 h-6 w-6 bg-destructive hover:bg-destructive/90 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <X className="h-4 w-4" />
-      </Button>
+      {!disabled && (
+        <Button
+          type="button"
+          size="icon"
+          onClick={() => onRemove(index)}
+          className="absolute top-1 right-1 h-6 w-6 bg-destructive hover:bg-destructive/90 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          disabled={disabled}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   );
 };

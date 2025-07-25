@@ -2,6 +2,7 @@ import request from "@/configs/axios-config";
 import {
   ConfirmRequestInputType,
   EvaluateInputType,
+  MediaInputType,
   RequestInputType,
   SourceOtherInputType,
   SubprocessHistoryFormType,
@@ -94,6 +95,16 @@ export const updateRequest = async ({
     return response.data;
   } catch (error) {
     console.error("Error updating request:", error);
+    throw error;
+  }
+};
+
+export const updateMediaRequest = async ({ id, media }: MediaInputType) => {
+  try {
+    const response = await request.put(`/requests/${id}`, { media });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating media request:", error);
     throw error;
   }
 };

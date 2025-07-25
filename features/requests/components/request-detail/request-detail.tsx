@@ -16,6 +16,7 @@ import { ImageTab } from "./image-tab";
 import { MaterialTab } from "./material-tab";
 import { useGetRequestDetailQuery } from "../../hooks";
 import {
+  calculateCompletionPercentage,
   formatDate,
   generateRequestStatus,
   getRequestStatusColor,
@@ -25,16 +26,10 @@ import {
 export function RequestDetail() {
   const { data: request, isLoading } = useGetRequestDetailQuery();
   const [activeTab, setActiveTab] = useState("overview");
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [tempTitle, setTempTitle] = useState("");
-
-  const mockData = {
-    title: "Yêu cầu sản xuất",
-    code: "REQ-001",
-    status: "pending",
-    createdAt: "2023-01-01T00:00:00.000Z",
-    updatedAt: "2023-01-01T00:00:00.000Z",
-  };
+  const percentRequest = calculateCompletionPercentage(
+    request?.procedureHistory.subprocessesHistory || []
+  );
+  const isCompleted = percentRequest === 100;
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -44,42 +39,13 @@ export function RequestDetail() {
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start gap-4">
         <div>
-          {/* {isEditingTitle ? (
-            <div className="flex items-center gap-2">
-              <Input
-                value={tempTitle}
-                onChange={(e) => setTempTitle(e.target.value)}
-                className="text-2xl font-bold"
-                autoFocus
-              />
-              <Button
-                size="sm"
-                onClick={() => {
-                  setIsEditingTitle(false);
-                }}
-              >
-                <Check className="h-4 w-4" />
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setTempTitle(mockData.title || "");
-                  setIsEditingTitle(false);
-                }}
-              >
-                ✕
-              </Button>
-            </div>
-          ) : ( */}
           <h1 className="text-2xl font-bold flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
             Yêu cầu {request?.title}
-            {/* <Edit className="h-4 w-4 opacity-50" /> */}
             <Badge variant="outline" className="ml-2">
               {request?.id}
             </Badge>
           </h1>
-          {/* )} */}
+
           <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
             <Clock className="h-4 w-4" />
             <span>
@@ -97,7 +63,12 @@ export function RequestDetail() {
           >
             {generateRequestStatus(request?.status)}
           </Badge>
-          <Button variant="outline" disabled>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+            disabled={!isCompleted}
+          >
             Chuyển thành sản phẩm
           </Button>
         </div>
@@ -107,8 +78,9 @@ export function RequestDetail() {
         defaultValue="overview"
         value={activeTab}
         onValueChange={setActiveTab}
+        className="w-full"
       >
-        <TabsList className="flex justify-start gap-2 whitespace-nowrap">
+        <TabsList className="flex justify-start gap-2 whitespace-nowrap w-[fit-content]">
           <TabsTrigger value="overview">Tổng quan</TabsTrigger>
           <TabsTrigger value="workflow">Quy trình</TabsTrigger>
           <TabsTrigger value="reviews">Đánh giá</TabsTrigger>

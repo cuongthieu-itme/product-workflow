@@ -64,6 +64,7 @@ export const UploadFile = <T extends FieldValues>({
   hideHeader = false,
   content,
   previewClasses,
+  disabled = false,
 }: UploadFileProps<T>) => {
   const { toast } = useToast();
   const {
@@ -230,7 +231,7 @@ export const UploadFile = <T extends FieldValues>({
             <Input
               {...getInputProps()}
               className="hidden"
-              disabled={value.length >= maxFiles}
+              disabled={disabled || value.length >= maxFiles}
             />
           </div>
 
@@ -255,6 +256,7 @@ export const UploadFile = <T extends FieldValues>({
                       index={i}
                       onRemove={removeAt}
                       typeFile={typeFile}
+                      disabled={disabled}
                     />
                   ))}
                 </div>

@@ -14,9 +14,14 @@ import { MediaInputType, mediaSchema } from "@/features/requests/schema";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UploadFile } from "@/components/common/upload";
-import { useUpdateRequestMutation } from "@/features/requests/hooks/useRequest";
+import {
+  useUpdateMediaMutation,
+  useUpdateRequestMutation,
+} from "@/features/requests/hooks/useRequest";
 import { useGetUserInfoQuery } from "@/features/auth/hooks";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/components/ui/use-toast";
+import { checkRole } from "@/helpers/getAdminRole";
 
 export const ImageTab = () => {
   const { data: request } = useGetRequestDetailQuery();
@@ -28,20 +33,43 @@ export const ImageTab = () => {
     resolver: zodResolver(mediaSchema),
   });
 
-  const { mutate, isPending } = useUpdateRequestMutation();
+  const { toast } = useToast();
+  const { mutate, isPending } = useUpdateMediaMutation();
+  const isAdmin = checkRole(user?.role);
+  const isCreator = request?.createdById === user?.id;
 
   const updateRequestImages: SubmitHandler<MediaInputType> = (data) => {
     if (!request) return;
+    if (!isAdmin || !isCreator) {
+      toast({
+        title: "Bạn không có quyền cập nhật hình ảnh",
+        description: "Chỉ người tạo yêu cầu mới có thể cập nhật hình ảnh.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    mutate({
-      ...toRequestFormInput({
-        detail: request,
-        sourceSelected: request.source,
-      }),
-      id: request.id,
-      media: data.media,
-      createdById: user?.id,
-    });
+    mutate(
+      {
+        id: request.id,
+        media: data.media,
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Cập nhật hình ảnh, video thành công",
+            description: "Hình ảnh, video yêu cầu đã được cập nhật.",
+          });
+        },
+        onError: (error) => {
+          toast({
+            title: "Cập nhật hình ảnh, video thất bại",
+            description: error.message,
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   return (
@@ -66,6 +94,7 @@ export const ImageTab = () => {
                 name="media"
                 hideHeader
                 previewClasses="w-48 h-48"
+                disabled={true}
                 accept={{
                   "image/jpeg": [".jpg", ".jpeg"],
                   "image/png": [".png"],
@@ -84,8 +113,11 @@ export const ImageTab = () => {
             </ScrollArea>
 
             <div className="px-6 pb-6 flex justify-end">
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Đang cập nhật" : "Cập nhật"}
+              <Button
+                type="submit"
+                disabled={isPending || !isAdmin || !isCreator}
+              >
+                {isPending ? "Đang cập nhật" : "Cập nhật film ảnh, video"}
               </Button>
             </div>
           </CardContent>

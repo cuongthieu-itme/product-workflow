@@ -13,6 +13,7 @@ import {
   getSubprocessHistory,
   updateSubprocessHistory,
   updateSubprocessHistorySkip,
+  updateMediaRequest,
 } from "../services";
 import {
   EvaluateFilterInput,
@@ -161,6 +162,19 @@ export const useSkipSubprocessHistoryMutation = () => {
 
   return useMutation({
     mutationFn: updateSubprocessHistorySkip,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useUpdateMediaMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateMediaRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { SourceEnum } from "./constants";
 import { RequestStatus, StatusSubprocessHistory } from "./type";
+import { id } from "zod/dist/types/v4/locales";
 
 export const materialRequestInputSchema = z
   .object({
@@ -96,6 +97,7 @@ export const evaluateInputSchema = z.object({
 });
 
 export const mediaSchema = z.object({
+  id: z.number().int().nonnegative().optional(),
   media: z.array(z.string()).min(1, {
     message: "Vui lòng tải lên ít nhất 1 hình ảnh hoặc video",
   }),
