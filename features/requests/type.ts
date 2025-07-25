@@ -157,3 +157,8 @@ export type SubprocessHistoryFilterInput = {
   page?: number;
   limit?: number;
 };
+
+export type SubprocessHistorySkipInput = {
+  id: number;
+  status: StatusSubprocessHistory;
+};

@@ -11,6 +11,8 @@ import {
   getEvaluates,
   rejectRequest,
   getSubprocessHistory,
+  updateSubprocessHistory,
+  updateSubprocessHistorySkip,
 } from "../services";
 import {
   EvaluateFilterInput,
@@ -138,5 +140,31 @@ export const useGetSubprocessHistoryQuery = (
   return useQuery({
     queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY, params],
     queryFn: () => getSubprocessHistory(params),
+  });
+};
+
+export const useUpdateSubprocessHistoryMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateSubprocessHistory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useSkipSubprocessHistoryMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateSubprocessHistorySkip,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
   });
 };

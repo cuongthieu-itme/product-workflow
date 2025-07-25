@@ -5,11 +5,10 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { ChevronRight, Info } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { WorkflowStep, WorkflowField } from "./types";
 import { useState, useEffect } from "react";
 import { Check, Circle, AlertCircle } from "lucide-react";
 import {
@@ -18,17 +17,25 @@ import {
 } from "@/features/requests/type";
 import {
   calculateCompletionPercentage,
+  formatDate,
   getStatusColor,
   getStatusText,
 } from "@/features/requests/helpers";
+import { StepEditForm } from "./step-form";
+import { getImageUrl } from "@/features/settings/utils";
+
+// StepEditForm sẽ được thêm phía dưới file này
 
 interface WorkflowStepsProps {
   subprocessHistory: SubprocessHistoryType[];
 }
 
+import { useGetUserInfoQuery } from "@/features/auth/hooks/useGetUserInfoQuery";
+
 export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
   const [selectedStep, setSelectedStep] =
     useState<SubprocessHistoryType | null>(null);
+  const { data: currentUserData } = useGetUserInfoQuery();
 
   // Auto focus on next step when current step is completed
   useEffect(() => {
@@ -136,9 +143,14 @@ export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
             {selectedStep && (
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-4 mb-4">
-                  <Avatar className="h-10 w-10">
+                  <Avatar className="h-12 w-12 cursor-pointer border-2 border-dashed p-[3px]">
+                    <AvatarImage
+                      src={getImageUrl(selectedStep?.user?.avatarUrl)}
+                      alt={selectedStep.user?.fullName}
+                      className="rounded-full"
+                    />
                     <AvatarFallback>
-                      {selectedStep.user?.fullName?.[0]}
+                      {selectedStep.user?.fullName?.[0] ?? "T"}
                     </AvatarFallback>
                   </Avatar>
                   <div>
@@ -150,7 +162,7 @@ export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
                     </p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <div>
                     <p className="text-sm text-gray-500">Trạng thái</p>
                     <Badge variant="outline">
@@ -160,7 +172,8 @@ export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
                   <div>
                     <p className="text-sm text-gray-500">Hạn xử lý</p>
                     <p className="text-sm">
-                      {selectedStep.endDate || "Chưa xác định"}
+                      {formatDate(selectedStep.endDate, "dd/MM/yyyy HH:mm") ||
+                        "Chưa xác định"}
                     </p>
                   </div>
                   <div>
@@ -188,6 +201,12 @@ export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
                     {selectedStep.description || "Chưa có mô tả"}
                   </p>
                 </div>
+
+                <StepEditForm
+                  step={selectedStep}
+                  steps={subprocessHistory}
+                  currentUser={currentUserData}
+                />
               </div>
             )}
           </div>

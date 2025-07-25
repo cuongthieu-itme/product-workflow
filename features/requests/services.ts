@@ -4,6 +4,7 @@ import {
   EvaluateInputType,
   RequestInputType,
   SourceOtherInputType,
+  SubprocessHistoryFormType,
 } from "./schema";
 import {
   RequestDetail,
@@ -17,6 +18,7 @@ import {
   RequestStatus,
   SubprocessHistoryFilterInput,
   SubprocessHistoryType,
+  SubprocessHistorySkipInput,
 } from "./type";
 import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
@@ -159,6 +161,32 @@ export const getSubprocessHistory = async (
     return response.data;
   } catch (error) {
     console.error("Error fetching subprocess history:", error);
+    throw error;
+  }
+};
+
+export const updateSubprocessHistory = async ({
+  id,
+  ...data
+}: SubprocessHistoryFormType) => {
+  try {
+    const response = await request.put(`/subprocesses-history/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating subprocess history:", error);
+    throw error;
+  }
+};
+
+export const updateSubprocessHistorySkip = async ({
+  id,
+  ...data
+}: SubprocessHistorySkipInput) => {
+  try {
+    const response = await request.put(`/subprocesses-history/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating subprocess history:", error);
     throw error;
   }
 };

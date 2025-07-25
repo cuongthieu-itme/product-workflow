@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { SourceEnum } from "./constants";
-import { RequestStatus } from "./type";
+import { RequestStatus, StatusSubprocessHistory } from "./type";
 
 export const materialRequestInputSchema = z
   .object({
@@ -129,27 +129,43 @@ export const confirmRequestInputSchema = z.object({
   ),
 });
 
-export const subprocessHistoryInputSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  estimatedNumberOfDays: z.number(),
-  numberOfDaysBeforeDeadline: z.number(),
-  roleOfThePersonInCharge: z.string(),
-  isRequired: z.boolean(),
-  isStepWithCost: z.boolean(),
-  step: z.number(),
-  procedureId: z.number(),
-  departmentId: z.number(),
-  price: z.number(),
-  startDate: z.string(),
-  endDate: z.string(),
-  status: z.enum([
-    RequestStatus.APPROVED,
-    RequestStatus.REJECTED,
-    RequestStatus.PENDING,
-  ]),
-  userId: z.number(),
-});
+export const subprocessHistoryFormSchema = z
+  .object({
+    id: z.number().int().nonnegative().optional().nullable(),
+    isStepWithCost: z.boolean(),
+    startDate: z.string().datetime({ offset: true }).or(z.date()),
+    endDate: z.string().datetime({ offset: true }).or(z.date()),
+    userId: z.coerce
+      .number({
+        required_error: "Vui lòng chọn người thực hiện",
+      })
+      .int("ID không hợp lệ")
+      .positive("Vui lòng chọn người thực hiện"),
+    price: z.coerce
+      .number({
+        invalid_type_error: "Giá phải là số",
+      })
+      .positive("Giá phải lớn hơn 0")
+      .nullable()
+      .optional(),
+    status: z.enum([
+      StatusSubprocessHistory.CANCELLED,
+      StatusSubprocessHistory.COMPLETED,
+      StatusSubprocessHistory.IN_PROGRESS,
+      StatusSubprocessHistory.PENDING,
+    ]),
+  })
+  .refine((data) => data.endDate > data.startDate, {
+    message: "Ngày kết thúc phải sau ngày bắt đầu",
+    path: ["endDate"],
+  })
+  .refine(
+    (data) => !data.isStepWithCost || (data.price != null && data.price > 0),
+    {
+      message: "Giá là bắt buộc và phải lớn hơn 0",
+      path: ["price"],
+    }
+  );
 
 export type RequestInputType = z.infer<typeof requestInputSchema>;
 export type SourceOtherInputType = z.infer<typeof sourceOtherInputSchema>;
@@ -159,3 +175,6 @@ export type MaterialRequestInputType = z.infer<
 export type EvaluateInputType = z.infer<typeof evaluateInputSchema>;
 export type MediaInputType = z.infer<typeof mediaSchema>;
 export type ConfirmRequestInputType = z.infer<typeof confirmRequestInputSchema>;
+export type SubprocessHistoryFormType = z.infer<
+  typeof subprocessHistoryFormSchema
+>;
