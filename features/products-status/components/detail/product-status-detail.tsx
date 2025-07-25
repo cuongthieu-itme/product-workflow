@@ -77,8 +77,8 @@ export function ProductStatusDetail({
           </TabsContent>
 
           <TabsContent value="workflow" className="h-full overflow-auto">
-            {productStatus?.data?.procedure?.id && (
-              <WorkFlow procedureId={productStatus?.data?.procedure?.id} />
+            {productStatus?.data?.id && (
+              <WorkFlow productStatusId={productStatus?.data?.id} />
             )}
           </TabsContent>
         </div>

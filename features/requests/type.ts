@@ -1,8 +1,39 @@
 import { PaginatedResult } from "@/types/common";
 import { MaterialType } from "../materials/type";
 import { SourceEnum } from "./constants";
-import { MaterialRequestInputType, RequestInputType } from "./schema";
 import { User } from "../users/type";
+
+export type SubprocessHistoryType = {
+  id: number;
+  name: string;
+  description: string;
+  estimatedNumberOfDays: number;
+  numberOfDaysBeforeDeadline: number;
+  roleOfThePersonInCharge: string;
+  isRequired: boolean;
+  isStepWithCost: boolean;
+  step: number;
+  procedureHistoryId: number;
+  departmentId: number | null;
+  price: number | null;
+  startDate: string | null;
+  endDate: string | null;
+  status: StatusSubprocessHistory;
+  userId: number | null;
+  user: User | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export interface ProcedureHistory {
+  id: number;
+  name: string;
+  description: string;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  subprocessesHistory: SubprocessHistoryType[];
+}
 
 export type RequestType = {
   id: number;
@@ -17,6 +48,7 @@ export type RequestType = {
   statusProductId: number;
   status: RequestStatus;
   createdBy: User;
+  procedureHistory?: ProcedureHistory;
   createdAt: string;
   updatedAt: string;
 };
@@ -27,6 +59,7 @@ export interface RequestFilterInput {
   limit?: number;
   title?: string;
   procedureId?: number;
+  statusProductId?: number;
 }
 
 export type RequestsType = PaginatedResult<"data", RequestType>;
@@ -77,38 +110,6 @@ export enum StatusSubprocessHistory {
   COMPLETED = "COMPLETED",
   CANCELLED = "CANCELLED",
   SKIPPED = "SKIPPED",
-}
-
-export type SubprocessHistoryType = {
-  id: number;
-  name: string;
-  description: string;
-  estimatedNumberOfDays: number;
-  numberOfDaysBeforeDeadline: number;
-  roleOfThePersonInCharge: string;
-  isRequired: boolean;
-  isStepWithCost: boolean;
-  step: number;
-  procedureHistoryId: number;
-  departmentId: number | null;
-  price: number | null;
-  startDate: string | null;
-  endDate: string | null;
-  status: StatusSubprocessHistory;
-  userId: number | null;
-  user: User | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export interface ProcedureHistory {
-  id: number;
-  name: string;
-  description: string;
-  version: number;
-  createdAt: string;
-  updatedAt: string;
-  subprocessesHistory: SubprocessHistoryType[];
 }
 
 export interface RequestDetail {
