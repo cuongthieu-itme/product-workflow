@@ -8,7 +8,15 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { useProductsStatusQuery } from "@/features/products-status/hooks";
 import { SelectCustom } from "@/components/form";
-import { Calendar, Check, Clock, Info, User } from "lucide-react";
+import {
+  Calendar,
+  Check,
+  Clock,
+  Coins,
+  Info,
+  ListChecks,
+  User,
+} from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -137,54 +145,148 @@ export const RequestConfirmDialog = ({
 
             {/* Hiển thị quy trình */}
             {process && (
-              <div className="rounded-lg border bg-card p-4 shadow-sm">
-                <div className="mb-4 flex items-center gap-2">
-                  <Badge className="bg-green-500 px-2 py-1 text-xs font-medium">
-                    Quy trình xử lý
+              <div className="rounded-lg border bg-card p-4 shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-green-500 px-2 py-1 text-xs font-medium flex items-center gap-1">
+                      <ListChecks className="w-3 h-3" />
+                      Quy trình xử lý
+                    </Badge>
+                    <h3 className="text-sm font-medium text-primary">
+                      {process.name}
+                    </h3>
+                  </div>
+                  <Badge variant="outline" className="text-xs font-normal px-2">
+                    {process.subprocesses.length} bước
                   </Badge>
                 </div>
 
-                <div className="relative mt-4 space-y-4">
+                {process.description && (
+                  <p className="mt-2 text-xs text-muted-foreground italic">
+                    {process.description}
+                  </p>
+                )}
+
+                <div className="relative mt-6 space-y-4">
                   {process.subprocesses.length === 0 ? (
-                    <p className="text-center text-sm text-muted-foreground">
-                      Không có bước xử lý nào trong quy trình này
-                    </p>
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <Info className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Không có bước xử lý nào trong quy trình này
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Vui lòng chọn quy trình khác hoặc liên hệ quản trị viên
+                      </p>
+                    </div>
                   ) : (
                     <div className="relative">
                       {/* Timeline */}
-                      <div className="absolute left-[22px] top-8 bottom-0 w-[2px] bg-border" />
+                      <div className="absolute left-[22px] top-8 bottom-8 w-[2px] bg-primary/20" />
 
                       {/* Steps */}
                       {process?.subprocesses.map((step, index) => (
-                        <div key={step.id} className="relative mb-2 pl-12 pb-4">
+                        <div key={step.id} className="relative mb-6 pl-12">
                           {/* Step indicator */}
-                          <div className="absolute left-0 top-0 flex h-11 w-11 items-center justify-center rounded-full border-2 border-primary/20 bg-background text-primary">
+                          <div
+                            className={cn(
+                              "absolute left-0 top-0 flex h-11 w-11 items-center justify-center rounded-full border-2 shadow-sm",
+                              index === 0
+                                ? "border-primary bg-primary text-white"
+                                : "border-primary/30 bg-background text-primary"
+                            )}
+                          >
                             <span className="text-sm font-medium">
                               {index + 1}
                             </span>
                           </div>
 
                           {/* Step content */}
-                          <div className="rounded-lg border border-border bg-card/50 p-3 hover:bg-card/80 transition-colors">
-                            <h4 className="text-sm font-medium">{step.name}</h4>
+                          <div
+                            className={cn(
+                              "rounded-lg border p-4 transition-all",
+                              index === 0
+                                ? "border-primary/20 bg-primary/5 shadow-sm"
+                                : "border-border bg-card/50 hover:bg-card/80"
+                            )}
+                          >
+                            <div className="flex items-start justify-between">
+                              <h4
+                                className={cn(
+                                  "text-sm font-medium",
+                                  index === 0 ? "text-primary" : ""
+                                )}
+                              >
+                                {step.name}
+                              </h4>
+
+                              {step.isRequired && (
+                                <Badge className="bg-blue-500/80 text-[10px] px-1.5 py-0">
+                                  Bắt buộc
+                                </Badge>
+                              )}
+                            </div>
 
                             {step.description && (
-                              <p className="mt-1 text-xs text-muted-foreground">
+                              <p className="mt-2 text-xs text-muted-foreground border-l-2 border-muted pl-2">
                                 {step.description}
                               </p>
                             )}
 
-                            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <Clock className="h-3.5 w-3.5" />
-                                <span>{step.estimatedNumberOfDays} ngày</span>
+                            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                              <div className="flex items-center gap-2 text-xs">
+                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-50">
+                                  <Clock className="h-3.5 w-3.5 text-blue-600" />
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Thời gian ước tính:
+                                  </span>{" "}
+                                  <span className="font-medium">
+                                    {step.estimatedNumberOfDays} ngày
+                                  </span>
+                                </div>
                               </div>
 
-                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <User className="h-3.5 w-3.5" />
-                                <span>{step.roleOfThePersonInCharge}</span>
+                              <div className="flex items-center gap-2 text-xs">
+                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-50">
+                                  <User className="h-3.5 w-3.5 text-purple-600" />
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Người phụ trách:
+                                  </span>{" "}
+                                  <span className="font-medium">
+                                    {step.roleOfThePersonInCharge ||
+                                      "Chưa xác định"}
+                                  </span>
+                                </div>
                               </div>
+
+                              {step.isStepWithCost && (
+                                <div className="flex items-center gap-2 text-xs sm:col-span-2">
+                                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-50">
+                                    <Coins className="h-3.5 w-3.5 text-amber-600" />
+                                  </div>
+                                  <span className="text-amber-600 font-medium">
+                                    Bước này có phát sinh chi phí
+                                  </span>
+                                </div>
+                              )}
                             </div>
+
+                            {step.department && (
+                              <div className="mt-3 pt-2 border-t border-dashed border-border flex items-center gap-1.5 text-xs">
+                                <span className="text-muted-foreground">
+                                  Phòng ban phụ trách:
+                                </span>
+                                <Badge
+                                  variant="outline"
+                                  className="bg-background font-normal h-5"
+                                >
+                                  {step.department.name}
+                                </Badge>
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
