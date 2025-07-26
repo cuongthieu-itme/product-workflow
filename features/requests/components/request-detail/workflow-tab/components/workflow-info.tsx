@@ -1,21 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
-import {
-  ProcedureHistory,
-  StatusSubprocessHistory,
-  SubprocessHistoryType,
-} from "@/features/requests/type";
+import { ProcedureHistory } from "@/features/requests/type";
 import {
   calculateCompletionPercentage,
   calculateCurrentStep,
 } from "@/features/requests/helpers";
 
 interface WorkflowInfoProps {
-  workflow: ProcedureHistory;
+  workflow?: ProcedureHistory;
 }
 
 export const WorkflowInfo = ({ workflow }: WorkflowInfoProps) => {
-  const currentStep = calculateCurrentStep(workflow.subprocessesHistory);
+  const currentStep = calculateCurrentStep(workflow?.subprocessesHistory);
+
+  if (!workflow) {
+    return <div>Quy trình chưa được gán</div>;
+  }
 
   return (
     <Card>
@@ -31,7 +31,7 @@ export const WorkflowInfo = ({ workflow }: WorkflowInfoProps) => {
             <p className="text-sm font-medium text-muted-foreground">
               Tên quy trình
             </p>
-            <p>{workflow.name}</p>
+            <p>{workflow?.name}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">
@@ -49,7 +49,7 @@ export const WorkflowInfo = ({ workflow }: WorkflowInfoProps) => {
             <p className="text-sm font-medium text-muted-foreground">
               Bước hiện tại
             </p>
-            <p>{currentStep.name}</p>
+            <p>{currentStep?.name ?? "-"}</p>
           </div>
         </div>
 

@@ -138,7 +138,7 @@ export const SelectCustom = <T extends FieldValues>({
     return (
       <div className={cn("space-y-2", containerClassName)}>
         {label && (
-          <div className="flex items-center">
+          <div className="flex items-center h-[24px]">
             <Label htmlFor={name}>{label}</Label>
             {required && <span className="text-red-500 ml-1">*</span>}
           </div>

@@ -27,7 +27,7 @@ export function RequestDetail() {
   const { data: request, isLoading } = useGetRequestDetailQuery();
   const [activeTab, setActiveTab] = useState("overview");
   const percentRequest = calculateCompletionPercentage(
-    request?.procedureHistory.subprocessesHistory || []
+    request?.procedureHistory?.subprocessesHistory || []
   );
   const isCompleted = percentRequest === 100;
 
@@ -88,7 +88,7 @@ export function RequestDetail() {
           <TabsTrigger value="materials">Vật liệu</TabsTrigger>
         </TabsList>
 
-        <OverViewTab />
+        <OverViewTab onChangeTab={setActiveTab} />
         <WorkFlowTab />
         <ReviewTab />
         <ImageTab />

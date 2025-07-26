@@ -244,6 +244,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
           <InputCustom
             name="price"
             control={control}
+            label="Chi phí (nếu có)"
             type="number"
             min={1}
             step={1000}

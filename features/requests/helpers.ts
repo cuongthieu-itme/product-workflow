@@ -98,7 +98,7 @@ export const getRequestStatusColor = (status?: RequestStatus) => {
   }
 };
 
-export const getStatusText = (status: StatusSubprocessHistory) => {
+export const getStatusText = (status?: StatusSubprocessHistory) => {
   switch (status) {
     case StatusSubprocessHistory.COMPLETED:
       return "Hoàn thành";
@@ -117,10 +117,10 @@ export const getStatusText = (status: StatusSubprocessHistory) => {
 
 export const calculateCurrentStep = (
   subprocessHistory?: SubprocessHistoryType[]
-): SubprocessHistoryType => {
+): SubprocessHistoryType | null => {
   // Early return if no history exists
   if (!subprocessHistory?.length) {
-    throw new Error("Subprocess history cannot be empty");
+    return null;
   }
 
   // Find the last completed step

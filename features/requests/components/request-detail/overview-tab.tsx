@@ -17,7 +17,7 @@ import {
   User,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useGetRequestDetailQuery } from "../../hooks";
 import {
   calculateCompletionPercentage,
@@ -25,20 +25,23 @@ import {
   formatDate,
   generateRequestStatus,
   getRequestStatusColor,
-  getStatusColor,
   getStatusText,
 } from "../../helpers";
 import { useRouter } from "next/navigation";
 import { RequestStatus } from "../../type";
 
-export const OverViewTab = () => {
+interface OverViewTabProps {
+  onChangeTab?: (tab: string) => void;
+}
+
+export const OverViewTab: React.FC<OverViewTabProps> = ({ onChangeTab }) => {
   const { data: request } = useGetRequestDetailQuery();
-  const [isEdit, setIsEdit] = useState(false);
 
   const router = useRouter();
   const currentStep = calculateCurrentStep(
-    request?.procedureHistory.subprocessesHistory
+    request?.procedureHistory?.subprocessesHistory
   );
+  const isRequestApproved = request?.status === RequestStatus.APPROVED;
 
   return (
     <TabsContent value="overview" className="space-y-6">
@@ -178,42 +181,58 @@ export const OverViewTab = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Tiến độ</span>
-                <span>
-                  {calculateCompletionPercentage(
-                    request?.procedureHistory.subprocessesHistory
-                  )}
-                  %
-                </span>
-              </div>
-              <Progress
-                value={calculateCompletionPercentage(
-                  request?.procedureHistory.subprocessesHistory
-                )}
-                className="h-2"
-              />
-            </div>
+            {isRequestApproved ? (
+              <>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Tiến độ</span>
+                    <span>
+                      {calculateCompletionPercentage(
+                        request?.procedureHistory?.subprocessesHistory
+                      )}
+                      %
+                    </span>
+                  </div>
+                  <Progress
+                    value={calculateCompletionPercentage(
+                      request?.procedureHistory?.subprocessesHistory
+                    )}
+                    className="h-2"
+                  />
+                </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Bước hiện tại
-                </p>
-                <p>{currentStep.name}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Trạng thái
-                </p>
-                <p>{getStatusText(currentStep.status)}</p>
-              </div>
-            </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Bước hiện tại
+                    </p>
+                    <p>{currentStep?.name ?? "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Trạng thái
+                    </p>
+                    <p>{getStatusText(currentStep?.status)}</p>
+                  </div>
+                </div>
 
-            <Button variant="outline" size="sm">
-              Xem chi tiết quy trình
-            </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (onChangeTab) {
+                      onChangeTab("workflow");
+                    }
+                  }}
+                >
+                  Xem chi tiết quy trình
+                </Button>
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Yêu cầu chưa được phê duyệt. Không có thông tin quy trình.
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -232,7 +251,7 @@ export const OverViewTab = () => {
 
         {/* Thêm sau Workflow Summary Card */}
         {calculateCompletionPercentage(
-          request?.procedureHistory.subprocessesHistory
+          request?.procedureHistory?.subprocessesHistory
         ) === 100 && (
           <Card className="border-green-200 bg-green-50">
             <CardHeader>
@@ -288,24 +307,12 @@ export const OverViewTab = () => {
           <CardTitle>Mô tả</CardTitle>
         </CardHeader>
         <CardContent>
-          {isEdit ? (
-            <div className="space-y-2">
-              <Textarea rows={4} placeholder="Nhập mô tả..." />
-              <div className="flex gap-2">
-                <Button size="sm">Lưu</Button>
-                <Button size="sm" variant="outline">
-                  Hủy
-                </Button>
-              </div>
+          <div className="prose max-w-none cursor-pointer hover:bg-gray-50 p-2 rounded flex items-start gap-2">
+            <div className="flex-1">
+              {request?.description || "Không có mô tả"}
             </div>
-          ) : (
-            <div className="prose max-w-none cursor-pointer hover:bg-gray-50 p-2 rounded flex items-start gap-2">
-              <div className="flex-1">
-                {request?.description || "Không có mô tả"}
-              </div>
-              <Edit className="h-4 w-4 opacity-50 mt-1" />
-            </div>
-          )}
+            <Edit className="h-4 w-4 opacity-50 mt-1" />
+          </div>
         </CardContent>
       </Card>
     </TabsContent>

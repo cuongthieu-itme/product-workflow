@@ -3,25 +3,28 @@ import { Button } from "@/components/ui/button";
 import { RequestStatus, RequestType } from "../../type";
 import { useChangeStatusRequestMutation } from "../../hooks/useRequest";
 import { useGetWorkflowProcessByIdQuery } from "@/features/workflows/hooks";
-import { WorkFlowStepType } from "@/features/workflows/types";
 import { ConfirmRequestInputType } from "../../schema";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useProductsStatusQuery } from "@/features/products-status/hooks";
 import { SelectCustom } from "@/components/form";
-import { Calendar, User } from "lucide-react";
+import { Calendar, Check, Clock, Info, User } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect } from "react";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+
+interface RequestConfirmDialogProps {
+  open: boolean;
+  onClose: () => void;
+  request?: RequestType;
+}
 
 export const RequestConfirmDialog = ({
   open,
   onClose,
   request,
-}: {
-  open: boolean;
-  onClose: () => void;
-  request?: RequestType;
-}) => {
+}: RequestConfirmDialogProps) => {
   const {
     mutate: changeStatusRequestMutation,
     isPending: isChangeStatusPending,
@@ -38,6 +41,7 @@ export const RequestConfirmDialog = ({
     });
   const { data: statusProduct } = useProductsStatusQuery();
 
+  // Xử lý form submit
   const onSubmit: SubmitHandler<ConfirmRequestInputType> = (data) => {
     if (!request?.id) return;
 
@@ -65,20 +69,24 @@ export const RequestConfirmDialog = ({
     );
   };
 
+  // Danh sách trạng thái sản phẩm
   const options =
     statusProduct?.data?.map((status) => ({
       value: status.id,
       label: status.name,
     })) ?? [];
 
+  // Trạng thái được chọn
   const selectedStatus = statusProduct?.data?.find(
     (option) => option.id == watch("statusProductId")
   );
 
+  // Lấy thông tin quy trình của trạng thái
   const { data: process } = useGetWorkflowProcessByIdQuery(
     selectedStatus?.procedure.id
   );
 
+  // Reset form khi dialog mở
   useEffect(() => {
     reset();
   }, [open, reset]);
@@ -90,120 +98,128 @@ export const RequestConfirmDialog = ({
       onClose={onClose}
       title="Duyệt yêu cầu"
       contentClassName="sm:max-w-[800px]"
-      description={`Bạn có chắc chắn muốn duyệt yêu cầu "${request?.title}" không?`}
+      description={
+        <div className="flex items-center gap-2 text-amber-600">
+          <Info className="h-4 w-4" />
+          Xác nhận duyệt yêu cầu và chọn trạng thái sản phẩm
+        </div>
+      }
     >
-      <ScrollArea className="max-h-[50vh] overflow-y-auto pr-4">
+      <ScrollArea className="max-h-[70vh] overflow-y-auto pr-4">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4">
-            <div className="flex flex-col gap-1">
-              <p className="text-sm text-gray-700">
-                <strong>Tên yêu cầu:</strong> {request?.title}
-              </p>
-              <p className="text-sm text-gray-700">
-                <strong>Mô tả:</strong> {request?.description}
-              </p>
+          <div className="space-y-6">
+            {/* Thông tin yêu cầu */}
+            <div className="rounded-lg border bg-card p-4 shadow-sm">
+              <div className="mb-3 flex items-center gap-2">
+                <Badge className="bg-blue-500 px-2 py-1 text-xs font-medium">
+                  Thông tin yêu cầu
+                </Badge>
+                <h3 className="font-medium text-primary">{request?.title}</h3>
+              </div>
+              {request?.description && (
+                <p className="text-sm text-muted-foreground">
+                  {request.description}
+                </p>
+              )}
             </div>
 
-            <SelectCustom
-              valueType="number"
-              control={control}
-              name="statusProductId"
-              options={options}
-              label="Trạng thái Sản phẩm"
-              placeholder="Chọn trạng thái Sản phẩm"
-            />
+            {/* Chọn trạng thái sản phẩm */}
+            <div className="rounded-lg border bg-card p-4 shadow-sm">
+              <SelectCustom
+                valueType="number"
+                control={control}
+                name="statusProductId"
+                options={options}
+                label="Trạng thái Sản phẩm"
+                placeholder="Chọn trạng thái Sản phẩm"
+              />
+            </div>
 
+            {/* Hiển thị quy trình */}
             {process && (
-              <div className="max-w-4xl mx-auto bg-white">
-                <div className="mb-8 flex flex-col gap-1">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <div className="rounded-lg border bg-card p-4 shadow-sm">
+                <div className="mb-4 flex items-center gap-2">
+                  <Badge className="bg-green-500 px-2 py-1 text-xs font-medium">
                     Quy trình xử lý
-                  </h2>
-                  <p className="text-gray-600">
-                    Các bước xử lý trong quy trình này sẽ được thực hiện theo
-                    thứ tự từ trên xuống dưới.
-                  </p>
+                  </Badge>
                 </div>
 
-                <div className="relative mt-4">
-                  {process.subprocesses.length === 0 && (
-                    <p className="text-gray-500 text-center">
-                      Không có bước xử lý nào trong quy trình này.
+                <div className="relative mt-4 space-y-4">
+                  {process.subprocesses.length === 0 ? (
+                    <p className="text-center text-sm text-muted-foreground">
+                      Không có bước xử lý nào trong quy trình này
                     </p>
-                  )}
-                  {process?.subprocesses.map((step, index) => {
-                    const isLast = index === process?.subprocesses.length - 1;
+                  ) : (
+                    <div className="relative">
+                      {/* Timeline */}
+                      <div className="absolute left-[22px] top-8 bottom-0 w-[2px] bg-border" />
 
-                    return (
-                      <div
-                        key={step.id}
-                        className="relative pb-12 last:pb-0 mb-4"
-                      >
-                        {/* Connector Line */}
-                        {!isLast && (
-                          <div className="absolute left-6 top-12 w-0.5 h-full bg-blue-200" />
-                        )}
-
-                        <div className="flex items-start space-x-4">
-                          {/* Step Circle */}
-                          <div className="relative flex-shrink-0">
-                            <div className="w-12 h-12 rounded-full flex items-center justify-center border-2 bg-blue-50 border-blue-500 text-blue-600">
-                              <span className="text-sm font-bold">
-                                {index + 1}
-                              </span>
-                            </div>
+                      {/* Steps */}
+                      {process?.subprocesses.map((step, index) => (
+                        <div key={step.id} className="relative mb-2 pl-12 pb-4">
+                          {/* Step indicator */}
+                          <div className="absolute left-0 top-0 flex h-11 w-11 items-center justify-center rounded-full border-2 border-primary/20 bg-background text-primary">
+                            <span className="text-sm font-medium">
+                              {index + 1}
+                            </span>
                           </div>
 
-                          {/* Step Content */}
-                          <div className="flex-1 min-w-0">
-                            <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-shadow duration-200">
-                              <div className="flex items-start justify-between mb-3">
-                                <h3 className="text-lg font-medium text-gray-900">
-                                  {step.name}
-                                </h3>
-                              </div>
+                          {/* Step content */}
+                          <div className="rounded-lg border border-border bg-card/50 p-3 hover:bg-card/80 transition-colors">
+                            <h4 className="text-sm font-medium">{step.name}</h4>
 
-                              <p className="text-sm mb-4 text-gray-600">
+                            {step.description && (
+                              <p className="mt-1 text-xs text-muted-foreground">
                                 {step.description}
                               </p>
+                            )}
 
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <div className="flex items-center space-x-2">
-                                  <Calendar className="w-4 h-4 text-gray-400" />
-                                  <span className="text-sm text-gray-600">
-                                    <span className="font-medium">
-                                      Thời gian:
-                                    </span>{" "}
-                                    {step.estimatedNumberOfDays} ngày
-                                  </span>
-                                </div>
+                            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <Clock className="h-3.5 w-3.5" />
+                                <span>{step.estimatedNumberOfDays} ngày</span>
+                              </div>
 
-                                <div className="flex items-center space-x-2">
-                                  <User className="w-4 h-4 text-gray-400" />
-                                  <span className="text-sm text-gray-600">
-                                    <span className="font-medium">
-                                      Phụ trách:
-                                    </span>{" "}
-                                    {step.roleOfThePersonInCharge}
-                                  </span>
-                                </div>
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <User className="h-3.5 w-3.5" />
+                                <span>{step.roleOfThePersonInCharge}</span>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
-            <div className="flex justify-end gap-4 mt-4">
-              <Button variant="outline" onClick={onClose}>
+            {/* Buttons */}
+            <div className="flex justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="h-9 px-4"
+              >
                 Hủy
               </Button>
-              <Button disabled={isChangeStatusPending}>
-                {isChangeStatusPending ? "Đang xử lý..." : "Xác nhận"}
+              <Button
+                type="submit"
+                disabled={isChangeStatusPending}
+                className="h-9 px-4"
+              >
+                {isChangeStatusPending ? (
+                  <span className="flex items-center gap-1">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
+                    Đang xử lý
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1">
+                    <Check className="h-4 w-4" />
+                    Xác nhận
+                  </span>
+                )}
               </Button>
             </div>
           </div>
