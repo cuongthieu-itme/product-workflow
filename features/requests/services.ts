@@ -20,6 +20,7 @@ import {
   SubprocessHistoryType,
   SubprocessHistorySkipInput,
   AssignUserInputType,
+  RequestType,
 } from "./type";
 import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
@@ -215,6 +216,18 @@ export const assignUserToStep = async ({
     return response.data.data;
   } catch (error) {
     console.error("Error assigning user to step:", error);
+    throw error;
+  }
+};
+
+export const getRequestByProductStatus = async (productStatusId: number) => {
+  try {
+    const response = await request.get<BaseResultQuery<RequestType[]>>(
+      `/requests/by-status-product/${productStatusId}`
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching request by product status ID:", error);
     throw error;
   }
 };

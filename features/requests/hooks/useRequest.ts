@@ -15,6 +15,7 @@ import {
   updateSubprocessHistorySkip,
   updateMediaRequest,
   assignUserToStep,
+  getRequestByProductStatus,
 } from "../services";
 import {
   EvaluateFilterInput,
@@ -194,5 +195,12 @@ export const useAssignUserToStepMutation = () => {
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
       });
     },
+  });
+};
+
+export const useGetRequestByProductStatusQuery = (productStatusId: number) => {
+  return useQuery({
+    queryKey: [REQUESTS_QUERY_KEY.REQUESTS, productStatusId],
+    queryFn: () => getRequestByProductStatus(productStatusId),
   });
 };

@@ -26,20 +26,21 @@ import {
   User,
   DollarSign,
   Calendar,
+  Info,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useGetRequestByProductStatusQuery } from "@/features/requests/hooks/useRequest";
 
 export function WorkFlow({ productStatusId }: { productStatusId: number }) {
-  const { data: request, isLoading: isRequestLoading } = useGetRequestsQuery({
-    limit: 10000,
-    statusProductId: productStatusId,
-  });
+  const { data: request, isLoading: isRequestLoading } =
+    useGetRequestByProductStatusQuery(productStatusId);
+  console.log("request", request);
   const [selectedRequestId, setSelectedRequestId] = useState<
     string | undefined
-  >(request?.data[0]?.id.toString() || undefined);
+  >(request && request[0] ? request[0].id.toString() : undefined);
 
-  const selectedRequest = request?.data.find(
+  const selectedRequest = request?.find(
     (req) => req.id.toString() == selectedRequestId
   );
 
@@ -47,8 +48,12 @@ export function WorkFlow({ productStatusId }: { productStatusId: number }) {
 
   // useEffect reset state
   useEffect(() => {
-    setSelectedRequestId(request?.data[0]?.id.toString() || undefined);
+    setSelectedRequestId(
+      request && request[0] ? request[0].id.toString() : undefined
+    );
   }, [request]);
+
+  console.log("selectedRequestId", selectedRequest);
 
   if (isLoading) {
     return (
@@ -97,27 +102,25 @@ export function WorkFlow({ productStatusId }: { productStatusId: number }) {
     steps.length > 0 ? Math.round((completedSteps / steps.length) * 100) : 0;
 
   return (
-    <Card className="shadow-sm border-0 bg-gradient-to-br from-white to-gray-50/50">
+    <Card>
       {/* Header với Select */}
-      <CardHeader className="pb-6">
+      <CardHeader className="pb-4">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl shadow-sm">
-              <Workflow className="h-6 w-6 text-blue-600" />
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
+              <Workflow className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold text-gray-900">
-                Quy trình công việc
-              </CardTitle>
-              <CardDescription className="text-sm text-gray-600 mt-1">
+              <CardTitle>Quy trình công việc</CardTitle>
+              <CardDescription>
                 Theo dõi tiến độ thực hiện các bước
               </CardDescription>
             </div>
           </div>
 
           {/* Select luôn hiển thị */}
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium text-gray-700 uppercase tracking-wide">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-muted-foreground">
               Chọn yêu cầu
             </label>
             <Select
@@ -126,35 +129,24 @@ export function WorkFlow({ productStatusId }: { productStatusId: number }) {
                 setSelectedRequestId(value);
               }}
             >
-              <SelectTrigger className="w-full lg:w-[320px] bg-white border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 bg-gray-100 rounded-md">
-                    <FileText className="h-4 w-4 text-gray-600" />
-                  </div>
-                  <SelectValue
-                    placeholder="Chọn một yêu cầu để xem quy trình"
-                    className="text-gray-900 font-medium"
-                  />
+              <SelectTrigger className="w-full lg:w-[280px]">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  <SelectValue placeholder="Chọn yêu cầu để xem quy trình" />
                 </div>
               </SelectTrigger>
-              <SelectContent className="w-full lg:w-[320px] border-2 border-gray-200 shadow-xl">
-                {request?.data?.length ? (
-                  request.data.map((req) => (
-                    <SelectItem
-                      key={req.id}
-                      value={String(req.id)}
-                      className="hover:bg-blue-50 focus:bg-blue-50 transition-colors duration-150"
-                    >
-                      <div className="flex flex-col py-1">
-                        <span className="font-semibold text-gray-900 text-sm">
-                          {req.title}
-                        </span>
+              <SelectContent className="w-full lg:w-[280px]">
+                {request?.length ? (
+                  request.map((req) => (
+                    <SelectItem key={req.id} value={String(req.id)}>
+                      <div className="py-1">
+                        <span>{req.title}</span>
                       </div>
                     </SelectItem>
                   ))
                 ) : (
                   <SelectItem value="no-data" disabled>
-                    <div className="flex items-center gap-2 text-gray-500">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                       <AlertCircle className="h-4 w-4" />
                       <span>Không có yêu cầu nào</span>
                     </div>
@@ -167,38 +159,32 @@ export function WorkFlow({ productStatusId }: { productStatusId: number }) {
 
         {/* Progress Bar */}
         {steps.length > 0 && (
-          <div className="mt-8 p-4 bg-gradient-to-r from-gray-50 to-blue-50/30 rounded-xl border border-gray-200">
+          <div className="mt-6 p-4 border rounded-md bg-card">
             <div className="flex items-center justify-between text-sm mb-3">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span className="font-semibold text-gray-800">
+                <Badge variant="outline" className="font-normal">
                   {selectedRequest?.procedureHistory?.name ||
                     "Quy trình công việc"}
-                </span>
+                </Badge>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-gray-600 font-medium">
+                <span className="text-sm text-muted-foreground">
                   {completedSteps}/{steps.length} bước
                 </span>
-                <div className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
-                  {progressPercentage}%
-                </div>
+                <Badge variant="secondary">{progressPercentage}%</Badge>
               </div>
             </div>
-            <Progress
-              value={progressPercentage}
-              className="h-3 bg-gray-200 shadow-inner"
-            />
-            <div className="flex justify-between text-xs text-gray-500 mt-2">
+            <Progress value={progressPercentage} className="h-2" />
+            <div className="flex justify-between text-xs text-muted-foreground mt-2">
               <span>Bắt đầu</span>
               <span>Hoàn thành</span>
             </div>
           </div>
         )}
       </CardHeader>
-      <CardContent className="pt-4">
-        <ScrollArea className="pr-4 max-h-[30vh] overflow-auto">
-          <div className="space-y-8">
+      <CardContent>
+        <ScrollArea className="max-h-[50vh] pr-3">
+          <div className="relative">
             {(() => {
               // Xác định index của bước hiện tại (đầu tiên chưa hoàn thành hoặc bị bỏ qua)
               const currentStepIndex = steps.findIndex(
@@ -208,27 +194,25 @@ export function WorkFlow({ productStatusId }: { productStatusId: number }) {
 
               if (steps.length === 0) {
                 return (
-                  <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <div className="relative">
-                      <div className="p-6 bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl mb-6 shadow-sm">
-                        <Workflow className="h-12 w-12 text-gray-400" />
-                      </div>
-                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-                        <AlertCircle className="h-3 w-3 text-yellow-700" />
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <div className="mb-4">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                        <Workflow className="h-8 w-8 text-muted-foreground" />
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">
+                    <h3 className="text-lg font-medium mb-2">
                       {selectedRequest ? "Chưa có quy trình" : "Chọn yêu cầu"}
                     </h3>
-                    <p className="text-gray-600 max-w-md leading-relaxed">
+                    <p className="text-muted-foreground max-w-md">
                       {selectedRequest
                         ? "Yêu cầu này chưa được gán quy trình làm việc nào. Vui lòng liên hệ quản trị viên để thiết lập quy trình."
                         : "Vui lòng chọn một yêu cầu từ danh sách trên để xem chi tiết quy trình làm việc."}
                     </p>
-                    {!selectedRequest && request?.data?.length && (
-                      <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <p className="text-sm text-blue-700 font-medium">
-                          💡 Có {request.data.length} yêu cầu đang chờ xử lý
+                    {!selectedRequest && request?.length && (
+                      <div className="mt-4 p-3 border rounded-md">
+                        <p className="text-sm text-blue-600">
+                          <Info className="h-4 w-4 inline mr-1" />
+                          Có {request.length} yêu cầu đang chờ xử lý
                         </p>
                       </div>
                     )}
@@ -276,78 +260,126 @@ export function WorkFlow({ productStatusId }: { productStatusId: number }) {
                 }
 
                 return (
-                  <div key={step.id} className="relative pl-16 pb-8 last:pb-0">
+                  <div key={step.id} className="relative mb-6 pl-12">
                     {/* Timeline line */}
                     {index < steps.length - 1 && (
-                      <div className="absolute left-6 top-12 bottom-0 w-1 bg-gradient-to-b from-gray-300 via-gray-200 to-gray-100 rounded-full"></div>
+                      <div className="absolute left-[22px] top-12 bottom-0 w-[2px] bg-primary/20"></div>
                     )}
 
                     {/* Timeline icon */}
-                    <div className="absolute left-0 top-2">
+                    <div className="absolute left-0 top-0">
                       <div
-                        className={`h-12 w-12 rounded-full ${iconBgClass} flex items-center justify-center shadow-lg border-3 border-white ring-2 ring-gray-100 transition-all duration-200 hover:scale-105`}
+                        className={`flex h-11 w-11 items-center justify-center rounded-full border-2 shadow-sm ${
+                          index === currentStepIndex
+                            ? "border-primary bg-primary text-white"
+                            : step.status === "COMPLETED"
+                            ? "border-green-600 bg-green-50"
+                            : step.status === "SKIPPED"
+                            ? "border-orange-500 bg-orange-50"
+                            : "border-primary/30 bg-background"
+                        }`}
                       >
-                        <StatusIcon className={`w-6 h-6 ${iconClass}`} />
+                        <StatusIcon
+                          className={`w-5 h-5 ${
+                            index === currentStepIndex
+                              ? "text-white"
+                              : iconClass
+                          }`}
+                        />
                       </div>
                     </div>
 
                     {/* Step card */}
                     <div
-                      className={`${cardClass} border-2 rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1`}
+                      className={`rounded-lg border p-4 ${
+                        index === currentStepIndex
+                          ? "border-primary/20 bg-primary/5 shadow-sm"
+                          : step.status === "COMPLETED"
+                          ? "border-green-200 bg-green-50/20"
+                          : step.status === "SKIPPED"
+                          ? "border-orange-200 bg-orange-50/20"
+                          : "border-border bg-card/50"
+                      }`}
                     >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <h4 className="font-bold text-gray-900 text-xl mb-2 leading-tight">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h4 className="font-medium text-sm mb-2">
                             {step.name}
                           </h4>
                           <Badge
-                            className={`${statusBadgeClass} font-semibold px-3 py-1 text-sm`}
+                            variant={
+                              step.status === "COMPLETED"
+                                ? "default"
+                                : step.status === "SKIPPED"
+                                ? "destructive"
+                                : index === currentStepIndex
+                                ? "secondary"
+                                : "outline"
+                            }
+                            className={`text-xs ${
+                              step.status === "COMPLETED"
+                                ? "bg-green-100 text-green-800"
+                                : ""
+                            }`}
                           >
                             {statusLabel}
                           </Badge>
                         </div>
-                        <div className="text-right">
-                          <div className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">
-                            {index + 1}/{steps.length}
-                          </div>
-                        </div>
+                        <Badge
+                          variant="outline"
+                          className="bg-background font-normal"
+                        >
+                          {index + 1}/{steps.length}
+                        </Badge>
                       </div>
 
                       {step.description && (
-                        <div className="mb-5 p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300">
-                          <p className="text-gray-700 leading-relaxed font-medium">
-                            {step.description}
-                          </p>
-                        </div>
+                        <p className="mt-2 text-xs text-muted-foreground border-l-2 border-muted pl-2 mb-3">
+                          {step.description}
+                        </p>
                       )}
 
                       {/* Step metadata */}
-                      <div className="flex flex-wrap gap-3">
-                        <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
-                          <Calendar className="h-4 w-4" />
-                          <span className="font-semibold text-sm">
-                            {step.estimatedNumberOfDays || 1} ngày
-                          </span>
+                      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-50">
+                            <Calendar className="h-3.5 w-3.5 text-blue-600" />
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">
+                              Thời gian:
+                            </span>{" "}
+                            <span className="font-medium">
+                              {step.estimatedNumberOfDays || 1} ngày
+                            </span>
+                          </div>
                         </div>
 
                         {step.roleOfThePersonInCharge && (
-                          <div className="flex items-center gap-2 px-3 py-2 bg-purple-50 text-purple-700 rounded-lg border border-purple-200">
-                            <User className="h-4 w-4" />
-                            <span className="font-semibold text-sm">
-                              {step.roleOfThePersonInCharge}
-                            </span>
-                          </div>
-                        )}
-
-                        {step.isStepWithCost && (
-                          <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 text-amber-700 rounded-lg border border-amber-200">
-                            <DollarSign className="h-4 w-4" />
-                            <span className="font-semibold text-sm">
-                              Có chi phí
-                            </span>
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-50">
+                              <User className="h-3.5 w-3.5 text-purple-600" />
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">
+                                Người phụ trách:
+                              </span>{" "}
+                              <span className="font-medium">
+                                {step.roleOfThePersonInCharge}
+                              </span>
+                            </div>
                           </div>
                         )}
                       </div>
+
+                      {step.isStepWithCost && (
+                        <div className="mt-3 pt-2 border-t border-dashed border-border flex items-center gap-1.5 text-xs">
+                          <DollarSign className="h-3.5 w-3.5 text-amber-600" />
+                          <span className="text-amber-600 font-medium">
+                            Bước này có phát sinh chi phí
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
