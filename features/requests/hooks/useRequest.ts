@@ -14,6 +14,7 @@ import {
   updateSubprocessHistory,
   updateSubprocessHistorySkip,
   updateMediaRequest,
+  assignUserToStep,
 } from "../services";
 import {
   EvaluateFilterInput,
@@ -175,6 +176,19 @@ export const useUpdateMediaMutation = () => {
 
   return useMutation({
     mutationFn: updateMediaRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useAssignUserToStepMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: assignUserToStep,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],

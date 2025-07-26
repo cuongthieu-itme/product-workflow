@@ -11,7 +11,6 @@ import {
   RequestDetail,
   RequestFilterInput,
   RequestsType,
-  RequestType,
   SourceOtherFilterInput,
   SourceOthersType,
   EvaluateType,
@@ -20,9 +19,11 @@ import {
   SubprocessHistoryFilterInput,
   SubprocessHistoryType,
   SubprocessHistorySkipInput,
+  AssignUserInputType,
 } from "./type";
 import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
+import { omit } from "zod/dist/types/v4/core/util";
 
 export const getRequests = async (params?: RequestFilterInput) => {
   try {
@@ -198,6 +199,22 @@ export const updateSubprocessHistorySkip = async ({
     return response.data;
   } catch (error) {
     console.error("Error updating subprocess history:", error);
+    throw error;
+  }
+};
+
+export const assignUserToStep = async ({
+  id,
+  ...data
+}: AssignUserInputType) => {
+  try {
+    const response = await request.put(
+      `/subprocesses-history/${id}`,
+      omitVoid(data)
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error assigning user to step:", error);
     throw error;
   }
 };

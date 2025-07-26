@@ -165,3 +165,10 @@ export type SubprocessHistorySkipInput = {
   id: number;
   status: StatusSubprocessHistory;
 };
+
+export type AssignUserInputType = {
+  id: number;
+  userId: number;
+  isRequired?: boolean;
+  isStepWithCost?: boolean;
+};

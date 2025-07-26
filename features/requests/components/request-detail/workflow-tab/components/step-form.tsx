@@ -11,13 +11,14 @@ import {
 import { useUsersQuery } from "@/features/users/hooks";
 import { useGetUserInfoQuery } from "@/features/auth/hooks/useGetUserInfoQuery";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, User } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useState } from "react";
 import { UserRoleEnum } from "@/features/auth/constants";
 import { DatePickerCustom } from "@/components/form/date-picker";
 import { Button } from "@/components/ui/button";
 import {
+  useAssignUserToStepMutation,
   useSkipSubprocessHistoryMutation,
   useUpdateSubprocessHistoryMutation,
 } from "@/features/requests/hooks/useRequest";
@@ -40,6 +41,8 @@ import {
   Coins,
 } from "lucide-react";
 import { getStatusText } from "@/features/requests/helpers";
+import { format } from "date-fns";
+import Image from "next/image";
 
 export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   const user = step.user;
@@ -52,6 +55,8 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
         return <BadgeCheck className="text-green-600 w-4 h-4 inline" />;
       case StatusSubprocessHistory.CANCELLED:
         return <CircleSlash className="text-red-600 w-4 h-4 inline" />;
+      case StatusSubprocessHistory.SKIPPED:
+        return <Clock className="text-yellow-600 w-4 h-4 inline" />;
       default:
         return <Clock className="text-yellow-600 w-4 h-4 inline" />;
     }
@@ -78,16 +83,16 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
         <CalendarDays className="text-blue-600 w-5 h-5" />
         <span className="font-semibold">Thời gian:</span>
         {step.startDate
-          ? new Date(step.startDate).toLocaleDateString()
+          ? format(new Date(step.startDate), "dd/MM/yyyy")
           : "-"}{" "}
         &rarr;{" "}
-        {step.endDate ? new Date(step.endDate).toLocaleDateString() : "-"}
+        {step.endDate ? format(new Date(step.endDate), "dd/MM/yyyy") : "-"}
       </div>
       <div className="flex items-center gap-2">
         <UserCircle className="text-blue-600 w-5 h-5" />
         <span className="font-semibold">Người thực hiện:</span>
         {userAvatar && (
-          <img
+          <Image
             src={userAvatar}
             alt={userName}
             className="w-6 h-6 rounded-full object-cover inline-block mr-1"
@@ -109,7 +114,10 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   });
   const users = usersData?.data || [];
   const { data: currentUserData } = useGetUserInfoQuery();
-  const isCompleted = step.status === StatusSubprocessHistory.COMPLETED;
+  const isCompleted =
+    step.status === StatusSubprocessHistory.COMPLETED ||
+    step.status === StatusSubprocessHistory.CANCELLED ||
+    step.status === StatusSubprocessHistory.SKIPPED;
   const isAdmin =
     currentUserData?.role === UserRoleEnum.ADMIN ||
     currentUserData?.role === UserRoleEnum.SUPER_ADMIN;
@@ -121,6 +129,8 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
     control,
     handleSubmit,
     formState: { isSubmitting },
+    watch,
+    trigger,
   } = useForm<SubprocessHistoryFormType>({
     defaultValues: {
       ...step,
@@ -139,9 +149,46 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
     useUpdateSubprocessHistoryMutation();
 
   const { mutate: skipSubprocessHistory } = useSkipSubprocessHistoryMutation();
+  const { mutate: assignUserToStep } = useAssignUserToStepMutation();
+
+  const handleAssignUser = () => {
+    const userId = watch("userId");
+    if (!userId) {
+      toast({
+        title: "Lỗi",
+        description: "Vui lòng chọn người thực hiện trước khi gán!",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    assignUserToStep(
+      {
+        id: step.id,
+        userId: Number(userId),
+        isRequired: false,
+        isStepWithCost: isStepWithCost,
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Thành công",
+            description: "Người thực hiện đã được cập nhật!",
+          });
+        },
+        onError: () => {
+          toast({
+            title: "Lỗi",
+            description: "Không thể gán người thực hiện!",
+            variant: "destructive",
+          });
+        },
+      }
+    );
+  };
 
   const handleSkipStep = () => {
-    if (!step.id || !step.isRequired) return;
+    if (!step.id || step.isRequired) return;
     skipSubprocessHistory(
       {
         id: step.id,
@@ -213,17 +260,47 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
       noValidate
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <DatePickerCustom
-          name="startDate"
-          control={control}
-          label="Ngày bắt đầu"
-        />
+        {isAssignedUser ? (
+          <>
+            <DatePickerCustom
+              name="startDate"
+              control={control}
+              label="Ngày bắt đầu"
+            />
 
-        <DatePickerCustom
-          name="endDate"
-          control={control}
-          label="Ngày kết thúc"
-        />
+            <DatePickerCustom
+              name="endDate"
+              control={control}
+              label="Ngày kết thúc"
+            />
+          </>
+        ) : (
+          <div className="p-4 rounded-md border bg-gray-50 space-y-4">
+            <div className="flex items-center gap-2">
+              <CalendarDays className="text-blue-600 w-5 h-5" />
+              <div>
+                <span className="text-sm font-semibold">Ngày bắt đầu:</span>{" "}
+                <span className="text-sm">
+                  {step.startDate
+                    ? new Date(step.startDate).toLocaleDateString()
+                    : "Chưa xác định"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Clock className="text-blue-600 w-5 h-5" />
+              <div>
+                <span className="text-sm font-semibold">Ngày kết thúc:</span>{" "}
+                <span className="text-sm">
+                  {step.endDate
+                    ? new Date(step.endDate).toLocaleDateString()
+                    : "Chưa xác định"}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {isAdmin ? (
           <SelectCustom
@@ -237,10 +314,16 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
             placeholder="Chọn người thực hiện"
           />
         ) : (
-          <p className="text-gray-500">{getUserAssignName()}</p>
+          <div className="flex items-center gap-2">
+            <User className="text-blue-600 w-5 h-5" />
+            <div>
+              <span className="text-sm font-semibold">Người thực hiện:</span>{" "}
+              <span className="text-sm">{getUserAssignName()}</span>
+            </div>
+          </div>
         )}
 
-        {isStepWithCost && (
+        {isStepWithCost && isAssignedUser && (
           <InputCustom
             name="price"
             control={control}
@@ -269,16 +352,30 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
         )}
 
         <div className="flex justify-end gap-2">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            onClick={() => setCompleteMode(false)}
-          >
-            {isSubmitting && !completeMode && (
-              <Loader2 className="animate-spin w-4 h-4" />
-            )}
-            Lưu
-          </Button>
+          {isAdmin ? (
+            <Button
+              type="button"
+              disabled={isSubmitting}
+              onClick={handleAssignUser}
+            >
+              {isSubmitting && !completeMode && (
+                <Loader2 className="animate-spin w-4 h-4" />
+              )}
+              Cập nhật người thực hiện
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              onClick={() => setCompleteMode(false)}
+            >
+              {isSubmitting && !completeMode && (
+                <Loader2 className="animate-spin w-4 h-4" />
+              )}
+              Lưu
+            </Button>
+          )}
+
           <Button
             type="submit"
             disabled={isSubmitting}
