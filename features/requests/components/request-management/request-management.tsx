@@ -92,7 +92,7 @@ export function RequestManagementList() {
           </Button>
 
           {u.status === RequestStatus.REJECTED ? (
-            <Button variant="outline" size="sm" className="w-32">
+            <Button variant="outline" size="sm" className="w-32" disabled>
               <XCircle className="h-4 w-4 mr-2 text-red-500" />
               Đã từ chối
             </Button>
@@ -124,6 +124,7 @@ export function RequestManagementList() {
               variant="outline"
               size="sm"
               className="w-32"
+              disabled={u.status === RequestStatus.REJECTED}
               onClick={() => {
                 setReviewRequest({
                   isOpen: true,

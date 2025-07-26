@@ -42,27 +42,44 @@ export const RequestRejectDialog = ({
     <BaseDialog
       open={open}
       onClose={onClose}
-      title="Duyệt yêu cầu"
-      contentClassName="sm:max-w-[800px]"
-      description={`Bạn có chắc chắn muốn duyệt yêu cầu "${request?.title}" không?`}
+      title="Từ chối yêu cầu"
+      contentClassName="max-w-[30vw]"
+      description={`Bạn có chắc chắn muốn từ chối yêu cầu "${request?.title}" không?`}
     >
       <ScrollArea className="max-h-[50vh] overflow-y-auto">
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <p className="text-sm text-gray-700">
-              <strong>Tên yêu cầu:</strong> {request?.title}
-            </p>
-            <p className="text-sm text-gray-700">
-              <strong>Mô tả:</strong> {request?.description}
-            </p>
+        <div className="space-y-6 py-4">
+          <div className="grid gap-6">
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+              <h3 className="font-medium text-gray-900 mb-2">
+                Thông tin yêu cầu
+              </h3>
+              <div className="grid gap-3">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">
+                    Tên yêu cầu
+                  </p>
+                  <p className="text-sm text-gray-900">{request?.title}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Mô tả</p>
+                  <p className="text-sm text-gray-900">
+                    {request?.description || "Không có mô tả"}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="flex justify-end gap-4 mt-4">
+          <div className="flex justify-end gap-3 mt-4">
             <Button variant="outline" onClick={onClose}>
-              Hủy
+              Hủy bỏ
             </Button>
-            <Button disabled={isPending} onClick={handleReject}>
-              {isPending ? "Đang xử lý..." : "Từ chối yêu cầu"}
+            <Button
+              variant="destructive"
+              disabled={isPending}
+              onClick={handleReject}
+            >
+              {isPending ? "Đang xử lý..." : "Xác nhận từ chối"}
             </Button>
           </div>
         </div>
