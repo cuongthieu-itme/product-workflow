@@ -22,6 +22,7 @@ import {
   getRequestStatusColor,
   getStatusColor,
 } from "../../helpers";
+import { useStatisticsRequestQuery } from "../../hooks/useRequest";
 
 export function RequestDetail() {
   const { data: request, isLoading } = useGetRequestDetailQuery();

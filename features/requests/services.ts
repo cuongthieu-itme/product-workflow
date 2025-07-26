@@ -23,6 +23,7 @@ import {
   RequestType,
   AddMaterialInputType,
   RemoveMaterialInputType,
+  StatusStatisticsType,
 } from "./type";
 import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
@@ -262,6 +263,18 @@ export const removeMaterialFromRequest = async ({
     return response.data;
   } catch (error) {
     console.error("Error removing material from request:", error);
+    throw error;
+  }
+};
+
+export const getStatisticsByRequest = async () => {
+  try {
+    const response = await request.get<StatusStatisticsType>(
+      "/requests/statistics-by-status/current"
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching statistics by request:", error);
     throw error;
   }
 };

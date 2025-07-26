@@ -18,6 +18,7 @@ import {
   getRequestByProductStatus,
   addMaterialToRequest,
   removeMaterialFromRequest,
+  getStatisticsByRequest,
 } from "../services";
 import {
   EvaluateFilterInput,
@@ -33,6 +34,7 @@ export enum REQUESTS_QUERY_KEY {
   CHANGE_STATUS = "change-status",
   EVALUATES = "evaluates",
   SUBPROCESS_HISTORY = "subprocess-history",
+  REQUEST_BY_PRODUCT_STATUS = "request-by-product-status",
 }
 
 export const useGetRequestsQuery = (params?: RequestFilterInput) => {
@@ -230,5 +232,12 @@ export const useRemoveMaterialFromRequestMutation = () => {
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
       });
     },
+  });
+};
+
+export const useStatisticsRequestQuery = () => {
+  return useQuery({
+    queryKey: [REQUESTS_QUERY_KEY.REQUEST_BY_PRODUCT_STATUS],
+    queryFn: getStatisticsByRequest,
   });
 };

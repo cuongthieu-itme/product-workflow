@@ -18,19 +18,22 @@ import { Button } from "@/components/ui/button";
 import { TableToolbar } from "@/components/data-table/toolbar";
 import { LIMIT, PAGE } from "@/constants/pagination";
 import { useGetRequestsQuery } from "../hooks";
-import { RequestType } from "../type";
+import { RequestStatus, RequestType } from "../type";
 import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { CreateRequestButton } from "./create-request-button";
 import { RequestForm } from "../form";
 import { useRouter } from "next/navigation";
+import { useStatisticsRequestQuery } from "../hooks/useRequest";
 
 export function RequestList() {
   const [page, setPage] = useState(PAGE);
   const router = useRouter();
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearch = useDebounce(searchValue, 400);
+  const { data } = useStatisticsRequestQuery();
+
   const {
     data: requests,
     isFetching,
@@ -133,9 +136,13 @@ export function RequestList() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Chờ xử lý</p>
-                <p className="text-3xl font-bold text-yellow-600 mt-2">0</p>
+                <p className="text-3xl font-bold text-yellow-600 mt-2">
+                  {data?.byStatus.find(
+                    (s) => s.status === RequestStatus.PENDING
+                  )?.count || 0}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Yêu cầu chưa được xử lý
+                  Yêu cầu chưa được xác nhận
                 </p>
               </div>
               <div className="p-3 bg-yellow-100 rounded-full">
@@ -148,10 +155,14 @@ export function RequestList() {
           <div className="bg-white p-6 rounded-lg border shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Đang xử lý</p>
-                <p className="text-3xl font-bold text-blue-600 mt-2">0</p>
+                <p className="text-sm font-medium text-gray-600">Đã xác nhận</p>
+                <p className="text-3xl font-bold text-blue-600 mt-2">
+                  {data?.byStatus.find(
+                    (s) => s.status === RequestStatus.APPROVED
+                  )?.count || 0}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Yêu cầu đang được thực hiện
+                  Yêu cầu đã được xác nhận
                 </p>
               </div>
               <div className="p-3 bg-blue-100 rounded-full">
@@ -165,7 +176,11 @@ export function RequestList() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Hoàn thành</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">0</p>
+                <p className="text-3xl font-bold text-green-600 mt-2">
+                  {data?.byStatus.find(
+                    (s) => s.status === RequestStatus.COMPLETED
+                  )?.count || 0}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Yêu cầu đã hoàn thành
                 </p>
@@ -185,7 +200,9 @@ export function RequestList() {
                 </p>
                 <p className="text-3xl font-bold text-red-600 mt-2">0</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  0 từ chối, 0 tạm dừng
+                  {data?.byStatus.find(
+                    (s) => s.status === RequestStatus.REJECTED
+                  )?.count || 0}
                 </p>
               </div>
               <div className="p-3 bg-red-100 rounded-full">

@@ -102,6 +102,8 @@ export enum RequestStatus {
   PENDING = "PENDING",
   APPROVED = "APPROVED",
   REJECTED = "REJECTED",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
 }
 
 export enum StatusSubprocessHistory {
@@ -182,4 +184,11 @@ export type AddMaterialInputType = {
 export type RemoveMaterialInputType = {
   id: number;
   materialId: number;
+};
+
+export type StatusStatisticsType = {
+  byStatus: {
+    status: RequestStatus;
+    count: number;
+  }[];
 };
