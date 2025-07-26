@@ -112,8 +112,12 @@ export const AddMaterialDialog = ({ request }: AddMaterialDialogProps) => {
     }
   };
 
-  const materialList = materials?.data.filter((material) =>
-    request?.requestMaterials.some((m) => Number(m.id) !== Number(material.id))
+  // Lọc ra các nguyên vật liệu chưa được thêm vào yêu cầu
+  const materialList = materials?.data.filter(
+    (material) =>
+      !request?.requestMaterials.some(
+        (m) => Number(m.material.id) === Number(material.id)
+      )
   );
 
   return (
@@ -126,6 +130,9 @@ export const AddMaterialDialog = ({ request }: AddMaterialDialogProps) => {
         open={showDialog}
         onClose={handleCloseDialog}
         title="Thêm nguyên vật liệu"
+        description={`${
+          materialList?.length || 0
+        } nguyên vật liệu có sẵn để thêm`}
         contentClassName="w-[600px] max-w-[800px]"
       >
         <div className="space-y-2">
@@ -140,11 +147,19 @@ export const AddMaterialDialog = ({ request }: AddMaterialDialogProps) => {
             </div>
             <ScrollArea className="max-h-[200px] overflow-y-auto py-2">
               <div className="flex flex-col gap-2">
-                <MaterialList
-                  materials={materialList || []}
-                  selectedMaterialId={selectedMaterialId}
-                  handleMaterialSelect={handleMaterialSelect}
-                />
+                {materialList && materialList.length > 0 ? (
+                  <MaterialList
+                    materials={materialList}
+                    selectedMaterialId={selectedMaterialId}
+                    handleMaterialSelect={handleMaterialSelect}
+                  />
+                ) : (
+                  <div className="text-center p-4 text-sm text-muted-foreground">
+                    {debouncedSearch
+                      ? "Không tìm thấy nguyên vật liệu phù hợp"
+                      : "Tất cả nguyên vật liệu đã được thêm vào yêu cầu này"}
+                  </div>
+                )}
               </div>
             </ScrollArea>
           </div>
@@ -170,8 +185,9 @@ export const AddMaterialDialog = ({ request }: AddMaterialDialogProps) => {
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!selectedMaterialId}
-            className="bg-blue-600 hover:bg-blue-700"
+            disabled={
+              !selectedMaterialId || !(materialList && materialList.length > 0)
+            }
           >
             Thêm nguyên vật liệu
           </Button>

@@ -257,7 +257,7 @@ export const removeMaterialFromRequest = async ({
 }: RemoveMaterialInputType) => {
   try {
     const response = await request.delete(`/requests/${id}/material`, {
-      data: { materialId },
+      data: { materialRequestId: materialId },
     });
     return response.data;
   } catch (error) {
