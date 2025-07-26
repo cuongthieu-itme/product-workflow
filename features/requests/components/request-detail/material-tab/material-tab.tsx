@@ -90,10 +90,6 @@ export const MaterialTab = () => {
                               {m.quantity || 0}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">Giá:</span>
-                            <span className="font-medium">0 VND</span>
-                          </div>
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
