@@ -52,61 +52,96 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   const renderStatusIcon = (status: StatusSubprocessHistory) => {
     switch (status) {
       case StatusSubprocessHistory.COMPLETED:
-        return <BadgeCheck className="text-green-600 w-4 h-4 inline" />;
+        return <BadgeCheck className="text-green-600 w-5 h-5" />;
       case StatusSubprocessHistory.CANCELLED:
-        return <CircleSlash className="text-red-600 w-4 h-4 inline" />;
+        return <CircleSlash className="text-red-600 w-5 h-5" />;
       case StatusSubprocessHistory.SKIPPED:
-        return <Clock className="text-yellow-600 w-4 h-4 inline" />;
+        return <Clock className="text-yellow-600 w-5 h-5" />;
       default:
-        return <Clock className="text-yellow-600 w-4 h-4 inline" />;
+        return <Clock className="text-yellow-600 w-5 h-5" />;
     }
   };
 
+  // Info section dùng cho cả chế độ view và edit
   const StepInfoSection = () => (
-    <div className="mb-6 mt-4 p-4 rounded-md border bg-gray-50 grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="flex items-center gap-2">
-        <ListChecks className="text-blue-600 w-5 h-5" />
-        <span className="font-semibold">Tên bước:</span>{" "}
-        {step.name || "Chưa có"}
-      </div>
-      <div className="flex items-center gap-2">
-        <Info className="text-blue-600 w-5 h-5" />
-        <span className="font-semibold">Mô tả:</span>{" "}
-        {step.description || "Chưa có"}
-      </div>
-      <div className="flex items-center gap-2">
-        {renderStatusIcon(step.status)}
-        <span className="font-semibold">Trạng thái:</span>{" "}
-        {getStatusText(step.status)}
-      </div>
-      <div className="flex items-center gap-2">
-        <CalendarDays className="text-blue-600 w-5 h-5" />
-        <span className="font-semibold">Thời gian:</span>
-        {step.startDate
-          ? format(new Date(step.startDate), "dd/MM/yyyy")
-          : "-"}{" "}
-        &rarr;{" "}
-        {step.endDate ? format(new Date(step.endDate), "dd/MM/yyyy") : "-"}
-      </div>
-      <div className="flex items-center gap-2">
-        <UserCircle className="text-blue-600 w-5 h-5" />
-        <span className="font-semibold">Người thực hiện:</span>
-        {userAvatar && (
-          <Image
-            src={userAvatar}
-            alt={userName}
-            className="w-6 h-6 rounded-full object-cover inline-block mr-1"
-          />
-        )}{" "}
-        {userName}
-      </div>
-      {step.isStepWithCost && (
-        <div className="flex items-center gap-2">
-          <Coins className="text-yellow-600 w-5 h-5" />
-          <span className="font-semibold">Chi phí:</span>{" "}
-          {step.price ? `${step.price.toLocaleString()} đ` : "Chưa có"}
+    <div className="mb-6 p-4 rounded-md border bg-card shadow-sm">
+      <h3 className="text-lg font-medium mb-4 pb-2 border-b flex items-center gap-2">
+        <ListChecks className="text-primary w-5 h-5" />
+        {step.name || "Chi tiết bước"}
+      </h3>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex items-center gap-3">
+          <Info className="text-blue-600 w-5 h-5 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Mô tả</p>
+            <p className="text-sm">{step.description || "Chưa có mô tả"}</p>
+          </div>
         </div>
-      )}
+
+        <div className="flex items-center gap-3">
+          {renderStatusIcon(step.status)}
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">
+              Trạng thái
+            </p>
+            <p className="text-sm">{getStatusText(step.status)}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <CalendarDays className="text-blue-600 w-5 h-5 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">
+              Thời gian
+            </p>
+            <p className="text-sm">
+              {step.startDate
+                ? format(new Date(step.startDate), "dd/MM/yyyy")
+                : "Chưa xác định"}{" "}
+              →{" "}
+              {step.endDate
+                ? format(new Date(step.endDate), "dd/MM/yyyy")
+                : "Chưa xác định"}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <UserCircle className="text-blue-600 w-5 h-5 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">
+              Người thực hiện
+            </p>
+            <div className="flex items-center gap-2">
+              {userAvatar && (
+                <Image
+                  src={userAvatar}
+                  alt={userName}
+                  className="w-6 h-6 rounded-full object-cover"
+                  width={24}
+                  height={24}
+                />
+              )}
+              <p className="text-sm">{userName}</p>
+            </div>
+          </div>
+        </div>
+
+        {step.isStepWithCost && (
+          <div className="flex items-center gap-3">
+            <Coins className="text-yellow-600 w-5 h-5 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">
+                Chi phí
+              </p>
+              <p className="text-sm">
+                {step.price ? `${step.price.toLocaleString()} đ` : "Chưa có"}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
   const { data: usersData } = useUsersQuery({
@@ -254,102 +289,151 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="mt-6 space-y-6"
-      noValidate
-    >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {isAssignedUser ? (
-          <>
-            <DatePickerCustom
-              name="startDate"
-              control={control}
-              label="Ngày bắt đầu"
-            />
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+      <div className="p-4 rounded-md border bg-card shadow-sm">
+        <h3 className="text-lg font-medium mb-4 pb-2 border-b flex items-center gap-2">
+          <CalendarDays className="text-primary w-5 h-5" />
+          Thông tin bước thực hiện
+        </h3>
 
-            <DatePickerCustom
-              name="endDate"
-              control={control}
-              label="Ngày kết thúc"
-            />
-          </>
-        ) : (
-          <div className="p-4 rounded-md border bg-gray-50 space-y-4">
-            <div className="flex items-center gap-2">
-              <CalendarDays className="text-blue-600 w-5 h-5" />
-              <div>
-                <span className="text-sm font-semibold">Ngày bắt đầu:</span>{" "}
-                <span className="text-sm">
-                  {step.startDate
-                    ? new Date(step.startDate).toLocaleDateString()
-                    : "Chưa xác định"}
-                </span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Dates Section */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium text-muted-foreground">
+              Thời gian thực hiện
+            </h4>
+            {isAssignedUser ? (
+              <div className="grid grid-cols-1 gap-4">
+                <DatePickerCustom
+                  name="startDate"
+                  control={control}
+                  label="Ngày bắt đầu"
+                  className="w-full"
+                />
+                <DatePickerCustom
+                  name="endDate"
+                  control={control}
+                  label="Ngày kết thúc"
+                  className="w-full"
+                />
               </div>
-            </div>
+            ) : (
+              <div className="p-4 rounded-md border bg-muted space-y-3">
+                <div className="flex items-center gap-2">
+                  <CalendarDays className="text-blue-600 w-5 h-5" />
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Ngày bắt đầu:
+                    </span>{" "}
+                    <span className="text-sm">
+                      {step.startDate
+                        ? format(new Date(step.startDate), "dd/MM/yyyy")
+                        : "Chưa xác định"}
+                    </span>
+                  </div>
+                </div>
 
-            <div className="flex items-center gap-2">
-              <Clock className="text-blue-600 w-5 h-5" />
-              <div>
-                <span className="text-sm font-semibold">Ngày kết thúc:</span>{" "}
-                <span className="text-sm">
-                  {step.endDate
-                    ? new Date(step.endDate).toLocaleDateString()
-                    : "Chưa xác định"}
-                </span>
+                <div className="flex items-center gap-2">
+                  <Clock className="text-blue-600 w-5 h-5" />
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Ngày kết thúc:
+                    </span>{" "}
+                    <span className="text-sm">
+                      {step.endDate
+                        ? format(new Date(step.endDate), "dd/MM/yyyy")
+                        : "Chưa xác định"}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
-        )}
 
-        {isAdmin ? (
-          <SelectCustom
-            label="Người thực hiện"
-            name="userId"
-            control={control}
-            options={users.map((user: any) => ({
-              value: user.id,
-              label: `${user.fullName} (${user.email})`,
-            }))}
-            placeholder="Chọn người thực hiện"
-          />
-        ) : (
-          <div className="flex items-center gap-2">
-            <User className="text-blue-600 w-5 h-5" />
-            <div>
-              <span className="text-sm font-semibold">Người thực hiện:</span>{" "}
-              <span className="text-sm">{getUserAssignName()}</span>
-            </div>
+          {/* Assignment Section */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium text-muted-foreground">
+              Người thực hiện
+            </h4>
+            {isAdmin ? (
+              <SelectCustom
+                name="userId"
+                control={control}
+                options={users.map((user: any) => ({
+                  value: user.id,
+                  label: `${user.fullName} (${user.email})`,
+                }))}
+                placeholder="Chọn người thực hiện"
+              />
+            ) : (
+              <div className="p-4 rounded-md border bg-muted">
+                <div className="flex items-center gap-2">
+                  <User className="text-blue-600 w-5 h-5" />
+                  <div>
+                    <span className="text-sm">{getUserAssignName()}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        )}
 
-        {isStepWithCost && isAssignedUser && (
-          <InputCustom
-            name="price"
-            control={control}
-            label="Chi phí (nếu có)"
-            type="number"
-            min={1}
-            step={1000}
-            placeholder="Nhập giá"
-          />
-        )}
+          {/* Cost Section - Only if applicable */}
+          {isStepWithCost && (
+            <div className="space-y-4 md:col-span-2">
+              <h4 className="text-sm font-medium text-muted-foreground">
+                Thông tin chi phí
+              </h4>
+              {isAssignedUser ? (
+                <InputCustom
+                  name="price"
+                  control={control}
+                  label="Chi phí thực hiện"
+                  type="number"
+                  min={1}
+                  step={1000}
+                  placeholder="Nhập chi phí"
+                  className="w-full"
+                  labelIcon={<Coins className="text-yellow-600 w-4 h-4" />}
+                />
+              ) : (
+                <div className="p-4 rounded-md border bg-muted">
+                  <div className="flex items-center gap-2">
+                    <Coins className="text-yellow-600 w-5 h-5" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Chi phí:
+                    </span>{" "}
+                    <span className="text-sm">
+                      {step.price
+                        ? `${step.price.toLocaleString()} đ`
+                        : "Chưa có"}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="flex justify-between items-center">
-        {!step.isRequired && (
-          <Button
-            type="button"
-            disabled={isSubmitting}
-            onClick={handleSkipStep}
-            variant="destructive"
-          >
-            {isSubmitting && !completeMode && (
-              <Loader2 className="animate-spin w-4 h-4" />
-            )}
-            Bỏ qua bước này
-          </Button>
-        )}
+      <div className="mt-6 border-t pt-4 flex justify-between items-center">
+        <div className="space-x-2">
+          {!step.isRequired && (
+            <Button
+              type="button"
+              disabled={isSubmitting}
+              onClick={handleSkipStep}
+              variant="outline"
+              className="border-red-200 hover:bg-red-50 hover:text-red-600"
+            >
+              {isSubmitting && !completeMode ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <CircleSlash className="w-4 h-4 mr-2 text-red-500" />
+              )}
+              Bỏ qua
+            </Button>
+          )}
+        </div>
 
         <div className="flex justify-end gap-2">
           {isAdmin ? (
@@ -357,36 +441,48 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
               type="button"
               disabled={isSubmitting}
               onClick={handleAssignUser}
+              className="flex items-center"
             >
-              {isSubmitting && !completeMode && (
-                <Loader2 className="animate-spin w-4 h-4" />
+              {isSubmitting && !completeMode ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <User className="w-4 h-4 mr-2" />
               )}
-              Cập nhật người thực hiện
+              Gán người thực hiện
             </Button>
           ) : (
             <Button
               type="submit"
               disabled={isSubmitting}
               onClick={() => setCompleteMode(false)}
+              variant="outline"
+              className="flex items-center"
             >
-              {isSubmitting && !completeMode && (
-                <Loader2 className="animate-spin w-4 h-4" />
+              {isSubmitting && !completeMode ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Clock className="w-4 h-4 mr-2" />
               )}
-              Lưu
+              Lưu thông tin
             </Button>
           )}
 
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            onClick={() => setCompleteMode(true)}
-            variant="secondary"
-          >
-            {isSubmitting && completeMode && (
-              <Loader2 className="animate-spin w-4 h-4" />
-            )}
-            Hoàn thành
-          </Button>
+          {(!isAdmin || isAssignedUser) && (
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              onClick={() => setCompleteMode(true)}
+              variant="default"
+              className="bg-green-600 hover:bg-green-700 flex items-center"
+            >
+              {isSubmitting && completeMode ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <BadgeCheck className="w-4 h-4 mr-2" />
+              )}
+              Hoàn thành bước
+            </Button>
+          )}
         </div>
       </div>
     </form>
