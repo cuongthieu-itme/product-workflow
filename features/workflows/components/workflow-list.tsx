@@ -46,6 +46,12 @@ export function WorkflowProcessList() {
     },
     {
       className: "min-w-5",
+      id: "subprocesses",
+      header: "Số bước",
+      cell: (u) => u.subprocesses.length,
+    },
+    {
+      className: "min-w-5",
       id: "createdAt",
       header: "Ngày tạo",
       cell: (u) => format(new Date(u.createdAt), "dd/MM/yyyy hh:mm"),
