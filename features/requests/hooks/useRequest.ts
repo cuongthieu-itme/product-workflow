@@ -19,6 +19,7 @@ import {
   addMaterialToRequest,
   removeMaterialFromRequest,
   getStatisticsByRequest,
+  deleteRequest,
 } from "../services";
 import {
   EvaluateFilterInput,
@@ -239,5 +240,18 @@ export const useStatisticsRequestQuery = () => {
   return useQuery({
     queryKey: [REQUESTS_QUERY_KEY.REQUEST_BY_PRODUCT_STATUS],
     queryFn: getStatisticsByRequest,
+  });
+};
+
+export const useDeleteRequestMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
   });
 };

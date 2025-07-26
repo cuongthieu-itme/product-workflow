@@ -278,3 +278,13 @@ export const getStatisticsByRequest = async () => {
     throw error;
   }
 };
+
+export const deleteRequest = async (requestId: number) => {
+  try {
+    const response = await request.delete(`/requests/${requestId}`);
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

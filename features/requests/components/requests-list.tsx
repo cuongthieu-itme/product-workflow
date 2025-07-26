@@ -26,6 +26,7 @@ import { CreateRequestButton } from "./create-request-button";
 import { RequestForm } from "../form";
 import { useRouter } from "next/navigation";
 import { useStatisticsRequestQuery } from "../hooks/useRequest";
+import { DeleteRequestDialog } from "./delete-request-dialog";
 
 export function RequestList() {
   const [page, setPage] = useState(PAGE);
@@ -33,6 +34,13 @@ export function RequestList() {
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearch = useDebounce(searchValue, 400);
   const { data } = useStatisticsRequestQuery();
+  const [deleteDialogState, setDeleteDialogState] = useState<{
+    isOpen: boolean;
+    request: RequestType | null;
+  }>({
+    isOpen: false,
+    request: null,
+  });
 
   const {
     data: requests,
@@ -104,9 +112,12 @@ export function RequestList() {
           <Button
             variant="outline"
             size="sm"
+            disabled={u.status !== RequestStatus.PENDING}
             onClick={() => {
-              // Handle delete action here
-              console.log("Delete request with ID:", u.id);
+              setDeleteDialogState({
+                isOpen: true,
+                request: u,
+              });
             }}
           >
             <Trash2 className="h-4 w-4 mr-2 text-red-500" />
@@ -198,11 +209,14 @@ export function RequestList() {
                 <p className="text-sm font-medium text-gray-600">
                   Từ chối/Tạm dừng
                 </p>
-                <p className="text-3xl font-bold text-red-600 mt-2">0</p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-3xl font-bold text-red-600 mt-2">
+                  {" "}
                   {data?.byStatus.find(
                     (s) => s.status === RequestStatus.REJECTED
                   )?.count || 0}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Yêu cầu đã bị từ chối hoặc tạm dừng
                 </p>
               </div>
               <div className="p-3 bg-red-100 rounded-full">
@@ -247,6 +261,17 @@ export function RequestList() {
         }
         requestId={openRequestFormEdit.requestId}
       />
+
+      {deleteDialogState.request && (
+        <DeleteRequestDialog
+          isOpen={deleteDialogState.isOpen}
+          onClose={() => {
+            setDeleteDialogState({ isOpen: false, request: null });
+            refetch(); // Refresh the list after deletion
+          }}
+          request={deleteDialogState.request}
+        />
+      )}
     </div>
   );
 }
