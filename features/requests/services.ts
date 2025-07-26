@@ -208,11 +208,11 @@ export const assignUserToStep = async ({
   ...data
 }: AssignUserInputType) => {
   try {
-    const response = await request.put(
+    const response = await request.put<BaseResultQuery<SubprocessHistoryType>>(
       `/subprocesses-history/${id}`,
       omitVoid(data)
     );
-    return response.data;
+    return response.data.data;
   } catch (error) {
     console.error("Error assigning user to step:", error);
     throw error;

@@ -165,7 +165,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
     handleSubmit,
     formState: { isSubmitting },
     watch,
-    trigger,
   } = useForm<SubprocessHistoryFormType>({
     defaultValues: {
       ...step,
@@ -201,14 +200,14 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
       {
         id: step.id,
         userId: Number(userId),
-        isRequired: false,
-        isStepWithCost: isStepWithCost,
+        isRequired: step.isStepWithCost,
+        isStepWithCost: step.isStepWithCost,
       },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           toast({
             title: "Thành công",
-            description: "Người thực hiện đã được cập nhật!",
+            description: `Đã gán ${data.user?.fullName} làm người thực hiện!`,
           });
         },
         onError: () => {
