@@ -7,6 +7,7 @@ import { useGetRequestDetailQuery } from "@/features/requests/hooks";
 import { RequestMaterial } from "@/features/requests/type";
 import { MaterialEnum } from "@/features/materials/constants";
 import { AddMaterialDialog } from "./add-material-dialog";
+import { UpdateMaterialDialog } from "./update-material-dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { useRemoveMaterialFromRequestMutation } from "@/features/requests/hooks/useRequest";
 
@@ -96,6 +97,7 @@ export const MaterialTab = () => {
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
+                        <UpdateMaterialDialog request={request} material={m} />
                         <Button
                           size="sm"
                           variant="destructive"
