@@ -21,6 +21,8 @@ import {
   SubprocessHistorySkipInput,
   AssignUserInputType,
   RequestType,
+  AddMaterialInputType,
+  RemoveMaterialInputType,
 } from "./type";
 import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
@@ -228,6 +230,38 @@ export const getRequestByProductStatus = async (productStatusId: number) => {
     return response.data.data;
   } catch (error) {
     console.error("Error fetching request by product status ID:", error);
+    throw error;
+  }
+};
+
+export const addMaterialToRequest = async ({
+  id,
+  materialId,
+  quantity,
+}: AddMaterialInputType) => {
+  try {
+    const response = await request.post(`/requests/${id}/material`, {
+      materialId,
+      quantity,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error adding material to request:", error);
+    throw error;
+  }
+};
+
+export const removeMaterialFromRequest = async ({
+  id,
+  materialId,
+}: RemoveMaterialInputType) => {
+  try {
+    const response = await request.delete(`/requests/${id}/material`, {
+      data: { materialId },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error removing material from request:", error);
     throw error;
   }
 };

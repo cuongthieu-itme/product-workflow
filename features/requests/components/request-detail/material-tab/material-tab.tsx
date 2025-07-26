@@ -7,9 +7,14 @@ import { useGetRequestDetailQuery } from "@/features/requests/hooks";
 import { RequestMaterial } from "@/features/requests/type";
 import { MaterialEnum } from "@/features/materials/constants";
 import { AddMaterialDialog } from "./add-material-dialog";
+import { useToast } from "@/components/ui/use-toast";
+import { useRemoveMaterialFromRequestMutation } from "@/features/requests/hooks/useRequest";
 
 export const MaterialTab = () => {
   const { data: request } = useGetRequestDetailQuery();
+  const { toast } = useToast();
+  const { mutate: removeMaterialFromRequest } =
+    useRemoveMaterialFromRequestMutation();
 
   return (
     <TabsContent value="materials">
@@ -91,7 +96,35 @@ export const MaterialTab = () => {
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Button size="sm" variant="destructive" className="h-8">
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="h-8"
+                          onClick={() =>
+                            removeMaterialFromRequest(
+                              {
+                                id: request.id,
+                                materialId: m.id,
+                              },
+                              {
+                                onSuccess: () => {
+                                  toast({
+                                    title: "Thành công",
+                                    description:
+                                      "Đã xóa vật liệu khỏi yêu cầu!",
+                                  });
+                                },
+                                onError: () => {
+                                  toast({
+                                    title: "Lỗi",
+                                    description:
+                                      "Không thể xóa vật liệu, vui lòng thử lại sau.",
+                                  });
+                                },
+                              }
+                            )
+                          }
+                        >
                           Xóa
                         </Button>
                       </div>

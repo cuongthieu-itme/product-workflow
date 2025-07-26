@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SelectedMaterial } from "@/features/requests/form/material/selected-material";
 import { RequestDetail } from "@/features/requests/type";
 import { MaterialList } from "@/features/requests/form/material/material-list";
+import { useAddMaterialToRequestMutation } from "@/features/requests/hooks/useRequest";
 
 interface AddMaterialDialogProps {
   request?: RequestDetail;
@@ -26,6 +27,8 @@ export const AddMaterialDialog = ({ request }: AddMaterialDialogProps) => {
   const [materialCount, setMaterialCount] = useState(1);
   const debouncedSearch = useDebounce(searchMaterial, 400);
   const { toast } = useToast();
+
+  const { mutate: addMaterialToRequest } = useAddMaterialToRequestMutation();
 
   const { data: materials } = useMaterialsQuery({
     limit: 1000,
@@ -52,7 +55,42 @@ export const AddMaterialDialog = ({ request }: AddMaterialDialogProps) => {
     setSearchMaterial("");
   };
 
-  const handleSubmit = () => {};
+  const handleSubmit = () => {
+    if (!request) return;
+    if (!selectedMaterialId || !request) {
+      toast({
+        title: "Lỗi",
+        description: "Vui lòng chọn nguyên vật liệu và yêu cầu.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    addMaterialToRequest(
+      {
+        id: request?.id,
+        materialId: selectedMaterialId,
+        quantity: materialCount,
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Thành công",
+            description: "Đã thêm nguyên vật liệu vào yêu cầu!",
+          });
+          handleCloseDialog();
+        },
+        onError: () => {
+          toast({
+            title: "Lỗi",
+            description:
+              "Không thể thêm nguyên vật liệu, vui lòng thử lại sau.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
+  };
 
   // Tách logic xử lý thành một function riêng
   const handleMaterialCountChange = (e: ChangeEvent<HTMLInputElement>) => {

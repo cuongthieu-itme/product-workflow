@@ -16,6 +16,8 @@ import {
   updateMediaRequest,
   assignUserToStep,
   getRequestByProductStatus,
+  addMaterialToRequest,
+  removeMaterialFromRequest,
 } from "../services";
 import {
   EvaluateFilterInput,
@@ -202,5 +204,31 @@ export const useGetRequestByProductStatusQuery = (productStatusId: number) => {
   return useQuery({
     queryKey: [REQUESTS_QUERY_KEY.REQUESTS, productStatusId],
     queryFn: () => getRequestByProductStatus(productStatusId),
+  });
+};
+
+export const useAddMaterialToRequestMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: addMaterialToRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useRemoveMaterialFromRequestMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: removeMaterialFromRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
   });
 };

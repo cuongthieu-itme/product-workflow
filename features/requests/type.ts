@@ -172,3 +172,14 @@ export type AssignUserInputType = {
   isRequired?: boolean;
   isStepWithCost?: boolean;
 };
+
+export type AddMaterialInputType = {
+  id: number;
+  materialId: number;
+  quantity: number;
+};
+
+export type RemoveMaterialInputType = {
+  id: number;
+  materialId: number;
+};
