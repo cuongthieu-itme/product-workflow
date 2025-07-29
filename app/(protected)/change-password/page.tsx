@@ -7,13 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { InputCustom } from "@/components/form";
-import { useChangePasswordMutation } from "@/features/auth/hooks";
-import {
-  changePasswordSchema,
-  type ChangePasswordInputType,
-} from "@/features/auth/schema";
+
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  changePasswordInputSchema,
+  ChangePasswordInputType,
+} from "@/features/settings/schema";
+import { useChangePasswordMutation } from "@/features/settings/hooks";
 
 export default function ChangePasswordPage() {
   const { toast } = useToast();
@@ -22,35 +23,21 @@ export default function ChangePasswordPage() {
     useChangePasswordMutation();
 
   const form = useForm<ChangePasswordInputType>({
-    resolver: zodResolver(changePasswordSchema),
+    resolver: zodResolver(changePasswordInputSchema),
     defaultValues: {
+      oldPassword: "",
       newPassword: "",
       confirmPassword: "",
     },
   });
 
   const onSubmit = async (data: ChangePasswordInputType) => {
-    changePasswordMutation(
-      {
-        newPassword: data.newPassword,
+    changePasswordMutation(data, {
+      onSuccess: () => {
+        form.reset();
+        router.push("/dashboard");
       },
-      {
-        onSuccess: () => {
-          toast({
-            title: "Thành công",
-            description: "Đổi mật khẩu thành công",
-          });
-          router.push("/dashboard");
-        },
-        onError: () => {
-          toast({
-            title: "Lỗi",
-            description: "Đổi mật khẩu thất bại",
-            variant: "destructive",
-          });
-        },
-      }
-    );
+    });
   };
 
   return (
@@ -68,6 +55,15 @@ export default function ChangePasswordPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <InputCustom
+                name="oldPassword"
+                control={form.control}
+                type="password"
+                label="Mật khẩu cũ"
+                placeholder="Nhập mật khẩu cũ"
+                required
+              />
+
               <InputCustom
                 name="newPassword"
                 control={form.control}

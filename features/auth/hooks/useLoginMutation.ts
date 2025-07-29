@@ -15,7 +15,11 @@ export const useLoginMutation = () => {
   return useMutation({
     mutationFn: loginUser,
     onSuccess: async (data) => {
-      router.push("/dashboard");
+      if (data.isFirstLogin) {
+        router.push("/change-password");
+      } else {
+        router.push("/dashboard");
+      }
       setAccessTokenToStorage(data.accessToken);
       queryClient.prefetchQuery({
         queryKey: [USER_INFO_QUERY_KEY],
