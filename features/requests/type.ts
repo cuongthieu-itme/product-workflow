@@ -60,6 +60,7 @@ export interface RequestFilterInput {
   title?: string;
   procedureId?: number;
   statusProductId?: number;
+  status?: RequestStatus;
 }
 
 export type RequestsType = PaginatedResult<"data", RequestType>;

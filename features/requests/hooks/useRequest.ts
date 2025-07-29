@@ -40,7 +40,7 @@ export enum REQUESTS_QUERY_KEY {
 
 export const useGetRequestsQuery = (params?: RequestFilterInput) => {
   return useQuery({
-    queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+    queryKey: [REQUESTS_QUERY_KEY.REQUESTS, params],
     queryFn: () => getRequests(params),
   });
 };

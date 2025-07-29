@@ -27,11 +27,16 @@ import { RequestForm } from "../form";
 import { useRouter } from "next/navigation";
 import { useStatisticsRequestQuery } from "../hooks/useRequest";
 import { DeleteRequestDialog } from "./delete-request-dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 export function RequestList() {
   const [page, setPage] = useState(PAGE);
   const router = useRouter();
   const [searchValue, setSearchValue] = useState("");
+  const [statusFilter, setStatusFilter] = useState<RequestStatus | "all">(
+    "all"
+  );
   const debouncedSearch = useDebounce(searchValue, 400);
   const { data } = useStatisticsRequestQuery();
   const [deleteDialogState, setDeleteDialogState] = useState<{
@@ -50,6 +55,7 @@ export function RequestList() {
     page,
     limit: LIMIT,
     title: debouncedSearch,
+    status: statusFilter === "all" ? undefined : statusFilter,
   });
   const [openRequestFormEdit, setOpenRequestFormEdit] = useState<{
     isOpen: boolean;
@@ -59,15 +65,77 @@ export function RequestList() {
     requestId: undefined,
   });
 
-  const totalPages = requests
-    ? Math.max(PAGE, Math.ceil(requests.total / LIMIT))
+  const totalPages = requests?.total
+    ? Math.ceil(requests?.total / LIMIT)
     : PAGE;
+
+  // Reset page to 1 when status filter changes
+  const handleStatusChange = (value: string) => {
+    if (value === "all") {
+      setStatusFilter("all");
+      setPage(PAGE);
+
+      return;
+    }
+    setStatusFilter(value as RequestStatus | "all");
+    setPage(PAGE);
+  };
+
+  const getStatusBadge = (status: RequestStatus) => {
+    const statusConfig = {
+      [RequestStatus.PENDING]: {
+        label: "Chờ xử lý",
+        variant: "secondary" as const,
+      },
+      [RequestStatus.APPROVED]: {
+        label: "Đã xác nhận",
+        variant: "default" as const,
+      },
+      [RequestStatus.IN_PROGRESS]: {
+        label: "Đang xử lý",
+        variant: "outline" as const,
+      },
+      [RequestStatus.COMPLETED]: {
+        label: "Hoàn thành",
+        variant: "default" as const,
+      },
+      [RequestStatus.REJECTED]: {
+        label: "Từ chối",
+        variant: "destructive" as const,
+      },
+    };
+
+    const config = statusConfig[status];
+    return (
+      <Badge
+        variant={config.variant}
+        className={`${
+          status === RequestStatus.PENDING
+            ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+            : status === RequestStatus.APPROVED
+            ? "bg-blue-100 text-blue-800 hover:bg-blue-100"
+            : status === RequestStatus.IN_PROGRESS
+            ? "bg-purple-100 text-purple-800 hover:bg-purple-100"
+            : status === RequestStatus.COMPLETED
+            ? "bg-green-100 text-green-800 hover:bg-green-100"
+            : ""
+        } w-[fit-content]`}
+      >
+        {config.label}
+      </Badge>
+    );
+  };
 
   const columns: Column<RequestType>[] = [
     { id: "title", header: "Tên yêu cầu" },
     {
       id: "description",
       header: "Chi tiết yêu cầu",
+    },
+    {
+      id: "status",
+      header: "Trạng thái",
+      cell: (u) => getStatusBadge(u.status),
     },
     {
       id: "createdAt",
@@ -227,6 +295,66 @@ export function RequestList() {
         </div>
       </div>
 
+      <Tabs
+        value={statusFilter}
+        onValueChange={handleStatusChange}
+        className="space-y-4"
+      >
+        <div className="overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 min-w-max">
+            <TabsTrigger value="all" className="text-xs lg:text-sm">
+              Tất cả ({requests?.total || 0})
+            </TabsTrigger>
+            <TabsTrigger
+              value={RequestStatus.PENDING}
+              className="text-xs lg:text-sm"
+            >
+              Chờ xử lý (
+              {data?.byStatus.find((s) => s.status === RequestStatus.PENDING)
+                ?.count || 0}
+              )
+            </TabsTrigger>
+            <TabsTrigger
+              value={RequestStatus.APPROVED}
+              className="text-xs lg:text-sm"
+            >
+              Đã xác nhận (
+              {data?.byStatus.find((s) => s.status === RequestStatus.APPROVED)
+                ?.count || 0}
+              )
+            </TabsTrigger>
+            <TabsTrigger
+              value={RequestStatus.IN_PROGRESS}
+              className="text-xs lg:text-sm"
+            >
+              Đang xử lý (
+              {data?.byStatus.find(
+                (s) => s.status === RequestStatus.IN_PROGRESS
+              )?.count || 0}
+              )
+            </TabsTrigger>
+            <TabsTrigger
+              value={RequestStatus.COMPLETED}
+              className="text-xs lg:text-sm"
+            >
+              Hoàn thành (
+              {data?.byStatus.find((s) => s.status === RequestStatus.COMPLETED)
+                ?.count || 0}
+              )
+            </TabsTrigger>
+            <TabsTrigger
+              value={RequestStatus.REJECTED}
+              className="text-xs lg:text-sm"
+            >
+              Từ chối (
+              {data?.byStatus.find((s) => s.status === RequestStatus.REJECTED)
+                ?.count || 0}
+              )
+            </TabsTrigger>
+          </TabsList>
+        </div>
+      </Tabs>
+
       <Card className="p-6">
         <div className="space-y-4">
           <div className="flex justify-end">
@@ -241,7 +369,7 @@ export function RequestList() {
           ></TableToolbar>
 
           <DataTable<RequestType>
-            data={requests?.data}
+            data={requests?.data || []}
             columns={columns}
             loading={isFetching}
           />
