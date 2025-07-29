@@ -73,14 +73,26 @@ export function WorkflowForm() {
   };
 
   const handleCreateStep = (stepData: SubProcessInputType) => {
-    const newStep = {
-      ...stepData,
-      step: fields.length + 1,
-      fieldId: nanoid(),
-    };
+    if (stepData.id) {
+      const updatedFields = fields.map((field) => {
+        if (field.id === stepData.id) {
+          return {
+            ...field,
+            ...stepData,
+          };
+        }
+        return field;
+      });
+      setValue("subprocesses", updatedFields, { shouldValidate: true });
+    } else {
+      const newStep = {
+        ...stepData,
+        step: fields.length + 1,
+        fieldId: nanoid(),
+      };
+      setValue("subprocesses", [...fields, newStep], { shouldValidate: true });
+    }
 
-    const updatedFields = [...fields, newStep];
-    setValue("subprocesses", updatedFields, { shouldValidate: true });
     setIsCreateStepModalOpen(false);
   };
 

@@ -35,6 +35,7 @@ export function StepFormModal({
 }: StepModalProps) {
   const { control, handleSubmit, reset } = useForm<SubProcessInputType>({
     defaultValues: {
+      id: data?.id || null,
       name: data?.name || "",
       description: data?.description || "",
       estimatedNumberOfDays: data?.estimatedNumberOfDays || 1,
@@ -48,8 +49,11 @@ export function StepFormModal({
     resolver: zodResolver(subprocessesSchema),
   });
 
-  const onSubmit: SubmitHandler<SubProcessInputType> = (data) => {
+  const onSubmit: SubmitHandler<SubProcessInputType> = (data, event) => {
+    event?.preventDefault();
+    event?.stopPropagation();
     handleSaveStep(data);
+    onClose();
   };
 
   const { data: departments } = useDepartmentsQuery({ limit: 1000 });
@@ -61,8 +65,21 @@ export function StepFormModal({
     })) ?? [];
 
   useEffect(() => {
-    reset();
-  }, [isOpen]);
+    if (isOpen) {
+      reset({
+        id: data?.id || null,
+        name: data?.name || "",
+        description: data?.description || "",
+        estimatedNumberOfDays: data?.estimatedNumberOfDays || 1,
+        numberOfDaysBeforeDeadline: data?.numberOfDaysBeforeDeadline || 1,
+        roleOfThePersonInCharge: data?.roleOfThePersonInCharge || "",
+        departmentId: data?.departmentId,
+        isRequired: data?.isRequired || false,
+        isStepWithCost: data?.isStepWithCost || false,
+        step: data?.step || 1,
+      });
+    }
+  }, [isOpen, data, reset]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -71,7 +88,13 @@ export function StepFormModal({
           <DialogTitle>{data?.id ? "Cập nhật" : "Thêm"} bước mới</DialogTitle>
         </DialogHeader>
 
-        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+        <form
+          className="space-y-4"
+          onSubmit={(e) => {
+            e.stopPropagation();
+            handleSubmit(onSubmit)(e);
+          }}
+        >
           <InputCustom
             control={control}
             name="name"
