@@ -24,8 +24,6 @@ export function AddUserForm() {
   const { control, handleSubmit, reset } = useForm<CreateUserInputType>({
     defaultValues: {
       userName: "",
-      password: "",
-      confirmPassword: "",
       fullName: "",
       email: "",
       role: UserRoleEnum.USER,
@@ -45,7 +43,9 @@ export function AddUserForm() {
     });
   };
 
-  const { data: departments, error: departmentError } = useDepartmentsQuery({ limit: 10000 });
+  const { data: departments, error: departmentError } = useDepartmentsQuery({
+    limit: 10000,
+  });
 
   const departOptions: SelectOption[] =
     departments?.data.map((d) => ({
@@ -144,24 +144,6 @@ export function AddUserForm() {
             placeholder="Chọn phòng ban"
             required
             disabled={isPending}
-          />
-
-          <InputCustom
-            control={control}
-            name="password"
-            label="Mật khẩu"
-            placeholder="Nhập mật khẩu"
-            type="password"
-            required
-          />
-
-          <InputCustom
-            control={control}
-            name="confirmPassword"
-            label="Xác nhận mật khẩu"
-            placeholder="Nhập lại mật khẩu"
-            type="password"
-            required
           />
         </div>
 
