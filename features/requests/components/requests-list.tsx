@@ -216,9 +216,7 @@ export function RequestList() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Chờ xử lý</p>
                 <p className="text-3xl font-bold text-yellow-600 mt-2">
-                  {data?.byStatus.find(
-                    (s) => s.status === RequestStatus.PENDING
-                  )?.count || 0}
+                  {data?.data.PENDING || 0}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Yêu cầu chưa được xác nhận
@@ -236,9 +234,7 @@ export function RequestList() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Đã xác nhận</p>
                 <p className="text-3xl font-bold text-blue-600 mt-2">
-                  {data?.byStatus.find(
-                    (s) => s.status === RequestStatus.APPROVED
-                  )?.count || 0}
+                  {data?.data.APPROVED || 0}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Yêu cầu đã được xác nhận
@@ -256,9 +252,7 @@ export function RequestList() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Hoàn thành</p>
                 <p className="text-3xl font-bold text-green-600 mt-2">
-                  {data?.byStatus.find(
-                    (s) => s.status === RequestStatus.COMPLETED
-                  )?.count || 0}
+                  {data?.data.COMPLETED || 0}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Yêu cầu đã hoàn thành
@@ -279,9 +273,7 @@ export function RequestList() {
                 </p>
                 <p className="text-3xl font-bold text-red-600 mt-2">
                   {" "}
-                  {data?.byStatus.find(
-                    (s) => s.status === RequestStatus.REJECTED
-                  )?.count || 0}
+                  {data?.data.REJECTED || 0}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Yêu cầu đã bị từ chối hoặc tạm dừng
@@ -303,53 +295,37 @@ export function RequestList() {
         <div className="overflow-x-auto">
           <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 min-w-max">
             <TabsTrigger value="all" className="text-xs lg:text-sm">
-              Tất cả ({requests?.total || 0})
+              Tất cả ({data?.data.ALL || 0})
             </TabsTrigger>
             <TabsTrigger
               value={RequestStatus.PENDING}
               className="text-xs lg:text-sm"
             >
-              Chờ xử lý (
-              {data?.byStatus.find((s) => s.status === RequestStatus.PENDING)
-                ?.count || 0}
-              )
+              Chờ xử lý ({data?.data.PENDING || 0})
             </TabsTrigger>
             <TabsTrigger
               value={RequestStatus.APPROVED}
               className="text-xs lg:text-sm"
             >
-              Đã xác nhận (
-              {data?.byStatus.find((s) => s.status === RequestStatus.APPROVED)
-                ?.count || 0}
-              )
+              Đã xác nhận ({data?.data.APPROVED || 0})
             </TabsTrigger>
             <TabsTrigger
               value={RequestStatus.IN_PROGRESS}
               className="text-xs lg:text-sm"
             >
-              Đang xử lý (
-              {data?.byStatus.find(
-                (s) => s.status === RequestStatus.IN_PROGRESS
-              )?.count || 0}
-              )
+              Đang xử lý ({data?.data.IN_PROGRESS || 0})
             </TabsTrigger>
             <TabsTrigger
               value={RequestStatus.COMPLETED}
               className="text-xs lg:text-sm"
             >
-              Hoàn thành (
-              {data?.byStatus.find((s) => s.status === RequestStatus.COMPLETED)
-                ?.count || 0}
-              )
+              Hoàn thành ({data?.data.COMPLETED || 0})
             </TabsTrigger>
             <TabsTrigger
               value={RequestStatus.REJECTED}
               className="text-xs lg:text-sm"
             >
-              Từ chối (
-              {data?.byStatus.find((s) => s.status === RequestStatus.REJECTED)
-                ?.count || 0}
-              )
+              Từ chối ({data?.data.REJECTED || 0})
             </TabsTrigger>
           </TabsList>
         </div>

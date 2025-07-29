@@ -188,8 +188,12 @@ export type RemoveMaterialInputType = {
 };
 
 export type StatusStatisticsType = {
-  byStatus: {
-    status: RequestStatus;
-    count: number;
-  }[];
+  data: {
+    ALL: number;
+    PENDING: number;
+    IN_PROGRESS: number;
+    APPROVED: number;
+    REJECTED: number;
+    COMPLETED: number;
+  };
 };

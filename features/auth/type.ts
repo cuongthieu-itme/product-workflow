@@ -14,5 +14,6 @@ export type UserType = {
   phoneNumber: string;
   createdAt: string;
   updatedAt: string;
+  isFirstLogin: boolean;
   department: DepartmentType;
 };
