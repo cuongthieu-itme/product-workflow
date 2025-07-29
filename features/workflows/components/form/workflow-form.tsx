@@ -107,7 +107,7 @@ export function WorkflowForm() {
         },
         {
           onSuccess: () => {
-            router.push(`/dashboard/workflows/${data.id}`);
+            router.push(`/dashboard/workflows`);
           },
         }
       );
@@ -127,7 +127,7 @@ export function WorkflowForm() {
             title: "Thành công",
             description: "Quy trình đã được tạo thành công.",
           });
-          router.push(`/dashboard/workflows/${response.id}`);
+          router.push(`/dashboard/workflows`);
         },
         onError: (error) => {
           toast({
