@@ -3,6 +3,7 @@ import {
   ForgotPasswordInput,
   LoginInputType,
   RegisterInputType,
+  ChangePasswordInputType,
 } from "./schema";
 import { UserType } from "./type";
 import { ResetPasswordInputType } from "./schema/reset-password-schema";
@@ -69,6 +70,26 @@ export const resetPassword = async ({
     return response.data;
   } catch (error) {
     console.error("Reset password error:", error);
+    throw error;
+  }
+};
+
+export const changePassword = async (data: { newPassword: string }) => {
+  try {
+    const response = await request.post("/auth/change-password", data);
+    return response.data;
+  } catch (error) {
+    console.error("Change password error:", error);
+    throw error;
+  }
+};
+
+export const skipFirstLogin = async () => {
+  try {
+    const response = await request.post("/auth/skip-first-login");
+    return response.data;
+  } catch (error) {
+    console.error("Skip first login error:", error);
     throw error;
   }
 };

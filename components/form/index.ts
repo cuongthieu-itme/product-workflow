@@ -4,3 +4,5 @@ export {
   type SelectOption,
   KEY_EMPTY_SELECT,
 } from "./select";
+
+export { InputCustom, type InputProps } from "./input";
