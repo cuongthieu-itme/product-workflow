@@ -26,17 +26,21 @@ import { useToast } from "@/components/ui/use-toast";
 import { MaterialFormWithTabs } from "./material-form-with-tabs";
 import { MaterialEnum } from "../constants";
 
+interface CreateMaterialFormProps {
+  onMaterialAdded?: () => void;
+  material?: MaterialType;
+  children?: React.ReactNode;
+  defaultTab?: MaterialEnum;
+  createLabel?: string;
+}
+
 export function CreateMaterialForm({
   onMaterialAdded,
   material,
   children,
   defaultTab,
-}: {
-  onMaterialAdded?: () => void;
-  material?: MaterialType;
-  children?: React.ReactNode;
-  defaultTab?: MaterialEnum;
-}) {
+  createLabel = "Tạo nguyên liệu",
+}: CreateMaterialFormProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
@@ -49,7 +53,7 @@ export function CreateMaterialForm({
           onClick={() => setIsDialogOpen(true)}
         >
           <PlusCircle className="mr-2 h-4 w-4" />
-          Tạo nguyên liệu
+          {createLabel}
         </Button>
       )}
 

@@ -47,10 +47,7 @@ export const updateMaterial = async ({
   ...data
 }: UpdateMaterialInputType) => {
   try {
-    const response = await request.patch<MaterialType>(
-      `/materials/${id}`,
-      data
-    );
+    const response = await request.put<MaterialType>(`/materials/${id}`, data);
     return response.data;
   } catch (error) {
     console.error("Update material error:", error);

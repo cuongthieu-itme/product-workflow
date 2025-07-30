@@ -103,14 +103,15 @@ export function AccessoryList() {
       <div className="flex flex-col space-y-4 md:flex-row justify-between md:space-y-0 w-full">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">
-            Quản lý nguyên liệu
+            Quản lý phụ kiện
           </h2>
-          <p className="text-muted-foreground">
-            Quản lý thông tin nguyên liệu{" "}
-          </p>
+          <p className="text-muted-foreground">Quản lý thông tin phụ kiện </p>
         </div>
 
-        <CreateMaterialForm defaultTab={MaterialEnum.ACCESSORY} />
+        <CreateMaterialForm
+          defaultTab={MaterialEnum.ACCESSORY}
+          createLabel="Tạo phụ kiện"
+        />
       </div>
 
       <div className="space-y-4">
