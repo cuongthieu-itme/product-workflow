@@ -354,26 +354,15 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
             <h4 className="text-sm font-medium text-muted-foreground">
               Người thực hiện
             </h4>
-            {isAdmin ? (
-              <SelectCustom
-                name="userId"
-                control={control}
-                options={users.map((user: any) => ({
-                  value: user.id,
-                  label: `${user.fullName} (${user.email})`,
-                }))}
-                placeholder="Chọn người thực hiện"
-              />
-            ) : (
-              <div className="p-4 rounded-md border bg-muted">
-                <div className="flex items-center gap-2">
-                  <User className="text-blue-600 w-5 h-5" />
-                  <div>
-                    <span className="text-sm">{getUserAssignName()}</span>
-                  </div>
+
+            <div className="p-4 rounded-md border bg-muted">
+              <div className="flex items-center gap-2">
+                <User className="text-blue-600 w-5 h-5" />
+                <div>
+                  <span className="text-sm">{getUserAssignName()}</span>
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Cost Section - Only if applicable */}
