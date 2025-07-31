@@ -1,7 +1,6 @@
 "use client";
 
 import { useFormContext } from "react-hook-form";
-import { Label } from "@/components/ui/label";
 import { InputCustom } from "@/components/form/input";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +8,8 @@ import { CreateWorkflowInputType } from "../../schema/create-workflow-schema";
 import { format } from "date-fns";
 import { useParams } from "next/navigation";
 import { useGetWorkflowProcessByIdQuery } from "../../hooks";
+import { SelectCustom } from "@/components/form";
+import { outputTypeOptions } from "../../options";
 
 export function WorkflowInfoForm() {
   const {
@@ -51,6 +52,12 @@ export function WorkflowInfoForm() {
           name="description"
           placeholder="Mô tả quy trình"
           className={errors.description ? "border-destructive" : ""}
+        />
+
+        <SelectCustom
+          name="output_type"
+          options={outputTypeOptions}
+          label="Loại đầu ra của quy trình"
         />
       </CardContent>
     </Card>

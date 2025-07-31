@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+export enum OutputTypeEnum {
+  PRODUCT = "product",
+  ACCESSORY = "accessory",
+  MATERIAL = "material",
+}
+
 export const subprocessesSchema = z.object({
   id: z.string().or(z.number()).optional().nullable(),
   name: z
@@ -44,6 +50,12 @@ export const createWorkflowInputSchema = z.object({
     .string()
     .min(3, "Mô tả phải có ít nhất 3 ký tự")
     .max(100, "Mô tả phải có nhiều nhất 100 ký tự"),
+  output_type: z.enum(
+    [OutputTypeEnum.PRODUCT, OutputTypeEnum.ACCESSORY, OutputTypeEnum.MATERIAL],
+    {
+      errorMap: () => ({ message: "Phải chọn loại đầu ra" }),
+    }
+  ),
   subprocesses: z.array(subprocessesSchema).min(1, "Phải có ít nhất 1 bước"),
 });
 

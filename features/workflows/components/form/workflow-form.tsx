@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createWorkflowInputSchema,
   CreateWorkflowInputType,
+  OutputTypeEnum,
   SubProcessInputType,
 } from "../../schema/create-workflow-schema";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ export function WorkflowForm() {
     defaultValues: {
       name: "",
       description: "",
+      output_type: OutputTypeEnum.PRODUCT,
       subprocesses: [],
     },
   });
@@ -115,6 +117,7 @@ export function WorkflowForm() {
           id: data.id,
           name: formData.name,
           description: formData.description,
+          output_type: formData.output_type,
           subprocesses: normalizedSubprocesses,
         },
         {
@@ -131,6 +134,7 @@ export function WorkflowForm() {
       {
         name: formData.name,
         description: formData.description,
+        output_type: formData.output_type,
         subprocesses: normalizedSubprocesses,
       },
       {
