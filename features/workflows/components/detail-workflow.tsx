@@ -24,7 +24,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { useGetWorkflowProcessByIdQuery } from "../hooks";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { WorkFlowStepType } from "../types";
 
@@ -154,6 +154,8 @@ export const DetailWorkflow = () => {
     );
   };
 
+  const router = useRouter();
+
   return (
     <div className="space-y-6">
       {/* Workflow Header */}
@@ -230,9 +232,16 @@ export const DetailWorkflow = () => {
                 {workflowSteps.length} bước trong quy trình
               </CardDescription>
             </div>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Thêm bước
+            <Button
+              size="sm"
+              onClick={() => {
+                router.push(
+                  `/dashboard/workflows/update/${workflowProcess.id}`
+                );
+              }}
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Cập nhật quy trình
             </Button>
           </div>
         </CardHeader>
