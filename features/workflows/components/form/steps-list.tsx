@@ -9,6 +9,7 @@ import {
 import { useFormContext, useFieldArray, Control } from "react-hook-form";
 import { CreateWorkflowInputType } from "../../schema/create-workflow-schema";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import {
   closestCenter,
   DndContext,
@@ -23,6 +24,11 @@ import {
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import { WorkflowItem } from "./workflow-item";
+import { BatchAssignModal } from "./batch-assign-modal";
+import { AssignmentSummary } from "./assignment-summary";
+import { AssignmentWarnings } from "./assignment-warnings";
+import { SameAssignList } from "./same-assign-list";
+import { Users } from "lucide-react";
 
 interface StepsListProps {
   handleOpenStepModal: () => void;
@@ -45,6 +51,9 @@ export function StepsList({ handleOpenStepModal }: StepsListProps) {
     name: "subprocesses",
     keyName: "fieldId",
   });
+
+  const [isBatchAssignModalOpen, setIsBatchAssignModalOpen] = useState(false);
+  console.log("fields", getValues());
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -94,64 +103,86 @@ export function StepsList({ handleOpenStepModal }: StepsListProps) {
       sensors={sensors}
       collisionDetection={closestCenter}
     >
-      <Card
-        className={`transition-all duration-200 ${
-          errors.subprocesses ? "border-destructive bg-destructive/5" : ""
-        }`}
-      >
-        <CardHeader className="border-b border-border/50">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Bước thực hiện</h3>
-            <Button
-              onClick={handleOpenStepModal}
-              variant="outline"
-              type="button"
-            >
-              Thêm bước
-            </Button>
-          </div>
-        </CardHeader>
+      <div className="space-y-4">
+        <AssignmentWarnings />
+        <SameAssignList />
+        {/* <AssignmentSummary /> */}
 
-        <CardContent className="pt-6">
-          <SortableContext
-            items={fields.map((item) => item.fieldId)}
-            id="subprocesses"
-          >
-            <div className="space-y-4 h-full">
-              {fields.length === 0 && (
-                <div className="flex items-center justify-center h-full">
-                  <p className="text-sm text-muted-foreground">
-                    Không có bước nào
-                  </p>
-                </div>
-              )}
-              <div className="space-y-4">
-                {fields.map((step, index) => {
-                  const { fieldId, ...rest } = step;
-
-                  return (
-                    <WorkflowItem
-                      fieldId={fieldId}
-                      key={fieldId}
-                      data={rest}
-                      onRemoveStep={() => handleRemoveStep(index)}
-                      onUpdateStep={(data) => update(index, data)}
-                    />
-                  );
-                })}
+        <Card
+          className={`transition-all duration-200 ${
+            errors.subprocesses ? "border-destructive bg-destructive/5" : ""
+          }`}
+        >
+          <CardHeader className="border-b border-border/50">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Bước thực hiện</h3>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setIsBatchAssignModalOpen(true)}
+                  variant="outline"
+                  type="button"
+                  className="flex items-center gap-2"
+                >
+                  <Users className="h-4 w-4" />
+                  Assign hàng loạt
+                </Button>
+                <Button
+                  onClick={handleOpenStepModal}
+                  variant="outline"
+                  type="button"
+                >
+                  Thêm bước
+                </Button>
               </div>
             </div>
-          </SortableContext>
-        </CardContent>
+          </CardHeader>
 
-        {errors.subprocesses && (
-          <CardFooter className="border-t border-border/50">
-            <p className="text-sm text-destructive font-medium text-center w-full pt-2">
-              {errors.subprocesses.message}
-            </p>
-          </CardFooter>
-        )}
-      </Card>
+          <CardContent className="pt-6">
+            <SortableContext
+              items={fields.map((item) => item.fieldId)}
+              id="subprocesses"
+            >
+              <div className="space-y-4 h-full">
+                {fields.length === 0 && (
+                  <div className="flex items-center justify-center h-full">
+                    <p className="text-sm text-muted-foreground">
+                      Không có bước nào
+                    </p>
+                  </div>
+                )}
+                <div className="space-y-4">
+                  {fields.map((step, index) => {
+                    const { fieldId, ...rest } = step;
+
+                    return (
+                      <WorkflowItem
+                        fieldId={fieldId}
+                        key={fieldId}
+                        data={rest}
+                        onRemoveStep={() => handleRemoveStep(index)}
+                        onUpdateStep={(data) => update(index, data)}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            </SortableContext>
+          </CardContent>
+
+          {errors.subprocesses && (
+            <CardFooter className="border-t border-border/50">
+              <p className="text-sm text-destructive font-medium text-center w-full pt-2">
+                {errors.subprocesses.message}
+              </p>
+            </CardFooter>
+          )}
+        </Card>
+
+        <BatchAssignModal
+          isOpen={isBatchAssignModalOpen}
+          onClose={() => setIsBatchAssignModalOpen(false)}
+        />
+      </div>
     </DndContext>
   );
 }
