@@ -41,13 +41,11 @@ export function WorkflowForm() {
     resolver: zodResolver(createWorkflowInputSchema),
     mode: "onChange",
     defaultValues: {
-      name: data?.name ?? "",
-      description: data?.description ?? "",
-      subprocesses: data?.subprocesses
-        ? convertSubProcessFormData(data?.subprocesses)
-        : [],
-      outputType: data?.outputType ?? OutputTypeEnum.PRODUCT,
-      sameAssigns: data?.sameAssigns ?? [],
+      name: "",
+      description: "",
+      subprocesses: [],
+      outputType: OutputTypeEnum.PRODUCT,
+      sameAssigns: [],
     },
   });
 
@@ -64,12 +62,13 @@ export function WorkflowForm() {
       methods.reset({
         name: data.name,
         description: data.description,
-        subprocesses: convertSubProcessFormData(data.subprocesses),
-        outputType: data.outputType ?? OutputTypeEnum.PRODUCT,
+        subprocesses: convertSubProcessFormData(data.subprocesses || []),
+        outputType:
+          (data.outputType as OutputTypeEnum) || OutputTypeEnum.PRODUCT,
         sameAssigns: data.sameAssigns || [],
       });
     }
-  }, [data]);
+  }, [data, methods]);
 
   const handleOpenStepModal = () => {
     setIsCreateStepModalOpen(true);
