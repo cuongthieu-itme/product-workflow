@@ -97,7 +97,7 @@ export function BatchAssignModal({ isOpen, onClose }: BatchAssignModalProps) {
     if (selectedSteps.length === 0 || !selectedDepartment) return;
 
     // Lưu vào sameAssign array
-    const currentSameAssign = getValues("sameAssign") || [];
+    const currentSameAssign = getValues("sameAssigns") || [];
     const newSameAssign = {
       departmentId: selectedDepartment,
       steps: availableSteps
@@ -112,13 +112,13 @@ export function BatchAssignModal({ isOpen, onClose }: BatchAssignModalProps) {
 
     if (existingIndex >= 0) {
       // Cập nhật existing
-      setValue(`sameAssign.${existingIndex}`, newSameAssign, {
+      setValue(`sameAssigns.${existingIndex}`, newSameAssign, {
         shouldValidate: true,
         shouldDirty: true,
       });
     } else {
       // Thêm mới
-      setValue("sameAssign", [...currentSameAssign, newSameAssign], {
+      setValue("sameAssigns", [...currentSameAssign, newSameAssign], {
         shouldValidate: true,
         shouldDirty: true,
       });

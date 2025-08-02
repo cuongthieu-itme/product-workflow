@@ -62,7 +62,7 @@ export const createWorkflowInputSchema = z.object({
     }
   ),
   subprocesses: z.array(subprocessesSchema).min(1, "Phải có ít nhất 1 bước"),
-  sameAssign: z.array(sameAssignSchema).optional(),
+  sameAssigns: z.array(sameAssignSchema).optional(),
 });
 
 export type CreateWorkflowInputType = z.infer<typeof createWorkflowInputSchema>;

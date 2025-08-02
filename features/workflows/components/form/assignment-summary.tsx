@@ -11,7 +11,7 @@ import { useDepartmentsQuery } from "@/features/departments/hooks";
 export function AssignmentSummary() {
   const { watch } = useFormContext<CreateWorkflowInputType>();
   const subprocesses = watch("subprocesses");
-  const sameAssign = watch("sameAssign") || [];
+  const sameAssign = watch("sameAssigns") || [];
 
   const { data: departments } = useDepartmentsQuery({ limit: 1000 });
 
@@ -37,8 +37,6 @@ export function AssignmentSummary() {
 
     return grouped;
   }, [sameAssign, subprocesses]);
-
-  console.log("stepsByDepartment2", stepsByDepartment2);
 
   // Nhóm các bước theo phòng ban
   const stepsByDepartment = useMemo(() => {

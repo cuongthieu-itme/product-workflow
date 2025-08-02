@@ -10,7 +10,7 @@ import { useDepartmentsQuery } from "@/features/departments/hooks";
 
 export function SameAssignList() {
   const { watch, setValue } = useFormContext<CreateWorkflowInputType>();
-  const sameAssign = watch("sameAssign") || [];
+  const sameAssign = watch("sameAssigns") || [];
   const subprocesses = watch("subprocesses");
 
   const { data: departments } = useDepartmentsQuery({ limit: 1000 });
@@ -28,9 +28,9 @@ export function SameAssignList() {
   };
 
   const handleRemoveAssign = (index: number) => {
-    const currentSameAssign = watch("sameAssign") || [];
+    const currentSameAssign = watch("sameAssigns") || [];
     const updatedSameAssign = currentSameAssign.filter((_, i) => i !== index);
-    setValue("sameAssign", updatedSameAssign, {
+    setValue("sameAssigns", updatedSameAssign, {
       shouldValidate: true,
       shouldDirty: true,
     });

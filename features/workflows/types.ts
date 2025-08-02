@@ -1,4 +1,8 @@
 import { DepartmentType } from "../departments/type";
+import {
+  OutputTypeEnum,
+  SameAssignInputType,
+} from "./schema/create-workflow-schema";
 
 export type WorkFlowStepType = {
   id: number;
@@ -21,6 +25,8 @@ export type WorkFlowProcessType = {
   updatedAt: string;
   subprocesses: Array<WorkFlowStepType>;
   version: number;
+  sameAssigns: SameAssignInputType[];
+  outputType: OutputTypeEnum;
   updateAt: string;
 };
 

@@ -329,7 +329,6 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
           <Tabs
             value={activeTab}
             onValueChange={(value) => {
-              console.log(value);
               setActiveTab(value as MaterialEnum);
             }}
             className="w-full"

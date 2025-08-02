@@ -25,13 +25,7 @@ import { StepFormModal } from "./step-form-modal";
 import { nanoid } from "nanoid";
 import { useParams, useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  ArrowLeft,
-  RefreshCw,
-} from "lucide-react";
+import { AlertCircle, Loader2, ArrowLeft } from "lucide-react";
 import { convertSubProcessFormData } from "../../helper";
 import { WorkflowSkeleton } from "./skeleton";
 import { useToast } from "@/components/ui/use-toast";
@@ -47,10 +41,13 @@ export function WorkflowForm() {
     resolver: zodResolver(createWorkflowInputSchema),
     mode: "onChange",
     defaultValues: {
-      name: "",
-      description: "",
-      output_type: OutputTypeEnum.PRODUCT,
-      subprocesses: [],
+      name: data?.name ?? "",
+      description: data?.description ?? "",
+      subprocesses: data?.subprocesses
+        ? convertSubProcessFormData(data?.subprocesses)
+        : [],
+      outputType: data?.outputType ?? OutputTypeEnum.PRODUCT,
+      sameAssigns: data?.sameAssigns ?? [],
     },
   });
 
@@ -64,9 +61,13 @@ export function WorkflowForm() {
 
   useEffect(() => {
     if (data) {
-      setValue("name", data.name);
-      setValue("description", data.description);
-      setValue("subprocesses", convertSubProcessFormData(data.subprocesses));
+      methods.reset({
+        name: data.name,
+        description: data.description,
+        subprocesses: convertSubProcessFormData(data.subprocesses),
+        outputType: data.outputType ?? OutputTypeEnum.PRODUCT,
+        sameAssigns: data.sameAssigns || [],
+      });
     }
   }, [data]);
 
@@ -111,14 +112,19 @@ export function WorkflowForm() {
       }
     );
 
+    const workflowData = {
+      name: formData.name,
+      description: formData.description,
+      outputType: formData.outputType,
+      subprocesses: normalizedSubprocesses,
+      sameAssigns: formData.sameAssigns,
+    };
+
     if (data?.id) {
       createWorkflowProcess(
         {
           id: data.id,
-          name: formData.name,
-          description: formData.description,
-          output_type: formData.output_type,
-          subprocesses: normalizedSubprocesses,
+          ...workflowData,
         },
         {
           onSuccess: () => {
@@ -132,10 +138,7 @@ export function WorkflowForm() {
 
     createWorkflowProcess(
       {
-        name: formData.name,
-        description: formData.description,
-        output_type: formData.output_type,
-        subprocesses: normalizedSubprocesses,
+        ...workflowData,
       },
       {
         onSuccess: (response) => {

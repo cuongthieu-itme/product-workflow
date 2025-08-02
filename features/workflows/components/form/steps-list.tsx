@@ -42,7 +42,7 @@ export function StepsList({ handleOpenStepModal }: StepsListProps) {
     formState: { errors },
     watch,
   } = useFormContext<CreateWorkflowInputType>();
-  const sameAssign = watch("sameAssign");
+  const sameAssign = watch("sameAssigns");
 
   const { fields, move, update, replace } = useFieldArray<
     CreateWorkflowInputType,
@@ -113,7 +113,7 @@ export function StepsList({ handleOpenStepModal }: StepsListProps) {
           return { ...assign, steps: updatedSteps };
         });
 
-        setValue("sameAssign", updatedSameAssign, {
+        setValue("sameAssigns", updatedSameAssign, {
           shouldValidate: true,
           shouldDirty: true,
         });
@@ -122,6 +122,30 @@ export function StepsList({ handleOpenStepModal }: StepsListProps) {
   };
 
   const handleRemoveStep = (index: number) => {
+    const deletedStepNumber = index + 1; // Step number being deleted (1-based)
+
+    // Xóa bước và cập nhật lại step numbers trong sameAssign
+    const currentSameAssign = watch("sameAssigns") || [];
+    const updatedSameAssign = currentSameAssign
+      .map((assign) => {
+        const updatedSteps = assign.steps
+          .filter((stepNumber) => stepNumber !== deletedStepNumber) // Remove the deleted step
+          .map((stepNumber) => {
+            // Shift down step numbers that are after the deleted step
+            if (stepNumber > deletedStepNumber) {
+              return stepNumber - 1;
+            }
+            return stepNumber;
+          });
+        return { ...assign, steps: updatedSteps };
+      })
+      .filter((assign) => assign.steps.length > 0); // Remove empty assigns
+
+    setValue("sameAssigns", updatedSameAssign, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+
     const newSubprocesses = fields
       .filter((_, i) => i !== index)
       .map((step, i) => ({

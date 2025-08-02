@@ -32,7 +32,7 @@ export const createOfUpdateWorkflowProcess = async (
   data: CreateWorkflowInputType
 ) => {
   try {
-    const response = await request.post<WorkFlowProcessType>(
+    const response = await request.post<CreateWorkflowInputType>(
       "/procedures/create-or-update",
       data
     );

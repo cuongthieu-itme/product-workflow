@@ -30,10 +30,7 @@ export const getUserNoDepartments = async () => {
 
 export const createUser = async (data: CreateUserInputType) => {
   try {
-    const response = await request.post<UserFilterInput>(
-      "/users",
-      omitVoid(data, ["confirmPassword"])
-    );
+    const response = await request.post<UserFilterInput>("/users");
     return response.data;
   } catch (error) {
     throw error;
