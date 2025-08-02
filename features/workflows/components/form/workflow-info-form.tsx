@@ -24,8 +24,6 @@ export function WorkflowInfoForm() {
     ? format(new Date(data.updatedAt), "dd/MM/yyyy")
     : format(new Date(), "dd/MM/yyyy");
 
-  console.log("WorkflowInfoForm data", errors);
-
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">

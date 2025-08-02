@@ -40,7 +40,9 @@ export function StepsList({ handleOpenStepModal }: StepsListProps) {
     control,
     getValues,
     formState: { errors },
+    watch,
   } = useFormContext<CreateWorkflowInputType>();
+  const sameAssign = watch("sameAssign");
 
   const { fields, move, update, replace } = useFieldArray<
     CreateWorkflowInputType,
@@ -53,7 +55,6 @@ export function StepsList({ handleOpenStepModal }: StepsListProps) {
   });
 
   const [isBatchAssignModalOpen, setIsBatchAssignModalOpen] = useState(false);
-  console.log("fields", getValues());
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -73,6 +74,9 @@ export function StepsList({ handleOpenStepModal }: StepsListProps) {
     const newIndex = fields.findIndex((item) => item.fieldId === overId);
 
     if (oldIndex >= 0 && newIndex >= 0) {
+      // Lưu step number của item đang được move trước khi move
+      const movedStepNumber = fields[oldIndex].step || oldIndex + 1;
+
       move(oldIndex, newIndex);
 
       // Cập nhật lại step cho từng subprocess ngay sau khi move
@@ -83,6 +87,37 @@ export function StepsList({ handleOpenStepModal }: StepsListProps) {
           shouldDirty: true,
         });
       });
+
+      // Cập nhật lại step trong sameAssign
+      if (sameAssign && sameAssign.length > 0) {
+        const updatedSameAssign = sameAssign.map((assign) => {
+          const updatedSteps = assign.steps.map((stepNumber) => {
+            // Nếu step này là step đang được move
+            if (stepNumber === movedStepNumber) {
+              return newIndex + 1; // New position (1-based)
+            }
+            // Nếu step này bị ảnh hưởng bởi việc move
+            else if (oldIndex < newIndex) {
+              // Move xuống: các step từ oldIndex+1 đến newIndex sẽ shift lên
+              if (stepNumber > movedStepNumber && stepNumber <= newIndex + 1) {
+                return stepNumber - 1;
+              }
+            } else {
+              // Move lên: các step từ newIndex đến oldIndex-1 sẽ shift xuống
+              if (stepNumber >= newIndex + 1 && stepNumber < movedStepNumber) {
+                return stepNumber + 1;
+              }
+            }
+            return stepNumber; // Không thay đổi
+          });
+          return { ...assign, steps: updatedSteps };
+        });
+
+        setValue("sameAssign", updatedSameAssign, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      }
     }
   };
 
@@ -124,7 +159,7 @@ export function StepsList({ handleOpenStepModal }: StepsListProps) {
                   className="flex items-center gap-2"
                 >
                   <Users className="h-4 w-4" />
-                  Assign hàng loạt
+                  Cài đặt các bước chung người làm
                 </Button>
                 <Button
                   onClick={handleOpenStepModal}

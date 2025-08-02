@@ -149,7 +149,7 @@ export function BatchAssignModal({ isOpen, onClose }: BatchAssignModalProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Assign cùng một người cho nhiều bước
+            Cài đặt các bước chung người làm
           </DialogTitle>
         </DialogHeader>
 
