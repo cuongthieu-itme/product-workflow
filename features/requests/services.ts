@@ -2,7 +2,9 @@ import request from "@/configs/axios-config";
 import {
   ConfirmRequestInputType,
   EvaluateInputType,
+  HoldRequestInputType,
   MediaInputType,
+  RejectRequestInputType,
   RequestInputType,
   SourceOtherInputType,
   SubprocessHistoryFormType,
@@ -127,15 +129,33 @@ export const changeStatusRequest = async ({
   }
 };
 
-export const rejectRequest = async (id: number) => {
+export const rejectRequest = async (
+  id: number,
+  data?: RejectRequestInputType
+) => {
   try {
-    const response = await request.put(`/requests/${id}/status`, {
+    const response = await request.put(`/requests/${id}/reject`, {
       status: RequestStatus.REJECTED,
-      statusProductId: undefined,
+      reason: data?.reason,
+      media: data?.media || [],
     });
     return response.data;
   } catch (error) {
     console.error("Error rejecting request:", error);
+    throw error;
+  }
+};
+
+export const holdRequest = async (id: number, data: HoldRequestInputType) => {
+  try {
+    const response = await request.put(`/requests/${id}/hold`, {
+      status: RequestStatus.HOLD,
+      reason: data.reason,
+      media: data.media || [],
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error holding request:", error);
     throw error;
   }
 };

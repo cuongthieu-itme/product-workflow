@@ -21,6 +21,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { TextAreaCustom } from "@/components/form/textarea";
 
 interface RequestConfirmDialogProps {
   open: boolean;
@@ -45,6 +46,7 @@ export const RequestConfirmDialog = ({
         statusProductId: undefined,
         id: request?.id,
         status: RequestStatus.APPROVED,
+        productionPlan: "",
       },
     });
   const { data: statusProduct } = useProductsStatusQuery();
@@ -130,6 +132,15 @@ export const RequestConfirmDialog = ({
                 </p>
               )}
             </div>
+
+            <TextAreaCustom
+              control={control}
+              name="productionPlan"
+              label="Phương án sản xuất"
+              placeholder="Nhập phương án sản xuất"
+              rows={4}
+              required
+            />
 
             {/* Chọn trạng thái sản phẩm */}
             <div className="rounded-lg border bg-card p-4 shadow-sm">

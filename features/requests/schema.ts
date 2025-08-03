@@ -191,7 +191,12 @@ export const confirmRequestInputSchema = z.object({
     .optional()
     .nullable(),
   status: z.enum(
-    [RequestStatus.APPROVED, RequestStatus.REJECTED, RequestStatus.PENDING],
+    [
+      RequestStatus.APPROVED,
+      RequestStatus.REJECTED,
+      RequestStatus.PENDING,
+      RequestStatus.HOLD,
+    ],
     {
       message: "Trạng thái yêu cầu không hợp lệ",
       required_error: "Trạng thái là bắt buộc",
@@ -206,6 +211,9 @@ export const confirmRequestInputSchema = z.object({
       .int({ message: "Quy trình phải là số nguyên" })
       .positive({ message: "Quy trình phải là số dương" })
   ),
+  productionPlan: z.string().min(1, {
+    message: "Vui lòng nhập phương án sản xuất",
+  }),
 });
 
 export const subprocessHistoryFormSchema = z
@@ -258,3 +266,19 @@ export type ConfirmRequestInputType = z.infer<typeof confirmRequestInputSchema>;
 export type SubprocessHistoryFormType = z.infer<
   typeof subprocessHistoryFormSchema
 >;
+
+// Hold Request Schema
+export const holdRequestInputSchema = z.object({
+  reason: z.string().min(1, { message: "Lý do hold không được để trống" }),
+  media: z.array(z.string()).optional(),
+});
+
+export type HoldRequestInputType = z.infer<typeof holdRequestInputSchema>;
+
+// Reject Request Schema
+export const rejectRequestInputSchema = z.object({
+  reason: z.string().min(1, { message: "Lý do từ chối không được để trống" }),
+  media: z.array(z.string()).optional(),
+});
+
+export type RejectRequestInputType = z.infer<typeof rejectRequestInputSchema>;

@@ -64,6 +64,8 @@ export const generateRequestStatus = (status?: RequestStatus) => {
       return "Đã phê duyệt";
     case RequestStatus.REJECTED:
       return "Đã từ chối";
+    case RequestStatus.HOLD:
+      return "Tạm dừng";
     default:
       return "Đang chờ duyệt";
   }
@@ -94,6 +96,8 @@ export const getRequestStatusColor = (status?: RequestStatus) => {
       return "bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100 hover:text-orange-700";
     case RequestStatus.REJECTED:
       return "bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700";
+    case RequestStatus.HOLD:
+      return "bg-yellow-50 text-yellow-600 border-yellow-200 hover:bg-yellow-100 hover:text-yellow-700";
     default:
       return "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 hover:text-blue-700";
   }
