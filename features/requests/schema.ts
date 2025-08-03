@@ -1,7 +1,19 @@
 import { z } from "zod";
-import { SourceEnum } from "./constants";
+import { PriorityEnum, SourceEnum } from "./constants";
 import { RequestStatus, StatusSubprocessHistory } from "./type";
-import { id } from "zod/dist/types/v4/locales";
+
+export const prioritySchema = z.enum(
+  [
+    PriorityEnum.NORMAL,
+    PriorityEnum.MEDIUM,
+    PriorityEnum.HIGH,
+    PriorityEnum.VERY_HIGH,
+  ],
+  {
+    message: "Ưu tiên phải là 'THẤP', 'TRUNG BÌNH', 'CAO', 'RẤT CAO'",
+    required_error: "Ưu tiên là bắt buộc",
+  }
+);
 
 export const materialRequestInputSchema = z
   .object({
@@ -22,18 +34,57 @@ export const requestInputSchema = z
   .object({
     title: z.string().min(1, { message: "Tên yêu cầu không được để trống" }),
     description: z.string().optional(),
-    productLink: z.array(
-      z.object({
-        url: z.string(),
+    productLink: z
+      .array(
+        z.object({
+          url: z
+            .string()
+            .url({
+              message: "Liên kết sản phẩm không hợp lệ",
+            })
+            .min(1, {
+              message: "Liên kết sản phẩm không được để trống",
+            }),
+        })
+      )
+      .min(1, {
+        message: "Vui lòng nhập ít nhất một liên kết sản phẩm",
+      }),
+    media: z
+      .array(z.string())
+      .min(1, {
+        message: "Vui lòng tải lên ít nhất 1 file media",
       })
-    ),
-    media: z.array(z.string()).min(1, {
-      message: "Vui lòng tải lên ít nhất 1 hình ảnh hoặc video",
-    }),
+      .refine(
+        (media) => {
+          // Kiểm tra phải có ít nhất 1 hình ảnh
+          const imageExtensions = [
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".gif",
+            ".bmp",
+            ".webp",
+            ".svg",
+          ];
+          const hasImage = media.some((url) =>
+            imageExtensions.some(
+              (ext) =>
+                url.toLowerCase().includes(ext) ||
+                url.toLowerCase().endsWith(ext)
+            )
+          );
+          return hasImage;
+        },
+        {
+          message: "Bắt buộc phải có ít nhất 1 hình ảnh",
+        }
+      ),
     source: z.enum([SourceEnum.CUSTOMER, SourceEnum.OTHER], {
       message: "Nguồn yêu cầu phải là 'Khách hàng' hoặc 'Khác'",
     }),
     createdById: z.number().int().nonnegative().optional().nullable(),
+    priority: prioritySchema,
     customerId: z
       .number()
       .int()
@@ -98,9 +149,35 @@ export const evaluateInputSchema = z.object({
 
 export const mediaSchema = z.object({
   id: z.number().int().nonnegative().optional(),
-  media: z.array(z.string()).min(1, {
-    message: "Vui lòng tải lên ít nhất 1 hình ảnh hoặc video",
-  }),
+  media: z
+    .array(z.string())
+    .min(1, {
+      message: "Vui lòng tải lên ít nhất 1 file media",
+    })
+    .refine(
+      (media) => {
+        // Kiểm tra phải có ít nhất 1 hình ảnh
+        const imageExtensions = [
+          ".jpg",
+          ".jpeg",
+          ".png",
+          ".gif",
+          ".bmp",
+          ".webp",
+          ".svg",
+        ];
+        const hasImage = media.some((url) =>
+          imageExtensions.some(
+            (ext) =>
+              url.toLowerCase().includes(ext) || url.toLowerCase().endsWith(ext)
+          )
+        );
+        return hasImage;
+      },
+      {
+        message: "Bắt buộc phải có ít nhất 1 hình ảnh",
+      }
+    ),
 });
 
 export const confirmRequestInputSchema = z.object({

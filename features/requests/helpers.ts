@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { SourceEnum } from "./constants";
+import { PriorityEnum, SourceEnum } from "./constants";
 import { RequestInputType } from "./schema";
 import {
   RequestDetail,
@@ -32,6 +32,7 @@ export function toRequestFormInput({
         requestInput: rm.material.requestInput,
       })) ?? [],
     sourceOtherId: detail?.sourceOtherId ?? undefined,
+    priority: detail?.priority ?? PriorityEnum.VERY_HIGH,
   };
 }
 

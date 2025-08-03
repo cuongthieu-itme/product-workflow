@@ -1,6 +1,6 @@
 import { PaginatedResult } from "@/types/common";
 import { MaterialType } from "../materials/type";
-import { SourceEnum } from "./constants";
+import { PriorityEnum, SourceEnum } from "./constants";
 import { User } from "../users/type";
 
 export type SubprocessHistoryType = {
@@ -137,6 +137,7 @@ export interface RequestDetail {
   createdBy: User;
   status: RequestStatus;
   procedureHistory: ProcedureHistory;
+  priority: PriorityEnum;
 }
 
 export type EvaluateFilterInput = {
