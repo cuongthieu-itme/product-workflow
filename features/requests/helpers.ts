@@ -148,3 +148,18 @@ export const calculateCurrentStep = (
   // Return next step after last completed
   return subprocessHistory[lastCompletedIndex + 1];
 };
+
+export const generatePriorityText = (priority?: PriorityEnum) => {
+  switch (priority) {
+    case PriorityEnum.VERY_HIGH:
+      return "Rất cao";
+    case PriorityEnum.HIGH:
+      return "Cao";
+    case PriorityEnum.MEDIUM:
+      return "Trung bình";
+    case PriorityEnum.NORMAL:
+      return "Thấp";
+    default:
+      return "Chưa gán";
+  }
+};

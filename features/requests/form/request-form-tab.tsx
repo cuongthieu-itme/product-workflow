@@ -144,6 +144,7 @@ export const RequestFormTab = ({
           />
 
           <SelectCustom
+            disabled={sourceSelected === SourceEnum.CUSTOMER}
             control={control}
             name="priority"
             options={priorityOptions}

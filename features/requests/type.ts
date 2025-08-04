@@ -48,6 +48,7 @@ export type RequestType = {
   statusProductId: number;
   status: RequestStatus;
   createdBy: User;
+  priority: PriorityEnum;
   procedureHistory?: ProcedureHistory;
   createdAt: string;
   updatedAt: string;

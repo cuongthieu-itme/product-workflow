@@ -29,6 +29,7 @@ import {
 } from "../../helpers";
 import { useRouter } from "next/navigation";
 import { RequestStatus } from "../../type";
+import { PriorityBadge, StatusBadge } from "../badge";
 
 interface OverViewTabProps {
   onChangeTab?: (tab: string) => void;
@@ -66,15 +67,12 @@ export const OverViewTab: React.FC<OverViewTabProps> = ({ onChangeTab }) => {
                   Trạng thái
                 </p>
 
-                <div className="flex items-center gap-2">
-                  <Badge
-                    className={cn(
-                      "mt-1 cursor-pointer hover:opacity-80",
-                      getRequestStatusColor(request?.status)
-                    )}
-                  >
-                    {generateRequestStatus(request?.status)}
-                  </Badge>
+                <div className="flex items-center gap-2 ">
+                  {request?.status ? (
+                    <StatusBadge status={request?.status} />
+                  ) : (
+                    "-"
+                  )}
                 </div>
               </div>
               <div>
@@ -82,6 +80,20 @@ export const OverViewTab: React.FC<OverViewTabProps> = ({ onChangeTab }) => {
                   Ngày tiếp nhận
                 </p>
                 <p>{formatDate(request?.createdAt, "dd/MM/yyyy HH:mm")}</p>
+              </div>
+
+              <div>
+                <p className="text-sm font-medium text-muted-foreground ">
+                  Độ ưu tiên
+                </p>
+
+                <div className="flex items-center gap-2">
+                  {request?.priority ? (
+                    <PriorityBadge priority={request?.priority} />
+                  ) : (
+                    "-"
+                  )}
+                </div>
               </div>
             </div>
           </CardContent>
@@ -311,7 +323,6 @@ export const OverViewTab: React.FC<OverViewTabProps> = ({ onChangeTab }) => {
             <div className="flex-1">
               {request?.description || "Không có mô tả"}
             </div>
-            <Edit className="h-4 w-4 opacity-50 mt-1" />
           </div>
         </CardContent>
       </Card>

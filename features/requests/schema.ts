@@ -39,17 +39,11 @@ export const requestInputSchema = z
         z.object({
           url: z
             .string()
-            .url({
-              message: "Liên kết sản phẩm không hợp lệ",
-            })
-            .min(1, {
-              message: "Liên kết sản phẩm không được để trống",
-            }),
+            .min(1, { message: "Liên kết sản phẩm không được để trống" })
+            .url({ message: "Liên kết sản phẩm không hợp lệ" }),
         })
       )
-      .min(1, {
-        message: "Vui lòng nhập ít nhất một liên kết sản phẩm",
-      }),
+      .min(1, { message: "Vui lòng nhập ít nhất một liên kết sản phẩm" }),
     media: z
       .array(z.string())
       .min(1, {
