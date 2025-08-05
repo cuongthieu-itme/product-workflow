@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -9,6 +11,7 @@ import {
   Package,
   FileText,
   Calendar,
+  Eye,
 } from "lucide-react";
 import {
   RequestStatus,
@@ -21,6 +24,21 @@ import {
   getStatusText,
   formatDate,
 } from "../../helpers";
+import { BaseDialog } from "@/components/dialog";
+import {
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import Image from "next/image";
+import { getImageUrl } from "@/features/settings/utils";
 
 interface WorkflowStatusCardProps {
   request?: RequestDetail;
@@ -33,6 +51,10 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
   onChangeTab,
   onConvertToProduct,
 }) => {
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [dialogTitle, setDialogTitle] = useState("");
+
   const currentStep = calculateCurrentStep(
     request?.procedureHistory?.subprocessesHistory
   );
@@ -46,6 +68,18 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
   const isRequestHold = request?.status === RequestStatus.HOLD;
 
   const approvalInfo = request?.approvalInfo;
+
+  const handleViewImages = (images: string[], title: string) => {
+    setSelectedImages(images);
+    setDialogTitle(title);
+    setIsImageDialogOpen(true);
+  };
+
+  const handleCloseImageDialog = () => {
+    setIsImageDialogOpen(false);
+    setSelectedImages([]);
+    setDialogTitle("");
+  };
 
   const renderApprovedState = () => (
     <>
@@ -109,6 +143,20 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
               </a>
             ))}
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            onClick={() =>
+              handleViewImages(
+                approvalInfo.files,
+                "Tài liệu đính kèm - Phê duyệt"
+              )
+            }
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            Xem hình ảnh
+          </Button>
         </div>
       )}
 
@@ -155,125 +203,139 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
   );
 
   const renderRejectedState = () => (
-    <>
-      <p className="text-sm text-muted-foreground">
-        Yêu cầu đã bị từ chối. Không có thông tin quy trình.
-      </p>
-      <Card className="border-red-200 bg-red-50 mt-4">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-red-800">
-            <AlertCircle className="h-5 w-5" />
-            Yêu cầu bị từ chối
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-red-700">
-            Yêu cầu này đã bị từ chối và không thể tiếp tục quy trình.
-          </p>
-          {approvalInfo?.denyReason && (
-            <div className="p-3 bg-red-100 border border-red-200 rounded-md">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertCircle className="h-4 w-4 text-red-600" />
-                <span className="text-sm font-medium text-red-800">
-                  Lý do từ chối
-                </span>
-              </div>
-              <p className="text-sm text-red-700">{approvalInfo.denyReason}</p>
+    <Card className="border-red-200 bg-red-50">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-red-800">
+          <AlertCircle className="h-5 w-5" />
+          Yêu cầu bị từ chối
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-red-700">
+          Yêu cầu này đã bị từ chối và không thể tiếp tục quy trình.
+        </p>
+        {approvalInfo?.denyReason && (
+          <div className="p-3 bg-red-100 border border-red-200 rounded-md">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <span className="text-sm font-medium text-red-800">
+                Lý do từ chối
+              </span>
             </div>
-          )}
-          {approvalInfo?.files && approvalInfo.files.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <FileText className="h-4 w-4 text-red-600" />
-                <span className="text-sm font-medium text-red-800">
-                  Tài liệu đính kèm
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {approvalInfo.files.map((file, index) => (
-                  <a
-                    key={index}
-                    href={file}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs px-2 py-1 bg-red-100 text-red-600 rounded border border-red-200 hover:bg-red-200"
-                  >
-                    Tài liệu {index + 1}
-                  </a>
-                ))}
-              </div>
+            <p className="text-sm text-red-700">{approvalInfo.denyReason}</p>
+          </div>
+        )}
+        {approvalInfo?.files && approvalInfo.files.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="h-4 w-4 text-red-600" />
+              <span className="text-sm font-medium text-red-800">
+                Tài liệu đính kèm
+              </span>
             </div>
-          )}
-          <p className="text-xs text-red-600">
-            Ngày từ chối:{" "}
-            {formatDate(approvalInfo?.createdAt, "dd/MM/yyyy HH:mm")}
-          </p>
-        </CardContent>
-      </Card>
-    </>
+            <div className="flex flex-wrap gap-2">
+              {approvalInfo.files.map((file, index) => (
+                <a
+                  key={index}
+                  href={file}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs px-2 py-1 bg-red-100 text-red-600 rounded border border-red-200 hover:bg-red-200"
+                >
+                  Tài liệu {index + 1}
+                </a>
+              ))}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              onClick={() =>
+                handleViewImages(
+                  approvalInfo.files,
+                  "Tài liệu đính kèm - Từ chối"
+                )
+              }
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              Xem hình ảnh
+            </Button>
+          </div>
+        )}
+        <p className="text-xs text-red-600">
+          Ngày từ chối:{" "}
+          {formatDate(approvalInfo?.createdAt, "dd/MM/yyyy HH:mm")}
+        </p>
+      </CardContent>
+    </Card>
   );
 
   const renderHoldState = () => (
-    <>
-      <p className="text-sm text-muted-foreground">
-        Yêu cầu đang tạm dừng. Quy trình sẽ được tiếp tục sau khi được phê duyệt
-        lại.
-      </p>
-      <Card className="border-yellow-200 bg-yellow-50 mt-4">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-yellow-800">
-            <AlertCircle className="h-5 w-5" />
-            Yêu cầu tạm dừng
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-yellow-700">
-            Yêu cầu này đang tạm dừng và cần được xem xét lại trước khi tiếp
-            tục.
-          </p>
-          {approvalInfo?.holdReason && (
-            <div className="p-3 bg-yellow-100 border border-yellow-200 rounded-md">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertCircle className="h-4 w-4 text-yellow-600" />
-                <span className="text-sm font-medium text-yellow-800">
-                  Lý do tạm dừng
-                </span>
-              </div>
-              <p className="text-sm text-yellow-700">
-                {approvalInfo.holdReason}
-              </p>
+    <Card className="border-yellow-200 bg-yellow-50">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-yellow-800">
+          <AlertCircle className="h-5 w-5" />
+          Yêu cầu tạm dừng
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-yellow-700">
+          Yêu cầu này đang tạm dừng và cần được xem xét lại trước khi tiếp tục.
+        </p>
+        {approvalInfo?.holdReason && (
+          <div className="p-3 bg-yellow-100 border border-yellow-200 rounded-md">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertCircle className="h-4 w-4 text-yellow-600" />
+              <span className="text-sm font-medium text-yellow-800">
+                Lý do tạm dừng
+              </span>
             </div>
-          )}
-          {approvalInfo?.files && approvalInfo.files.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <FileText className="h-4 w-4 text-yellow-600" />
-                <span className="text-sm font-medium text-yellow-800">
-                  Tài liệu đính kèm
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {approvalInfo.files.map((file, index) => (
-                  <a
-                    key={index}
-                    href={file}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded border border-yellow-200 hover:bg-yellow-200"
-                  >
-                    Tài liệu {index + 1}
-                  </a>
-                ))}
-              </div>
+            <p className="text-sm text-yellow-700">{approvalInfo.holdReason}</p>
+          </div>
+        )}
+        {approvalInfo?.files && approvalInfo.files.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="h-4 w-4 text-yellow-600" />
+              <span className="text-sm font-medium text-yellow-800">
+                Tài liệu đính kèm
+              </span>
             </div>
-          )}
-          <p className="text-xs text-yellow-600">
-            Ngày tạm dừng:{" "}
-            {formatDate(approvalInfo?.updatedAt, "dd/MM/yyyy HH:mm")}
-          </p>
-        </CardContent>
-      </Card>
-    </>
+            <div className="flex flex-wrap gap-2">
+              {approvalInfo.files.map((file, index) => (
+                <a
+                  key={index}
+                  href={file}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded border border-yellow-200 hover:bg-yellow-200"
+                >
+                  Tài liệu {index + 1}
+                </a>
+              ))}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              onClick={() =>
+                handleViewImages(
+                  approvalInfo.files,
+                  "Tài liệu đính kèm - Tạm dừng"
+                )
+              }
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              Xem hình ảnh
+            </Button>
+          </div>
+        )}
+        <p className="text-xs text-yellow-600">
+          Ngày tạm dừng:{" "}
+          {formatDate(approvalInfo?.updatedAt, "dd/MM/yyyy HH:mm")}
+        </p>
+      </CardContent>
+    </Card>
   );
 
   const renderDefaultState = () => (
@@ -297,14 +359,60 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <ArrowRight className="h-5 w-5" />
-          {getCardTitle()}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">{renderContent()}</CardContent>
-    </Card>
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ArrowRight className="h-5 w-5" />
+            {getCardTitle()}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">{renderContent()}</CardContent>
+      </Card>
+
+      {/* Image Dialog */}
+      <BaseDialog
+        open={isImageDialogOpen}
+        onClose={handleCloseImageDialog}
+        contentClassName="max-w-4xl"
+      >
+        <DialogHeader>
+          <DialogTitle>Hình ảnh: {dialogTitle}</DialogTitle>
+        </DialogHeader>
+
+        {selectedImages && selectedImages.length > 0 ? (
+          <Carousel className="w-full max-w-3xl mx-auto">
+            <CarouselContent>
+              {selectedImages.map((image, index) => (
+                <CarouselItem key={index}>
+                  <div className="relative h-96 w-full">
+                    <Image
+                      src={getImageUrl(image) || "/placeholder.svg"}
+                      alt={dialogTitle}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            {selectedImages.length > 1 && (
+              <>
+                <CarouselPrevious />
+                <CarouselNext />
+              </>
+            )}
+          </Carousel>
+        ) : (
+          <div className="text-center py-8">Không có hình ảnh</div>
+        )}
+
+        <DialogFooter>
+          <Button variant="outline" onClick={handleCloseImageDialog}>
+            Đóng
+          </Button>
+        </DialogFooter>
+      </BaseDialog>
+    </>
   );
 };
