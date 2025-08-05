@@ -83,6 +83,7 @@ export function RequestList() {
   };
 
   const columns: Column<RequestType>[] = [
+    { id: "code", header: "Mã yêu cầu" },
     { id: "title", header: "Tên yêu cầu" },
     {
       id: "description",

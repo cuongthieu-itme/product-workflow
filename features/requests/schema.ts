@@ -261,18 +261,49 @@ export type SubprocessHistoryFormType = z.infer<
   typeof subprocessHistoryFormSchema
 >;
 
-// Hold Request Schema
 export const holdRequestInputSchema = z.object({
-  reason: z.string().min(1, { message: "Lý do hold không được để trống" }),
-  media: z.array(z.string()).optional(),
+  id: z
+    .number({
+      message: "Yêu cầu không hợp lệ",
+      required_error: "Yêu cầu là bắt buộc",
+    })
+    .int()
+    .nonnegative()
+    .optional()
+    .nullable(),
+  status: z.enum([
+    RequestStatus.APPROVED,
+    RequestStatus.REJECTED,
+    RequestStatus.PENDING,
+    RequestStatus.HOLD,
+  ]),
+  holdReason: z.string().min(1, { message: "Lý do hold không được để trống" }),
+  files: z.array(z.string()).optional().nullable(),
 });
 
 export type HoldRequestInputType = z.infer<typeof holdRequestInputSchema>;
 
 // Reject Request Schema
 export const rejectRequestInputSchema = z.object({
-  reason: z.string().min(1, { message: "Lý do từ chối không được để trống" }),
-  media: z.array(z.string()).optional(),
+  id: z
+    .number({
+      message: "Yêu cầu không hợp lệ",
+      required_error: "Yêu cầu là bắt buộc",
+    })
+    .int()
+    .nonnegative()
+    .optional()
+    .nullable(),
+  status: z.enum([
+    RequestStatus.APPROVED,
+    RequestStatus.REJECTED,
+    RequestStatus.PENDING,
+    RequestStatus.HOLD,
+  ]),
+  denyReason: z
+    .string()
+    .min(1, { message: "Lý do từ chối không được để trống" }),
+  files: z.array(z.string()).optional().nullable(),
 });
 
 export type RejectRequestInputType = z.infer<typeof rejectRequestInputSchema>;

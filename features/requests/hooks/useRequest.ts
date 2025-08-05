@@ -134,13 +134,7 @@ export const useCreateEvaluateMutation = () => {
 export const useRejectRequestMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: number;
-      data?: Parameters<typeof rejectRequest>[1];
-    }) => rejectRequest(id, data),
+    mutationFn: rejectRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
@@ -152,13 +146,7 @@ export const useRejectRequestMutation = () => {
 export const useHoldRequestMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: number;
-      data: Parameters<typeof holdRequest>[1];
-    }) => holdRequest(id, data),
+    mutationFn: holdRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],

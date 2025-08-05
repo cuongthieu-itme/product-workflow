@@ -17,6 +17,7 @@ import { RequestConfirmDialog } from "./request-confirm-dialog";
 import { RequestRejectDialog } from "./request-reject-dialog";
 import { RequestHoldDialog } from "./request-hold-dialog";
 import { useRouter } from "next/navigation";
+import { StatusBadge } from "../badge";
 
 export function RequestManagementList() {
   const [page, setPage] = useState(PAGE);
@@ -61,10 +62,17 @@ export function RequestManagementList() {
     : PAGE;
 
   const columns: Column<RequestType>[] = [
+    { id: "code", header: "Mã yêu cầu" },
     { id: "title", header: "Tên yêu cầu" },
     {
       id: "description",
       header: "Chi tiết yêu cầu",
+    },
+    {
+      id: "status",
+      header: "Trạng thái",
+      className: "min-w-10",
+      cell: (u) => <StatusBadge status={u.status} />,
     },
     {
       id: "createdBy",
@@ -101,7 +109,7 @@ export function RequestManagementList() {
 
           {u.status === RequestStatus.REJECTED ? (
             <Button variant="outline" size="sm" className="w-28" disabled>
-              <XCircle className="h-4 w-4 mr-2 text-red-500" />
+              <XCircle className="h-4 w-4 mr-0 text-red-500" />
               Đã từ chối
             </Button>
           ) : (

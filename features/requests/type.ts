@@ -107,6 +107,7 @@ export enum RequestStatus {
   HOLD = "HOLD",
   IN_PROGRESS = "IN_PROGRESS",
   COMPLETED = "COMPLETED",
+  DENIED = "DENIED",
 }
 
 export enum StatusSubprocessHistory {
@@ -117,8 +118,20 @@ export enum StatusSubprocessHistory {
   SKIPPED = "SKIPPED",
 }
 
+type ApprovalInfo = {
+  id: number;
+  requestId: number;
+  holdReason: string | null;
+  denyReason: string;
+  productionPlan: string | null;
+  files: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 export interface RequestDetail {
   id: number;
+  code: string;
   title: string;
   description: string;
   productLink: string[];
@@ -140,6 +153,7 @@ export interface RequestDetail {
   status: RequestStatus;
   procedureHistory: ProcedureHistory;
   priority: PriorityEnum;
+  approvalInfo: ApprovalInfo;
 }
 
 export type EvaluateFilterInput = {

@@ -44,7 +44,7 @@ export function RequestDetail() {
           <h1 className="text-2xl font-bold flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
             Yêu cầu {request?.title}
             <Badge variant="outline" className="ml-2">
-              {request?.id}
+              {request?.code}
             </Badge>
           </h1>
 

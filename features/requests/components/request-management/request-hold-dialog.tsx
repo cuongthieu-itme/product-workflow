@@ -1,6 +1,6 @@
 import { BaseDialog } from "@/components/dialog";
 import { Button } from "@/components/ui/button";
-import { RequestType } from "../../type";
+import { RequestStatus, RequestType } from "../../type";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -23,15 +23,12 @@ export const RequestHoldDialog = ({
   const { toast } = useToast();
   const { mutate: holdMutation, isPending } = useHoldRequestMutation();
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { isSubmitting },
-  } = useForm<HoldRequestInputType>({
+  const { control, handleSubmit, reset } = useForm<HoldRequestInputType>({
     defaultValues: {
-      reason: "",
-      media: [],
+      holdReason: "",
+      files: [],
+      id: request?.id || 0,
+      status: RequestStatus.HOLD,
     },
     resolver: zodResolver(holdRequestInputSchema),
   });
@@ -40,7 +37,11 @@ export const RequestHoldDialog = ({
     if (!request?.id) return;
 
     holdMutation(
-      { id: request.id, data },
+      {
+        ...data,
+        id: request.id,
+        status: RequestStatus.HOLD,
+      },
       {
         onSuccess: () => {
           toast({
@@ -75,7 +76,7 @@ export const RequestHoldDialog = ({
       contentClassName="max-w-[600px]"
       description={`Tạm dừng yêu cầu "${request?.title}"`}
     >
-      <ScrollArea className="max-h-[70vh] overflow-y-auto">
+      <ScrollArea className="max-h-[70vh] overflow-y-auto pr-6">
         <form onSubmit={handleSubmit(handleHold)} className="space-y-6 py-4">
           <div className="space-y-6">
             {/* Request Info */}
@@ -103,7 +104,7 @@ export const RequestHoldDialog = ({
             <div className="space-y-4">
               <TextAreaCustom
                 control={control}
-                name="reason"
+                name="holdReason"
                 label="Lý do hold"
                 placeholder="Nhập lý do tạm dừng yêu cầu này..."
                 required
@@ -114,21 +115,13 @@ export const RequestHoldDialog = ({
               {/* Media Upload */}
               <UploadFile
                 control={control}
-                name="media"
+                name="files"
                 label="Hình ảnh/Video minh họa"
                 maxFiles={5}
                 accept={{
                   "image/jpeg": [".jpg", ".jpeg"],
                   "image/png": [".png"],
                   "image/webp": [".webp"],
-                  "video/mp4": [".mp4"],
-                  "video/quicktime": [".mov"],
-                  "video/x-msvideo": [".avi"],
-                  "video/x-ms-wmv": [".wmv"],
-                  "video/3gpp": [".3gp"],
-                  "video/3gpp2": [".3g2"],
-                  "video/mp2t": [".ts"],
-                  "video/ogg": [".ogv"],
                 }}
                 disabled={isPending}
               />

@@ -1,6 +1,6 @@
 import { BaseDialog } from "@/components/dialog";
 import { Button } from "@/components/ui/button";
-import { RequestType } from "../../type";
+import { RequestStatus, RequestType } from "../../type";
 import { useRejectRequestMutation } from "../../hooks/useRequest";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -25,8 +25,10 @@ export const RequestRejectDialog = ({
 
   const { control, handleSubmit, reset } = useForm<RejectRequestInputType>({
     defaultValues: {
-      reason: "",
-      media: [],
+      denyReason: "",
+      files: [],
+      id: request?.id || 0,
+      status: RequestStatus.REJECTED,
     },
     resolver: zodResolver(rejectRequestInputSchema),
   });
@@ -35,7 +37,11 @@ export const RequestRejectDialog = ({
     if (!request?.id) return;
 
     rejectMutation(
-      { id: request.id, data },
+      {
+        ...data,
+        id: request.id,
+        status: RequestStatus.REJECTED,
+      },
       {
         onSuccess: () => {
           toast({
@@ -69,7 +75,7 @@ export const RequestRejectDialog = ({
       contentClassName="max-w-[600px]"
       description={`Từ chối yêu cầu "${request?.title}"`}
     >
-      <ScrollArea className="max-h-[70vh] overflow-y-auto">
+      <ScrollArea className="max-h-[70vh] overflow-y-auto pr-6">
         <form onSubmit={handleSubmit(handleReject)} className="space-y-6 py-4">
           <div className="space-y-6">
             {/* Request Info */}
@@ -97,7 +103,7 @@ export const RequestRejectDialog = ({
             <div className="space-y-4">
               <TextAreaCustom
                 control={control}
-                name="reason"
+                name="denyReason"
                 label="Lý do từ chối"
                 placeholder="Nhập lý do từ chối yêu cầu này..."
                 required
@@ -108,21 +114,13 @@ export const RequestRejectDialog = ({
               {/* Media Upload */}
               <UploadFile
                 control={control}
-                name="media"
+                name="files"
                 label="Hình ảnh/Video minh họa"
                 maxFiles={5}
                 accept={{
                   "image/jpeg": [".jpg", ".jpeg"],
                   "image/png": [".png"],
                   "image/webp": [".webp"],
-                  "video/mp4": [".mp4"],
-                  "video/quicktime": [".mov"],
-                  "video/x-msvideo": [".avi"],
-                  "video/x-ms-wmv": [".wmv"],
-                  "video/3gpp": [".3gp"],
-                  "video/3gpp2": [".3g2"],
-                  "video/mp2t": [".ts"],
-                  "video/ogg": [".ogv"],
                 }}
                 disabled={isPending}
               />
@@ -131,19 +129,15 @@ export const RequestRejectDialog = ({
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-3 mt-6">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={handleClose}
               disabled={isPending}
             >
               Hủy bỏ
             </Button>
-            <Button
-              type="submit"
-              variant="destructive"
-              disabled={isPending}
-            >
+            <Button type="submit" variant="destructive" disabled={isPending}>
               {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

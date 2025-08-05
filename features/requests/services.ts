@@ -17,7 +17,6 @@ import {
   SourceOthersType,
   EvaluateType,
   EvaluateFilterInput,
-  RequestStatus,
   SubprocessHistoryFilterInput,
   SubprocessHistoryType,
   SubprocessHistorySkipInput,
@@ -29,7 +28,6 @@ import {
 } from "./type";
 import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
-import { omit } from "zod/dist/types/v4/core/util";
 
 export const getRequests = async (params?: RequestFilterInput) => {
   try {
@@ -129,16 +127,15 @@ export const changeStatusRequest = async ({
   }
 };
 
-export const rejectRequest = async (
-  id: number,
-  data?: RejectRequestInputType
-) => {
+export const rejectRequest = async ({
+  id,
+  ...data
+}: RejectRequestInputType) => {
   try {
-    const response = await request.put(`/requests/${id}/reject`, {
-      status: RequestStatus.REJECTED,
-      reason: data?.reason,
-      media: data?.media || [],
-    });
+    const response = await request.put(
+      `/requests/${id}/status`,
+      omitVoid(data)
+    );
     return response.data;
   } catch (error) {
     console.error("Error rejecting request:", error);
@@ -146,13 +143,12 @@ export const rejectRequest = async (
   }
 };
 
-export const holdRequest = async (id: number, data: HoldRequestInputType) => {
+export const holdRequest = async ({ id, ...data }: HoldRequestInputType) => {
   try {
-    const response = await request.put(`/requests/${id}/hold`, {
-      status: RequestStatus.HOLD,
-      reason: data.reason,
-      media: data.media || [],
-    });
+    const response = await request.put(
+      `/requests/${id}/status`,
+      omitVoid(data)
+    );
     return response.data;
   } catch (error) {
     console.error("Error holding request:", error);
