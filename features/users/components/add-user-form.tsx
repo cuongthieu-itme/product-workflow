@@ -147,6 +147,16 @@ export function AddUserForm() {
           />
         </div>
 
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-2">
+          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+          <span className="text-blue-800 font-medium">
+            Mật khẩu mặc định:
+            <code className="ml-2 bg-blue-100 px-2 py-1 rounded text-blue-900 font-mono text-sm">
+              printway@123
+            </code>
+          </span>
+        </div>
+
         <div className="flex justify-end">
           <Button type="submit" disabled={isPending}>
             {isPending ? "Đang tạo..." : "Tạo người dùng"}
