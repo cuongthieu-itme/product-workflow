@@ -46,13 +46,14 @@ export const useGetRequestsQuery = (params?: RequestFilterInput) => {
   });
 };
 
-export const useGetRequestDetailQuery = () => {
+export const useGetRequestDetailQuery = (requestId?: number) => {
   const { id } = useParams<{ id: string }>();
+  const queryId = requestId ?? id;
 
   return useQuery({
-    queryKey: [REQUESTS_QUERY_KEY.REQUESTS, id],
-    queryFn: () => getDetailRequest(Number(id)),
-    enabled: id !== undefined && id !== null,
+    queryKey: [REQUESTS_QUERY_KEY.REQUESTS, queryId],
+    queryFn: () => getDetailRequest(Number(queryId)),
+    enabled: queryId !== undefined && queryId !== null,
   });
 };
 

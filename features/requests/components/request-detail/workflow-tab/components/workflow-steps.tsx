@@ -126,7 +126,7 @@ export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
                           >
                             {getStepIcon(step.status)}
                           </div>
-                          <span className="font-medium text-sm">
+                          <span className="font-medium text-sm max-w-[100px] truncate">
                             {step.name}
                           </span>
                         </div>

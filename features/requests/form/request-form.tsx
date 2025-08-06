@@ -26,11 +26,12 @@ interface RequestFormProps {
 export function RequestForm({
   isDialogOpen,
   setIsDialogOpen,
+  requestId,
 }: RequestFormProps) {
   const [open, setOpen] = useAtom(openMaterialDialogAtom);
   const [activeTab, setActiveTab] = useAtom(sourceAtom);
   const { isSuccess, error } = useCreateRequestMutation();
-  const { data } = useGetRequestDetailQuery();
+  const { data } = useGetRequestDetailQuery(requestId);
 
   const handleSuccess = () => {
     setIsDialogOpen(false);
