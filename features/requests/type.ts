@@ -1,6 +1,6 @@
 import { PaginatedResult } from "@/types/common";
 import { MaterialType } from "../materials/type";
-import { SourceEnum } from "./constants";
+import { PriorityEnum, SourceEnum } from "./constants";
 import { User } from "../users/type";
 
 export type SubprocessHistoryType = {
@@ -48,6 +48,7 @@ export type RequestType = {
   statusProductId: number;
   status: RequestStatus;
   createdBy: User;
+  priority: PriorityEnum;
   procedureHistory?: ProcedureHistory;
   createdAt: string;
   updatedAt: string;
@@ -103,8 +104,10 @@ export enum RequestStatus {
   PENDING = "PENDING",
   APPROVED = "APPROVED",
   REJECTED = "REJECTED",
+  HOLD = "HOLD",
   IN_PROGRESS = "IN_PROGRESS",
   COMPLETED = "COMPLETED",
+  DENIED = "DENIED",
 }
 
 export enum StatusSubprocessHistory {
@@ -115,8 +118,20 @@ export enum StatusSubprocessHistory {
   SKIPPED = "SKIPPED",
 }
 
+type ApprovalInfo = {
+  id: number;
+  requestId: number;
+  holdReason: string | null;
+  denyReason: string;
+  productionPlan: string | null;
+  files: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 export interface RequestDetail {
   id: number;
+  code: string;
   title: string;
   description: string;
   productLink: string[];
@@ -137,6 +152,8 @@ export interface RequestDetail {
   createdBy: User;
   status: RequestStatus;
   procedureHistory: ProcedureHistory;
+  priority: PriorityEnum;
+  approvalInfo: ApprovalInfo;
 }
 
 export type EvaluateFilterInput = {

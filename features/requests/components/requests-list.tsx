@@ -29,6 +29,7 @@ import { useStatisticsRequestQuery } from "../hooks/useRequest";
 import { DeleteRequestDialog } from "./delete-request-dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { PriorityBadge, StatusBadge } from "./badge";
 
 export function RequestList() {
   const [page, setPage] = useState(PAGE);
@@ -81,52 +82,8 @@ export function RequestList() {
     setPage(PAGE);
   };
 
-  const getStatusBadge = (status: RequestStatus) => {
-    const statusConfig = {
-      [RequestStatus.PENDING]: {
-        label: "Chờ xử lý",
-        variant: "secondary" as const,
-      },
-      [RequestStatus.APPROVED]: {
-        label: "Đã xác nhận",
-        variant: "default" as const,
-      },
-      [RequestStatus.IN_PROGRESS]: {
-        label: "Đang xử lý",
-        variant: "outline" as const,
-      },
-      [RequestStatus.COMPLETED]: {
-        label: "Hoàn thành",
-        variant: "default" as const,
-      },
-      [RequestStatus.REJECTED]: {
-        label: "Từ chối",
-        variant: "destructive" as const,
-      },
-    };
-
-    const config = statusConfig[status];
-    return (
-      <Badge
-        variant={config.variant}
-        className={`${
-          status === RequestStatus.PENDING
-            ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
-            : status === RequestStatus.APPROVED
-            ? "bg-blue-100 text-blue-800 hover:bg-blue-100"
-            : status === RequestStatus.IN_PROGRESS
-            ? "bg-purple-100 text-purple-800 hover:bg-purple-100"
-            : status === RequestStatus.COMPLETED
-            ? "bg-green-100 text-green-800 hover:bg-green-100"
-            : ""
-        } w-[fit-content]`}
-      >
-        {config.label}
-      </Badge>
-    );
-  };
-
   const columns: Column<RequestType>[] = [
+    { id: "code", header: "Mã yêu cầu" },
     { id: "title", header: "Tên yêu cầu" },
     {
       id: "description",
@@ -135,7 +92,12 @@ export function RequestList() {
     {
       id: "status",
       header: "Trạng thái",
-      cell: (u) => getStatusBadge(u.status),
+      cell: (u) => <StatusBadge status={u.status} />,
+    },
+    {
+      id: "priority",
+      header: "Ưu tiên",
+      cell: (u) => <PriorityBadge priority={u.priority} />,
     },
     {
       id: "createdAt",

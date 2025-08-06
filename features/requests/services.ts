@@ -2,7 +2,9 @@ import request from "@/configs/axios-config";
 import {
   ConfirmRequestInputType,
   EvaluateInputType,
+  HoldRequestInputType,
   MediaInputType,
+  RejectRequestInputType,
   RequestInputType,
   SourceOtherInputType,
   SubprocessHistoryFormType,
@@ -15,7 +17,6 @@ import {
   SourceOthersType,
   EvaluateType,
   EvaluateFilterInput,
-  RequestStatus,
   SubprocessHistoryFilterInput,
   SubprocessHistoryType,
   SubprocessHistorySkipInput,
@@ -27,7 +28,6 @@ import {
 } from "./type";
 import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
-import { omit } from "zod/dist/types/v4/core/util";
 
 export const getRequests = async (params?: RequestFilterInput) => {
   try {
@@ -127,15 +127,31 @@ export const changeStatusRequest = async ({
   }
 };
 
-export const rejectRequest = async (id: number) => {
+export const rejectRequest = async ({
+  id,
+  ...data
+}: RejectRequestInputType) => {
   try {
-    const response = await request.put(`/requests/${id}/status`, {
-      status: RequestStatus.REJECTED,
-      statusProductId: undefined,
-    });
+    const response = await request.put(
+      `/requests/${id}/status`,
+      omitVoid(data)
+    );
     return response.data;
   } catch (error) {
     console.error("Error rejecting request:", error);
+    throw error;
+  }
+};
+
+export const holdRequest = async ({ id, ...data }: HoldRequestInputType) => {
+  try {
+    const response = await request.put(
+      `/requests/${id}/status`,
+      omitVoid(data)
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error holding request:", error);
     throw error;
   }
 };

@@ -12,7 +12,6 @@ export const CustomerFormDialog = () => {
       onClose={() => setIsDialogOpen(false)}
       title="Tạo khách hàng mới"
       description="Điền thông tin để tạo khách hàng mới. Nhấn nút Tạo khách hàng khi hoàn tất."
-      contentClassName="sm:max-w-[400px]"
     >
       <CreateCustomerForm onCustomerAdded={() => setIsDialogOpen(false)} />
     </BaseDialog>

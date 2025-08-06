@@ -10,6 +10,7 @@ import {
   createEvaluate,
   getEvaluates,
   rejectRequest,
+  holdRequest,
   getSubprocessHistory,
   updateSubprocessHistory,
   updateSubprocessHistorySkip,
@@ -134,6 +135,18 @@ export const useRejectRequestMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: rejectRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useHoldRequestMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: holdRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],

@@ -1,17 +1,17 @@
 import { BaseDialog } from "@/components/dialog";
 import { Button } from "@/components/ui/button";
 import { RequestStatus, RequestType } from "../../type";
-import { useRejectRequestMutation } from "../../hooks/useRequest";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { rejectRequestInputSchema, RejectRequestInputType } from "../../schema";
+import { holdRequestInputSchema, HoldRequestInputType } from "../../schema";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { UploadFile } from "@/components/common/upload";
 import { Loader2 } from "lucide-react";
+import { useHoldRequestMutation } from "../../hooks/useRequest";
 
-export const RequestRejectDialog = ({
+export const RequestHoldDialog = ({
   open,
   onClose,
   request,
@@ -20,41 +20,42 @@ export const RequestRejectDialog = ({
   onClose: () => void;
   request?: RequestType;
 }) => {
-  const { mutate: rejectMutation, isPending } = useRejectRequestMutation();
   const { toast } = useToast();
+  const { mutate: holdMutation, isPending } = useHoldRequestMutation();
 
-  const { control, handleSubmit, reset } = useForm<RejectRequestInputType>({
+  const { control, handleSubmit, reset } = useForm<HoldRequestInputType>({
     defaultValues: {
-      denyReason: "",
+      holdReason: "",
       files: [],
       id: request?.id || 0,
-      status: RequestStatus.REJECTED,
+      status: RequestStatus.HOLD,
     },
-    resolver: zodResolver(rejectRequestInputSchema),
+    resolver: zodResolver(holdRequestInputSchema),
   });
 
-  const handleReject: SubmitHandler<RejectRequestInputType> = (data) => {
+  const handleHold: SubmitHandler<HoldRequestInputType> = async (data) => {
     if (!request?.id) return;
 
-    rejectMutation(
+    holdMutation(
       {
         ...data,
         id: request.id,
-        status: RequestStatus.REJECTED,
+        status: RequestStatus.HOLD,
       },
       {
         onSuccess: () => {
           toast({
-            title: "Từ chối yêu cầu thành công",
-            description: `Yêu cầu "${request.title}" đã được từ chối thành công.`,
+            title: "Hold yêu cầu thành công",
+            description: `Yêu cầu "${request?.title}" đã được hold thành công.`,
           });
+
           reset();
           onClose();
         },
         onError: (error) => {
           toast({
-            title: "Lỗi từ chối yêu cầu",
-            description: error.message || "Đã xảy ra lỗi khi từ chối yêu cầu.",
+            title: "Lỗi hold yêu cầu",
+            description: error.message || "Đã xảy ra lỗi khi hold yêu cầu.",
             variant: "destructive",
           });
         },
@@ -71,12 +72,12 @@ export const RequestRejectDialog = ({
     <BaseDialog
       open={open}
       onClose={handleClose}
-      title="Từ chối yêu cầu"
+      title="Hold yêu cầu"
       contentClassName="max-w-[600px]"
-      description={`Từ chối yêu cầu "${request?.title}"`}
+      description={`Tạm dừng yêu cầu "${request?.title}"`}
     >
       <ScrollArea className="max-h-[70vh] overflow-y-auto pr-6">
-        <form onSubmit={handleSubmit(handleReject)} className="space-y-6 py-4">
+        <form onSubmit={handleSubmit(handleHold)} className="space-y-6 py-4">
           <div className="space-y-6">
             {/* Request Info */}
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
@@ -99,13 +100,13 @@ export const RequestRejectDialog = ({
               </div>
             </div>
 
-            {/* Reject Reason */}
+            {/* Hold Reason */}
             <div className="space-y-4">
               <TextAreaCustom
                 control={control}
-                name="denyReason"
-                label="Lý do từ chối"
-                placeholder="Nhập lý do từ chối yêu cầu này..."
+                name="holdReason"
+                label="Lý do hold"
+                placeholder="Nhập lý do tạm dừng yêu cầu này..."
                 required
                 disabled={isPending}
                 rows={4}
@@ -144,7 +145,7 @@ export const RequestRejectDialog = ({
                   Đang xử lý...
                 </>
               ) : (
-                "Xác nhận từ chối"
+                "Xác nhận Hold"
               )}
             </Button>
           </div>

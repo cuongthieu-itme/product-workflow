@@ -23,6 +23,8 @@ import { toRequestFormInput } from "../helpers";
 import { useUpdateRequestMutation } from "../hooks/useRequest";
 import { useGetUserInfoQuery } from "@/features/auth/hooks";
 import { useEffect } from "react";
+import { SelectCustom } from "@/components/form";
+import { priorityOptions } from "../options";
 
 interface RequestFormTabProps {
   onSuccess: () => void;
@@ -139,6 +141,14 @@ export const RequestFormTab = ({
             required
             rows={5}
             disabled={isPending || isUpdatePending}
+          />
+
+          <SelectCustom
+            disabled={sourceSelected === SourceEnum.CUSTOMER}
+            control={control}
+            name="priority"
+            options={priorityOptions}
+            label="Độ ưu tiên"
           />
 
           <ProductLinks />

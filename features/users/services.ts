@@ -30,7 +30,10 @@ export const getUserNoDepartments = async () => {
 
 export const createUser = async (data: CreateUserInputType) => {
   try {
-    const response = await request.post<UserFilterInput>("/users");
+    const response = await request.post<UserFilterInput>(
+      "/users",
+      omitVoid(data)
+    );
     return response.data;
   } catch (error) {
     throw error;

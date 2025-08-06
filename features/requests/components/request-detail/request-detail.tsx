@@ -23,6 +23,7 @@ import {
   getStatusColor,
 } from "../../helpers";
 import { useStatisticsRequestQuery } from "../../hooks/useRequest";
+import { StatusBadge } from "../badge";
 
 export function RequestDetail() {
   const { data: request, isLoading } = useGetRequestDetailQuery();
@@ -43,7 +44,7 @@ export function RequestDetail() {
           <h1 className="text-2xl font-bold flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
             Yêu cầu {request?.title}
             <Badge variant="outline" className="ml-2">
-              {request?.id}
+              {request?.code}
             </Badge>
           </h1>
 
@@ -59,11 +60,7 @@ export function RequestDetail() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge
-            className={cn("px-3 py-1", getRequestStatusColor(request?.status))}
-          >
-            {generateRequestStatus(request?.status)}
-          </Badge>
+          {request?.status && <StatusBadge status={request?.status} />}
           <Button
             variant="outline"
             size="sm"

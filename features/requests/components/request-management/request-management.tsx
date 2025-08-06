@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { DataTable } from "@/components/data-table";
-import { Eye, CheckCircle, XCircle, X } from "lucide-react";
+import { Eye, CheckCircle, XCircle, X, Clock } from "lucide-react";
 import type { Column } from "@/components/data-table/types";
 import { Button } from "@/components/ui/button";
 import { TableToolbar } from "@/components/data-table/toolbar";
@@ -13,10 +13,11 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { TablePagination } from "@/components/data-table/pagination";
-import { RequestDetailDialog } from "./request-detail-dialog";
 import { RequestConfirmDialog } from "./request-confirm-dialog";
 import { RequestRejectDialog } from "./request-reject-dialog";
+import { RequestHoldDialog } from "./request-hold-dialog";
 import { useRouter } from "next/navigation";
+import { StatusBadge } from "../badge";
 
 export function RequestManagementList() {
   const [page, setPage] = useState(PAGE);
@@ -46,6 +47,14 @@ export function RequestManagementList() {
     request: undefined,
   });
 
+  const [holdRequest, setHoldRequest] = useState<{
+    isOpen: boolean;
+    request?: RequestType;
+  }>({
+    isOpen: false,
+    request: undefined,
+  });
+
   const router = useRouter();
 
   const totalPages = requests
@@ -53,10 +62,17 @@ export function RequestManagementList() {
     : PAGE;
 
   const columns: Column<RequestType>[] = [
+    { id: "code", header: "Mã yêu cầu" },
     { id: "title", header: "Tên yêu cầu" },
     {
       id: "description",
       header: "Chi tiết yêu cầu",
+    },
+    {
+      id: "status",
+      header: "Trạng thái",
+      className: "min-w-10",
+      cell: (u) => <StatusBadge status={u.status} />,
     },
     {
       id: "createdBy",
@@ -92,16 +108,19 @@ export function RequestManagementList() {
           </Button>
 
           {u.status === RequestStatus.REJECTED ? (
-            <Button variant="outline" size="sm" className="w-32" disabled>
-              <XCircle className="h-4 w-4 mr-2 text-red-500" />
+            <Button variant="outline" size="sm" className="w-28" disabled>
+              <XCircle className="h-4 w-4 mr-0 text-red-500" />
               Đã từ chối
             </Button>
           ) : (
             <Button
               variant="outline"
               size="sm"
-              className="w-32"
-              disabled={u.status === RequestStatus.APPROVED}
+              className="w-28"
+              disabled={
+                u.status === RequestStatus.APPROVED ||
+                u.status === RequestStatus.HOLD
+              }
               onClick={() => {
                 setRejectRequest({
                   isOpen: true,
@@ -114,8 +133,34 @@ export function RequestManagementList() {
             </Button>
           )}
 
+          {u.status === RequestStatus.HOLD ? (
+            <Button variant="outline" size="sm" className="w-28" disabled>
+              <Clock className="h-4 w-4 mr-2 text-orange-500" />
+              Đang hold
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-28"
+              disabled={
+                u.status === RequestStatus.APPROVED ||
+                u.status === RequestStatus.REJECTED
+              }
+              onClick={() => {
+                setHoldRequest({
+                  isOpen: true,
+                  request: u,
+                });
+              }}
+            >
+              <Clock className="h-4 w-4 mr-2 text-orange-500" />
+              Hold
+            </Button>
+          )}
+
           {u.status === RequestStatus.APPROVED ? (
-            <Button variant="outline" size="sm" disabled className="w-32">
+            <Button variant="outline" size="sm" disabled className="w-28">
               <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
               Đã duyệt
             </Button>
@@ -123,8 +168,11 @@ export function RequestManagementList() {
             <Button
               variant="outline"
               size="sm"
-              className="w-32"
-              disabled={u.status === RequestStatus.REJECTED}
+              className="w-28"
+              disabled={
+                u.status === RequestStatus.REJECTED ||
+                u.status === RequestStatus.HOLD
+              }
               onClick={() => {
                 setReviewRequest({
                   isOpen: true,
@@ -180,6 +228,12 @@ export function RequestManagementList() {
         onClose={() => setRejectRequest({ isOpen: false, request: undefined })}
         open={rejectRequest.isOpen}
         request={rejectRequest.request}
+      />
+
+      <RequestHoldDialog
+        onClose={() => setHoldRequest({ isOpen: false, request: undefined })}
+        open={holdRequest.isOpen}
+        request={holdRequest.request}
       />
     </div>
   );
