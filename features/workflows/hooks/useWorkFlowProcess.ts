@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createOfUpdateWorkflowProcess,
   deleteWorkflowProcess,
+  getFieldsStep,
   getWorkflowProcessById,
   getWorkflowProcesses,
 } from "../sevices";
@@ -10,6 +11,7 @@ import { WorkFlowProcessFilterInput } from "../types";
 export enum WORKFLOW_PROCESS_QUERY_KEY {
   WORKFLOW_PROCESS = "workflowProcess",
   WORKFLOW_PROCESSES = "workflowProcesses",
+  FIELDS_STEP = "fieldsStep",
 }
 
 export const useWorkFlowProcessesQuery = (
@@ -56,5 +58,12 @@ export const useDeleteWFPMutation = () => {
         queryKey: [WORKFLOW_PROCESS_QUERY_KEY.WORKFLOW_PROCESS],
       });
     },
+  });
+};
+
+export const useGetFieldStep = () => {
+  return useQuery({
+    queryKey: [WORKFLOW_PROCESS_QUERY_KEY.FIELDS_STEP],
+    queryFn: () => getFieldsStep(),
   });
 };
