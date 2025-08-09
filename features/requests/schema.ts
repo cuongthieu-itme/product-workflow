@@ -306,4 +306,22 @@ export const rejectRequestInputSchema = z.object({
   files: z.array(z.string()).optional().nullable(),
 });
 
+export const requestMaterialSchema = z.object({
+  quantity: z.number().int().nonnegative(),
+  unit: z.string().min(1, {
+    message: "Đơn vị không được để trống",
+  }),
+  color: z.string().optional(),
+  materialType: z.string().min(1, {
+    message: "Loại vật liệu không được để trống",
+  }),
+  media: z.array(z.string()),
+  links: z.array(z.string()).min(1, {
+    message: "Vui lòng tải lên ít nhất 1 file media",
+  }),
+  note: z.string().optional(),
+});
+
 export type RejectRequestInputType = z.infer<typeof rejectRequestInputSchema>;
+
+export type RequestMaterialType = z.infer<typeof requestMaterialSchema>;

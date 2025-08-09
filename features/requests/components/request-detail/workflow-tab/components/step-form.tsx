@@ -1,4 +1,3 @@
-import { SelectCustom } from "@/components/form";
 import { InputCustom } from "@/components/form/input";
 import {
   subprocessHistoryFormSchema,
@@ -11,7 +10,7 @@ import {
 import { useUsersQuery } from "@/features/users/hooks";
 import { useGetUserInfoQuery } from "@/features/auth/hooks/useGetUserInfoQuery";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, User } from "lucide-react";
+import { Loader2, User, Pause, CheckCircle } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useState } from "react";
 import { UserRoleEnum } from "@/features/auth/constants";
@@ -247,21 +246,28 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
     );
   };
   const [completeMode, setCompleteMode] = useState(false);
+  const [holdMode, setHoldMode] = useState(false);
 
   const onSubmit: SubmitHandler<SubprocessHistoryFormType> = (data) => {
+    const status = completeMode
+      ? StatusSubprocessHistory.COMPLETED
+      : holdMode
+      ? StatusSubprocessHistory.IN_PROGRESS // Hoặc có thể là status HOLD nếu có
+      : StatusSubprocessHistory.IN_PROGRESS;
+
     updateSubprocessHistory(
       {
         ...data,
-        status: completeMode
-          ? StatusSubprocessHistory.COMPLETED
-          : StatusSubprocessHistory.IN_PROGRESS,
+        status: status,
       },
       {
         onSuccess: () => {
           toast({
             title: "Thành công",
             description: completeMode
-              ? "Bước đã hoàn thành bước này"
+              ? "Bước đã hoàn thành"
+              : holdMode
+              ? "Bước đã được tạm dừng"
               : "Bước đã được cập nhật thành công",
           });
         },
@@ -275,6 +281,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
       }
     );
     setCompleteMode(false); // reset lại sau submit
+    setHoldMode(false); // reset lại sau submit
   };
 
   const getUserAssignName = () => {
@@ -289,7 +296,11 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-6 mt-2"
+      noValidate
+    >
       <div className="p-4 rounded-md border bg-card shadow-sm">
         <h3 className="text-lg font-medium mb-4 pb-2 border-b flex items-center gap-2">
           <CalendarDays className="text-primary w-5 h-5" />
@@ -425,51 +436,63 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
         </div>
 
         <div className="flex justify-end gap-2">
-          {isAdmin ? (
-            <Button
-              type="button"
-              disabled={isSubmitting}
-              onClick={handleAssignUser}
-              className="flex items-center"
-            >
-              {isSubmitting && !completeMode ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <User className="w-4 h-4 mr-2" />
-              )}
-              Gán người thực hiện
-            </Button>
-          ) : (
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            onClick={() => {
+              setCompleteMode(false);
+              setHoldMode(false);
+            }}
+            variant="outline"
+            className="flex items-center"
+          >
+            {isSubmitting && !completeMode && !holdMode ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Clock className="w-4 h-4 mr-2" />
+            )}
+            Lưu thông tin
+          </Button>
+
+          {/* Button Hold */}
+          {(isAdmin || isAssignedUser) && (
             <Button
               type="submit"
               disabled={isSubmitting}
-              onClick={() => setCompleteMode(false)}
-              variant="outline"
-              className="flex items-center"
+              onClick={() => {
+                setHoldMode(true);
+                setCompleteMode(false);
+              }}
+              variant="secondary"
+              className="bg-yellow-600 hover:bg-yellow-700 text-white flex items-center"
             >
-              {isSubmitting && !completeMode ? (
+              {isSubmitting && holdMode ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               ) : (
-                <Clock className="w-4 h-4 mr-2" />
+                <Pause className="w-4 h-4 mr-2" />
               )}
-              Lưu thông tin
+              Tạm dừng
             </Button>
           )}
 
-          {(!isAdmin || isAssignedUser) && (
+          {/* Button Hoàn thành */}
+          {(isAdmin || isAssignedUser) && (
             <Button
               type="submit"
               disabled={isSubmitting}
-              onClick={() => setCompleteMode(true)}
+              onClick={() => {
+                setCompleteMode(true);
+                setHoldMode(false);
+              }}
               variant="default"
               className="bg-green-600 hover:bg-green-700 flex items-center"
             >
               {isSubmitting && completeMode ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               ) : (
-                <BadgeCheck className="w-4 h-4 mr-2" />
+                <CheckCircle className="w-4 h-4 mr-2" />
               )}
-              Hoàn thành bước
+              Hoàn thành
             </Button>
           )}
         </div>
