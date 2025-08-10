@@ -235,6 +235,7 @@ export const subprocessHistoryFormSchema = z
       StatusSubprocessHistory.IN_PROGRESS,
       StatusSubprocessHistory.PENDING,
       StatusSubprocessHistory.SKIPPED,
+      StatusSubprocessHistory.HOLD,
     ]),
   })
   .refine((data) => data.endDate > data.startDate, {
@@ -273,6 +274,33 @@ export type SubprocessHistoryFormType = z.infer<
 >;
 export type ApproveSubprocessHistoryInputType = z.infer<
   typeof approveSubprocessHistorySchema
+>;
+
+// Hold Subprocess Schema
+export const holdSubprocessSchema = z.object({
+  id: z
+    .number({
+      message: "ID không hợp lệ",
+      required_error: "ID là bắt buộc",
+    })
+    .int()
+    .positive(),
+});
+
+// Continue Subprocess Schema
+export const continueSubprocessSchema = z.object({
+  id: z
+    .number({
+      message: "ID không hợp lệ",
+      required_error: "ID là bắt buộc",
+    })
+    .int()
+    .positive(),
+});
+
+export type HoldSubprocessInputType = z.infer<typeof holdSubprocessSchema>;
+export type ContinueSubprocessInputType = z.infer<
+  typeof continueSubprocessSchema
 >;
 
 export const holdRequestInputSchema = z.object({

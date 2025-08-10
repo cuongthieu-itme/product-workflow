@@ -9,6 +9,8 @@ import {
   SourceOtherInputType,
   SubprocessHistoryFormType,
   ApproveSubprocessHistoryInputType,
+  HoldSubprocessInputType,
+  ContinueSubprocessInputType,
 } from "./schema";
 import {
   RequestDetail,
@@ -199,6 +201,18 @@ export const getSubprocessHistory = async (
   }
 };
 
+export const getSubprocessHistoryById = async (id: number) => {
+  try {
+    const response = await request.get<BaseResultQuery<SubprocessHistoryType>>(
+      `/subprocesses-history/${id}`
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching subprocess history by id:", error);
+    throw error;
+  }
+};
+
 export const updateSubprocessHistory = async ({
   id,
   ...data
@@ -332,6 +346,54 @@ export const approveSubprocessHistory = async ({
     return response.data.data;
   } catch (error) {
     console.error("Error approving subprocess history:", error);
+    throw error;
+  }
+};
+
+export const holdSubprocess = async ({ id }: HoldSubprocessInputType) => {
+  try {
+    // Lấy thông tin subprocess hiện tại để xác định trường nào cần update
+    const currentSubprocess = await getSubprocessHistoryById(id);
+
+    const { getHoldUpdateFields } = await import("./helpers");
+    const holdFields = getHoldUpdateFields(currentSubprocess);
+
+    const response = await request.put<BaseResultQuery<SubprocessHistoryType>>(
+      `/subprocesses-history/${id}`,
+      {
+        status: "HOLD",
+        ...holdFields,
+      }
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Error holding subprocess:", error);
+    throw error;
+  }
+};
+
+export const continueSubprocess = async ({
+  id,
+}: ContinueSubprocessInputType) => {
+  try {
+    // Lấy thông tin subprocess hiện tại để xác định trường nào cần update
+    const currentSubprocess = await request.get<
+      BaseResultQuery<SubprocessHistoryType>
+    >(`/subprocesses-history/${id}`);
+
+    const { getContinueUpdateFields } = await import("./helpers");
+    const continueFields = getContinueUpdateFields(currentSubprocess.data.data);
+
+    const response = await request.put<BaseResultQuery<SubprocessHistoryType>>(
+      `/subprocesses-history/${id}`,
+      {
+        status: "IN_PROGRESS",
+        ...continueFields,
+      }
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Error continuing subprocess:", error);
     throw error;
   }
 };

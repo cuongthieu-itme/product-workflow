@@ -46,7 +46,115 @@ export const calculateCompletionPercentage = (
   return Math.round((completedCount / items.length) * 100);
 };
 
-export const formatDate = (
+// Helper function để đếm số lần hold và kiểm tra có thể hold/continue
+export const getHoldInfo = (subprocess: SubprocessHistoryType) => {
+  const holdDates = [
+    subprocess.holdDateOne,
+    subprocess.holdDateTwo, 
+    subprocess.holdDateThree,
+  ];
+  
+  const continueDates = [
+    subprocess.continueDateOne,
+    subprocess.continueDateTwo,
+    subprocess.continueDateThree,
+  ];
+  
+  // Đếm số lần đã hold (có dữ liệu holdDate)
+  const holdCount = holdDates.filter(Boolean).length;
+  
+  // Đếm số lần đã continue (có dữ liệu continueDate)
+  const continueCount = continueDates.filter(Boolean).length;
+  
+  // Logic theo yêu cầu:
+  // - Nếu có holdDateOne nhưng chưa có continueDateOne -> hiển thị continue 1
+  // - Nếu có continueDateOne nhưng chưa có holdDateTwo -> hiển thị hold 2
+  // - Nếu có holdDateTwo nhưng chưa có continueDateTwo -> hiển thị continue 2
+  // - Nếu có continueDateTwo nhưng chưa có holdDateThree -> hiển thị hold 3
+  // - Nếu có holdDateThree nhưng chưa có continueDateThree -> hiển thị continue 3
+  // - Nếu có continueDateThree -> ẩn tất cả button
+  
+  let canHold = false;
+  let canContinue = false;
+  let nextAction = '';
+  
+  if (subprocess.continueDateThree) {
+    // Đã hoàn thành tất cả chu kỳ hold/continue -> ẩn button
+    canHold = false;
+    canContinue = false;
+    nextAction = 'none';
+  } else if (subprocess.holdDateThree && !subprocess.continueDateThree) {
+    // Đang hold lần 3 -> hiển thị continue 3
+    canHold = false;
+    canContinue = true;
+    nextAction = 'continue3';
+  } else if (subprocess.continueDateTwo && !subprocess.holdDateThree) {
+    // Đã continue lần 2 -> hiển thị hold 3
+    canHold = true;
+    canContinue = false;
+    nextAction = 'hold3';
+  } else if (subprocess.holdDateTwo && !subprocess.continueDateTwo) {
+    // Đang hold lần 2 -> hiển thị continue 2
+    canHold = false;
+    canContinue = true;
+    nextAction = 'continue2';
+  } else if (subprocess.continueDateOne && !subprocess.holdDateTwo) {
+    // Đã continue lần 1 -> hiển thị hold 2
+    canHold = true;
+    canContinue = false;
+    nextAction = 'hold2';
+  } else if (subprocess.holdDateOne && !subprocess.continueDateOne) {
+    // Đang hold lần 1 -> hiển thị continue 1
+    canHold = false;
+    canContinue = true;
+    nextAction = 'continue1';
+  } else {
+    // Chưa hold lần nào -> hiển thị hold 1
+    canHold = true;
+    canContinue = false;
+    nextAction = 'hold1';
+  }
+  
+  const isCurrentlyOnHold = subprocess.status === StatusSubprocessHistory.HOLD;
+  
+  return {
+    holdCount,
+    continueCount,
+    canHold,
+    canContinue,
+    isCurrentlyOnHold,
+    nextAction,
+    maxHolds: 3,
+  };
+};
+
+// Helper function để xác định trường nào cần update khi hold
+export const getHoldUpdateFields = (subprocess: SubprocessHistoryType) => {
+  const currentTime = new Date().toISOString();
+  
+  if (!subprocess.holdDateOne) {
+    return { holdDateOne: currentTime };
+  } else if (!subprocess.holdDateTwo) {
+    return { holdDateTwo: currentTime };
+  } else if (!subprocess.holdDateThree) {
+    return { holdDateThree: currentTime };
+  }
+  return {};
+};
+
+// Helper function để xác định trường nào cần update khi continue
+export const getContinueUpdateFields = (subprocess: SubprocessHistoryType) => {
+  const currentTime = new Date().toISOString();
+  
+  if (subprocess.holdDateOne && !subprocess.continueDateOne) {
+    return { continueDateOne: currentTime };
+  } else if (subprocess.holdDateTwo && !subprocess.continueDateTwo) {
+    return { continueDateTwo: currentTime };
+  } else if (subprocess.holdDateThree && !subprocess.continueDateThree) {
+    return { continueDateThree: currentTime };
+  }
+  return {};
+};export const formatDate = (
   date: Date | string | null | undefined,
   formatType?: string
 ) => {
@@ -82,6 +190,8 @@ export const getStatusColor = (status?: StatusSubprocessHistory) => {
       return "bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700";
     case StatusSubprocessHistory.SKIPPED:
       return "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 hover:text-gray-700";
+    case StatusSubprocessHistory.HOLD:
+      return "bg-yellow-50 text-yellow-600 border-yellow-200 hover:bg-yellow-100 hover:text-yellow-700";
     default:
       return "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 hover:text-blue-700";
   }
@@ -114,6 +224,8 @@ export const getStatusText = (status?: StatusSubprocessHistory) => {
       return "Đã hủy";
     case StatusSubprocessHistory.SKIPPED:
       return "Đã bỏ qua";
+    case StatusSubprocessHistory.HOLD:
+      return "Đang tạm dừng";
     default:
       return "Chưa bắt đầu";
   }

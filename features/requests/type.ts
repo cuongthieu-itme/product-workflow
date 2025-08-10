@@ -22,6 +22,12 @@ export type SubprocessHistoryType = {
   userId: number | null;
   user: User | null;
   fieldSubprocess: FieldSubprocess | null;
+  holdDateOne: string | null;
+  continueDateOne: string | null;
+  holdDateTwo: string | null;
+  continueDateTwo: string | null;
+  holdDateThree: string | null;
+  continueDateThree: string | null;
   isApproved: boolean;
   createdAt: string;
   updatedAt: string;
@@ -118,6 +124,7 @@ export enum StatusSubprocessHistory {
   COMPLETED = "COMPLETED",
   CANCELLED = "CANCELLED",
   SKIPPED = "SKIPPED",
+  HOLD = "HOLD",
 }
 
 type ApprovalInfo = {

@@ -16,6 +16,8 @@ import {
   useUpdateFieldStepMutation,
   useApproveSubprocessHistoryMutation,
   useAssignUserToStepMutation,
+  useHoldSubprocessMutation,
+  useContinueSubprocessMutation,
 } from "@/features/requests/hooks/useRequest";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -40,13 +42,14 @@ import {
   Coins,
   Settings,
 } from "lucide-react";
-import { getCheckFields } from "@/features/requests/helpers";
+import { getCheckFields, getHoldInfo } from "@/features/requests/helpers";
 import { format } from "date-fns";
 import { useGetFieldStep } from "@/features/workflows/hooks/useWorkFlowProcess";
 import { FieldType } from "@/features/workflows/types";
 import { Fields } from "./fields";
 import { StepInfo } from "./step-infor";
 import { AdminUserAssignment } from "./admin-user-assignment";
+import { HoldSubprocessDialog } from "./hold-subprocess-dialog";
 
 export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   const user = step.user;
@@ -196,6 +199,10 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   const { mutate: updateFieldStep } = useUpdateFieldStepMutation();
   const { mutate: approveSubprocessHistory } =
     useApproveSubprocessHistoryMutation();
+  const { mutate: continueSubprocess } = useContinueSubprocessMutation();
+
+  // Get hold information
+  const holdInfo = getHoldInfo(step);
 
   const handleSkipStep = () => {
     if (!step.id || step.isRequired) return;
@@ -222,7 +229,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
     );
   };
   const [completeMode, setCompleteMode] = useState(false);
-  const [holdMode, setHoldMode] = useState(false);
   const [approveMode, setApproveMode] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | undefined>(
     step.userId || undefined
@@ -238,8 +244,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   const onSubmit: SubmitHandler<any> = (data) => {
     const status = completeMode
       ? StatusSubprocessHistory.COMPLETED
-      : holdMode
-      ? StatusSubprocessHistory.IN_PROGRESS // Hoặc có thể là status HOLD nếu có
       : StatusSubprocessHistory.IN_PROGRESS;
 
     // Lọc chỉ lấy các field cần thiết cho API
@@ -290,8 +294,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
                     title: "Thành công",
                     description: completeMode
                       ? "Bước đã hoàn thành và dữ liệu đã được lưu"
-                      : holdMode
-                      ? "Bước đã được tạm dừng và dữ liệu đã được lưu"
                       : "Dữ liệu đã được lưu thành công",
                   });
                 },
@@ -321,8 +323,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
               title: "Thành công",
               description: completeMode
                 ? "Bước đã hoàn thành"
-                : holdMode
-                ? "Bước đã được tạm dừng"
                 : "Bước đã được cập nhật thành công",
             });
           },
@@ -370,7 +370,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
     }
 
     setCompleteMode(false); // reset lại sau submit
-    setHoldMode(false); // reset lại sau submit
     setApproveMode(false); // reset lại sau submit
   };
 
@@ -414,6 +413,28 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
         });
       },
     });
+  };
+
+  // Handle continue subprocess
+  const handleContinueSubprocess = () => {
+    continueSubprocess(
+      { id: step.id },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Thành công",
+            description: "Đã tiếp tục subprocess!",
+          });
+        },
+        onError: () => {
+          toast({
+            title: "Lỗi",
+            description: "Không thể tiếp tục subprocess!",
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   // Handle approve step
@@ -635,53 +656,64 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
               Bắt đầu
             </Button>
           )}
-
           <Button
             type="submit"
             disabled={isSubmitting}
             onClick={() => {
               setCompleteMode(false);
-              setHoldMode(false);
             }}
             variant="outline"
             className="flex items-center"
           >
-            {isSubmitting && !completeMode && !holdMode ? (
+            {isSubmitting && !completeMode ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : (
               <Clock className="w-4 h-4 mr-2" />
             )}
             Lưu thông tin
           </Button>
-
-          {/* Button Hold */}
-          {(isAdmin || isAssignedUser || hasStartTime) && (
-            <Button
-              type="submit"
+          {/* Button Hold - Hiển thị khi có thể hold */}
+          {(isAdmin || isAssignedUser || hasStartTime) && holdInfo.canHold && (
+            <HoldSubprocessDialog
+              subprocessId={step.id}
               disabled={isSubmitting}
-              onClick={() => {
-                setHoldMode(true);
-                setCompleteMode(false);
-              }}
-              variant="secondary"
-              className="bg-yellow-600 hover:bg-yellow-700 text-white flex items-center"
             >
-              {isSubmitting && holdMode ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
+              <Button
+                disabled={isSubmitting}
+                variant="secondary"
+                className="bg-yellow-600 hover:bg-yellow-700 text-white flex items-center"
+              >
                 <Pause className="w-4 h-4 mr-2" />
-              )}
-              Tạm dừng
-            </Button>
+                {holdInfo.nextAction === "hold1" && "Tạm dừng (1/3)"}
+                {holdInfo.nextAction === "hold2" && "Tạm dừng (2/3)"}
+                {holdInfo.nextAction === "hold3" && "Tạm dừng (3/3)"}
+              </Button>
+            </HoldSubprocessDialog>
           )}
-
+          {/* Button Continue - Hiển thị khi có thể continue */}
+          {(isAdmin || isAssignedUser) && holdInfo.canContinue && (
+            <Button
+              type="button"
+              disabled={isSubmitting}
+              onClick={handleContinueSubprocess}
+              variant="default"
+              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
+            >
+              <Play className="w-4 h-4 mr-2" />
+              {holdInfo.nextAction === "continue1" &&
+                `Tiếp tục (1/${holdInfo.holdCount})`}
+              {holdInfo.nextAction === "continue2" &&
+                `Tiếp tục (2/${holdInfo.holdCount})`}
+              {holdInfo.nextAction === "continue3" &&
+                `Tiếp tục (3/${holdInfo.holdCount})`}
+            </Button>
+          )}{" "}
           {(isAdmin || isAssignedUser) && (
             <Button
               type="submit"
               disabled={isSubmitting}
               onClick={() => {
                 setCompleteMode(true);
-                setHoldMode(false);
               }}
               variant="default"
               className="bg-green-600 hover:bg-green-700 flex items-center"
@@ -694,7 +726,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
               Hoàn thành
             </Button>
           )}
-
           {isAdmin &&
             step.status === StatusSubprocessHistory.COMPLETED &&
             !step.isApproved && (

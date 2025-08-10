@@ -1,4 +1,4 @@
-import { getStatusText } from "@/features/requests/helpers";
+import { getStatusText, getHoldInfo } from "@/features/requests/helpers";
 import {
   StatusSubprocessHistory,
   SubprocessHistoryType,
@@ -13,6 +13,7 @@ import {
   Info,
   ListChecks,
   UserCircle,
+  Pause,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -23,6 +24,8 @@ interface StepInfoProps {
 }
 
 export const StepInfo = ({ step, userName, userAvatar }: StepInfoProps) => {
+  const holdInfo = getHoldInfo(step);
+
   const renderStatusIcon = (status: StatusSubprocessHistory) => {
     switch (status) {
       case StatusSubprocessHistory.COMPLETED:
@@ -31,6 +34,8 @@ export const StepInfo = ({ step, userName, userAvatar }: StepInfoProps) => {
         return <CircleSlash className="text-red-600 w-5 h-5" />;
       case StatusSubprocessHistory.SKIPPED:
         return <Clock className="text-yellow-600 w-5 h-5" />;
+      case StatusSubprocessHistory.HOLD:
+        return <Pause className="text-orange-600 w-5 h-5" />;
       default:
         return <Clock className="text-yellow-600 w-5 h-5" />;
     }
@@ -111,6 +116,92 @@ export const StepInfo = ({ step, userName, userAvatar }: StepInfoProps) => {
               <p className="text-sm">
                 {step.price ? `${step.price.toLocaleString()} đ` : "Chưa có"}
               </p>
+            </div>
+          </div>
+        )}
+
+        {/* Thông tin Hold History */}
+        {(holdInfo.holdCount > 0 || holdInfo.continueCount > 0) && (
+          <div className="col-span-full">
+            <div className="flex items-center gap-3 mb-2">
+              <Pause className="text-orange-600 w-5 h-5 flex-shrink-0" />
+              <p className="text-sm font-medium text-muted-foreground">
+                Lịch sử tạm dừng ({holdInfo.holdCount}/{holdInfo.maxHolds} lần
+                hold, {holdInfo.continueCount} lần tiếp tục)
+              </p>
+            </div>
+            <div className="pl-8 space-y-1">
+              {step.holdDateOne && (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-orange-600 font-medium">Hold 1:</span>
+                  <span>
+                    {format(new Date(step.holdDateOne), "dd/MM/yyyy HH:mm")}
+                  </span>
+                  {step.continueDateOne && (
+                    <span className="text-green-600">
+                      → Continue:{" "}
+                      {format(
+                        new Date(step.continueDateOne),
+                        "dd/MM/yyyy HH:mm"
+                      )}
+                    </span>
+                  )}
+                </div>
+              )}
+              {step.holdDateTwo && (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-orange-600 font-medium">Hold 2:</span>
+                  <span>
+                    {format(new Date(step.holdDateTwo), "dd/MM/yyyy HH:mm")}
+                  </span>
+                  {step.continueDateTwo && (
+                    <span className="text-green-600">
+                      → Continue:{" "}
+                      {format(
+                        new Date(step.continueDateTwo),
+                        "dd/MM/yyyy HH:mm"
+                      )}
+                    </span>
+                  )}
+                </div>
+              )}
+              {step.holdDateThree && (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-orange-600 font-medium">Hold 3:</span>
+                  <span>
+                    {format(new Date(step.holdDateThree), "dd/MM/yyyy HH:mm")}
+                  </span>
+                  {step.continueDateThree && (
+                    <span className="text-green-600">
+                      → Continue:{" "}
+                      {format(
+                        new Date(step.continueDateThree),
+                        "dd/MM/yyyy HH:mm"
+                      )}
+                    </span>
+                  )}
+                </div>
+              )}
+              {/* Hiển thị trạng thái hiện tại */}
+              {holdInfo.nextAction !== "none" && (
+                <div className="mt-2 p-2 bg-blue-50 rounded text-sm">
+                  <span className="text-blue-700 font-medium">
+                    Hành động tiếp theo:
+                    {holdInfo.nextAction === "hold1" &&
+                      " Có thể tạm dừng lần 1"}
+                    {holdInfo.nextAction === "continue1" &&
+                      " Có thể tiếp tục từ hold lần 1"}
+                    {holdInfo.nextAction === "hold2" &&
+                      " Có thể tạm dừng lần 2"}
+                    {holdInfo.nextAction === "continue2" &&
+                      " Có thể tiếp tục từ hold lần 2"}
+                    {holdInfo.nextAction === "hold3" &&
+                      " Có thể tạm dừng lần 3"}
+                    {holdInfo.nextAction === "continue3" &&
+                      " Có thể tiếp tục từ hold lần 3"}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         )}

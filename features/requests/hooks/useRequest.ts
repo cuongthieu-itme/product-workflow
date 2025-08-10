@@ -23,6 +23,8 @@ import {
   deleteRequest,
   updateFieldStep,
   approveSubprocessHistory,
+  holdSubprocess,
+  continueSubprocess,
 } from "../services";
 import {
   EvaluateFilterInput,
@@ -293,6 +295,38 @@ export const useApproveSubprocessHistoryMutation = () => {
 
   return useMutation({
     mutationFn: approveSubprocessHistory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY],
+      });
+    },
+  });
+};
+
+export const useHoldSubprocessMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: holdSubprocess,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY],
+      });
+    },
+  });
+};
+
+export const useContinueSubprocessMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: continueSubprocess,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
