@@ -21,6 +21,7 @@ export type SubprocessHistoryType = {
   status: StatusSubprocessHistory;
   userId: number | null;
   user: User | null;
+  fieldSubprocess: FieldSubprocess | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -129,6 +130,105 @@ type ApprovalInfo = {
   updatedAt: string;
 };
 
+type Media = string[]; // Ví dụ nếu media là một mảng các URL
+type PurchaseLink = string[]; // Ví dụ nếu purchaseLink là một mảng các URL
+type PriceList = string[]; // Ví dụ nếu priceList là một mảng các giá trị giá sản phẩm
+type CheckFields = string[]; // Mảng các tên trường cần kiểm tra
+
+type FieldSubprocess = {
+  id: number;
+  subprocessId: number;
+  subprocessesHistoryId: number;
+  materialCode: string | null;
+  materialName: string | null;
+  requestId: string | null;
+  requestDate: string | null; // Có thể là Date nếu cần, tùy vào định dạng dữ liệu
+  priority: string | null;
+  createdBy: string | null;
+  requestSource: string | null;
+  checker: string | null;
+  descriptionMaterial: string | null;
+  status: string | null;
+  quantity: number | null;
+  unit: string | null;
+  color: string | null;
+  materialType: string | null;
+  media: Media;
+  purchaseLink: PurchaseLink;
+  additionalNote: string | null;
+  approvedBy: string | null;
+  approvedTime: string | null;
+  purchaser: string | null;
+  purchasingTime: string | null;
+  trackingLink: string | null;
+  receivedQuantity: number | null;
+  checkedBy: string | null;
+  checkedTime: string | null;
+  sampleProductionPlan: string | null;
+  designer: string | null;
+  startTime: string | null;
+  completedTime: string | null;
+  productionFileLink: string | null;
+  sampleMaker: string | null;
+  sampleStatus: string | null;
+  sampleMediaLink: string[];
+  note: string | null;
+  finalApprovedSampleImage: string | null;
+  finalProductVideo: string | null;
+  productManufacturingPlan: string | null;
+  productFeedbackResponder: string | null;
+  deadlineChecking: string | null;
+  productFeedbackStatus: string | null;
+  reasonForNonProduction: string | null;
+  sampleFeedbackResponder: string | null;
+  demoPrice: string | null;
+  sampleFeedback: string | null;
+  MOQInput: string | null;
+  sizeDimension: string | null;
+  materialConfirmer: string | null;
+  purchaseStatus: string | null;
+  confirmedQuantity: number | null;
+  orderPlaced: string | null;
+  orderDate: string | null;
+  estimatedArrivalDate: string | null;
+  actualArrivalDate: string | null;
+  warehouseChecker: string | null;
+  quantityReceived: number | null;
+  checkedDate: string | null;
+  materialSentToRD: string | null;
+  sentDateToRD: string | null;
+  receivedDateByRD: string | null;
+  RDMaterialChecker: string | null;
+  sampleQualityFeedback: string | null;
+  feedbackDate: string | null;
+  startedTime: string | null;
+  assignedTo: string | null;
+  linkTemplateMockup: string | null;
+  templateChecker: string | null;
+  templateCheckingStatus: string | null;
+  mockupChecker: string | null;
+  mockupCheckingStatus: string | null;
+  priceCalculator: string | null;
+  priceList: PriceList;
+  productDescription: string | null;
+  variant: string | null;
+  estimatedUploadDate: string | null;
+  actualUploadTime: string | null;
+  productCode: string | null;
+  productPageLink: string | null;
+  SKU: string | null;
+  SKUDescription: string | null;
+  productName: string | null;
+  category: string | null;
+  howToProduce: string | null;
+  materialNeedToUse: string | null;
+  groupAnnouncementAllDepartments: string | null;
+  announcementOfRndWorkshopGroup: string | null;
+  checkFields: CheckFields;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export interface RequestDetail {
   id: number;
   code: string;
@@ -154,6 +254,7 @@ export interface RequestDetail {
   procedureHistory: ProcedureHistory;
   priority: PriorityEnum;
   approvalInfo: ApprovalInfo;
+  fieldSubprocess: FieldSubprocess;
 }
 
 export type EvaluateFilterInput = {

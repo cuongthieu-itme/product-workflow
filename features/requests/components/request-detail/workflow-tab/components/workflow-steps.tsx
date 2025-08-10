@@ -144,7 +144,7 @@ export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
             </div>
 
             {selectedStep && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg overflow-visible">
                 <div className="flex items-center gap-4 mb-4">
                   <Avatar className="h-12 w-12 cursor-pointer border-2 border-dashed p-[3px]">
                     <AvatarImage

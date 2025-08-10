@@ -1,4 +1,6 @@
 import { InputCustom } from "@/components/form/input";
+import { SelectCustom } from "@/components/form";
+import { TextAreaCustom } from "@/components/form/textarea";
 import {
   subprocessHistoryFormSchema,
   SubprocessHistoryFormType,
@@ -10,9 +12,9 @@ import {
 import { useUsersQuery } from "@/features/users/hooks";
 import { useGetUserInfoQuery } from "@/features/auth/hooks/useGetUserInfoQuery";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, User, Pause, CheckCircle } from "lucide-react";
+import { Loader2, User, Pause, CheckCircle, Play } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { UserRoleEnum } from "@/features/auth/constants";
 import { DatePickerCustom } from "@/components/form/date-picker";
 import { Button } from "@/components/ui/button";
@@ -20,8 +22,10 @@ import {
   useAssignUserToStepMutation,
   useSkipSubprocessHistoryMutation,
   useUpdateSubprocessHistoryMutation,
+  useUpdateFieldStepMutation,
 } from "@/features/requests/hooks/useRequest";
 import { useToast } from "@/components/ui/use-toast";
+import { z } from "zod";
 
 interface StepEditFormProps {
   step: SubprocessHistoryType;
@@ -38,16 +42,173 @@ import {
   CalendarDays,
   UserCircle,
   Coins,
+  Settings,
 } from "lucide-react";
 import { getStatusText } from "@/features/requests/helpers";
 import { format } from "date-fns";
 import Image from "next/image";
-import { MultiSelectDemo } from "@/components/form/multi-select-demo";
+import { useGetFieldStep } from "@/features/workflows/hooks/useWorkFlowProcess";
+import { FieldType } from "@/features/workflows/types";
 
 export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   const user = step.user;
   const userName = user?.fullName || "Chưa có";
   const userAvatar = user?.avatarUrl || undefined;
+
+  const { data: fields } = useGetFieldStep();
+
+  // Function để lấy checkFields từ step.fieldSubprocess
+  const getCheckFields = (): string[] => {
+    // Lấy checkFields trực tiếp từ step.fieldSubprocess
+    if (step.fieldSubprocess?.checkFields) {
+      return step.fieldSubprocess.checkFields;
+    }
+
+    return [];
+  };
+
+  const checkFieldsList = getCheckFields();
+
+  // Function để kiểm tra field có nên hiển thị không dựa vào checkFields
+  const shouldShowField = (field: FieldType): boolean => {
+    // Nếu không có fields data, return false
+    if (!fields?.data) return false;
+
+    // Nếu không có checkFields list, hiển thị tất cả
+    if (checkFieldsList.length === 0) return true;
+
+    // Kiểm tra enumValue của field có trong checkFields list không
+    const isIncluded = checkFieldsList.includes(field.enumValue);
+
+    return isIncluded;
+  }; // Tạo dynamic schema dựa trên fields - simplified approach
+  const dynamicSchema = useMemo(() => {
+    // Tạm thời sử dụng schema gốc và handle validation riêng
+    return subprocessHistoryFormSchema;
+  }, [fields?.data]);
+
+  // Function để render field dựa vào type
+  const renderDynamicField = (field: FieldType) => {
+    if (!shouldShowField(field)) {
+      return null;
+    }
+
+    const fieldName = field.value as any; // Type assertion để bypass strict typing
+
+    switch (field.type.toLowerCase()) {
+      case "input":
+      case "text":
+      case "string":
+        return (
+          <div key={field.value} className="flex flex-col h-full">
+            <InputCustom
+              name={fieldName}
+              control={control}
+              label={field.label}
+              placeholder={`Nhập ${field.label.toLowerCase()}`}
+              className="w-full"
+            />
+          </div>
+        );
+
+      case "textarea":
+        return (
+          <div key={field.value} className="flex flex-col h-full">
+            <TextAreaCustom
+              name={fieldName}
+              control={control}
+              label={field.label}
+              placeholder={`Nhập ${field.label.toLowerCase()}`}
+              className="w-full flex-1"
+              rows={3}
+            />
+          </div>
+        );
+
+      case "number":
+        return (
+          <div key={field.value} className="flex flex-col h-full">
+            <InputCustom
+              name={fieldName}
+              control={control}
+              label={field.label}
+              type="number"
+              placeholder={`Nhập ${field.label.toLowerCase()}`}
+              className="w-full"
+            />
+          </div>
+        );
+
+      case "date":
+        return (
+          <div key={field.value} className="flex flex-col h-full">
+            <DatePickerCustom
+              name={fieldName}
+              control={control}
+              label={field.label}
+              className="w-full"
+            />
+          </div>
+        );
+
+      case "select":
+      case "enum":
+        // Nếu có enumValue, parse thành options
+        let options = [];
+        if (field.enumValue) {
+          try {
+            options = JSON.parse(field.enumValue);
+          } catch (e) {
+            // Fallback: split bằng comma nếu không phải JSON
+            options = field.enumValue.split(",").map((opt) => ({
+              label: opt.trim(),
+              value: opt.trim(),
+            }));
+          }
+        }
+
+        return (
+          <div key={field.value} className="flex flex-col h-full">
+            <SelectCustom
+              name={fieldName}
+              control={control}
+              label={field.label}
+              placeholder={`Chọn ${field.label.toLowerCase()}`}
+              options={options}
+              className="w-full"
+            />
+          </div>
+        );
+
+      case "file":
+        // Handle file type - không set default value cho file input
+        return (
+          <div key={field.value} className="flex flex-col h-full">
+            <InputCustom
+              name={fieldName}
+              control={control}
+              label={field.label}
+              type="file"
+              placeholder={`Chọn ${field.label.toLowerCase()}`}
+              className="w-full"
+            />
+          </div>
+        );
+
+      default:
+        return (
+          <div key={field.value} className="flex flex-col h-full">
+            <InputCustom
+              name={fieldName}
+              control={control}
+              label={field.label}
+              placeholder={`Nhập ${field.label.toLowerCase()}`}
+              className="w-full"
+            />
+          </div>
+        );
+    }
+  };
 
   const renderStatusIcon = (status: StatusSubprocessHistory) => {
     switch (status) {
@@ -144,10 +305,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
       </div>
     </div>
   );
-  const { data: usersData } = useUsersQuery({
-    departmentId: step.departmentId,
-  });
-  const users = usersData?.data || [];
   const { data: currentUserData } = useGetUserInfoQuery();
   const isCompleted =
     step.status === StatusSubprocessHistory.COMPLETED ||
@@ -165,7 +322,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
     handleSubmit,
     formState: { isSubmitting },
     watch,
-  } = useForm<SubprocessHistoryFormType>({
+  } = useForm({
     defaultValues: {
       ...step,
       startDate: step.startDate ? new Date(step.startDate) : new Date(),
@@ -173,8 +330,89 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
       userId: step.userId || undefined,
       price: step.price ?? undefined,
       isStepWithCost: step.isStepWithCost,
+      // Thêm current values từ fieldSubprocess nếu có
+      ...(step.fieldSubprocess
+        ? {
+            materialCode: step.fieldSubprocess.materialCode || "",
+            materialName: step.fieldSubprocess.materialName || "",
+            requestId: step.fieldSubprocess.requestId || "",
+            requestDate: step.fieldSubprocess.requestDate
+              ? new Date(step.fieldSubprocess.requestDate)
+              : null,
+            priority: step.fieldSubprocess.priority || "",
+            createdBy: step.fieldSubprocess.createdBy || "",
+            requestSource: step.fieldSubprocess.requestSource || "",
+            checker: step.fieldSubprocess.checker || "",
+            descriptionMaterial: step.fieldSubprocess.descriptionMaterial || "",
+            status: step.fieldSubprocess.status || "",
+            quantity: step.fieldSubprocess.quantity || 0,
+            unit: step.fieldSubprocess.unit || "",
+            color: step.fieldSubprocess.color || "",
+            materialType: step.fieldSubprocess.materialType || "",
+            media: step.fieldSubprocess.media || [],
+            purchaseLink: step.fieldSubprocess.purchaseLink || [],
+            additionalNote: step.fieldSubprocess.additionalNote || "",
+            approvedBy: step.fieldSubprocess.approvedBy || "",
+            approvedTime: step.fieldSubprocess.approvedTime
+              ? new Date(step.fieldSubprocess.approvedTime)
+              : null,
+            purchaser: step.fieldSubprocess.purchaser || "",
+            purchasingTime: step.fieldSubprocess.purchasingTime
+              ? new Date(step.fieldSubprocess.purchasingTime)
+              : null,
+            trackingLink: step.fieldSubprocess.trackingLink || "",
+            receivedQuantity: step.fieldSubprocess.receivedQuantity || 0,
+            checkedBy: step.fieldSubprocess.checkedBy || "",
+            checkedTime: step.fieldSubprocess.checkedTime
+              ? new Date(step.fieldSubprocess.checkedTime)
+              : null,
+            sampleProductionPlan:
+              step.fieldSubprocess.sampleProductionPlan || "",
+            designer: step.fieldSubprocess.designer || "",
+            startTime: step.fieldSubprocess.startTime
+              ? new Date(step.fieldSubprocess.startTime)
+              : null,
+            completedTime: step.fieldSubprocess.completedTime
+              ? new Date(step.fieldSubprocess.completedTime)
+              : null,
+            productionFileLink: step.fieldSubprocess.productionFileLink || "",
+            sampleMaker: step.fieldSubprocess.sampleMaker || "",
+            sampleStatus: step.fieldSubprocess.sampleStatus || "",
+            sampleMediaLink: step.fieldSubprocess.sampleMediaLink || [],
+            note: step.fieldSubprocess.note || "",
+            finalApprovedSampleImage:
+              step.fieldSubprocess.finalApprovedSampleImage || "",
+            finalProductVideo: step.fieldSubprocess.finalProductVideo || "",
+            // ... có thể thêm các fields khác nếu cần
+          }
+        : {}),
+      // Thêm default values cho dynamic fields nếu có
+      ...(fields?.data?.reduce((acc, field) => {
+        if (shouldShowField(field)) {
+          // Chỉ set default nếu chưa có value từ fieldSubprocess
+          if (!(field.value in (step.fieldSubprocess || {}))) {
+            switch (field.type.toLowerCase()) {
+              case "number":
+                acc[field.value] = 0;
+                break;
+              case "date":
+                acc[field.value] = new Date();
+                break;
+              case "file":
+                // Không set default value cho file input
+                break;
+              default:
+                acc[field.value] = "";
+                break;
+            }
+          }
+        }
+        return acc;
+      }, {} as Record<string, any>) || {}),
     },
-    resolver: zodResolver(subprocessHistoryFormSchema),
+    // Tạm thời không sử dụng resolver để tránh conflict với dynamic fields
+    // resolver: zodResolver(dynamicSchema),
+    mode: "onChange",
   });
 
   const isStepWithCost = step.isStepWithCost;
@@ -184,42 +422,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
 
   const { mutate: skipSubprocessHistory } = useSkipSubprocessHistoryMutation();
   const { mutate: assignUserToStep } = useAssignUserToStepMutation();
-
-  const handleAssignUser = () => {
-    const userId = watch("userId");
-    if (!userId) {
-      toast({
-        title: "Lỗi",
-        description: "Vui lòng chọn người thực hiện trước khi gán!",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    assignUserToStep(
-      {
-        id: step.id,
-        userId: Number(userId),
-        isRequired: step.isStepWithCost,
-        isStepWithCost: step.isStepWithCost,
-      },
-      {
-        onSuccess: (data) => {
-          toast({
-            title: "Thành công",
-            description: `Đã gán ${data.user?.fullName} làm người thực hiện!`,
-          });
-        },
-        onError: () => {
-          toast({
-            title: "Lỗi",
-            description: "Không thể gán người thực hiện!",
-            variant: "destructive",
-          });
-        },
-      }
-    );
-  };
+  const { mutate: updateFieldStep } = useUpdateFieldStepMutation();
 
   const handleSkipStep = () => {
     if (!step.id || step.isRequired) return;
@@ -248,19 +451,83 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   const [completeMode, setCompleteMode] = useState(false);
   const [holdMode, setHoldMode] = useState(false);
 
-  const onSubmit: SubmitHandler<SubprocessHistoryFormType> = (data) => {
+  // Kiểm tra xem có startTime trong fieldSubprocess chưa
+  const hasStartTime = step.fieldSubprocess?.startTime;
+
+  const onSubmit: SubmitHandler<any> = (data) => {
     const status = completeMode
       ? StatusSubprocessHistory.COMPLETED
       : holdMode
       ? StatusSubprocessHistory.IN_PROGRESS // Hoặc có thể là status HOLD nếu có
       : StatusSubprocessHistory.IN_PROGRESS;
 
-    updateSubprocessHistory(
-      {
-        ...data,
-        status: status,
-      },
-      {
+    // Lọc chỉ lấy các field cần thiết cho API
+    const submitData = {
+      id: data.id,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      userId: data.userId,
+      price: data.price,
+      isStepWithCost: data.isStepWithCost,
+      status: status,
+      // Thêm fieldSubprocess data nếu có
+      fieldSubprocess: fields?.data
+        ? Object.keys(data).reduce((acc, key) => {
+            // Chỉ include các field từ fields.data (dynamic fields)
+            if (fields.data.some((field) => field.value === key)) {
+              acc[key] = data[key];
+            }
+            return acc;
+          }, {} as Record<string, any>)
+        : undefined,
+    };
+
+    // Luôn kiểm tra và cập nhật fieldSubprocess nếu có dữ liệu
+    if (
+      submitData.fieldSubprocess &&
+      Object.keys(submitData.fieldSubprocess).length > 0 &&
+      step.fieldSubprocess?.id
+    ) {
+      updateFieldStep(
+        {
+          id: step.fieldSubprocess.id,
+          ...submitData.fieldSubprocess,
+        },
+        {
+          onSuccess: () => {
+            // Sau khi update field step thành công, update subprocess history
+            updateSubprocessHistory(submitData, {
+              onSuccess: () => {
+                toast({
+                  title: "Thành công",
+                  description: completeMode
+                    ? "Bước đã hoàn thành và dữ liệu đã được lưu"
+                    : holdMode
+                    ? "Bước đã được tạm dừng và dữ liệu đã được lưu"
+                    : "Dữ liệu đã được lưu thành công",
+                });
+              },
+              onError: () => {
+                toast({
+                  title: "Thất bại",
+                  description: "Có lỗi xảy ra khi cập nhật trạng thái bước",
+                  variant: "destructive",
+                });
+              },
+            });
+          },
+          onError: () => {
+            toast({
+              title: "Thất bại",
+              description: "Có lỗi xảy ra khi lưu dữ liệu bước",
+              variant: "destructive",
+            });
+          },
+        }
+      );
+    } else {
+      // Nếu không có dynamic fields, chỉ update subprocess history
+      updateSubprocessHistory(submitData, {
         onSuccess: () => {
           toast({
             title: "Thành công",
@@ -278,27 +545,96 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
             variant: "destructive",
           });
         },
-      }
-    );
+      });
+    }
+
     setCompleteMode(false); // reset lại sau submit
     setHoldMode(false); // reset lại sau submit
   };
 
-  const getUserAssignName = () => {
-    const userObj = users.find((u: any) => u.id === step.userId);
-    return userObj
-      ? `${userObj.fullName} (${userObj.email})`
-      : "Chưa gán người thực hiện";
+  // Handle start time button click
+  const handleStartTime = () => {
+    if (!step.userId) {
+      toast({
+        title: "Lỗi",
+        description: "Chưa có người thực hiện được gán cho bước này!",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const currentTime = new Date();
+
+    // Update form value
+    const currentFormData = watch();
+
+    // Chuẩn bị data cho updateFieldStep
+    const fieldStepData = {
+      id: step.id,
+      startTime: currentTime,
+      // Include các field khác nếu có
+      ...Object.keys(currentFormData).reduce((acc, key) => {
+        if (fields?.data?.some((field) => field.value === key)) {
+          (acc as any)[key] = (currentFormData as any)[key];
+        }
+        return acc;
+      }, {} as Record<string, any>),
+    };
+
+    // Chuẩn bị data cho updateSubprocessHistory
+    const submitData = {
+      id: currentFormData.id,
+      startDate: currentFormData.startDate,
+      endDate: currentFormData.endDate,
+      userId: step.userId,
+      price: currentFormData.price,
+      isStepWithCost: currentFormData.isStepWithCost,
+      status: StatusSubprocessHistory.IN_PROGRESS,
+    };
+
+    // Gọi API updateFieldStep trước
+    updateFieldStep(fieldStepData, {
+      onSuccess: () => {
+        // Sau đó update subprocess history
+        updateSubprocessHistory(submitData, {
+          onSuccess: () => {
+            toast({
+              title: "Thành công",
+              description: "Đã bắt đầu công việc!",
+            });
+          },
+          onError: () => {
+            toast({
+              title: "Thất bại",
+              description: "Có lỗi xảy ra khi cập nhật trạng thái bước",
+              variant: "destructive",
+            });
+          },
+        });
+      },
+      onError: () => {
+        toast({
+          title: "Thất bại",
+          description: "Có lỗi xảy ra khi lưu thời gian bắt đầu",
+          variant: "destructive",
+        });
+      },
+    });
   };
 
   if (!canEdit) {
-    return <StepInfoSection />;
+    return (
+      <div key={step.id} className="overflow-visible">
+        <StepInfoSection />
+      </div>
+    );
   }
 
   return (
     <form
+      key={step.id} // Force re-render when step changes
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6 mt-2"
+      className="space-y-6 mt-2 overflow-visible"
       noValidate
     >
       <div className="p-4 rounded-md border bg-card shadow-sm">
@@ -371,7 +707,10 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
               <div className="flex items-center gap-2">
                 <User className="text-blue-600 w-5 h-5" />
                 <div>
-                  <span className="text-sm">{getUserAssignName()}</span>
+                  <span className="text-sm">
+                    {user?.fullName || "Chưa có người thực hiện"} (
+                    {user?.email || "Chưa có email"})
+                  </span>
                 </div>
               </div>
             </div>
@@ -415,6 +754,66 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
         </div>
       </div>
 
+      {/* Dynamic Fields Section */}
+      {fields?.data && fields.data.length > 0 && (
+        <div className="p-4 rounded-md border bg-card shadow-sm overflow-visible">
+          <h3 className="text-lg font-medium mb-4 pb-2 border-b flex items-center gap-2">
+            <Settings className="text-primary w-5 h-5" />
+            Thông tin bổ sung
+            {/* Debug info */}
+            <span className="text-xs text-gray-500 ml-2">
+              (Có {checkFieldsList.length} fields cần hiển thị - isAssignedUser:{" "}
+              {isAssignedUser ? "true" : "false"})
+            </span>
+          </h3>
+
+          {/* Debug: Show available fields and checkFields */}
+          {process.env.NODE_ENV === "development" && (
+            <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
+              <div>
+                <strong>Available Fields:</strong>{" "}
+                {fields.data.map((f) => f.value).join(", ")}
+              </div>
+              <div>
+                <strong>Check Fields:</strong> {checkFieldsList.join(", ")}
+              </div>
+              <div>
+                <strong>Filtered Fields:</strong>{" "}
+                {fields.data
+                  .filter((field) => shouldShowField(field))
+                  .map((f) => f.value)
+                  .join(", ")}
+              </div>
+              <div>
+                <strong>Current User ID:</strong> {currentUserData?.id},{" "}
+                <strong>Step User ID:</strong> {step.userId}
+              </div>
+              <div>
+                <strong>Is Admin:</strong> {isAdmin ? "true" : "false"},{" "}
+                <strong>Is Assigned:</strong>{" "}
+                {isAssignedUser ? "true" : "false"}
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start overflow-visible">
+            {fields.data
+              .filter((field) => shouldShowField(field))
+              .map((field) => {
+                return renderDynamicField(field);
+              })}
+          </div>
+
+          {/* Show message if no fields to display */}
+          {fields.data.filter((field) => shouldShowField(field)).length ===
+            0 && (
+            <div className="text-center text-gray-500 py-4">
+              Không có trường nào để hiển thị
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="mt-6 border-t pt-4 flex justify-between items-center">
         <div className="space-x-2">
           {!step.isRequired && (
@@ -436,6 +835,20 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
         </div>
 
         <div className="flex justify-end gap-2">
+          {/* Button Start Time - chỉ hiển thị nếu chưa có startTime */}
+          {!hasStartTime && (isAdmin || isAssignedUser) && (
+            <Button
+              type="button"
+              disabled={isSubmitting}
+              onClick={handleStartTime}
+              variant="outline"
+              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
+            >
+              <Play className="w-4 h-4 mr-2" />
+              Bắt đầu
+            </Button>
+          )}
+
           <Button
             type="submit"
             disabled={isSubmitting}

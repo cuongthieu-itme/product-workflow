@@ -21,6 +21,7 @@ import {
   removeMaterialFromRequest,
   getStatisticsByRequest,
   deleteRequest,
+  updateFieldStep,
 } from "../services";
 import {
   EvaluateFilterInput,
@@ -265,6 +266,22 @@ export const useDeleteRequestMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useUpdateFieldStepMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateFieldStep,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY],
       });
     },
   });

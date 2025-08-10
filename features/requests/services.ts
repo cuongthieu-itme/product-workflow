@@ -28,6 +28,7 @@ import {
 } from "./type";
 import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
+import { AnyARecord } from "dns";
 
 export const getRequests = async (params?: RequestFilterInput) => {
   try {
@@ -301,6 +302,19 @@ export const deleteRequest = async (requestId: number) => {
 
     return response.data;
   } catch (error) {
+    throw error;
+  }
+};
+
+export const updateFieldStep = async ({ id, ...data }: any) => {
+  try {
+    const response = await request.put<BaseResultQuery<SubprocessHistoryType>>(
+      `/field-subprocess/${id}`,
+      omitVoid(data)
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Error updating field step:", error);
     throw error;
   }
 };
