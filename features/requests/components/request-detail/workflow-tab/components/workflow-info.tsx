@@ -39,7 +39,7 @@ export const WorkflowInfo = ({ workflow }: WorkflowInfoProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div>
             <p className="text-sm font-medium text-muted-foreground">
               Tên quy trình
@@ -66,15 +66,14 @@ export const WorkflowInfo = ({ workflow }: WorkflowInfoProps) => {
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-              <Pause className="w-3 h-3 text-orange-600" />
-              Tổng tạm dừng
+              Tổng lần tạm dừng
             </p>
             <p>{totalHoldInfo.totalHolds} lần</p>
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground flex items-center gap-1">
               <Play className="w-3 h-3 text-green-600" />
-              Tổng tiếp tục
+              Tổng lần tiếp tục
             </p>
             <p>{totalHoldInfo.totalContinues} lần</p>
           </div>
