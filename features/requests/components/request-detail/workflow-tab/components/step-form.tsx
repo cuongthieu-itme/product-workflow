@@ -6,16 +6,25 @@ import {
 import { useGetUserInfoQuery } from "@/features/auth/hooks/useGetUserInfoQuery";
 import { Loader2, User, Pause, CheckCircle, Play } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UserRoleEnum } from "@/features/auth/constants";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   useSkipSubprocessHistoryMutation,
   useUpdateSubprocessHistoryMutation,
   useUpdateFieldStepMutation,
   useApproveSubprocessHistoryMutation,
+  useAssignUserToStepMutation,
 } from "@/features/requests/hooks/useRequest";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface StepEditFormProps {
   step: SubprocessHistoryType;
@@ -33,11 +42,11 @@ import {
 } from "lucide-react";
 import { getCheckFields } from "@/features/requests/helpers";
 import { format } from "date-fns";
-import Image from "next/image";
 import { useGetFieldStep } from "@/features/workflows/hooks/useWorkFlowProcess";
 import { FieldType } from "@/features/workflows/types";
 import { Fields } from "./fields";
 import { StepInfo } from "./step-infor";
+import { AdminUserAssignment } from "./admin-user-assignment";
 
 export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   const user = step.user;
@@ -183,7 +192,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
     useUpdateSubprocessHistoryMutation();
 
   const { mutate: skipSubprocessHistory } = useSkipSubprocessHistoryMutation();
-  // const { mutate: assignUserToStep } = useAssignUserToStepMutation();
+  const { mutate: assignUserToStep } = useAssignUserToStepMutation();
   const { mutate: updateFieldStep } = useUpdateFieldStepMutation();
   const { mutate: approveSubprocessHistory } =
     useApproveSubprocessHistoryMutation();
@@ -215,6 +224,14 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   const [completeMode, setCompleteMode] = useState(false);
   const [holdMode, setHoldMode] = useState(false);
   const [approveMode, setApproveMode] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | undefined>(
+    step.userId || undefined
+  );
+
+  // Update selectedUserId when step changes
+  useEffect(() => {
+    setSelectedUserId(step.userId || undefined);
+  }, [step.userId]);
 
   const hasStartTime = step?.startDate;
 
@@ -247,70 +264,109 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
           }, {} as Record<string, any>)
         : undefined;
 
-    // Luôn kiểm tra và cập nhật fieldSubprocess nếu có dữ liệu
-    if (
-      fieldsSub &&
-      Object.keys(fieldsSub).length > 0 &&
-      step.fieldSubprocess?.id
-    ) {
-      updateFieldStep(
-        {
-          id: step.fieldSubprocess.id,
-          ...fieldsSub,
-        },
-        {
+    // Kiểm tra nếu có thay đổi về selectedUserId (chỉ admin mới được phép)
+    const shouldAssignUser =
+      isAdmin && selectedUserId && selectedUserId !== step.userId;
+
+    // Function để update subprocess history
+    const updateSubprocess = () => {
+      // Luôn kiểm tra và cập nhật fieldSubprocess nếu có dữ liệu
+      if (
+        fieldsSub &&
+        Object.keys(fieldsSub).length > 0 &&
+        step.fieldSubprocess?.id
+      ) {
+        updateFieldStep(
+          {
+            id: step.fieldSubprocess.id,
+            ...fieldsSub,
+          },
+          {
+            onSuccess: () => {
+              // Sau khi update field step thành công, update subprocess history
+              updateSubprocessHistory(submitData, {
+                onSuccess: () => {
+                  toast({
+                    title: "Thành công",
+                    description: completeMode
+                      ? "Bước đã hoàn thành và dữ liệu đã được lưu"
+                      : holdMode
+                      ? "Bước đã được tạm dừng và dữ liệu đã được lưu"
+                      : "Dữ liệu đã được lưu thành công",
+                  });
+                },
+                onError: () => {
+                  toast({
+                    title: "Thất bại",
+                    description: "Có lỗi xảy ra khi cập nhật trạng thái bước",
+                    variant: "destructive",
+                  });
+                },
+              });
+            },
+            onError: () => {
+              toast({
+                title: "Thất bại",
+                description: "Có lỗi xảy ra khi lưu dữ liệu bước",
+                variant: "destructive",
+              });
+            },
+          }
+        );
+      } else {
+        // Nếu không có dynamic fields, chỉ update subprocess history
+        updateSubprocessHistory(submitData, {
           onSuccess: () => {
-            // Sau khi update field step thành công, update subprocess history
-            updateSubprocessHistory(submitData, {
-              onSuccess: () => {
-                toast({
-                  title: "Thành công",
-                  description: completeMode
-                    ? "Bước đã hoàn thành và dữ liệu đã được lưu"
-                    : holdMode
-                    ? "Bước đã được tạm dừng và dữ liệu đã được lưu"
-                    : "Dữ liệu đã được lưu thành công",
-                });
-              },
-              onError: () => {
-                toast({
-                  title: "Thất bại",
-                  description: "Có lỗi xảy ra khi cập nhật trạng thái bước",
-                  variant: "destructive",
-                });
-              },
+            toast({
+              title: "Thành công",
+              description: completeMode
+                ? "Bước đã hoàn thành"
+                : holdMode
+                ? "Bước đã được tạm dừng"
+                : "Bước đã được cập nhật thành công",
             });
           },
           onError: () => {
             toast({
               title: "Thất bại",
-              description: "Có lỗi xảy ra khi lưu dữ liệu bước",
+              description: "Có lỗi xảy ra khi cập nhật bước",
+              variant: "destructive",
+            });
+          },
+        });
+      }
+    };
+
+    // Nếu cần assign user trước, thực hiện assign user trước
+    if (shouldAssignUser) {
+      assignUserToStep(
+        {
+          id: step.id,
+          userId: selectedUserId,
+          isRequired: step.isRequired,
+          isStepWithCost: step.isStepWithCost,
+        },
+        {
+          onSuccess: () => {
+            toast({
+              title: "Thành công",
+              description: "Đã gán người thực hiện cho bước này!",
+            });
+            // Sau khi assign user thành công, tiếp tục update subprocess
+            updateSubprocess();
+          },
+          onError: () => {
+            toast({
+              title: "Thất bại",
+              description: "Có lỗi xảy ra khi gán người thực hiện",
               variant: "destructive",
             });
           },
         }
       );
     } else {
-      // Nếu không có dynamic fields, chỉ update subprocess history
-      updateSubprocessHistory(submitData, {
-        onSuccess: () => {
-          toast({
-            title: "Thành công",
-            description: completeMode
-              ? "Bước đã hoàn thành"
-              : holdMode
-              ? "Bước đã được tạm dừng"
-              : "Bước đã được cập nhật thành công",
-          });
-        },
-        onError: () => {
-          toast({
-            title: "Thất bại",
-            description: "Có lỗi xảy ra khi cập nhật bước",
-            variant: "destructive",
-          });
-        },
-      });
+      // Nếu không cần assign user, chỉ update subprocess
+      updateSubprocess();
     }
 
     setCompleteMode(false); // reset lại sau submit
@@ -454,13 +510,19 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
               Người thực hiện
             </h4>
 
+            {/* Current User Display */}
             <div className="p-4 rounded-md border bg-muted">
               <div className="flex items-center gap-2">
                 <User className="text-blue-600 w-5 h-5" />
                 <div>
                   <span className="text-sm">
-                    {user?.fullName || "Chưa có người thực hiện"} (
-                    {user?.email || "Chưa có email"})
+                    {user?.fullName || "Chưa có người thực hiện"}
+                    {user?.email && (
+                      <span className="text-muted-foreground">
+                        {" "}
+                        ({user.email})
+                      </span>
+                    )}
                   </span>
                 </div>
               </div>
@@ -505,47 +567,23 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
         </div>
       </div>
 
+      {/* Admin User Assignment Section - Only visible to admin */}
+      {isAdmin && (
+        <AdminUserAssignment
+          step={step}
+          selectedUserId={selectedUserId}
+          setSelectedUserId={setSelectedUserId}
+          isSubmitting={isSubmitting}
+        />
+      )}
+
       {/* Dynamic Fields Section */}
       {fields?.data && fields.data.length > 0 && (
         <div className="p-4 rounded-md border bg-card shadow-sm overflow-visible">
           <h3 className="text-lg font-medium mb-4 pb-2 border-b flex items-center gap-2">
             <Settings className="text-primary w-5 h-5" />
             Thông tin bổ sung
-            {/* Debug info */}
-            <span className="text-xs text-gray-500 ml-2">
-              (Có {checkFieldsList.length} fields cần hiển thị - isAssignedUser:{" "}
-              {isAssignedUser ? "true" : "false"})
-            </span>
           </h3>
-
-          {/* Debug: Show available fields and checkFields */}
-          {process.env.NODE_ENV === "development" && (
-            <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
-              <div>
-                <strong>Available Fields:</strong>{" "}
-                {fields.data.map((f) => f.value).join(", ")}
-              </div>
-              <div>
-                <strong>Check Fields:</strong> {checkFieldsList.join(", ")}
-              </div>
-              <div>
-                <strong>Filtered Fields:</strong>{" "}
-                {fields.data
-                  .filter((field) => shouldShowField(field))
-                  .map((f) => f.value)
-                  .join(", ")}
-              </div>
-              <div>
-                <strong>Current User ID:</strong> {currentUserData?.id},{" "}
-                <strong>Step User ID:</strong> {step.userId}
-              </div>
-              <div>
-                <strong>Is Admin:</strong> {isAdmin ? "true" : "false"},{" "}
-                <strong>Is Assigned:</strong>{" "}
-                {isAssignedUser ? "true" : "false"}
-              </div>
-            </div>
-          )}
 
           <Fields
             fields={fields ?? []}
