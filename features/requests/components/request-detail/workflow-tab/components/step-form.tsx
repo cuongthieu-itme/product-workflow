@@ -16,17 +16,9 @@ import {
   useUpdateFieldStepMutation,
   useApproveSubprocessHistoryMutation,
   useAssignUserToStepMutation,
-  useHoldSubprocessMutation,
   useContinueSubprocessMutation,
 } from "@/features/requests/hooks/useRequest";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface StepEditFormProps {
   step: SubprocessHistoryType;
@@ -700,15 +692,14 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
               className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
             >
               <Play className="w-4 h-4 mr-2" />
-              {holdInfo.nextAction === "continue1" &&
-                `Tiếp tục (1/${holdInfo.holdCount})`}
-              {holdInfo.nextAction === "continue2" &&
-                `Tiếp tục (2/${holdInfo.holdCount})`}
-              {holdInfo.nextAction === "continue3" &&
-                `Tiếp tục (3/${holdInfo.holdCount})`}
+              {holdInfo.nextAction === "continue1" && "Tiếp tục 1"}
+              {holdInfo.nextAction === "continue2" && "Tiếp tục 2"}
+              {holdInfo.nextAction === "continue3" && "Tiếp tục 3"}
             </Button>
-          )}{" "}
-          {(isAdmin || isAssignedUser) && (
+          )}
+
+          {/* Button Hoàn thành - Ẩn khi đang hold */}
+          {(isAdmin || isAssignedUser) && !holdInfo.isCurrentlyOnHold && (
             <Button
               type="submit"
               disabled={isSubmitting}

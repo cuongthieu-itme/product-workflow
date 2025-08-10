@@ -377,12 +377,10 @@ export const continueSubprocess = async ({
 }: ContinueSubprocessInputType) => {
   try {
     // Lấy thông tin subprocess hiện tại để xác định trường nào cần update
-    const currentSubprocess = await request.get<
-      BaseResultQuery<SubprocessHistoryType>
-    >(`/subprocesses-history/${id}`);
+    const currentSubprocess = await getSubprocessHistoryById(id);
 
     const { getContinueUpdateFields } = await import("./helpers");
-    const continueFields = getContinueUpdateFields(currentSubprocess.data.data);
+    const continueFields = getContinueUpdateFields(currentSubprocess);
 
     const response = await request.put<BaseResultQuery<SubprocessHistoryType>>(
       `/subprocesses-history/${id}`,
