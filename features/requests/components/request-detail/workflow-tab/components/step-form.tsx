@@ -10,13 +10,11 @@ import { useState } from "react";
 import { UserRoleEnum } from "@/features/auth/constants";
 import { Button } from "@/components/ui/button";
 import {
-  useAssignUserToStepMutation,
   useSkipSubprocessHistoryMutation,
   useUpdateSubprocessHistoryMutation,
   useUpdateFieldStepMutation,
 } from "@/features/requests/hooks/useRequest";
 import { useToast } from "@/components/ui/use-toast";
-import { z } from "zod";
 
 interface StepEditFormProps {
   step: SubprocessHistoryType;
@@ -68,12 +66,11 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
 
   const { data: currentUserData } = useGetUserInfoQuery();
 
-  const isCompleted = step?.isApproved;
   const isAdmin =
     currentUserData?.role === UserRoleEnum.ADMIN ||
     currentUserData?.role === UserRoleEnum.SUPER_ADMIN;
   const isAssignedUser = currentUserData?.id === step.userId;
-  const canEdit = (isAdmin || isAssignedUser) && !isCompleted;
+  const canEdit = (isAdmin || isAssignedUser) && !step?.isApproved;
   const { toast } = useToast();
 
   const {

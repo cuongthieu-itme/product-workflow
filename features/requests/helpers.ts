@@ -42,9 +42,7 @@ export const calculateCompletionPercentage = (
 ) => {
   if (!items || items.length === 0) return 0;
 
-  const completedCount = items.filter(
-    (item) => item.status === StatusSubprocessHistory.COMPLETED
-  ).length;
+  const completedCount = items.filter((item) => item.isApproved).length;
   return Math.round((completedCount / items.length) * 100);
 };
 
