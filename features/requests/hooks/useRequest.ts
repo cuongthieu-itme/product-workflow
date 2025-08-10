@@ -22,6 +22,7 @@ import {
   getStatisticsByRequest,
   deleteRequest,
   updateFieldStep,
+  approveSubprocessHistory,
 } from "../services";
 import {
   EvaluateFilterInput,
@@ -276,6 +277,22 @@ export const useUpdateFieldStepMutation = () => {
 
   return useMutation({
     mutationFn: updateFieldStep,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY],
+      });
+    },
+  });
+};
+
+export const useApproveSubprocessHistoryMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: approveSubprocessHistory,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],

@@ -13,6 +13,7 @@ import {
   useSkipSubprocessHistoryMutation,
   useUpdateSubprocessHistoryMutation,
   useUpdateFieldStepMutation,
+  useApproveSubprocessHistoryMutation,
 } from "@/features/requests/hooks/useRequest";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -23,17 +24,14 @@ interface StepEditFormProps {
 }
 
 import {
-  ListChecks,
-  Info,
   BadgeCheck,
   CircleSlash,
   Clock,
   CalendarDays,
-  UserCircle,
   Coins,
   Settings,
 } from "lucide-react";
-import { getCheckFields, getStatusText } from "@/features/requests/helpers";
+import { getCheckFields } from "@/features/requests/helpers";
 import { format } from "date-fns";
 import Image from "next/image";
 import { useGetFieldStep } from "@/features/workflows/hooks/useWorkFlowProcess";
@@ -187,6 +185,8 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   const { mutate: skipSubprocessHistory } = useSkipSubprocessHistoryMutation();
   // const { mutate: assignUserToStep } = useAssignUserToStepMutation();
   const { mutate: updateFieldStep } = useUpdateFieldStepMutation();
+  const { mutate: approveSubprocessHistory } =
+    useApproveSubprocessHistoryMutation();
 
   const handleSkipStep = () => {
     if (!step.id || step.isRequired) return;
@@ -214,6 +214,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
   };
   const [completeMode, setCompleteMode] = useState(false);
   const [holdMode, setHoldMode] = useState(false);
+  const [approveMode, setApproveMode] = useState(false);
 
   const hasStartTime = step?.startDate;
 
@@ -314,6 +315,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
 
     setCompleteMode(false); // reset lại sau submit
     setHoldMode(false); // reset lại sau submit
+    setApproveMode(false); // reset lại sau submit
   };
 
   // Handle start time button click
@@ -356,6 +358,35 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
         });
       },
     });
+  };
+
+  // Handle approve step
+  const handleApproveStep = () => {
+    if (!step.id) return;
+
+    approveSubprocessHistory(
+      {
+        id: step.id,
+        isApproved: true,
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Thành công",
+            description: "Bước đã được phê duyệt!",
+          });
+          setApproveMode(false);
+        },
+        onError: () => {
+          toast({
+            title: "Thất bại",
+            description: "Có lỗi xảy ra khi phê duyệt bước",
+            variant: "destructive",
+          });
+          setApproveMode(false);
+        },
+      }
+    );
   };
 
   if (!canEdit) {
@@ -606,7 +637,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
             </Button>
           )}
 
-          {/* Button Hoàn thành */}
           {(isAdmin || isAssignedUser) && (
             <Button
               type="submit"
@@ -627,20 +657,27 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({ step }) => {
             </Button>
           )}
 
-          {isAdmin && (
-            <Button
-              disabled={isSubmitting}
-              variant="default"
-              className="bg-green-600 hover:bg-green-700 flex items-center"
-            >
-              {isSubmitting && completeMode ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <CheckCircle className="w-4 h-4 mr-2" />
-              )}
-              Phê duyệt
-            </Button>
-          )}
+          {isAdmin &&
+            step.status === StatusSubprocessHistory.COMPLETED &&
+            !step.isApproved && (
+              <Button
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => {
+                  setApproveMode(true);
+                  handleApproveStep();
+                }}
+                variant="default"
+                className="bg-blue-600 hover:bg-blue-700 flex items-center"
+              >
+                {isSubmitting && approveMode ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <BadgeCheck className="w-4 h-4 mr-2" />
+                )}
+                Phê duyệt
+              </Button>
+            )}
         </div>
       </div>
     </form>

@@ -8,6 +8,7 @@ import {
   RequestInputType,
   SourceOtherInputType,
   SubprocessHistoryFormType,
+  ApproveSubprocessHistoryInputType,
 } from "./schema";
 import {
   RequestDetail,
@@ -315,6 +316,22 @@ export const updateFieldStep = async ({ id, ...data }: any) => {
     return response.data.data;
   } catch (error) {
     console.error("Error updating field step:", error);
+    throw error;
+  }
+};
+
+export const approveSubprocessHistory = async ({
+  id,
+  ...data
+}: ApproveSubprocessHistoryInputType) => {
+  try {
+    const response = await request.put<BaseResultQuery<SubprocessHistoryType>>(
+      `/subprocesses-history/${id}/is-approved`,
+      data
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Error approving subprocess history:", error);
     throw error;
   }
 };

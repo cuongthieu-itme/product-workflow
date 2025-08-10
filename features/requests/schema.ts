@@ -249,6 +249,17 @@ export const subprocessHistoryFormSchema = z
     }
   );
 
+export const approveSubprocessHistorySchema = z.object({
+  id: z
+    .number({
+      message: "ID không hợp lệ",
+      required_error: "ID là bắt buộc",
+    })
+    .int()
+    .positive(),
+  isApproved: z.boolean().default(true),
+});
+
 export type RequestInputType = z.infer<typeof requestInputSchema>;
 export type SourceOtherInputType = z.infer<typeof sourceOtherInputSchema>;
 export type MaterialRequestInputType = z.infer<
@@ -259,6 +270,9 @@ export type MediaInputType = z.infer<typeof mediaSchema>;
 export type ConfirmRequestInputType = z.infer<typeof confirmRequestInputSchema>;
 export type SubprocessHistoryFormType = z.infer<
   typeof subprocessHistoryFormSchema
+>;
+export type ApproveSubprocessHistoryInputType = z.infer<
+  typeof approveSubprocessHistorySchema
 >;
 
 export const holdRequestInputSchema = z.object({
