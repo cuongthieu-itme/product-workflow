@@ -22,6 +22,7 @@ export type SubprocessHistoryType = {
   userId: number | null;
   user: User | null;
   fieldSubprocess: FieldSubprocess | null;
+  isApproved: boolean;
   createdAt: string;
   updatedAt: string;
 };

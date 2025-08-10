@@ -7,6 +7,7 @@ import {
   StatusSubprocessHistory,
   SubprocessHistoryType,
 } from "./type";
+import { FieldType } from "../workflows/types";
 
 interface ToRequestFormInputParams {
   detail?: RequestDetail;
@@ -163,3 +164,32 @@ export const generatePriorityText = (priority?: PriorityEnum) => {
       return "Chưa gán";
   }
 };
+
+export const getCheckFields = (step: SubprocessHistoryType): string[] => {
+  // Lấy checkFields trực tiếp từ step.fieldSubprocess
+  if (step.fieldSubprocess?.checkFields) {
+    return step.fieldSubprocess.checkFields;
+  }
+
+  return [];
+};
+
+// Function để kiểm tra field có nên hiển thị không dựa vào checkFields
+export const shouldShowField = (
+  field: FieldType,
+  step: SubprocessHistoryType,
+  fields: FieldType[]
+): boolean => {
+  const checkFieldsList = getCheckFields(step);
+
+  // Nếu không có fields data, return false
+  if (!fields) return false;
+
+  // Nếu không có checkFields list, hiển thị tất cả
+  if (checkFieldsList.length === 0) return true;
+
+  // Kiểm tra enumValue của field có trong checkFields list không
+  const isIncluded = checkFieldsList.includes(field.enumValue);
+
+  return isIncluded;
+}; // Tạo dynamic schema dựa trên fields - simplified approach

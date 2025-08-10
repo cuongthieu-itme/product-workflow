@@ -44,4 +44,6 @@ export type FieldType = {
   value: string;
   type: string;
   enumValue: string;
+  valueType?: string;
+  source?: string;
 };
