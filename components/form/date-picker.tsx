@@ -40,7 +40,7 @@ export const DatePickerCustom = <T extends FieldValues>({
   return (
     <div className="space-y-2">
       {label && (
-        <div className="flex items-center">
+        <div className="flex items-center h-[24px]" style={{ height: "24px" }}>
           <label htmlFor={name} className="text-sm font-medium text-gray-700">
             {label}
           </label>

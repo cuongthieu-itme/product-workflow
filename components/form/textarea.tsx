@@ -40,7 +40,7 @@ export const TextAreaCustom = <T extends FieldValues>({
   return (
     <div className="space-y-2">
       {label && (
-        <div className="flex items-center">
+        <div className="flex items-center h-[24px]" style={{ height: "24px" }}>
           <Label htmlFor={name}>{label}</Label>
           {required && <span className="text-red-500 ml-1">*</span>}
         </div>
