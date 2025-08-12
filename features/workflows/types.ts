@@ -15,6 +15,9 @@ export type WorkFlowStepType = {
   isStepWithCost: boolean;
   department: DepartmentType;
   step: number;
+  fieldSubprocess: {
+    checkFields: string[];
+  };
 };
 
 export type WorkFlowProcessType = {
@@ -34,4 +37,13 @@ export type WorkFlowProcessFilterInput = {
   name?: string;
   page?: number;
   limit?: number;
+};
+
+export type FieldType = {
+  label: string;
+  value: string;
+  type: string;
+  enumValue: string;
+  valueType?: string;
+  source?: string;
 };

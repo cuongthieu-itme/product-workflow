@@ -21,7 +21,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      style={{
+        overflow: "hidden",
+      }}
+    >
       <body className={inter.className}>
         <TanstackQueryProvider>
           <ThemeProvider

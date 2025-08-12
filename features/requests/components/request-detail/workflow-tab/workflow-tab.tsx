@@ -24,8 +24,8 @@ export const WorkFlowTab = () => {
   }
 
   return (
-    <TabsContent value="workflow">
-      <div className="space-y-6">
+    <TabsContent value="workflow" className="overflow-visible">
+      <div className="space-y-6 overflow-visible">
         <WorkflowInfo workflow={request?.procedureHistory} />
         <WorkflowSteps
           subprocessHistory={request?.procedureHistory?.subprocessesHistory}

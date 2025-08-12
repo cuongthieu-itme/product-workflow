@@ -40,13 +40,8 @@ export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
   // Auto focus on next step when current step is completed
   useEffect(() => {
     if (subprocessHistory) {
-      // Find the next step after step COMPLETED || SKIPPED
-      // Focus first step if dont have step COMPLETED || SKIPPED
-      // Focus last step when is last step is COMPLETED || SKIPPED
       const completedStepIndex = subprocessHistory.findIndex(
-        (step) =>
-          step.status === StatusSubprocessHistory.COMPLETED ||
-          step.status === StatusSubprocessHistory.SKIPPED
+        (step) => step.isApproved
       );
 
       if (completedStepIndex >= 0) {
@@ -144,7 +139,7 @@ export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
             </div>
 
             {selectedStep && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg overflow-visible">
                 <div className="flex items-center gap-4 mb-4">
                   <Avatar className="h-12 w-12 cursor-pointer border-2 border-dashed p-[3px]">
                     <AvatarImage

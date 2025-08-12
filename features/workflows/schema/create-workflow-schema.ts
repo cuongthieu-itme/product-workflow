@@ -38,6 +38,7 @@ export const subprocessesSchema = z.object({
   isRequired: z.boolean().default(false).optional(),
   isStepWithCost: z.boolean().default(false).optional(),
   step: z.number().min(1).optional(),
+  checkFields: z.array(z.string()).optional(),
 });
 
 export const sameAssignSchema = z.object({

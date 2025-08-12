@@ -235,6 +235,7 @@ export const subprocessHistoryFormSchema = z
       StatusSubprocessHistory.IN_PROGRESS,
       StatusSubprocessHistory.PENDING,
       StatusSubprocessHistory.SKIPPED,
+      StatusSubprocessHistory.HOLD,
     ]),
   })
   .refine((data) => data.endDate > data.startDate, {
@@ -249,6 +250,17 @@ export const subprocessHistoryFormSchema = z
     }
   );
 
+export const approveSubprocessHistorySchema = z.object({
+  id: z
+    .number({
+      message: "ID không hợp lệ",
+      required_error: "ID là bắt buộc",
+    })
+    .int()
+    .positive(),
+  isApproved: z.boolean().default(true),
+});
+
 export type RequestInputType = z.infer<typeof requestInputSchema>;
 export type SourceOtherInputType = z.infer<typeof sourceOtherInputSchema>;
 export type MaterialRequestInputType = z.infer<
@@ -259,6 +271,36 @@ export type MediaInputType = z.infer<typeof mediaSchema>;
 export type ConfirmRequestInputType = z.infer<typeof confirmRequestInputSchema>;
 export type SubprocessHistoryFormType = z.infer<
   typeof subprocessHistoryFormSchema
+>;
+export type ApproveSubprocessHistoryInputType = z.infer<
+  typeof approveSubprocessHistorySchema
+>;
+
+// Hold Subprocess Schema
+export const holdSubprocessSchema = z.object({
+  id: z
+    .number({
+      message: "ID không hợp lệ",
+      required_error: "ID là bắt buộc",
+    })
+    .int()
+    .positive(),
+});
+
+// Continue Subprocess Schema
+export const continueSubprocessSchema = z.object({
+  id: z
+    .number({
+      message: "ID không hợp lệ",
+      required_error: "ID là bắt buộc",
+    })
+    .int()
+    .positive(),
+});
+
+export type HoldSubprocessInputType = z.infer<typeof holdSubprocessSchema>;
+export type ContinueSubprocessInputType = z.infer<
+  typeof continueSubprocessSchema
 >;
 
 export const holdRequestInputSchema = z.object({
@@ -306,4 +348,22 @@ export const rejectRequestInputSchema = z.object({
   files: z.array(z.string()).optional().nullable(),
 });
 
+export const requestMaterialSchema = z.object({
+  quantity: z.number().int().nonnegative(),
+  unit: z.string().min(1, {
+    message: "Đơn vị không được để trống",
+  }),
+  color: z.string().optional(),
+  materialType: z.string().min(1, {
+    message: "Loại vật liệu không được để trống",
+  }),
+  media: z.array(z.string()),
+  links: z.array(z.string()).min(1, {
+    message: "Vui lòng tải lên ít nhất 1 file media",
+  }),
+  note: z.string().optional(),
+});
+
 export type RejectRequestInputType = z.infer<typeof rejectRequestInputSchema>;
+
+export type RequestMaterialType = z.infer<typeof requestMaterialSchema>;
