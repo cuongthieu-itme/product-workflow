@@ -3,14 +3,16 @@ import {
   SubprocessHistoryType,
   StatusSubprocessHistory,
 } from "@/features/requests/type";
-import { MaterialRequestFormType } from "@/features/requests/schema/material-request-schema";
 import { useGetUserInfoQuery } from "@/features/auth/hooks/useGetUserInfoQuery";
 import { Loader2, User, Pause, CheckCircle, Play } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { UserRoleEnum } from "@/features/auth/constants";
+import { useUsersQuery } from "@/features/users/hooks";
+import { useCategoriesQuery } from "@/features/categories/hooks";
+import { useProductsStatusQuery } from "@/features/products-status/hooks";
+import { useMaterialsQuery } from "@/features/materials/hooks";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   useSkipSubprocessHistoryMutation,
   useUpdateSubprocessHistoryMutation,
@@ -18,7 +20,6 @@ import {
   useApproveSubprocessHistoryMutation,
   useAssignUserToStepMutation,
   useContinueSubprocessMutation,
-  useCreateMaterialRequestMutation,
 } from "@/features/requests/hooks/useRequest";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -64,7 +65,105 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
 
   const { data: fields } = useGetFieldStep();
 
+  // Fetch data for select field mapping
+  const { data: users } = useUsersQuery({ limit: 10000 });
+  const { data: categories } = useCategoriesQuery({ limit: 10000 });
+  const { data: productStatus } = useProductsStatusQuery({ limit: 10000 });
+  const { data: materials } = useMaterialsQuery({ page: 1, limit: 10000 });
+
   const checkFieldsList = getCheckFields(step);
+
+  // Helper function to get options based on field enumValue (copied from fields.tsx)
+  const getOptionsForField = (field: FieldType) => {
+    // If field has enumValue, try to parse it first
+    if (field.enumValue) {
+      try {
+        const parsedOptions = JSON.parse(field.enumValue);
+        if (Array.isArray(parsedOptions)) {
+          return parsedOptions;
+        }
+      } catch (e) {
+        // If not JSON, try to split by comma
+        const splitOptions = field.enumValue.split(",").map((opt) => ({
+          label: opt.trim(),
+          value: opt.trim(),
+        }));
+        if (splitOptions.length > 1) {
+          return splitOptions;
+        }
+      }
+    }
+
+    // Map based on enumValue constants
+    switch (field.enumValue) {
+      // User-related fields
+      case "APPROVED_BY":
+      case "PURCHASER":
+      case "CHECKED_BY":
+      case "DESIGNER":
+      case "SAMPLE_MAKER":
+      case "PRODUCT_FEEDBACK_RESPONDER":
+      case "SAMPLE_FEEDBACK_RESPONDER":
+      case "MATERIAL_CONFIRMER":
+      case "WAREHOUSE_CHECKER":
+      case "RD_MATERIAL_CHECKER":
+      case "ASSIGNED_TO":
+      case "TEMPLATE_CHECKER":
+      case "MOCKUP_CHECKER":
+      case "APPROVED_BY":
+      case "DESIGNER":
+        return (
+          users?.data?.map((user) => ({
+            label: user.fullName,
+            value: user.id,
+          })) || []
+        );
+
+      // Status fields
+      case "STATUS":
+      case "SAMPLE_STATUS":
+      case "PRODUCT_FEEDBACK_STATUS":
+      case "PURCHASE_STATUS":
+      case "TEMPLATE_CHECKING_STATUS":
+      case "MOCKUP_CHECKING_STATUS":
+        return (
+          productStatus?.data?.map((status) => ({
+            label: status.name,
+            value: status.id,
+          })) || []
+        );
+
+      // Material type field
+      case "MATERIAL_TYPE":
+        return (
+          materials?.data?.map((material) => ({
+            label: material.name,
+            value: material.id,
+          })) || []
+        );
+
+      // Category field
+      case "CATEGORY":
+        return (
+          categories?.data?.map((category) => ({
+            label: category.name,
+            value: category.id,
+          })) || []
+        );
+
+      // Default status options for common status fields
+      default:
+        if (field.value?.toLowerCase().includes("status")) {
+          return [
+            { label: "Chờ xử lý", value: "pending" },
+            { label: "Đang xử lý", value: "processing" },
+            { label: "Hoàn thành", value: "completed" },
+            { label: "Đã hủy", value: "cancelled" },
+          ];
+        }
+        return [];
+    }
+  };
 
   // Function để kiểm tra field có nên hiển thị không dựa vào checkFields
   const shouldShowField = (field: FieldType): boolean => {
@@ -244,7 +343,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     const submitData = {
       id: data.id,
       startDate: data.startDate,
-      endDate: data.endDate,
+      endDate: new Date(), // Luôn cập nhật endDate khi submit
       userId: data.userId,
       price: data.price,
       isStepWithCost: data.isStepWithCost,
@@ -385,7 +484,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     const submitData = {
       id: currentFormData.id,
       startDate: currentTime,
-      endDate: currentFormData.endDate,
+      endDate: null,
       userId: step.userId,
       price: currentFormData.price,
       isStepWithCost: currentFormData.isStepWithCost,
@@ -466,7 +565,13 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
   if (!canEdit) {
     return (
       <div key={step.id} className="overflow-visible">
-        <StepInfo step={step} userName={userName} userAvatar={userAvatar} />
+        <StepInfo
+          step={step}
+          userName={userName}
+          userAvatar={userAvatar}
+          fields={fields}
+          shouldShowField={shouldShowField}
+        />
       </div>
     );
   }
@@ -501,7 +606,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
                     </span>{" "}
                     <span className="text-sm">
                       {step.startDate
-                        ? format(new Date(step.startDate), "dd/MM/yyyy")
+                        ? format(new Date(step.startDate), "dd/MM/yyyy hh:mm")
                         : "Chưa xác định"}
                     </span>
                   </div>
@@ -515,7 +620,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
                     </span>{" "}
                     <span className="text-sm">
                       {step.endDate
-                        ? format(new Date(step.endDate), "dd/MM/yyyy")
+                        ? format(new Date(step.endDate), "dd/MM/yyyy hh:mm")
                         : "Chưa xác định"}
                     </span>
                   </div>
@@ -596,29 +701,129 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
           />
         )}
 
-        {/* Dynamic Fields Section */}
-        {fields?.data && fields.data.length > 0 && (
-          <div className="p-4 rounded-md border bg-card shadow-sm overflow-visible">
-            <h3 className="text-lg font-medium mb-4 pb-2 border-b flex items-center gap-2">
-              <Settings className="text-primary w-5 h-5" />
-              Thông tin bổ sung
-            </h3>
+        {/* Completed Fields Display Section - Show completed field values */}
+        {(step.isApproved ||
+          step.status === StatusSubprocessHistory.COMPLETED) &&
+          step.fieldSubprocess &&
+          Object.keys(step.fieldSubprocess).length > 0 && (
+            <div className="p-4 rounded-md border bg-green-50 shadow-sm">
+              <h3 className="text-lg font-medium mb-4 pb-2 border-b border-green-200 flex items-center gap-2">
+                <BadgeCheck className="text-green-600 w-5 h-5" />
+                Thông tin bổ sung đã hoàn thành
+              </h3>
 
-            <Fields
-              fields={fields ?? []}
-              control={control}
-              shouldShowField={shouldShowField}
-            />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {fields?.data
+                  ?.filter(
+                    (field) =>
+                      shouldShowField(field) &&
+                      (step.fieldSubprocess as any)?.[field.value as string]
+                  )
+                  .map((field) => {
+                    const fieldValue = (step.fieldSubprocess as any)?.[
+                      field.value as string
+                    ];
 
-            {/* Show message if no fields to display */}
-            {fields.data.filter((field) => shouldShowField(field)).length ===
-              0 && (
-              <div className="text-center text-gray-500 py-4">
-                Không có trường nào để hiển thị
+                    // Helper function to get display value for select fields
+                    const getDisplayValue = (
+                      field: FieldType,
+                      value: any
+                    ): string => {
+                      if (!value && value !== 0) return "Chưa có dữ liệu";
+
+                      // Handle select/enum fields
+                      if (
+                        field.type.toLowerCase() === "select" ||
+                        field.type.toLowerCase() === "enum"
+                      ) {
+                        // Try to get the actual label from the options
+                        const options = getOptionsForField(field);
+                        const selectedOption = options.find(
+                          (opt) => opt.value == value
+                        );
+                        return selectedOption
+                          ? selectedOption.label
+                          : value.toString();
+                      }
+
+                      // Handle date fields
+                      if (field.type.toLowerCase() === "date") {
+                        try {
+                          return new Date(value).toLocaleDateString("vi-VN");
+                        } catch {
+                          return value.toString();
+                        }
+                      }
+
+                      return value.toString();
+                    };
+
+                    return (
+                      <div
+                        key={field.value}
+                        className="flex flex-col space-y-2"
+                      >
+                        <span className="text-sm font-medium text-green-800">
+                          {field.label}
+                        </span>
+                        <div className="text-sm text-green-700 bg-white p-3 rounded-md border border-green-200">
+                          {field.valueType === "string_array" &&
+                          Array.isArray(fieldValue) ? (
+                            fieldValue.filter(Boolean).length > 0 ? (
+                              <ul className="space-y-1">
+                                {fieldValue
+                                  .filter(Boolean)
+                                  .map((item: string, index: number) => (
+                                    <li key={index} className="text-sm">
+                                      • {item}
+                                    </li>
+                                  ))}
+                              </ul>
+                            ) : (
+                              <span className="text-gray-500 italic">
+                                Chưa có dữ liệu
+                              </span>
+                            )
+                          ) : (
+                            <span>{getDisplayValue(field, fieldValue)}</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+
+        {/* Dynamic Fields Section - Only show when step is not completed or user can edit */}
+        {fields?.data &&
+          fields.data.length > 0 &&
+          !step.isApproved &&
+          step.status !== StatusSubprocessHistory.COMPLETED && (
+            <div className="p-4 rounded-md border bg-card shadow-sm overflow-visible">
+              <h3 className="text-lg font-medium mb-4 pb-2 border-b flex items-center gap-2">
+                <Settings className="text-primary w-5 h-5" />
+                Thông tin bổ sung
+              </h3>
+
+              <Fields
+                fields={fields}
+                control={control}
+                shouldShowField={shouldShowField}
+                isCompleted={true}
+                values={step.fieldSubprocess || {}}
+              />
+
+              {/* Show message if no fields to display */}
+              {fields?.data &&
+                fields.data.filter((field) => shouldShowField(field)).length ===
+                  0 && (
+                  <div className="text-center text-gray-500 py-4">
+                    Không có trường nào để hiển thị
+                  </div>
+                )}
+            </div>
+          )}
 
         <div className="mt-6 border-t pt-4 flex justify-between items-center">
           <div className="space-x-2">

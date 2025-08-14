@@ -15,13 +15,79 @@ interface FieldsProps {
   shouldShowField: (field: FieldType) => boolean; // Function to determine if field should be shown
   fields: BaseResultQuery<FieldType[]>;
   control: any; // Assuming control is passed from a form library like react-hook-form
+  isCompleted?: boolean; // Whether the step is completed (show as read-only text)
+  values?: any; // Form values to display when completed
 }
 
-export const Fields = ({ fields, control, shouldShowField }: FieldsProps) => {
+export const Fields = ({
+  fields,
+  control,
+  shouldShowField,
+  isCompleted = false,
+  values,
+}: FieldsProps) => {
   const { data: users } = useUsersQuery({ limit: 10000 });
   const { data: categories } = useCategoriesQuery({ limit: 10000 });
   const { data: productStatus } = useProductsStatusQuery({ limit: 10000 });
   const { data: materials } = useMaterialsQuery({ page: 1, limit: 10000 });
+
+  // Helper function to format display value for completed fields
+  const formatDisplayValue = (field: FieldType, value: any) => {
+    if (!value) return "Chưa có dữ liệu";
+
+    // Handle array values
+    if (Array.isArray(value)) {
+      return value.filter(Boolean).join(", ") || "Chưa có dữ liệu";
+    }
+
+    // Handle select/enum fields - show label instead of value
+    if (
+      field.type.toLowerCase() === "select" ||
+      field.type.toLowerCase() === "enum"
+    ) {
+      const options = getOptionsForField(field);
+      const selectedOption = options.find((opt) => opt.value === value);
+      return selectedOption ? selectedOption.label : value;
+    }
+
+    // Handle date fields
+    if (field.type.toLowerCase() === "date") {
+      try {
+        return new Date(value).toLocaleDateString("vi-VN");
+      } catch {
+        return value;
+      }
+    }
+
+    return value.toString();
+  };
+
+  // Component for displaying completed string array fields
+  const CompletedStringArrayField = ({ field }: { field: FieldType }) => {
+    const fieldName = field.value as string;
+    const fieldValue = values?.[fieldName] || [];
+
+    return (
+      <div key={field.value} className="flex flex-col space-y-2">
+        <label className="text-sm font-medium text-gray-700">
+          {field.label}
+        </label>
+        <div className="p-3 bg-gray-50 rounded-md border">
+          {Array.isArray(fieldValue) && fieldValue.length > 0 ? (
+            <ul className="space-y-1">
+              {fieldValue.filter(Boolean).map((item: string, index: number) => (
+                <li key={index} className="text-sm text-gray-800">
+                  • {item}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <span className="text-sm text-gray-500">Chưa có dữ liệu</span>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   // Helper function to get options based on field enumValue
   const getOptionsForField = (field: FieldType) => {
@@ -61,6 +127,7 @@ export const Fields = ({ fields, control, shouldShowField }: FieldsProps) => {
       case "TEMPLATE_CHECKER":
       case "MOCKUP_CHECKER":
       case "APPROVED_BY":
+      case "DESIGNER":
         return (
           users?.data?.map((user) => ({
             label: user.fullName,
@@ -214,6 +281,30 @@ export const Fields = ({ fields, control, shouldShowField }: FieldsProps) => {
 
     const fieldName = field.value as any; // Type assertion để bypass strict typing
 
+    // If step is completed, show as read-only text
+    if (isCompleted) {
+      const fieldValue = values?.[fieldName];
+
+      // Handle string_array type for completed fields
+      if (field.valueType === "string_array") {
+        return <CompletedStringArrayField field={field} />;
+      }
+
+      // Regular completed field display
+      return (
+        <div key={field.value} className="flex flex-col space-y-2">
+          <label className="text-sm font-medium text-gray-700">
+            {field.label}
+          </label>
+          <div className="p-3 bg-gray-50 rounded-md border">
+            <span className="text-sm text-gray-800">
+              {formatDisplayValue(field, fieldValue)}
+            </span>
+          </div>
+        </div>
+      );
+    }
+
     // Check for string_array type - có thể check bằng field.type hoặc enumValue
     if (field.valueType === "string_array") {
       return <StringArrayField field={field} />;
@@ -325,11 +416,17 @@ export const Fields = ({ fields, control, shouldShowField }: FieldsProps) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch overflow-visible">
-      {fields.data
-        .filter((field) => shouldShowField(field))
-        .map((field) => {
-          return renderDynamicField(field);
-        })}
+      {fields?.data ? (
+        fields.data
+          .filter((field) => shouldShowField(field))
+          .map((field) => {
+            return renderDynamicField(field);
+          })
+      ) : (
+        <div className="col-span-full text-center text-gray-500 py-4">
+          Đang tải fields...
+        </div>
+      )}
     </div>
   );
 };

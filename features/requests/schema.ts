@@ -212,45 +212,38 @@ export const confirmRequestInputSchema = z.object({
   }),
 });
 
-export const subprocessHistoryFormSchema = z
-  .object({
-    id: z.number().int().nonnegative().optional().nullable(),
-    isStepWithCost: z.boolean(),
-    startDate: z.string().datetime({ offset: true }).or(z.date()),
-    endDate: z.string().datetime({ offset: true }).or(z.date()),
-    userId: z.coerce
-      .number({
-        required_error: "Vui lòng chọn người thực hiện",
-      })
-      .int("ID không hợp lệ")
-      .positive("Vui lòng chọn người thực hiện"),
-    price: z.coerce
-      .number({
-        invalid_type_error: "Giá phải là số",
-      })
-      .positive("Giá phải lớn hơn 0")
-      .nullable()
-      .optional(),
-    status: z.enum([
-      StatusSubprocessHistory.CANCELLED,
-      StatusSubprocessHistory.COMPLETED,
-      StatusSubprocessHistory.IN_PROGRESS,
-      StatusSubprocessHistory.PENDING,
-      StatusSubprocessHistory.SKIPPED,
-      StatusSubprocessHistory.HOLD,
-    ]),
-  })
-  .refine((data) => data.endDate > data.startDate, {
-    message: "Ngày kết thúc phải sau ngày bắt đầu",
-    path: ["endDate"],
-  })
-  .refine(
-    (data) => !data.isStepWithCost || (data.price != null && data.price > 0),
-    {
-      message: "Giá là bắt buộc và phải lớn hơn 0",
-      path: ["price"],
-    }
-  );
+export const subprocessHistoryFormSchema = z.object({
+  id: z.number().int().nonnegative().optional().nullable(),
+  isStepWithCost: z.boolean(),
+  startDate: z.string().datetime({ offset: true }).or(z.date()),
+  endDate: z
+    .string()
+    .datetime({ offset: true })
+    .or(z.date())
+    .optional()
+    .nullable(),
+  userId: z.coerce
+    .number({
+      required_error: "Vui lòng chọn người thực hiện",
+    })
+    .int("ID không hợp lệ")
+    .positive("Vui lòng chọn người thực hiện"),
+  price: z.coerce
+    .number({
+      invalid_type_error: "Giá phải là số",
+    })
+    .positive("Giá phải lớn hơn 0")
+    .nullable()
+    .optional(),
+  status: z.enum([
+    StatusSubprocessHistory.CANCELLED,
+    StatusSubprocessHistory.COMPLETED,
+    StatusSubprocessHistory.IN_PROGRESS,
+    StatusSubprocessHistory.PENDING,
+    StatusSubprocessHistory.SKIPPED,
+    StatusSubprocessHistory.HOLD,
+  ]),
+});
 
 export const approveSubprocessHistorySchema = z.object({
   id: z
