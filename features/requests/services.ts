@@ -11,6 +11,7 @@ import {
   ApproveSubprocessHistoryInputType,
   HoldSubprocessInputType,
   ContinueSubprocessInputType,
+  CreateRequestAndMaterialInput,
 } from "./schema";
 import {
   RequestDetail,
@@ -392,6 +393,21 @@ export const continueSubprocess = async ({
     return response.data.data;
   } catch (error) {
     console.error("Error continuing subprocess:", error);
+    throw error;
+  }
+};
+
+export const createMaterialRequest = async (
+  data: CreateRequestAndMaterialInput
+) => {
+  try {
+    const response = await request.post(
+      "/requests/with-materials",
+      omitVoid(data)
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error creating material request:", error);
     throw error;
   }
 };

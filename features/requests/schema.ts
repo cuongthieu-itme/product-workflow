@@ -30,6 +30,10 @@ export const materialRequestInputSchema = z
   .optional()
   .nullable();
 
+export const sourceSchema = z.enum([SourceEnum.CUSTOMER, SourceEnum.OTHER], {
+  message: "Nguồn yêu cầu phải là 'Khách hàng' hoặc 'Khác'",
+});
+
 export const requestInputSchema = z
   .object({
     title: z.string().min(1, { message: "Tên yêu cầu không được để trống" }),
@@ -74,9 +78,7 @@ export const requestInputSchema = z
           message: "Bắt buộc phải có ít nhất 1 hình ảnh",
         }
       ),
-    source: z.enum([SourceEnum.CUSTOMER, SourceEnum.OTHER], {
-      message: "Nguồn yêu cầu phải là 'Khách hàng' hoặc 'Khác'",
-    }),
+    source: sourceSchema,
     createdById: z.number().int().nonnegative().optional().nullable(),
     priority: prioritySchema,
     customerId: z
@@ -367,3 +369,6 @@ export const requestMaterialSchema = z.object({
 export type RejectRequestInputType = z.infer<typeof rejectRequestInputSchema>;
 
 export type RequestMaterialType = z.infer<typeof requestMaterialSchema>;
+
+// Export material request schema
+export * from "./schema/material-request-schema";

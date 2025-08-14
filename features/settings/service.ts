@@ -71,7 +71,7 @@ export const getNotificationSettings = async (page = 1, limit = 10) => {
   try {
     const response = await request.get<
       PaginatedResult<"data", NotificationType>
-    >(`/notification-admins?page=${page}&limit=${limit}`);
+    >(`/broadcasts?page=${page}&limit=${limit}`);
 
     return response.data;
   } catch (error) {
@@ -84,7 +84,7 @@ export const markAsReadNotification = async (ids: number[]) => {
     const response = await request.patch<{
       success: boolean;
       data: NotificationType;
-    }>(`/notification-admins/is-read`, { ids });
+    }>(`/broadcasts/is-read`, { ids });
 
     return response.data.data;
   } catch (error) {

@@ -25,6 +25,7 @@ import {
   approveSubprocessHistory,
   holdSubprocess,
   continueSubprocess,
+  createMaterialRequest,
 } from "../services";
 import {
   EvaluateFilterInput,
@@ -335,5 +336,14 @@ export const useContinueSubprocessMutation = () => {
         queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY],
       });
     },
+  });
+};
+
+export const useCreateMaterialRequestMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createMaterialRequest,
+    onSuccess: () => {},
   });
 };

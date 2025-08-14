@@ -10,7 +10,6 @@ import { useUsersQuery } from "@/features/users/hooks";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { useFieldArray } from "react-hook-form";
-import { useState } from "react";
 
 interface FieldsProps {
   shouldShowField: (field: FieldType) => boolean; // Function to determine if field should be shown
@@ -61,6 +60,7 @@ export const Fields = ({ fields, control, shouldShowField }: FieldsProps) => {
       case "ASSIGNED_TO":
       case "TEMPLATE_CHECKER":
       case "MOCKUP_CHECKER":
+      case "APPROVED_BY":
         return (
           users?.data?.map((user) => ({
             label: user.fullName,
