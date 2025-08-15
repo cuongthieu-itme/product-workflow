@@ -10,6 +10,9 @@ import { useUsersQuery } from "@/features/users/hooks";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { useFieldArray } from "react-hook-form";
+import { getImageUrl } from "@/features/settings/utils";
+import { generateTypeFile } from "@/components/common/upload/helper";
+import { UploadFile } from "@/components/common/upload";
 
 interface FieldsProps {
   shouldShowField: (field: FieldType) => boolean; // Function to determine if field should be shown
@@ -17,6 +20,8 @@ interface FieldsProps {
   control: any; // Assuming control is passed from a form library like react-hook-form
   isCompleted?: boolean; // Whether the step is completed (show as read-only text)
   values?: any; // Form values to display when completed
+  nearestSampleMedia?: string[]; // Media from nearest previous step
+  nearestApprovedSampleImage?: string; // Image from nearest previous step
 }
 
 export const Fields = ({
@@ -25,6 +30,8 @@ export const Fields = ({
   shouldShowField,
   isCompleted = false,
   values,
+  nearestSampleMedia = [],
+  nearestApprovedSampleImage = "",
 }: FieldsProps) => {
   const { data: users } = useUsersQuery({ limit: 10000 });
   const { data: categories } = useCategoriesQuery({ limit: 10000 });
@@ -300,6 +307,126 @@ export const Fields = ({
             <span className="text-sm text-gray-800">
               {formatDisplayValue(field, fieldValue)}
             </span>
+          </div>
+        </div>
+      );
+    }
+
+    // Special case: SAMPLE_MEDIA_LINK → show 3 media upload boxes (image/video)
+    if (field.enumValue === "SAMPLE_MEDIA_LINK") {
+      const acceptMedia = {
+        "image/jpeg": [".jpg", ".jpeg"],
+        "image/png": [".png"],
+        "image/webp": [".webp"],
+        "video/mp4": [".mp4"],
+        "video/webm": [".webm"],
+        "video/quicktime": [".mov"],
+      } as const;
+
+      return (
+        <div key={field.value} className="flex flex-col h-full space-y-2">
+          <label className="text-sm font-medium">{field.label}</label>
+          <div className="flex gap-3 overflow-x-auto">
+            <UploadFile
+              name={`${fieldName}_1`}
+              control={control}
+              label={`${field.label} 1`}
+              maxFiles={1}
+              accept={acceptMedia}
+              content="Kéo thả hoặc chọn ảnh/video"
+              className="min-w-[260px]"
+            />
+            <UploadFile
+              name={`${fieldName}_2`}
+              control={control}
+              label={`${field.label} 2`}
+              maxFiles={1}
+              accept={acceptMedia}
+              content="Kéo thả hoặc chọn ảnh/video"
+              className="min-w-[260px]"
+            />
+            <UploadFile
+              name={`${fieldName}_3`}
+              control={control}
+              label={`${field.label} 3`}
+              maxFiles={1}
+              accept={acceptMedia}
+              content="Kéo thả hoặc chọn ảnh/video"
+              className="min-w-[260px]"
+            />
+          </div>
+        </div>
+      );
+    }
+
+    // Special case: FINAL_APPROVED_SAMPLE_IMAGE → if nearest has image, show preview; else show upload (image only)
+    if (field.enumValue === "FINAL_APPROVED_SAMPLE_IMAGE") {
+      const acceptImages = {
+        "image/jpeg": [".jpg", ".jpeg"],
+        "image/png": [".png"],
+        "image/webp": [".webp"],
+      } as const;
+
+      if (nearestApprovedSampleImage) {
+        const url = getImageUrl(nearestApprovedSampleImage);
+        return (
+          <div key={field.value} className="flex flex-col h-full space-y-2">
+            <label className="text-sm font-medium">{field.label}</label>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={url}
+              alt={field.label}
+              className="w-full h-48 object-cover rounded-md border"
+            />
+          </div>
+        );
+      }
+
+      return (
+        <div key={field.value} className="flex items-start h-full">
+          <UploadFile
+            name={`${fieldName}Array`}
+            control={control}
+            label={field.label}
+            maxFiles={1}
+            accept={acceptImages}
+            content="Kéo thả hoặc chọn hình ảnh"
+            className="w-full"
+          />
+        </div>
+      );
+    }
+
+    // Special case: FINAL_PRODUCT_VIDEO → show preview of nearest SAMPLE_MEDIA_LINK; hide if none
+    if (field.enumValue === "FINAL_PRODUCT_VIDEO") {
+      if (!nearestSampleMedia || nearestSampleMedia.length === 0) return null;
+
+      return (
+        <div key={field.value} className="flex flex-col h-full space-y-2">
+          <label className="text-sm font-medium">{field.label}</label>
+          <div className="flex gap-3 overflow-x-auto">
+            {nearestSampleMedia.map((src, idx) => {
+              const type = generateTypeFile(src);
+              const url = getImageUrl(src);
+              return (
+                <div key={`${src}-${idx}`} className="min-w-[220px]">
+                  {type === "image" ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={url}
+                      alt={`media-${idx}`}
+                      className="w-full h-40 object-cover rounded-md border"
+                    />
+                  ) : (
+                    <video
+                      src={url}
+                      className="w-full h-40 object-cover rounded-md border"
+                      controls
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       );

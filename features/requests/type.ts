@@ -33,6 +33,7 @@ export type SubprocessHistoryType = {
   isApproved: boolean;
   createdAt: string;
   updatedAt: string;
+  isShowRequestMaterial: boolean;
 };
 
 export interface ProcedureHistory {

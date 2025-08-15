@@ -6,7 +6,7 @@ import {
 import { useGetUserInfoQuery } from "@/features/auth/hooks/useGetUserInfoQuery";
 import { Loader2, User, Pause, CheckCircle, Play } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { UserRoleEnum } from "@/features/auth/constants";
 import { useUsersQuery } from "@/features/users/hooks";
 import { useCategoriesQuery } from "@/features/categories/hooks";
@@ -43,6 +43,7 @@ import {
   Coins,
   Settings,
   ShoppingCart,
+  AlertCircle,
 } from "lucide-react";
 import { getCheckFields, getHoldInfo } from "@/features/requests/helpers";
 import { format } from "date-fns";
@@ -53,9 +54,11 @@ import { StepInfo } from "./step-infor";
 import { AdminUserAssignment } from "./admin-user-assignment";
 import { HoldSubprocessDialog } from "./hold-subprocess-dialog";
 import { MaterialRequestModal } from "./material-request-modal";
+import { useGetRequestDetailQuery } from "@/features/requests/hooks";
 
 export const StepEditForm: React.FC<StepEditFormProps> = ({
   step,
+  steps,
   currentUser,
   request,
 }) => {
@@ -72,6 +75,10 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
   const { data: materials } = useMaterialsQuery({ page: 1, limit: 10000 });
 
   const checkFieldsList = getCheckFields(step);
+
+  // State để theo dõi validation errors
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
 
   // Helper function to get options based on field enumValue (copied from fields.tsx)
   const getOptionsForField = (field: FieldType) => {
@@ -165,8 +172,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     }
   };
 
-  console.log("checkFieldsList", checkFieldsList);
-
   // Function để kiểm tra field có nên hiển thị không dựa vào checkFields
   const shouldShowField = (field: FieldType): boolean => {
     // Nếu không có fields data, return false
@@ -179,8 +184,33 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     const isIncluded = checkFieldsList.includes(field.enumValue);
 
     return isIncluded;
-  }; // Tạo dynamic schema dựa trên fields - simplified approach
+  };
 
+  // Function để validate các field bắt buộc
+  const validateRequiredFields = (formData: any): string[] => {
+    const errors: string[] = [];
+    
+    if (!fields?.data) return errors;
+
+    // Kiểm tra tất cả các field hiển thị đều phải có dữ liệu để hoàn thành
+    fields.data.forEach((field) => {
+      if (shouldShowField(field)) {
+        const fieldValue = formData[field.value];
+        
+        // Kiểm tra field có giá trị hay không
+        if (!fieldValue || 
+            (Array.isArray(fieldValue) && fieldValue.filter(Boolean).length === 0) ||
+            (typeof fieldValue === 'string' && fieldValue.trim() === '') ||
+            (fieldValue === null || fieldValue === undefined)) {
+          errors.push(`${field.label} là bắt buộc`);
+        }
+      }
+    });
+
+    return errors;
+  };
+
+  // Tạo dynamic schema dựa trên fields - simplified approach
   const { data: currentUserData } = useGetUserInfoQuery();
 
   const isAdmin =
@@ -195,6 +225,8 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     handleSubmit,
     formState: { isSubmitting },
     watch,
+    getValues,
+    setValue,
   } = useForm({
     defaultValues: {
       ...step,
@@ -239,9 +271,27 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
             sampleMaker: step.fieldSubprocess.sampleMaker || "",
             sampleStatus: step.fieldSubprocess.sampleStatus || "",
             sampleMediaLink: step.fieldSubprocess.sampleMediaLink || [],
+            // Map the first three media items into 3 single-file upload controls
+            sampleMediaLink_1:
+              step.fieldSubprocess.sampleMediaLink?.[0]
+                ? [step.fieldSubprocess.sampleMediaLink[0]]
+                : [],
+            sampleMediaLink_2:
+              step.fieldSubprocess.sampleMediaLink?.[1]
+                ? [step.fieldSubprocess.sampleMediaLink[1]]
+                : [],
+            sampleMediaLink_3:
+              step.fieldSubprocess.sampleMediaLink?.[2]
+                ? [step.fieldSubprocess.sampleMediaLink[2]]
+                : [],
             note: step.fieldSubprocess.note || "",
             finalApprovedSampleImage:
               step.fieldSubprocess.finalApprovedSampleImage || "",
+            // Array form for upload control of FINAL_APPROVED_SAMPLE_IMAGE
+            finalApprovedSampleImageArray:
+              step.fieldSubprocess.finalApprovedSampleImage
+                ? [step.fieldSubprocess.finalApprovedSampleImage]
+                : [],
             finalProductVideo: step.fieldSubprocess.finalProductVideo || "",
             // ... có thể thêm các fields khác nếu cần
           }
@@ -284,6 +334,101 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
   });
 
   const isStepWithCost = step.isStepWithCost;
+
+  // Load request detail to get approvalInfo for defaulting SAMPLE_PRODUCTION_PLAN at step 1
+  const { data: requestDetail } = useGetRequestDetailQuery();
+
+  useEffect(() => {
+    if (
+      step?.step === 1 &&
+      !getValues("sampleProductionPlan") &&
+      requestDetail?.approvalInfo?.productionPlan
+    ) {
+      setValue(
+        "sampleProductionPlan",
+        requestDetail.approvalInfo.productionPlan,
+        { shouldDirty: true, shouldValidate: false }
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step?.step, requestDetail?.approvalInfo?.productionPlan]);
+
+  // Compute nearest previous SAMPLE_MEDIA_LINK for current step
+  const nearestSampleMedia = useMemo(() => {
+    if (!Array.isArray(steps) || !step) return [] as string[];
+    const currentIndex = steps.findIndex((s: SubprocessHistoryType) => s.id === step.id);
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      const media = steps[i]?.fieldSubprocess?.sampleMediaLink;
+      if (Array.isArray(media) && media.length > 0) {
+        return media;
+      }
+    }
+    return [] as string[];
+  }, [steps, step]);
+
+  // Compute nearest previous FINAL_APPROVED_SAMPLE_IMAGE for current step
+  const nearestApprovedSampleImage = useMemo(() => {
+    if (!Array.isArray(steps) || !step) return "";
+    const currentIndex = steps.findIndex((s: SubprocessHistoryType) => s.id === step.id);
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      const img = steps[i]?.fieldSubprocess?.finalApprovedSampleImage;
+      if (img && typeof img === "string" && img.trim().length > 0) {
+        return img;
+      }
+    }
+    return "";
+  }, [steps, step]);
+
+  // Compute nearest previous SAMPLE_PRODUCTION_PLAN
+  const nearestSampleProductionPlan = useMemo(() => {
+    if (!Array.isArray(steps) || !step) return "";
+    const currentIndex = steps.findIndex((s: SubprocessHistoryType) => s.id === step.id);
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      const plan = steps[i]?.fieldSubprocess?.sampleProductionPlan;
+      if (plan && typeof plan === "string" && plan.trim().length > 0) {
+        return plan;
+      }
+    }
+    return "";
+  }, [steps, step]);
+
+  // Default sampleProductionPlan: prefer nearest previous; step 1 fallback from request.fieldSubprocess.sampleProductionPlan (then approvalInfo.productionPlan)
+  useEffect(() => {
+    const current = getValues("sampleProductionPlan") as string | undefined;
+    if (current && current.trim().length > 0) return;
+
+    if (nearestSampleProductionPlan) {
+      setValue("sampleProductionPlan", nearestSampleProductionPlan, {
+        shouldDirty: true,
+        shouldValidate: false,
+      });
+      return;
+    }
+
+    // Step 1: prefer request.fieldSubprocess.sampleProductionPlan, then approvalInfo.productionPlan
+    if (step?.step === 1) {
+      const fallbackFromRequest =
+        requestDetail?.fieldSubprocess?.sampleProductionPlan ||
+        requestDetail?.approvalInfo?.productionPlan ||
+        "";
+      if (fallbackFromRequest) {
+        setValue("sampleProductionPlan", fallbackFromRequest, {
+          shouldDirty: true,
+          shouldValidate: false,
+        });
+        return;
+      }
+    }
+
+    // Other steps: fallback to approvalInfo.productionPlan
+    if (requestDetail?.approvalInfo?.productionPlan) {
+      setValue("sampleProductionPlan", requestDetail.approvalInfo.productionPlan, {
+        shouldDirty: true,
+        shouldValidate: false,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nearestSampleProductionPlan, step?.step, requestDetail?.fieldSubprocess?.sampleProductionPlan, requestDetail?.approvalInfo?.productionPlan]);
 
   const { mutate: updateSubprocessHistory } =
     useUpdateSubprocessHistoryMutation();
@@ -338,6 +483,45 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
   const hasStartTime = step?.startDate;
 
   const onSubmit: SubmitHandler<any> = (data) => {
+    // Normalize special fields (e.g., SAMPLE_MEDIA_LINK combines 3 upload boxes)
+    const normalizedData: any = { ...data };
+    fields?.data?.forEach((field) => {
+      if (shouldShowField(field) && field.enumValue === "SAMPLE_MEDIA_LINK") {
+        const part1 = (data?.[`${field.value}_1`] as string[]) || [];
+        const part2 = (data?.[`${field.value}_2`] as string[]) || [];
+        const part3 = (data?.[`${field.value}_3`] as string[]) || [];
+        normalizedData[field.value] = [...part1, ...part2, ...part3].filter(
+          Boolean
+        );
+      }
+      if (
+        shouldShowField(field) &&
+        field.enumValue === "FINAL_APPROVED_SAMPLE_IMAGE"
+      ) {
+        const arr = (data?.[`${field.value}Array`] as string[]) || [];
+        normalizedData[field.value] = arr[0] || "";
+      }
+    });
+
+    // Nếu đang ở chế độ hoàn thành, validate các field bắt buộc
+    if (completeMode) {
+      const errors = validateRequiredFields(normalizedData);
+      if (errors.length > 0) {
+        setValidationErrors(errors);
+        setShowValidationErrors(true);
+        toast({
+          title: "Lỗi validation",
+          description: "Vui lòng điền đầy đủ các trường bắt buộc trước khi hoàn thành",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    // Reset validation errors nếu validation thành công
+    setValidationErrors([]);
+    setShowValidationErrors(false);
+
     const status = completeMode
       ? StatusSubprocessHistory.COMPLETED
       : StatusSubprocessHistory.IN_PROGRESS;
@@ -345,20 +529,20 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     // Lọc chỉ lấy các field cần thiết cho API
     const submitData = {
       id: step.id,
-      startDate: data.startDate,
+      startDate: normalizedData.startDate,
       endDate: new Date(), // Luôn cập nhật endDate khi submit
-      userId: data.userId,
-      price: data.price,
-      isStepWithCost: data.isStepWithCost,
+      userId: normalizedData.userId,
+      price: normalizedData.price,
+      isStepWithCost: normalizedData.isStepWithCost,
       status: status,
     };
 
     const fieldsSub = // Thêm fieldSubprocess data nếu có
       fields?.data
-        ? Object.keys(data).reduce((acc, key) => {
+        ? Object.keys(normalizedData).reduce((acc, key) => {
             // Chỉ include các field từ fields.data (dynamic fields)
             if (fields.data.some((field) => field.value === key)) {
-              acc[key] = data[key];
+              acc[key] = normalizedData[key];
             }
             return acc;
           }, {} as Record<string, any>)
@@ -555,7 +739,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
             title: "Thất bại",
             description: "Có lỗi xảy ra khi phê duyệt bước",
             variant: "destructive",
-          });
+        });
           setApproveMode(false);
         },
       }
@@ -587,6 +771,35 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
         className="space-y-6 mt-2 overflow-visible"
         noValidate
       >
+        {/* Validation Errors Display */}
+        {showValidationErrors && validationErrors.length > 0 && (
+          <div className="p-4 rounded-md border border-red-200 bg-red-50 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertCircle className="text-red-600 w-5 h-5" />
+              <h3 className="text-lg font-medium text-red-800">
+                Vui lòng điền đầy đủ các trường bắt buộc
+              </h3>
+            </div>
+            <ul className="space-y-1">
+              {validationErrors.map((error, index) => (
+                <li key={index} className="text-sm text-red-700 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  {error}
+                </li>
+              ))}
+            </ul>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowValidationErrors(false)}
+              className="mt-3 text-red-600 border-red-300 hover:bg-red-100"
+            >
+              Đóng
+            </Button>
+          </div>
+        )}
+
         <div className="p-4 rounded-md border bg-card shadow-sm">
           <h3 className="text-lg font-medium mb-4 pb-2 border-b flex items-center gap-2">
             <CalendarDays className="text-primary w-5 h-5" />
@@ -807,14 +1020,21 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
               <h3 className="text-lg font-medium mb-4 pb-2 border-b flex items-center gap-2">
                 <Settings className="text-primary w-5 h-5" />
                 Thông tin bổ sung
+                {fields?.data?.filter((field) => shouldShowField(field)).length > 0 && (
+                  <span className="text-sm text-red-600 font-normal">
+                    (* Tất cả các trường đều bắt buộc để hoàn thành)
+                  </span>
+                )}
               </h3>
 
               <Fields
                 fields={fields}
                 control={control}
                 shouldShowField={shouldShowField}
-                isCompleted={true}
+                isCompleted={step.isApproved}
                 values={step.fieldSubprocess || {}}
+                nearestSampleMedia={nearestSampleMedia}
+                nearestApprovedSampleImage={nearestApprovedSampleImage}
               />
 
               {/* Show message if no fields to display */}
@@ -864,7 +1084,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
             )}
 
             {/* Button Yêu cầu mua nguyên vật liệu - chỉ hiển thị ở step 1 */}
-            {isStep1 && (isAdmin || isAssignedUser) && (
+            {(isAdmin || isAssignedUser) && step.isShowRequestMaterial && (
               <Button
                 type="button"
                 disabled={isSubmitting}
@@ -935,6 +1155,9 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
                 disabled={isSubmitting}
                 onClick={() => {
                   setCompleteMode(true);
+                  // Reset validation errors khi click hoàn thành
+                  setValidationErrors([]);
+                  setShowValidationErrors(false);
                 }}
                 variant="default"
                 className="bg-green-600 hover:bg-green-700 flex items-center"
