@@ -251,19 +251,21 @@ export const StepInfo = ({
               <Pause className="text-orange-600 w-5 h-5 flex-shrink-0" />
               <p className="text-sm font-medium text-muted-foreground">
                 Lịch sử tạm dừng ({holdInfo.holdCount}/{holdInfo.maxHolds} lần
-                hold, {holdInfo.continueCount} lần tiếp tục)
+                tạm đừng, {holdInfo.continueCount} lần tiếp tục)
               </p>
             </div>
             <div className="pl-8 space-y-1">
               {step.holdDateOne && (
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-orange-600 font-medium">Hold 1:</span>
+                  <span className="text-orange-600 font-medium">
+                    Tạm dừng lần 1:
+                  </span>
                   <span>
                     {format(new Date(step.holdDateOne), "dd/MM/yyyy HH:mm")}
                   </span>
                   {step.continueDateOne && (
                     <span className="text-green-600">
-                      → Continue:{" "}
+                      → Quay lại:{" "}
                       {format(
                         new Date(step.continueDateOne),
                         "dd/MM/yyyy HH:mm"

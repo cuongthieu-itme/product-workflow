@@ -49,7 +49,7 @@ export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
         if (nextStep) {
           setSelectedStep(nextStep);
         } else {
-          const lastStep = subprocessHistory[completedStepIndex];
+          const lastStep = subprocessHistory[completedStepIndex + 1];
           setSelectedStep(lastStep);
         }
       } else {

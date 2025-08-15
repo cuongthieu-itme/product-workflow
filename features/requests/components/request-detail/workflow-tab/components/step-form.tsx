@@ -171,7 +171,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     if (!fields?.data) return false;
 
     // Nếu không có checkFields list, hiển thị tất cả
-    if (checkFieldsList.length === 0) return true;
+    if (checkFieldsList.length === 0) return false;
 
     // Kiểm tra enumValue của field có trong checkFields list không
     const isIncluded = checkFieldsList.includes(field.enumValue);
@@ -196,6 +196,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
   } = useForm({
     defaultValues: {
       ...step,
+      id: step.id,
       startDate: step.startDate ? new Date(step.startDate) : new Date(),
       endDate: step.endDate ? new Date(step.endDate) : new Date(),
       userId: step.userId || undefined,
@@ -341,7 +342,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
 
     // Lọc chỉ lấy các field cần thiết cho API
     const submitData = {
-      id: data.id,
+      id: step.id,
       startDate: data.startDate,
       endDate: new Date(), // Luôn cập nhật endDate khi submit
       userId: data.userId,
@@ -482,7 +483,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
 
     // Chuẩn bị data cho updateSubprocessHistory
     const submitData = {
-      id: currentFormData.id,
+      id: step.id,
       startDate: currentTime,
       endDate: null,
       userId: step.userId,
