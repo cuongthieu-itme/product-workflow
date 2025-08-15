@@ -55,6 +55,7 @@ import { AdminUserAssignment } from "./admin-user-assignment";
 import { HoldSubprocessDialog } from "./hold-subprocess-dialog";
 import { MaterialRequestModal } from "./material-request-modal";
 import { useGetRequestDetailQuery } from "@/features/requests/hooks";
+import { getImageUrl } from "@/features/settings/utils";
 
 export const StepEditForm: React.FC<StepEditFormProps> = ({
   step,
@@ -148,6 +149,13 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
             value: material.id,
           })) || []
         );
+
+      // Sent to RD confirmation (yes/no)
+      case "MATERIAL_SENT_TO_RD":
+        return [
+          { label: "Có", value: "yes" },
+          { label: "Không", value: "no" },
+        ];
 
       // Category field
       case "CATEGORY":
@@ -974,6 +982,13 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
                       return value.toString();
                     };
 
+                    const isVideoUrl = (url: string) =>
+                      typeof url === "string" &&
+                      /\.(mp4|webm|mov|m4v)$/i.test(url);
+                    const isImageUrl = (url: string) =>
+                      typeof url === "string" &&
+                      /\.(png|jpe?g|webp|gif|svg)$/i.test(url);
+
                     return (
                       <div
                         key={field.value}
@@ -983,22 +998,42 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
                           {field.label}
                         </span>
                         <div className="text-sm text-green-700 bg-white p-3 rounded-md border border-green-200">
-                          {field.valueType === "string_array" &&
-                          Array.isArray(fieldValue) ? (
+                          {/* SAMPLE_MEDIA_LINK: array of media urls */}
+                          {field.enumValue === "SAMPLE_MEDIA_LINK" && Array.isArray(fieldValue) ? (
+                            fieldValue.filter(Boolean).length > 0 ? (
+                              <div className="grid grid-cols-2 gap-3">
+                                {fieldValue.filter(Boolean).map((url: string, idx: number) => (
+                                  <div key={idx} className="relative w-full">
+                                    {isVideoUrl(url) ? (
+                                      <video src={getImageUrl(url)} controls className="w-full rounded-md border" />
+                                    ) : (
+                                      <img src={getImageUrl(url)} alt={`media-${idx}`} className="w-full rounded-md border object-cover" />
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-gray-500 italic">Chưa có dữ liệu</span>
+                            )
+                          ) : field.enumValue === "FINAL_APPROVED_SAMPLE_IMAGE" && typeof fieldValue === "string" && fieldValue ? (
+                            <div className="relative w-full">
+                              <img src={getImageUrl(fieldValue)} alt="final-approved-sample" className="w-full rounded-md border object-cover" />
+                            </div>
+                          ) : field.enumValue === "FINAL_PRODUCT_VIDEO" && typeof fieldValue === "string" && fieldValue ? (
+                            <div className="relative w-full">
+                              <video src={fieldValue} controls className="w-full rounded-md border" />
+                            </div>
+                          ) : field.valueType === "string_array" && Array.isArray(fieldValue) ? (
                             fieldValue.filter(Boolean).length > 0 ? (
                               <ul className="space-y-1">
                                 {fieldValue
                                   .filter(Boolean)
                                   .map((item: string, index: number) => (
-                                    <li key={index} className="text-sm">
-                                      • {item}
-                                    </li>
+                                    <li key={index} className="text-sm">• {item}</li>
                                   ))}
                               </ul>
                             ) : (
-                              <span className="text-gray-500 italic">
-                                Chưa có dữ liệu
-                              </span>
+                              <span className="text-gray-500 italic">Chưa có dữ liệu</span>
                             )
                           ) : (
                             <span>{getDisplayValue(field, fieldValue)}</span>

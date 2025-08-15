@@ -165,6 +165,13 @@ export const Fields = ({
           })) || []
         );
 
+      // Sent to RD confirmation (yes/no)
+      case "MATERIAL_SENT_TO_RD":
+        return [
+          { label: "Có", value: "yes" },
+          { label: "Không", value: "no" },
+        ];
+
       // Category field
       case "CATEGORY":
         return (
@@ -328,31 +335,40 @@ export const Fields = ({
           <label className="text-sm font-medium">{field.label}</label>
           <div className="flex gap-3 overflow-x-auto">
             <UploadFile
+          hideUploadWhenHavePreview={true}
+
               name={`${fieldName}_1`}
               control={control}
-              label={`${field.label} 1`}
+              label={`Ảnh/Video 1`}
               maxFiles={1}
               accept={acceptMedia}
               content="Kéo thả hoặc chọn ảnh/video"
-              className="min-w-[260px]"
+              className="min-w-[220px]"
+              previewClasses="min-w-[190px] min-h-[200px] object-cover"
             />
             <UploadFile
+          hideUploadWhenHavePreview={true}
+
               name={`${fieldName}_2`}
               control={control}
-              label={`${field.label} 2`}
+              label={`Ảnh/Video 2`}
               maxFiles={1}
               accept={acceptMedia}
               content="Kéo thả hoặc chọn ảnh/video"
-              className="min-w-[260px]"
+              className="min-w-[220px]"
+              previewClasses="min-w-[190px] min-h-[200px] object-cover"
             />
             <UploadFile
+          hideUploadWhenHavePreview={true}
+
               name={`${fieldName}_3`}
               control={control}
-              label={`${field.label} 3`}
+              label={`Ảnh/Video 3`}
               maxFiles={1}
               accept={acceptMedia}
               content="Kéo thả hoặc chọn ảnh/video"
-              className="min-w-[260px]"
+              className="min-w-[220px]"
+              previewClasses="min-w-[190px] min-h-[200px] object-cover"
             />
           </div>
         </div>
@@ -385,6 +401,7 @@ export const Fields = ({
       return (
         <div key={field.value} className="flex items-start h-full">
           <UploadFile
+          hideUploadWhenHavePreview={true}
             name={`${fieldName}Array`}
             control={control}
             label={field.label}
@@ -392,7 +409,8 @@ export const Fields = ({
             accept={acceptImages}
             content="Kéo thả hoặc chọn hình ảnh"
             className="w-full"
-          />
+            previewClasses="min-w-[200px]"
+          /> 
         </div>
       );
     }

@@ -37,25 +37,21 @@ export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
     useState<SubprocessHistoryType | null>(null);
   const { data: currentUserData } = useGetUserInfoQuery();
 
-  // Auto focus on next step when current step is completed
+  // Control focus behavior:
+  // - Keep current selection when steps update (e.g., start/complete actions)
+  // - If all steps are approved, focus the last step
+  // - If no selection yet, default to the first step
   useEffect(() => {
-    if (subprocessHistory) {
-      const completedStepIndex = subprocessHistory.findIndex(
-        (step) => step.isApproved
-      );
+    if (!subprocessHistory || subprocessHistory.length === 0) return;
 
-      if (completedStepIndex >= 0) {
-        const nextStep = subprocessHistory[completedStepIndex + 1];
-        if (nextStep) {
-          setSelectedStep(nextStep);
-        } else {
-          const lastStep = subprocessHistory[completedStepIndex + 1];
-          setSelectedStep(lastStep);
-        }
-      } else {
-        const firstStep = subprocessHistory[0];
-        setSelectedStep(firstStep);
-      }
+    const allApproved = subprocessHistory.every((step) => step.isApproved);
+    if (allApproved) {
+      setSelectedStep(subprocessHistory[subprocessHistory.length - 1]);
+      return;
+    }
+
+    if (!selectedStep) {
+      setSelectedStep(subprocessHistory[0]);
     }
   }, [subprocessHistory]);
 

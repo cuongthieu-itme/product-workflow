@@ -50,13 +50,13 @@ export const PreviewFileItem: React.FC<PreviewFileItemProps> = ({
         <img
           src={src}
           alt={`Preview ${id}`}
-          className={cn("w-full h-24 object-cover", previewClasses)}
+          className={cn("w-full h-36 md:h-44 object-cover rounded-md", previewClasses)}
         />
       ) : (
         <video
           src={src}
           controls
-          className={cn("w-full h-24 object-cover", previewClasses)}
+          className={cn("w-full h-36 md:h-44 object-cover rounded-md", previewClasses)}
         />
       )}
 

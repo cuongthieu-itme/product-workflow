@@ -45,6 +45,7 @@ export type UploadFileProps<T extends FieldValues> = UseControllerProps<T> & {
   hideHeader?: boolean;
   content?: string;
   previewClasses?: string;
+  hideUploadWhenHavePreview?: boolean
 };
 
 export const UploadFile = <T extends FieldValues>({
@@ -65,6 +66,7 @@ export const UploadFile = <T extends FieldValues>({
   content,
   previewClasses,
   disabled = false,
+  hideUploadWhenHavePreview=false 
 }: UploadFileProps<T>) => {
   const { toast } = useToast();
   const {
@@ -204,7 +206,9 @@ export const UploadFile = <T extends FieldValues>({
 
         <CardContent className="p-4">
           {/* Drop zone */}
-          <div
+          {
+            !hideUploadWhenHavePreview && previews.length >= 1 && (
+               <div
             {...getRootProps()}
             className={cn(
               "border-2 border-dashed rounded-lg p-4 cursor-pointer transition-colors",
@@ -234,6 +238,9 @@ export const UploadFile = <T extends FieldValues>({
               disabled={disabled || value.length >= maxFiles}
             />
           </div>
+            )
+          }
+         
 
           {/* Previews with Drag and Drop */}
           {previews.length > 0 && (
@@ -246,7 +253,7 @@ export const UploadFile = <T extends FieldValues>({
                 items={previews.map((_, index) => `file-${index}`)}
                 strategy={verticalListSortingStrategy}
               >
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                   {previews.map(({ src, typeFile }, i) => (
                     <PreviewFileItem
                       previewClasses={previewClasses}
