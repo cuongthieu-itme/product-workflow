@@ -165,6 +165,8 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     }
   };
 
+  console.log("checkFieldsList", checkFieldsList);
+
   // Function để kiểm tra field có nên hiển thị không dựa vào checkFields
   const shouldShowField = (field: FieldType): boolean => {
     // Nếu không có fields data, return false

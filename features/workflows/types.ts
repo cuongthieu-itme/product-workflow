@@ -15,6 +15,7 @@ export type WorkFlowStepType = {
   isStepWithCost: boolean;
   department: DepartmentType;
   step: number;
+  isShowRequestMaterial: boolean;
   fieldSubprocess: {
     checkFields: string[];
   };
