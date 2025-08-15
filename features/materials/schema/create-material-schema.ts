@@ -32,6 +32,11 @@ export const createMaterialInputSchema = z.object({
   description: z.string().trim().optional().or(z.literal("")),
   isActive: z.boolean().default(true).optional(),
   type: z.enum([MaterialEnum.ACCESSORY, MaterialEnum.MATERIAL]),
+  price: z
+    .number()
+    .int({ message: "Giá phải là số nguyên" })
+    .positive({ message: "Giá phải > 0" })
+    .optional(),
 });
 
 export type CreateMaterialInputType = z.infer<typeof createMaterialInputSchema>;

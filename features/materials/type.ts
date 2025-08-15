@@ -28,6 +28,7 @@ export type MaterialType = {
   type: MaterialEnum;
   createdAt: string;
   updatedAt: string;
+  price: number;
 };
 
 export type MaterialFilterInput = {
@@ -56,6 +57,7 @@ export type AccessoryType = {
   code: string;
   name: string;
   isActive: boolean;
+  price: number;
   quantity: number;
   description: string;
   createdAt: string;
