@@ -7,7 +7,7 @@ import { InputCustom } from "@/components/form/input";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { SelectCustom } from "@/components/form/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2, Plus, Trash2, ShoppingCart } from "lucide-react";
+import { Loader2, Trash2, ShoppingCart, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateMaterialRequestMutation } from "@/features/requests/hooks/useRequest";
@@ -17,22 +17,14 @@ import {
 } from "@/features/requests/schema/material-request-schema";
 import { priorityOptions } from "@/features/requests/options";
 import { SourceEnum, PriorityEnum } from "@/features/requests/constants";
+import { MaterialEnum } from "@/features/materials/constants";
+import { CreateMaterialModal } from "./create-material-modal";
+import { CreateMaterialInputType } from "@/features/materials/schema";
 
 // Options cho các select
 const sourceOptions = [
   { value: SourceEnum.CUSTOMER, label: "Khách hàng" },
   { value: SourceEnum.OTHER, label: "Khác" },
-];
-
-const materialTypeOptions = [
-  { value: "INGREDIENT", label: "Nguyên liệu" },
-  { value: "ACCESSORY", label: "Phụ kiện" },
-];
-
-const materialStatusOptions = [
-  { value: "AVAILABLE_IN_STOCK", label: "Có sẵn trong kho" },
-  { value: "SENDING_REQUEST", label: "Đang gửi yêu cầu" },
-  { value: "CANCELLED", label: "Đã hủy" },
 ];
 
 interface MaterialRequestModalProps {
@@ -133,35 +125,27 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
     });
   };
 
-  const handleAddMaterial = () => {
+  const handleAddMaterial = (material: CreateMaterialInputType) => {
     append({
-      name: "",
-      quantity: 1,
-      unit: "cái",
-      description: "",
-      image: [],
-      type: "INGREDIENT",
-      status: "SENDING_REQUEST",
-      originId: 1,
-      requestInput: {
-        quantity: 1,
-        expectedDate: new Date().toISOString(),
-        supplier: "",
-        sourceCountry: "",
-        price: 0,
-        reason: "",
-      },
+      name: material.name,
+      quantity: material.quantity,
+      unit: material.unit,
+      description: material.description || "",
+      image: material.image || [],
+      type: material.type,
+      originId: material.originId,
+      code: material.code,
+      price: material.price,
+      isActive: material.isActive ?? true,
     });
   };
 
   const handleRemoveMaterial = (index: number) => {
-    if (fields.length > 1) {
-      remove(index);
-    } else {
+    remove(index);
+    if (fields.length === 1) {
       toast({
         title: "Thông báo",
-        description: "Phải có ít nhất một nguyên vật liệu",
-        variant: "destructive",
+        description: "Đã xóa nguyên vật liệu cuối cùng",
       });
     }
   };
@@ -229,33 +213,26 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium flex items-center gap-2">
+                <Package className="w-5 h-5 text-primary" />
                 Danh sách nguyên vật liệu
                 <Badge variant="outline" className="text-xs">
                   {fields.length} vật liệu
                 </Badge>
               </h3>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddMaterial}
-                disabled={isPending}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Thêm nguyên vật liệu
-              </Button>
+              <CreateMaterialModal onMaterialCreated={handleAddMaterial} />
             </div>
 
-            {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="p-4 border rounded-lg bg-card space-y-4"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-medium text-sm">
-                    Nguyên vật liệu #{index + 1}
-                  </h4>
-                  {fields.length > 1 && (
+            {fields.length > 0 ? (
+              fields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="p-4 border rounded-lg bg-card space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium text-sm flex items-center gap-2">
+                      <Package className="w-4 h-4 text-muted-foreground" />
+                      Nguyên vật liệu #{index + 1}
+                    </h4>
                     <Button
                       type="button"
                       variant="outline"
@@ -266,85 +243,126 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
-                  )}
-                </div>
+                  </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <InputCustom
-                    control={control}
-                    name={`materialsData.${index}.name`}
-                    label="Tên nguyên vật liệu"
-                    placeholder="Nhập tên nguyên vật liệu"
-                    required
-                  />
+                  {/* Hiển thị thông tin material đã tạo */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-3 bg-muted/30 rounded-lg">
+                    <div className="space-y-1 md:col-span-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <label className="text-xs font-medium text-muted-foreground">
+                          Tên nguyên vật liệu
+                        </label>
+                        {field.code && (
+                          <Badge variant="outline" className="text-xs">
+                            {field.code}
+                          </Badge>
+                        )}
+                        <Badge
+                          variant={
+                            field.type === MaterialEnum.MATERIAL
+                              ? "default"
+                              : "secondary"
+                          }
+                          className="text-xs"
+                        >
+                          {field.type === MaterialEnum.MATERIAL
+                            ? "Nguyên liệu"
+                            : "Phụ kiện"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm font-medium">
+                        {field.name || "Chưa có tên"}
+                      </p>
+                    </div>
 
-                  <InputCustom
-                    control={control}
-                    name={`materialsData.${index}.quantity`}
-                    label="Số lượng"
-                    type="number"
-                    min={1}
-                    step={1}
-                    placeholder="Nhập số lượng"
-                    required
-                  />
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Số lượng
+                      </label>
+                      <p className="text-sm">
+                        {field.quantity} {field.unit}
+                      </p>
+                    </div>
 
-                  <InputCustom
-                    control={control}
-                    name={`materialsData.${index}.unit`}
-                    label="Đơn vị"
-                    placeholder="Nhập đơn vị"
-                    required
-                  />
+                    {field.price && field.price > 0 && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-muted-foreground">
+                          Giá dự kiến
+                        </label>
+                        <p className="text-sm font-medium">
+                          {field.price?.toLocaleString()} VNĐ
+                        </p>
+                      </div>
+                    )}
 
-                  <SelectCustom
-                    control={control}
-                    name={`materialsData.${index}.type`}
-                    label="Loại nguyên vật liệu"
-                    options={materialTypeOptions}
-                    required
-                  />
+                    {field.description && (
+                      <div className="space-y-1 md:col-span-3">
+                        <label className="text-xs font-medium text-muted-foreground">
+                          Mô tả
+                        </label>
+                        <p className="text-sm text-muted-foreground">
+                          {field.description}
+                        </p>
+                      </div>
+                    )}
+                  </div>
 
-                  <SelectCustom
-                    control={control}
-                    name={`materialsData.${index}.status`}
-                    label="Trạng thái"
-                    options={materialStatusOptions}
-                    required
-                  />
-
-                  <InputCustom
-                    disabled
-                    control={control}
-                    name={`materialsData.${index}.originId`}
-                    label="ID nguồn gốc"
-                    type="number"
-                    min={1}
-                    placeholder="Nhập ID nguồn gốc"
-                    required
-                  />
-
-                  <div className="md:col-span-3">
+                  {/* Hidden inputs để lưu trữ dữ liệu cho React Hook Form */}
+                  <div style={{ display: "none" }}>
+                    <InputCustom
+                      control={control}
+                      name={`materialsData.${index}.name`}
+                    />
+                    <InputCustom
+                      control={control}
+                      name={`materialsData.${index}.quantity`}
+                      type="number"
+                    />
+                    <InputCustom
+                      control={control}
+                      name={`materialsData.${index}.unit`}
+                    />
+                    <InputCustom
+                      control={control}
+                      name={`materialsData.${index}.type`}
+                    />
+                    <InputCustom
+                      control={control}
+                      name={`materialsData.${index}.originId`}
+                      type="number"
+                    />
+                    <InputCustom
+                      control={control}
+                      name={`materialsData.${index}.code`}
+                    />
+                    <InputCustom
+                      control={control}
+                      name={`materialsData.${index}.price`}
+                      type="number"
+                    />
+                    <InputCustom
+                      control={control}
+                      name={`materialsData.${index}.isActive`}
+                      type="checkbox"
+                    />
                     <TextAreaCustom
                       control={control}
                       name={`materialsData.${index}.description`}
-                      label="Mô tả nguyên vật liệu"
-                      placeholder="Nhập mô tả chi tiết về nguyên vật liệu"
-                      rows={3}
                     />
                   </div>
-
-                  <InputCustom
-                    control={control}
-                    name={`materialsData.${index}.price`}
-                    label="Giá (VNĐ)"
-                    type="number"
-                    min={0}
-                    placeholder="Nhập giá"
-                  />
                 </div>
+              ))
+            ) : (
+              <div className="text-center p-8 border-2 border-dashed border-muted-foreground/25 rounded-lg">
+                <Package className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
+                <p className="text-muted-foreground mb-2">
+                  Chưa có nguyên vật liệu nào được thêm
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Hãy nhấn "Thêm nguyên vật liệu" để bắt đầu
+                </p>
               </div>
-            ))}
+            )}
           </div>
 
           {/* Action buttons */}

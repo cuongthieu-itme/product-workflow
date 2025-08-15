@@ -82,7 +82,7 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
     setDialogTitle("");
   };
 
-  const outputType = request?.statusProduct.procedure.outputType;
+  const outputType = request?.statusProduct?.procedure?.outputType;
 
   const getProductTypeText = (type?: OutputTypeEnum) => {
     switch (type) {
