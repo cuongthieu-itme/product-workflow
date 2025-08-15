@@ -2,6 +2,8 @@ import { PaginatedResult } from "@/types/common";
 import { MaterialType } from "../materials/type";
 import { PriorityEnum, SourceEnum } from "./constants";
 import { User } from "../users/type";
+import { ProductStatusType } from "../products-status/types";
+import { WorkFlowProcessType } from "../workflows/types";
 
 export type SubprocessHistoryType = {
   id: number;
@@ -263,6 +265,9 @@ export interface RequestDetail {
   priority: PriorityEnum;
   approvalInfo: ApprovalInfo;
   fieldSubprocess: FieldSubprocess;
+  statusProduct: ProductStatusType & {
+    procedure: WorkFlowProcessType;
+  };
 }
 
 export type EvaluateFilterInput = {

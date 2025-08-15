@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/carousel";
 import Image from "next/image";
 import { getImageUrl } from "@/features/settings/utils";
+import { OutputTypeEnum } from "@/features/workflows/schema/create-workflow-schema";
 
 interface WorkflowStatusCardProps {
   request?: RequestDetail;
@@ -79,6 +80,30 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
     setIsImageDialogOpen(false);
     setSelectedImages([]);
     setDialogTitle("");
+  };
+
+  const outputType = request?.statusProduct.procedure.outputType;
+
+  const getProductTypeText = (type?: OutputTypeEnum) => {
+    switch (type) {
+      case OutputTypeEnum.ACCESSORY:
+        return "phụ kiện";
+      case OutputTypeEnum.PRODUCT:
+        return "sản phẩm";
+      default:
+        return "nguyên vật liệu";
+    }
+  };
+
+  const getWorkflowTitle = (type?: OutputTypeEnum) => {
+    switch (type) {
+      case OutputTypeEnum.ACCESSORY:
+        return "Quy trình phụ kiện";
+      case OutputTypeEnum.PRODUCT:
+        return "Quy trình sản phẩm";
+      default:
+        return "Quy trình nguyên vật liệu";
+    }
   };
 
   const renderApprovedState = () => (
@@ -178,13 +203,14 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-green-800">
               <CheckCircle className="h-5 w-5" />
-              Quy trình hoàn thành
+              {getWorkflowTitle(outputType)} hoàn thành
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-green-700">
-              Tất cả các bước trong quy trình đã được hoàn thành thành công. Bạn
-              có thể chuyển đổi yêu cầu này thành sản phẩm.
+              Tất cả các bước trong {getWorkflowTitle(outputType).toLowerCase()}{" "}
+              đã được hoàn thành thành công. Bạn có thể chuyển đổi yêu cầu này
+              thành {getProductTypeText(outputType)}.
             </p>
             <div className="flex gap-2">
               <Button
@@ -192,9 +218,8 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
                 onClick={onConvertToProduct}
               >
                 <Package className="h-4 w-4 mr-2" />
-                Chuyển thành sản phẩm
+                Chuyển thành {getProductTypeText(outputType)}
               </Button>
-              <Button variant="outline">Xuất báo cáo</Button>
             </div>
           </CardContent>
         </Card>
