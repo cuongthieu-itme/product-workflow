@@ -37,6 +37,9 @@ export const TextAreaCustom = <T extends FieldValues>({
     shouldUnregister,
   });
 
+  // Đảm bảo giá trị luôn là string hoặc undefined, không bao giờ là null
+  const safeValue = value === null ? "" : value;
+
   return (
     <div className="space-y-2">
       {label && (
@@ -49,7 +52,7 @@ export const TextAreaCustom = <T extends FieldValues>({
         <BaseInput
           id={name}
           placeholder={placeholder}
-          value={value}
+          value={safeValue}
           {...field}
           disabled={disabled}
           className={`w-full ${className} ${

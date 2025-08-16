@@ -328,7 +328,7 @@ export const Fields = ({
 
   // Component for handling number_array fields
   const NumberArrayField = ({ field }: { field: FieldType }) => {
-    const fieldName = field.value as string;
+    const fieldName = field.value ?? "numberArrayField"; // Fallback name if field.value is undefined
     const {
       fields: arrayFields,
       append,
@@ -611,7 +611,7 @@ export const Fields = ({
         );
 
       case "number_array":
-        return <NumberArrayField field={field} />;
+        return <NumberArrayField key={field.value} field={field} />;
 
       case "select":
       case "enum":
@@ -638,6 +638,25 @@ export const Fields = ({
               </div>
             );
           }
+        }
+
+        if (
+          field.enumValue === "PRICE_CALCULATOR" ||
+          field.enumValue === "CATEGORY"
+        ) {
+          return (
+            <div key={field.value} className="flex flex-col h-full">
+              <SelectCustom
+                options={options}
+                name={fieldName}
+                control={control}
+                label={field.label}
+                placeholder={`Chọn ${field.label.toLowerCase()}`}
+                className="w-full"
+                valueType="number"
+              />
+            </div>
+          );
         }
 
         // Handle VARIANT field specially
@@ -669,7 +688,6 @@ export const Fields = ({
               placeholder={`Chọn ${field.label.toLowerCase()}`}
               options={options}
               className="w-full"
-              valueType="number"
             />
           </div>
         );

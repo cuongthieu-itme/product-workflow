@@ -281,8 +281,12 @@ export const useUpdateFieldStepMutation = () => {
   return useMutation({
     mutationFn: updateFieldStep,
     onSuccess: () => {
-      queryClient.invalidateQueries();
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY],
+      });
     },
   });
 };
@@ -309,7 +313,12 @@ export const useHoldSubprocessMutation = () => {
   return useMutation({
     mutationFn: holdSubprocess,
     onSuccess: () => {
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY],
+      });
     },
   });
 };
@@ -320,7 +329,12 @@ export const useContinueSubprocessMutation = () => {
   return useMutation({
     mutationFn: continueSubprocess,
     onSuccess: () => {
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY],
+      });
     },
   });
 };

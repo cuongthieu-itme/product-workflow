@@ -44,16 +44,28 @@ export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
   useEffect(() => {
     if (!subprocessHistory || subprocessHistory.length === 0) return;
 
+    // Nếu đang có selected step, tìm step tương ứng trong subprocessHistory mới
+    if (selectedStep) {
+      const updatedStep = subprocessHistory.find(
+        (step) => step.id === selectedStep.id
+      );
+      if (updatedStep) {
+        setSelectedStep(updatedStep);
+        return;
+      }
+    }
+
+    // Nếu không có selected step hoặc không tìm thấy step tương ứng
+    // Kiểm tra nếu tất cả các bước đã được approve
     const allApproved = subprocessHistory.every((step) => step.isApproved);
     if (allApproved) {
       setSelectedStep(subprocessHistory[subprocessHistory.length - 1]);
       return;
     }
 
-    if (!selectedStep) {
-      setSelectedStep(subprocessHistory[0]);
-    }
-  }, [subprocessHistory]);
+    // Nếu không có step nào được chọn, chọn step đầu tiên
+    setSelectedStep(subprocessHistory[0]);
+  }, [subprocessHistory, selectedStep]);
 
   const getStepIcon = (status: StatusSubprocessHistory) => {
     switch (status) {

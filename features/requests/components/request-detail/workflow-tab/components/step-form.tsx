@@ -56,6 +56,8 @@ import { HoldSubprocessDialog } from "./hold-subprocess-dialog";
 import { MaterialRequestModal } from "./material-request-modal";
 import { useGetRequestDetailQuery } from "@/features/requests/hooks";
 import { getImageUrl } from "@/features/settings/utils";
+import { CompletedFieldsDisplay } from "./completed-fields-display";
+import { DynamicFieldsSection } from "./dynamic-fields-section";
 
 export const StepEditForm: React.FC<StepEditFormProps> = ({
   step,
@@ -275,60 +277,18 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
       isStepWithCost: step.isStepWithCost,
       // Thêm current values từ fieldSubprocess nếu có
       ...(step.fieldSubprocess
-        ? {
-            status: step.fieldSubprocess.status || "",
-            materialType: step.fieldSubprocess.materialType || "",
-            media: step.fieldSubprocess.media || [],
-            purchaseLink: step.fieldSubprocess.purchaseLink || [],
-            additionalNote: step.fieldSubprocess.additionalNote || "",
-            approvedBy: step.fieldSubprocess.approvedBy || "",
-            approvedTime: step.fieldSubprocess.approvedTime
-              ? new Date(step.fieldSubprocess.approvedTime)
-              : null,
-            purchaser: step.fieldSubprocess.purchaser || "",
-            purchasingTime: step.fieldSubprocess.purchasingTime
-              ? new Date(step.fieldSubprocess.purchasingTime)
-              : null,
-            trackingLink: step.fieldSubprocess.trackingLink || "",
-            receivedQuantity: step.fieldSubprocess.receivedQuantity || 0,
-            checkedBy: step.fieldSubprocess.checkedBy || "",
-            checkedTime: step.fieldSubprocess.checkedTime
-              ? new Date(step.fieldSubprocess.checkedTime)
-              : null,
-            sampleProductionPlan:
-              step.fieldSubprocess.sampleProductionPlan || "",
-            designer: step.fieldSubprocess.designer || "",
-            startTime: step.fieldSubprocess.startTime
-              ? new Date(step.fieldSubprocess.startTime)
-              : null,
-            completedTime: step.fieldSubprocess.completedTime
-              ? new Date(step.fieldSubprocess.completedTime)
-              : null,
-            productionFileLink: step.fieldSubprocess.productionFileLink || "",
-            sampleMaker: step.fieldSubprocess.sampleMaker || "",
-            sampleStatus: step.fieldSubprocess.sampleStatus || "",
-            sampleMediaLink: step.fieldSubprocess.sampleMediaLink || [],
-            // Map the first three media items into 3 single-file upload controls
-            sampleMediaLink_1: step.fieldSubprocess.sampleMediaLink?.[0]
-              ? [step.fieldSubprocess.sampleMediaLink[0]]
-              : [],
-            sampleMediaLink_2: step.fieldSubprocess.sampleMediaLink?.[1]
-              ? [step.fieldSubprocess.sampleMediaLink[1]]
-              : [],
-            sampleMediaLink_3: step.fieldSubprocess.sampleMediaLink?.[2]
-              ? [step.fieldSubprocess.sampleMediaLink[2]]
-              : [],
-            note: step.fieldSubprocess.note || "",
-            finalApprovedSampleImage:
-              step.fieldSubprocess.finalApprovedSampleImage || "",
-            // Array form for upload control of FINAL_APPROVED_SAMPLE_IMAGE
-            finalApprovedSampleImageArray: step.fieldSubprocess
-              .finalApprovedSampleImage
-              ? [step.fieldSubprocess.finalApprovedSampleImage]
-              : [],
-            finalProductVideo: step.fieldSubprocess.finalProductVideo || "",
-            // ... có thể thêm các fields khác nếu cần
-          }
+        ? Object.keys(step.fieldSubprocess).reduce((acc, key) => {
+            // Kiểm tra xem field có phải là file input không
+            const field = fields?.data?.find((f) => f.value === key);
+            if (field?.type?.toLowerCase() === "file") {
+              // Bỏ qua việc set giá trị cho file input
+              return acc;
+            }
+            // Set giá trị cho các trường không phải file
+            acc[key] =
+              step.fieldSubprocess?.[key as keyof typeof step.fieldSubprocess];
+            return acc;
+          }, {} as Record<string, any>)
         : {}),
       // Thêm default values cho dynamic fields nếu có
       ...(fields?.data?.reduce((acc, field) => {
@@ -375,11 +335,11 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
   useEffect(() => {
     if (
       step?.step === 1 &&
-      !getValues("sampleProductionPlan") &&
+      !getValues("fieldSubprocess.sampleProductionPlan") &&
       requestDetail?.approvalInfo?.productionPlan
     ) {
       setValue(
-        "sampleProductionPlan",
+        "fieldSubprocess.sampleProductionPlan",
         requestDetail.approvalInfo.productionPlan,
         { shouldDirty: true, shouldValidate: false }
       );
@@ -434,14 +394,20 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
 
   // Default sampleProductionPlan: prefer nearest previous; step 1 fallback from request.fieldSubprocess.sampleProductionPlan (then approvalInfo.productionPlan)
   useEffect(() => {
-    const current = getValues("sampleProductionPlan") as string | undefined;
+    const current = getValues("fieldSubprocess.sampleProductionPlan") as
+      | string
+      | undefined;
     if (current && current.trim().length > 0) return;
 
     if (nearestSampleProductionPlan) {
-      setValue("sampleProductionPlan", nearestSampleProductionPlan, {
-        shouldDirty: true,
-        shouldValidate: false,
-      });
+      setValue(
+        "fieldSubprocess.sampleProductionPlan",
+        nearestSampleProductionPlan,
+        {
+          shouldDirty: true,
+          shouldValidate: false,
+        }
+      );
       return;
     }
 
@@ -452,7 +418,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
         requestDetail?.approvalInfo?.productionPlan ||
         "";
       if (fallbackFromRequest) {
-        setValue("sampleProductionPlan", fallbackFromRequest, {
+        setValue("fieldSubprocess.sampleProductionPlan", fallbackFromRequest, {
           shouldDirty: true,
           shouldValidate: false,
         });
@@ -463,7 +429,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     // Other steps: fallback to approvalInfo.productionPlan
     if (requestDetail?.approvalInfo?.productionPlan) {
       setValue(
-        "sampleProductionPlan",
+        "fieldSubprocess.sampleProductionPlan",
         requestDetail.approvalInfo.productionPlan,
         {
           shouldDirty: true,
@@ -970,196 +936,22 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
           />
         )}
 
-        {/* Completed Fields Display Section - Show completed field values */}
-        {(step.isApproved ||
-          step.status === StatusSubprocessHistory.COMPLETED) &&
-          step.fieldSubprocess &&
-          Object.keys(step.fieldSubprocess).length > 0 && (
-            <div className="p-4 rounded-md border bg-green-50 shadow-sm">
-              <h3 className="text-lg font-medium mb-4 pb-2 border-b border-green-200 flex items-center gap-2">
-                <BadgeCheck className="text-green-600 w-5 h-5" />
-                Thông tin bổ sung đã hoàn thành
-              </h3>
+        <CompletedFieldsDisplay
+          step={step}
+          fields={fields}
+          shouldShowField={shouldShowField}
+          getOptionsForField={getOptionsForField}
+        />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {fields?.data
-                  ?.filter(
-                    (field) =>
-                      shouldShowField(field) &&
-                      (step.fieldSubprocess as any)?.[field.value as string]
-                  )
-                  .map((field) => {
-                    const fieldValue = (step.fieldSubprocess as any)?.[
-                      field.value as string
-                    ];
-
-                    // Helper function to get display value for select fields
-                    const getDisplayValue = (
-                      field: FieldType,
-                      value: any
-                    ): string => {
-                      if (!value && value !== 0) return "Chưa có dữ liệu";
-
-                      // Handle select/enum fields
-                      if (
-                        field.type.toLowerCase() === "select" ||
-                        field.type.toLowerCase() === "enum"
-                      ) {
-                        // Try to get the actual label from the options
-                        const options = getOptionsForField(field);
-                        const selectedOption = options.find(
-                          (opt) => opt.value == value
-                        );
-                        return selectedOption
-                          ? selectedOption.label
-                          : value.toString();
-                      }
-
-                      // Handle date fields
-                      if (field.type.toLowerCase() === "date") {
-                        try {
-                          return new Date(value).toLocaleDateString("vi-VN");
-                        } catch {
-                          return value.toString();
-                        }
-                      }
-
-                      return value.toString();
-                    };
-
-                    const isVideoUrl = (url: string) =>
-                      typeof url === "string" &&
-                      /\.(mp4|webm|mov|m4v)$/i.test(url);
-                    const isImageUrl = (url: string) =>
-                      typeof url === "string" &&
-                      /\.(png|jpe?g|webp|gif|svg)$/i.test(url);
-
-                    return (
-                      <div
-                        key={field.value}
-                        className="flex flex-col space-y-2"
-                      >
-                        <span className="text-sm font-medium text-green-800">
-                          {field.label}
-                        </span>
-                        <div className="text-sm text-green-700 bg-white p-3 rounded-md border border-green-200">
-                          {/* SAMPLE_MEDIA_LINK: array of media urls */}
-                          {field.enumValue === "SAMPLE_MEDIA_LINK" &&
-                          Array.isArray(fieldValue) ? (
-                            fieldValue.filter(Boolean).length > 0 ? (
-                              <div className="grid grid-cols-2 gap-3">
-                                {fieldValue
-                                  .filter(Boolean)
-                                  .map((url: string, idx: number) => (
-                                    <div key={idx} className="relative w-full">
-                                      {isVideoUrl(url) ? (
-                                        <video
-                                          src={getImageUrl(url)}
-                                          controls
-                                          className="w-full rounded-md border"
-                                        />
-                                      ) : (
-                                        <img
-                                          src={getImageUrl(url)}
-                                          alt={`media-${idx}`}
-                                          className="w-full rounded-md border object-cover"
-                                        />
-                                      )}
-                                    </div>
-                                  ))}
-                              </div>
-                            ) : (
-                              <span className="text-gray-500 italic">
-                                Chưa có dữ liệu
-                              </span>
-                            )
-                          ) : field.enumValue ===
-                              "FINAL_APPROVED_SAMPLE_IMAGE" &&
-                            typeof fieldValue === "string" &&
-                            fieldValue ? (
-                            <div className="relative w-full">
-                              <img
-                                src={getImageUrl(fieldValue)}
-                                alt="final-approved-sample"
-                                className="w-full rounded-md border object-cover"
-                              />
-                            </div>
-                          ) : field.enumValue === "FINAL_PRODUCT_VIDEO" &&
-                            typeof fieldValue === "string" &&
-                            fieldValue ? (
-                            <div className="relative w-full">
-                              <video
-                                src={fieldValue}
-                                controls
-                                className="w-full rounded-md border"
-                              />
-                            </div>
-                          ) : field.valueType === "string_array" &&
-                            Array.isArray(fieldValue) ? (
-                            fieldValue.filter(Boolean).length > 0 ? (
-                              <ul className="space-y-1">
-                                {fieldValue
-                                  .filter(Boolean)
-                                  .map((item: string, index: number) => (
-                                    <li key={index} className="text-sm">
-                                      • {item}
-                                    </li>
-                                  ))}
-                              </ul>
-                            ) : (
-                              <span className="text-gray-500 italic">
-                                Chưa có dữ liệu
-                              </span>
-                            )
-                          ) : (
-                            <span>{getDisplayValue(field, fieldValue)}</span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
-          )}
-
-        {/* Dynamic Fields Section - Only show when step is not completed or user can edit */}
-        {fields?.data &&
-          fields.data.length > 0 &&
-          !step.isApproved &&
-          step.status !== StatusSubprocessHistory.COMPLETED && (
-            <div className="p-4 rounded-md border bg-card shadow-sm overflow-visible">
-              <h3 className="text-lg font-medium mb-4 pb-2 border-b flex items-center gap-2">
-                <Settings className="text-primary w-5 h-5" />
-                Thông tin bổ sung
-                {fields?.data?.filter((field) => shouldShowField(field))
-                  .length > 0 && (
-                  <span className="text-sm text-red-600 font-normal">
-                    (* Tất cả các trường đều bắt buộc để hoàn thành)
-                  </span>
-                )}
-              </h3>
-
-              <Fields
-                fields={fields}
-                control={control}
-                shouldShowField={shouldShowField}
-                isCompleted={step.isApproved}
-                values={step.fieldSubprocess || {}}
-                nearestSampleMedia={nearestSampleMedia}
-                nearestApprovedSampleImage={nearestApprovedSampleImage}
-                previousStepValues={previousStepValues}
-              />
-
-              {/* Show message if no fields to display */}
-              {fields?.data &&
-                fields.data.filter((field) => shouldShowField(field)).length ===
-                  0 && (
-                  <div className="text-center text-gray-500 py-4">
-                    Không có trường nào để hiển thị
-                  </div>
-                )}
-            </div>
-          )}
+        <DynamicFieldsSection
+          fields={fields}
+          control={control}
+          shouldShowField={shouldShowField}
+          step={step}
+          nearestSampleMedia={nearestSampleMedia}
+          nearestApprovedSampleImage={nearestApprovedSampleImage}
+          previousStepValues={previousStepValues}
+        />
 
         <div className="mt-6 border-t pt-4 flex justify-between items-center">
           <div className="flex justify-end gap-2">
@@ -1191,63 +983,69 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
               </Button>
             )}
 
-            {/* Button Hold - Hiển thị khi có thể hold */}
-            {(isAdmin || isAssignedUser || hasStartTime) &&
-              holdInfo.canHold && (
-                <HoldSubprocessDialog
-                  subprocessId={step.id}
-                  disabled={isSubmitting}
-                >
-                  <Button
+            {/* Only show hold and complete buttons after start time */}
+            {hasStartTime && (
+              <>
+                {/* Button Hold - Display only when step is in progress */}
+                {(isAdmin || isAssignedUser) && holdInfo.canHold && (
+                  <HoldSubprocessDialog
+                    subprocessId={step.id}
                     disabled={isSubmitting}
-                    variant="secondary"
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white flex items-center"
                   >
-                    <Pause className="w-4 h-4 mr-2" />
-                    {holdInfo.nextAction === "hold1" && "Tạm dừng (1/3)"}
-                    {holdInfo.nextAction === "hold2" && "Tạm dừng (2/3)"}
-                    {holdInfo.nextAction === "hold3" && "Tạm dừng (3/3)"}
+                    <Button
+                      disabled={isSubmitting}
+                      variant="secondary"
+                      className="bg-yellow-600 hover:bg-yellow-700 text-white flex items-center"
+                    >
+                      <Pause className="w-4 h-4 mr-2" />
+                      {holdInfo.nextAction === "hold1" && "Tạm dừng (1/3)"}
+                      {holdInfo.nextAction === "hold2" && "Tạm dừng (2/3)"}
+                      {holdInfo.nextAction === "hold3" && "Tạm dừng (3/3)"}
+                    </Button>
+                  </HoldSubprocessDialog>
+                )}
+
+                {/* Button Continue - Display when step is on hold */}
+                {(isAdmin || isAssignedUser) && holdInfo.canContinue && (
+                  <Button
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={handleContinueSubprocess}
+                    variant="default"
+                    className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    {holdInfo.nextAction === "continue1" && "Tiếp tục 1"}
+                    {holdInfo.nextAction === "continue2" && "Tiếp tục 2"}
+                    {holdInfo.nextAction === "continue3" && "Tiếp tục 3"}
                   </Button>
-                </HoldSubprocessDialog>
-              )}
-            {/* Button Continue - Hiển thị khi có thể continue */}
-            {(isAdmin || isAssignedUser) && holdInfo.canContinue && (
-              <Button
-                type="button"
-                disabled={isSubmitting}
-                onClick={handleContinueSubprocess}
-                variant="default"
-                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
-              >
-                <Play className="w-4 h-4 mr-2" />
-                {holdInfo.nextAction === "continue1" && "Tiếp tục 1"}
-                {holdInfo.nextAction === "continue2" && "Tiếp tục 2"}
-                {holdInfo.nextAction === "continue3" && "Tiếp tục 3"}
-              </Button>
+                )}
+
+                {/* Button Complete - Hide when on hold */}
+                {(isAdmin || isAssignedUser) && !holdInfo.isCurrentlyOnHold && (
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    onClick={() => {
+                      setCompleteMode(true);
+                      setValidationErrors([]);
+                      setShowValidationErrors(false);
+                    }}
+                    variant="default"
+                    className="bg-green-600 hover:bg-green-700 flex items-center"
+                  >
+                    {isSubmitting && completeMode ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                    )}
+                    Hoàn thành
+                  </Button>
+                )}
+              </>
             )}
 
-            {/* Button Hoàn thành - Ẩn khi đang hold */}
-            {(isAdmin || isAssignedUser) && !holdInfo.isCurrentlyOnHold && (
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                onClick={() => {
-                  setCompleteMode(true);
-                  // Reset validation errors khi click hoàn thành
-                  setValidationErrors([]);
-                  setShowValidationErrors(false);
-                }}
-                variant="default"
-                className="bg-green-600 hover:bg-green-700 flex items-center"
-              >
-                {isSubmitting && completeMode ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                )}
-                Hoàn thành
-              </Button>
-            )}
+            {/* Admin approval button for completed steps */}
             {isAdmin &&
               step.status === StatusSubprocessHistory.COMPLETED &&
               !step.isApproved && (
@@ -1271,6 +1069,16 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
               )}
           </div>
         </div>
+        {/* Display completion note when step is completed but not approved */}
+        {step.status === StatusSubprocessHistory.COMPLETED &&
+          !step.isApproved && (
+            <div className="flex items-center gap-2 text-yellow-600">
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                Bạn đã hoàn thành bước này, vui lòng chờ quản trị viên duyệt.
+              </span>
+            </div>
+          )}
 
         {/* Material Request Modal */}
       </form>

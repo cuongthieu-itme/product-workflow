@@ -23,6 +23,7 @@ import { useCategoriesQuery } from "@/features/categories/hooks";
 import { useProductsStatusQuery } from "@/features/products-status/hooks";
 import { useMaterialsQuery } from "@/features/materials/hooks";
 import { useUsersQuery } from "@/features/users/hooks";
+import { getImageUrl } from "@/features/settings/utils";
 
 interface StepInfoProps {
   step: SubprocessHistoryType;
@@ -113,12 +114,89 @@ export const StepInfo = ({
     }
   };
 
+  const isVideoUrl = (url: string) =>
+    typeof url === "string" && /\.(mp4|webm|mov|m4v)$/i.test(url);
+
   // Helper function to format display value for completed fields
   const formatDisplayValue = (field: FieldType, value: any) => {
     if (!value) return "Chưa có dữ liệu";
 
+    // Handle SAMPLE_MEDIA_LINK field
+    if (field.enumValue === "SAMPLE_MEDIA_LINK" && Array.isArray(value)) {
+      return (
+        <div className="grid grid-cols-2 gap-3">
+          {value.filter(Boolean).map((url: string, idx: number) => (
+            <div key={idx} className="relative w-full">
+              {isVideoUrl(url) ? (
+                <video
+                  src={getImageUrl(url)}
+                  controls
+                  className="w-full rounded-md border"
+                />
+              ) : (
+                <img
+                  src={getImageUrl(url)}
+                  alt={`media-${idx}`}
+                  className="w-full rounded-md border object-cover"
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // Handle FINAL_APPROVED_SAMPLE_IMAGE field
+    if (
+      field.enumValue === "FINAL_APPROVED_SAMPLE_IMAGE" &&
+      typeof value === "string" &&
+      value
+    ) {
+      return (
+        <div className="relative w-full">
+          <img
+            src={getImageUrl(value)}
+            alt="final-approved-sample"
+            className="w-full h-48 rounded-md border object-cover"
+          />
+        </div>
+      );
+    }
+
+    // Handle FINAL_PRODUCT_VIDEO field
+    if (
+      field.enumValue === "FINAL_PRODUCT_VIDEO" &&
+      typeof value === "string" &&
+      value
+    ) {
+      return (
+        <div className="relative w-full">
+          <video
+            src={getImageUrl(value)}
+            controls
+            className="w-full rounded-md border"
+          />
+        </div>
+      );
+    }
+
     // Handle array values
     if (Array.isArray(value)) {
+      if (field.valueType === "string_array") {
+        const filteredValues = value.filter(Boolean);
+        if (filteredValues.length === 0) {
+          return <span className="text-gray-500 italic">Chưa có dữ liệu</span>;
+        }
+        return (
+          <ul className="space-y-1">
+            {filteredValues.map((item: string, index: number) => (
+              <li key={index} className="text-sm">
+                • {item}
+              </li>
+            ))}
+          </ul>
+        );
+      }
       return value.filter(Boolean).join(", ") || "Chưa có dữ liệu";
     }
 
@@ -127,7 +205,81 @@ export const StepInfo = ({
       field.type.toLowerCase() === "select" ||
       field.type.toLowerCase() === "enum"
     ) {
-      return getSelectDisplayValue(field, value);
+      // Special cases for specific enum values
+      switch (field.enumValue) {
+        case "MATERIAL_SENT_TO_RD":
+          const materialSentOptions = [
+            { label: "Có", value: "yes" },
+            { label: "Không", value: "no" },
+          ];
+          const selectedMaterialSent = materialSentOptions.find(
+            (opt) => opt.value === value
+          );
+          return selectedMaterialSent
+            ? selectedMaterialSent.label
+            : value.toString();
+
+        case "SAMPLE_STATUS":
+          const sampleStatusOptions = [
+            { label: "Chờ xử lý", value: "pending" },
+            { label: "Đang thực hiện", value: "in_progress" },
+            { label: "Hoàn thành", value: "completed" },
+            { label: "Thất bại", value: "failed" },
+          ];
+          const selectedSampleStatus = sampleStatusOptions.find(
+            (opt) => opt.value === value
+          );
+          return selectedSampleStatus
+            ? selectedSampleStatus.label
+            : value.toString();
+
+        default:
+          // Try to get label from getSelectDisplayValue helper
+          const displayValue = getSelectDisplayValue(field, value);
+          if (displayValue !== value.toString()) {
+            return displayValue;
+          }
+
+          // Try to parse enumValue if it's a JSON string
+          if (field.enumValue) {
+            try {
+              const parsedOptions = JSON.parse(field.enumValue);
+              if (Array.isArray(parsedOptions)) {
+                const option = parsedOptions.find((opt) => opt.value === value);
+                if (option) {
+                  return option.label;
+                }
+              }
+            } catch (e) {
+              // If not JSON, try to split by comma
+              const splitOptions = field.enumValue.split(",");
+              const matchedOption = splitOptions.find(
+                (opt) => opt.trim() === value
+              );
+              if (matchedOption) {
+                return matchedOption;
+              }
+            }
+          }
+
+          // Fallback to default status options if field name contains "status"
+          if (field.value?.toLowerCase().includes("status")) {
+            const defaultStatusOptions = [
+              { label: "Chờ xử lý", value: "pending" },
+              { label: "Đang xử lý", value: "processing" },
+              { label: "Hoàn thành", value: "completed" },
+              { label: "Đã hủy", value: "cancelled" },
+            ];
+            const selectedStatus = defaultStatusOptions.find(
+              (opt) => opt.value === value
+            );
+            if (selectedStatus) {
+              return selectedStatus.label;
+            }
+          }
+
+          return value.toString();
+      }
     }
 
     // Handle date fields
@@ -363,26 +515,7 @@ export const StepInfo = ({
                         {field.label}
                       </span>
                       <div className="text-sm text-gray-800 bg-gray-50 p-3 rounded-md border">
-                        {field.valueType === "string_array" &&
-                        Array.isArray(fieldValue) ? (
-                          fieldValue.filter(Boolean).length > 0 ? (
-                            <ul className="space-y-1">
-                              {fieldValue
-                                .filter(Boolean)
-                                .map((item: string, index: number) => (
-                                  <li key={index} className="text-sm">
-                                    • {item}
-                                  </li>
-                                ))}
-                            </ul>
-                          ) : (
-                            <span className="text-gray-500 italic">
-                              Chưa có dữ liệu
-                            </span>
-                          )
-                        ) : (
-                          <span>{formatDisplayValue(field, fieldValue)}</span>
-                        )}
+                        {formatDisplayValue(field, fieldValue)}
                       </div>
                     </div>
                   );
