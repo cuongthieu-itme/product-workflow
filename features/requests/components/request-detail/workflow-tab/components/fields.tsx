@@ -488,6 +488,34 @@ export const Fields = ({
         "video/quicktime": [".mov"],
       } as const;
 
+      if (nearestSampleMedia) {
+        return (
+          <div key={field.value} className="flex flex-col h-full space-y-2">
+            <label className="text-sm font-medium">{field.label}</label>
+            <div className="flex gap-3 overflow-x-auto">
+              {nearestSampleMedia.map((media, index) => (
+                <div key={index} className="min-w-[220px]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {getImageUrl(media) ? (
+                    <img
+                      src={getImageUrl(media)}
+                      alt={`Media ${index + 1}`}
+                      className="min-w-[190px] min-h-[200px] object-cover rounded-md border"
+                    />
+                  ) : (
+                    <video
+                      src={media}
+                      controls
+                      className="min-w-[190px] min-h-[200px] object-cover rounded-md border"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
       return (
         <div key={field.value} className="flex flex-col h-full space-y-2">
           <label className="text-sm font-medium">{field.label}</label>
