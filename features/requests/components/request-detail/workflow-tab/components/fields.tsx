@@ -13,6 +13,7 @@ import { useFieldArray } from "react-hook-form";
 import { getImageUrl } from "@/features/settings/utils";
 import { generateTypeFile } from "@/components/common/upload/helper";
 import { UploadFile } from "@/components/common/upload";
+import { number } from "zod/dist/types/v4/core/regexes";
 
 interface FieldsProps {
   shouldShowField: (field: FieldType) => boolean; // Function to determine if field should be shown
@@ -22,6 +23,7 @@ interface FieldsProps {
   values?: any; // Form values to display when completed
   nearestSampleMedia?: string[]; // Media from nearest previous step
   nearestApprovedSampleImage?: string; // Image from nearest previous step
+  previousStepValues?: any;
 }
 
 export const Fields = ({
@@ -32,6 +34,7 @@ export const Fields = ({
   values,
   nearestSampleMedia = [],
   nearestApprovedSampleImage = "",
+  previousStepValues,
 }: FieldsProps) => {
   const { data: users } = useUsersQuery({ limit: 10000 });
   const { data: categories } = useCategoriesQuery({ limit: 10000 });
@@ -135,6 +138,7 @@ export const Fields = ({
       case "MOCKUP_CHECKER":
       case "APPROVED_BY":
       case "DESIGNER":
+      case "PRICE_CALCULATOR":
         return (
           users?.data?.map((user) => ({
             label: user.fullName,
@@ -142,9 +146,16 @@ export const Fields = ({
           })) || []
         );
 
+      case "SAMPLE_STATUS":
+        return [
+          { label: "Chờ xử lý", value: "pending" },
+          { label: "Đang thực hiện", value: "in_progress" },
+          { label: "Hoàn thành", value: "completed" },
+          { label: "Thất bại", value: "failed" },
+        ];
+
       // Status fields
       case "STATUS":
-      case "SAMPLE_STATUS":
       case "PRODUCT_FEEDBACK_STATUS":
       case "PURCHASE_STATUS":
       case "TEMPLATE_CHECKING_STATUS":
@@ -335,8 +346,7 @@ export const Fields = ({
           <label className="text-sm font-medium">{field.label}</label>
           <div className="flex gap-3 overflow-x-auto">
             <UploadFile
-          hideUploadWhenHavePreview={true}
-
+              hideUploadWhenHavePreview={true}
               name={`${fieldName}_1`}
               control={control}
               label={`Ảnh/Video 1`}
@@ -347,8 +357,7 @@ export const Fields = ({
               previewClasses="min-w-[190px] min-h-[200px] object-cover"
             />
             <UploadFile
-          hideUploadWhenHavePreview={true}
-
+              hideUploadWhenHavePreview={true}
               name={`${fieldName}_2`}
               control={control}
               label={`Ảnh/Video 2`}
@@ -359,8 +368,7 @@ export const Fields = ({
               previewClasses="min-w-[190px] min-h-[200px] object-cover"
             />
             <UploadFile
-          hideUploadWhenHavePreview={true}
-
+              hideUploadWhenHavePreview={true}
               name={`${fieldName}_3`}
               control={control}
               label={`Ảnh/Video 3`}
@@ -401,7 +409,7 @@ export const Fields = ({
       return (
         <div key={field.value} className="flex items-start h-full">
           <UploadFile
-          hideUploadWhenHavePreview={true}
+            hideUploadWhenHavePreview={true}
             name={`${fieldName}Array`}
             control={control}
             label={field.label}
@@ -410,7 +418,7 @@ export const Fields = ({
             content="Kéo thả hoặc chọn hình ảnh"
             className="w-full"
             previewClasses="min-w-[200px]"
-          /> 
+          />
         </div>
       );
     }
@@ -513,8 +521,50 @@ export const Fields = ({
 
       case "select":
       case "enum":
-        // Get options from API data based on enumValue mapping
         const options = getOptionsForField(field);
+
+        // Handle DESIGNER field specially
+        if (field.enumValue === "DESIGNER") {
+          const previousDesigner = previousStepValues?.[fieldName];
+
+          if (previousDesigner) {
+            const designerOption = users?.data?.find(
+              (u) => u.id === previousDesigner
+            );
+            return (
+              <div key={field.value} className="flex flex-col space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  {field.label}
+                </label>
+                <div className="p-3 bg-gray-50 rounded-md border">
+                  <span className="text-sm text-gray-800">
+                    {designerOption?.fullName || "Không tìm thấy thông tin"}
+                  </span>
+                </div>
+              </div>
+            );
+          }
+        }
+
+        // Handle VARIANT field specially
+        if (field.enumValue === "VARIANT") {
+          const previousVariant = previousStepValues?.[fieldName];
+
+          if (previousVariant) {
+            return (
+              <div key={field.value} className="flex flex-col h-full">
+                <InputCustom
+                  name={fieldName}
+                  control={control}
+                  label={field.label}
+                  placeholder={`Nhập ${field.label.toLowerCase()}`}
+                  className="w-full"
+                  defaultValue={previousVariant}
+                />
+              </div>
+            );
+          }
+        }
 
         return (
           <div key={field.value} className="flex flex-col h-full">

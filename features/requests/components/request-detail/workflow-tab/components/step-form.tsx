@@ -68,6 +68,31 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
   const userAvatar = user?.avatarUrl || undefined;
 
   const { data: fields } = useGetFieldStep();
+  const previousStepValues = useMemo(() => {
+    // Lọc ra các bước trước step hiện tại
+    const previousSteps = steps
+      .filter((s) => s.step === step.step && s.id < step.id)
+      .sort((a, b) => b.id - a.id); // Sắp xếp giảm dần theo ID để lấy bước gần nhất
+
+    // Khởi tạo object để lưu giá trị
+    const result: Record<string, any> = {};
+
+    // Lặp qua các bước trước để lấy giá trị
+    for (const prevStep of previousSteps) {
+      if (prevStep.fieldSubprocess) {
+        Object.entries(prevStep.fieldSubprocess).forEach(([key, value]) => {
+          // Chỉ lưu giá trị nếu trường đó chưa có trong result
+          if (!(key in result)) {
+            result[key] = value;
+          }
+        });
+      }
+    }
+
+    return result;
+  }, [step, steps]);
+
+  console.log("Previous Step Values:", previousStepValues);
 
   // Fetch data for select field mapping
   const { data: users } = useUsersQuery({ limit: 10000 });
@@ -197,19 +222,23 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
   // Function để validate các field bắt buộc
   const validateRequiredFields = (formData: any): string[] => {
     const errors: string[] = [];
-    
+
     if (!fields?.data) return errors;
 
     // Kiểm tra tất cả các field hiển thị đều phải có dữ liệu để hoàn thành
     fields.data.forEach((field) => {
       if (shouldShowField(field)) {
         const fieldValue = formData[field.value];
-        
+
         // Kiểm tra field có giá trị hay không
-        if (!fieldValue || 
-            (Array.isArray(fieldValue) && fieldValue.filter(Boolean).length === 0) ||
-            (typeof fieldValue === 'string' && fieldValue.trim() === '') ||
-            (fieldValue === null || fieldValue === undefined)) {
+        if (
+          !fieldValue ||
+          (Array.isArray(fieldValue) &&
+            fieldValue.filter(Boolean).length === 0) ||
+          (typeof fieldValue === "string" && fieldValue.trim() === "") ||
+          fieldValue === null ||
+          fieldValue === undefined
+        ) {
           errors.push(`${field.label} là bắt buộc`);
         }
       }
@@ -280,26 +309,23 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
             sampleStatus: step.fieldSubprocess.sampleStatus || "",
             sampleMediaLink: step.fieldSubprocess.sampleMediaLink || [],
             // Map the first three media items into 3 single-file upload controls
-            sampleMediaLink_1:
-              step.fieldSubprocess.sampleMediaLink?.[0]
-                ? [step.fieldSubprocess.sampleMediaLink[0]]
-                : [],
-            sampleMediaLink_2:
-              step.fieldSubprocess.sampleMediaLink?.[1]
-                ? [step.fieldSubprocess.sampleMediaLink[1]]
-                : [],
-            sampleMediaLink_3:
-              step.fieldSubprocess.sampleMediaLink?.[2]
-                ? [step.fieldSubprocess.sampleMediaLink[2]]
-                : [],
+            sampleMediaLink_1: step.fieldSubprocess.sampleMediaLink?.[0]
+              ? [step.fieldSubprocess.sampleMediaLink[0]]
+              : [],
+            sampleMediaLink_2: step.fieldSubprocess.sampleMediaLink?.[1]
+              ? [step.fieldSubprocess.sampleMediaLink[1]]
+              : [],
+            sampleMediaLink_3: step.fieldSubprocess.sampleMediaLink?.[2]
+              ? [step.fieldSubprocess.sampleMediaLink[2]]
+              : [],
             note: step.fieldSubprocess.note || "",
             finalApprovedSampleImage:
               step.fieldSubprocess.finalApprovedSampleImage || "",
             // Array form for upload control of FINAL_APPROVED_SAMPLE_IMAGE
-            finalApprovedSampleImageArray:
-              step.fieldSubprocess.finalApprovedSampleImage
-                ? [step.fieldSubprocess.finalApprovedSampleImage]
-                : [],
+            finalApprovedSampleImageArray: step.fieldSubprocess
+              .finalApprovedSampleImage
+              ? [step.fieldSubprocess.finalApprovedSampleImage]
+              : [],
             finalProductVideo: step.fieldSubprocess.finalProductVideo || "",
             // ... có thể thêm các fields khác nếu cần
           }
@@ -364,7 +390,9 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
   // Compute nearest previous SAMPLE_MEDIA_LINK for current step
   const nearestSampleMedia = useMemo(() => {
     if (!Array.isArray(steps) || !step) return [] as string[];
-    const currentIndex = steps.findIndex((s: SubprocessHistoryType) => s.id === step.id);
+    const currentIndex = steps.findIndex(
+      (s: SubprocessHistoryType) => s.id === step.id
+    );
     for (let i = currentIndex - 1; i >= 0; i--) {
       const media = steps[i]?.fieldSubprocess?.sampleMediaLink;
       if (Array.isArray(media) && media.length > 0) {
@@ -377,7 +405,9 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
   // Compute nearest previous FINAL_APPROVED_SAMPLE_IMAGE for current step
   const nearestApprovedSampleImage = useMemo(() => {
     if (!Array.isArray(steps) || !step) return "";
-    const currentIndex = steps.findIndex((s: SubprocessHistoryType) => s.id === step.id);
+    const currentIndex = steps.findIndex(
+      (s: SubprocessHistoryType) => s.id === step.id
+    );
     for (let i = currentIndex - 1; i >= 0; i--) {
       const img = steps[i]?.fieldSubprocess?.finalApprovedSampleImage;
       if (img && typeof img === "string" && img.trim().length > 0) {
@@ -390,7 +420,9 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
   // Compute nearest previous SAMPLE_PRODUCTION_PLAN
   const nearestSampleProductionPlan = useMemo(() => {
     if (!Array.isArray(steps) || !step) return "";
-    const currentIndex = steps.findIndex((s: SubprocessHistoryType) => s.id === step.id);
+    const currentIndex = steps.findIndex(
+      (s: SubprocessHistoryType) => s.id === step.id
+    );
     for (let i = currentIndex - 1; i >= 0; i--) {
       const plan = steps[i]?.fieldSubprocess?.sampleProductionPlan;
       if (plan && typeof plan === "string" && plan.trim().length > 0) {
@@ -430,13 +462,22 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
 
     // Other steps: fallback to approvalInfo.productionPlan
     if (requestDetail?.approvalInfo?.productionPlan) {
-      setValue("sampleProductionPlan", requestDetail.approvalInfo.productionPlan, {
-        shouldDirty: true,
-        shouldValidate: false,
-      });
+      setValue(
+        "sampleProductionPlan",
+        requestDetail.approvalInfo.productionPlan,
+        {
+          shouldDirty: true,
+          shouldValidate: false,
+        }
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nearestSampleProductionPlan, step?.step, requestDetail?.fieldSubprocess?.sampleProductionPlan, requestDetail?.approvalInfo?.productionPlan]);
+  }, [
+    nearestSampleProductionPlan,
+    step?.step,
+    requestDetail?.fieldSubprocess?.sampleProductionPlan,
+    requestDetail?.approvalInfo?.productionPlan,
+  ]);
 
   const { mutate: updateSubprocessHistory } =
     useUpdateSubprocessHistoryMutation();
@@ -519,7 +560,8 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
         setShowValidationErrors(true);
         toast({
           title: "Lỗi validation",
-          description: "Vui lòng điền đầy đủ các trường bắt buộc trước khi hoàn thành",
+          description:
+            "Vui lòng điền đầy đủ các trường bắt buộc trước khi hoàn thành",
           variant: "destructive",
         });
         return;
@@ -747,7 +789,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
             title: "Thất bại",
             description: "Có lỗi xảy ra khi phê duyệt bước",
             variant: "destructive",
-        });
+          });
           setApproveMode(false);
         },
       }
@@ -790,7 +832,10 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
             </div>
             <ul className="space-y-1">
               {validationErrors.map((error, index) => (
-                <li key={index} className="text-sm text-red-700 flex items-center gap-2">
+                <li
+                  key={index}
+                  className="text-sm text-red-700 flex items-center gap-2"
+                >
                   <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                   {error}
                 </li>
@@ -999,41 +1044,72 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
                         </span>
                         <div className="text-sm text-green-700 bg-white p-3 rounded-md border border-green-200">
                           {/* SAMPLE_MEDIA_LINK: array of media urls */}
-                          {field.enumValue === "SAMPLE_MEDIA_LINK" && Array.isArray(fieldValue) ? (
+                          {field.enumValue === "SAMPLE_MEDIA_LINK" &&
+                          Array.isArray(fieldValue) ? (
                             fieldValue.filter(Boolean).length > 0 ? (
                               <div className="grid grid-cols-2 gap-3">
-                                {fieldValue.filter(Boolean).map((url: string, idx: number) => (
-                                  <div key={idx} className="relative w-full">
-                                    {isVideoUrl(url) ? (
-                                      <video src={getImageUrl(url)} controls className="w-full rounded-md border" />
-                                    ) : (
-                                      <img src={getImageUrl(url)} alt={`media-${idx}`} className="w-full rounded-md border object-cover" />
-                                    )}
-                                  </div>
-                                ))}
+                                {fieldValue
+                                  .filter(Boolean)
+                                  .map((url: string, idx: number) => (
+                                    <div key={idx} className="relative w-full">
+                                      {isVideoUrl(url) ? (
+                                        <video
+                                          src={getImageUrl(url)}
+                                          controls
+                                          className="w-full rounded-md border"
+                                        />
+                                      ) : (
+                                        <img
+                                          src={getImageUrl(url)}
+                                          alt={`media-${idx}`}
+                                          className="w-full rounded-md border object-cover"
+                                        />
+                                      )}
+                                    </div>
+                                  ))}
                               </div>
                             ) : (
-                              <span className="text-gray-500 italic">Chưa có dữ liệu</span>
+                              <span className="text-gray-500 italic">
+                                Chưa có dữ liệu
+                              </span>
                             )
-                          ) : field.enumValue === "FINAL_APPROVED_SAMPLE_IMAGE" && typeof fieldValue === "string" && fieldValue ? (
+                          ) : field.enumValue ===
+                              "FINAL_APPROVED_SAMPLE_IMAGE" &&
+                            typeof fieldValue === "string" &&
+                            fieldValue ? (
                             <div className="relative w-full">
-                              <img src={getImageUrl(fieldValue)} alt="final-approved-sample" className="w-full rounded-md border object-cover" />
+                              <img
+                                src={getImageUrl(fieldValue)}
+                                alt="final-approved-sample"
+                                className="w-full rounded-md border object-cover"
+                              />
                             </div>
-                          ) : field.enumValue === "FINAL_PRODUCT_VIDEO" && typeof fieldValue === "string" && fieldValue ? (
+                          ) : field.enumValue === "FINAL_PRODUCT_VIDEO" &&
+                            typeof fieldValue === "string" &&
+                            fieldValue ? (
                             <div className="relative w-full">
-                              <video src={fieldValue} controls className="w-full rounded-md border" />
+                              <video
+                                src={fieldValue}
+                                controls
+                                className="w-full rounded-md border"
+                              />
                             </div>
-                          ) : field.valueType === "string_array" && Array.isArray(fieldValue) ? (
+                          ) : field.valueType === "string_array" &&
+                            Array.isArray(fieldValue) ? (
                             fieldValue.filter(Boolean).length > 0 ? (
                               <ul className="space-y-1">
                                 {fieldValue
                                   .filter(Boolean)
                                   .map((item: string, index: number) => (
-                                    <li key={index} className="text-sm">• {item}</li>
+                                    <li key={index} className="text-sm">
+                                      • {item}
+                                    </li>
                                   ))}
                               </ul>
                             ) : (
-                              <span className="text-gray-500 italic">Chưa có dữ liệu</span>
+                              <span className="text-gray-500 italic">
+                                Chưa có dữ liệu
+                              </span>
                             )
                           ) : (
                             <span>{getDisplayValue(field, fieldValue)}</span>
@@ -1055,7 +1131,8 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
               <h3 className="text-lg font-medium mb-4 pb-2 border-b flex items-center gap-2">
                 <Settings className="text-primary w-5 h-5" />
                 Thông tin bổ sung
-                {fields?.data?.filter((field) => shouldShowField(field)).length > 0 && (
+                {fields?.data?.filter((field) => shouldShowField(field))
+                  .length > 0 && (
                   <span className="text-sm text-red-600 font-normal">
                     (* Tất cả các trường đều bắt buộc để hoàn thành)
                   </span>
@@ -1070,6 +1147,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
                 values={step.fieldSubprocess || {}}
                 nearestSampleMedia={nearestSampleMedia}
                 nearestApprovedSampleImage={nearestApprovedSampleImage}
+                previousStepValues={previousStepValues}
               />
 
               {/* Show message if no fields to display */}

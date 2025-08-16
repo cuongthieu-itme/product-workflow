@@ -45,7 +45,7 @@ export type UploadFileProps<T extends FieldValues> = UseControllerProps<T> & {
   hideHeader?: boolean;
   content?: string;
   previewClasses?: string;
-  hideUploadWhenHavePreview?: boolean
+  hideUploadWhenHavePreview?: boolean;
 };
 
 export const UploadFile = <T extends FieldValues>({
@@ -66,7 +66,7 @@ export const UploadFile = <T extends FieldValues>({
   content,
   previewClasses,
   disabled = false,
-  hideUploadWhenHavePreview=false 
+  hideUploadWhenHavePreview = false,
 }: UploadFileProps<T>) => {
   const { toast } = useToast();
   const {
@@ -207,40 +207,37 @@ export const UploadFile = <T extends FieldValues>({
         <CardContent className="p-4">
           {/* Drop zone */}
           {
-            !hideUploadWhenHavePreview && previews.length >= 1 && (
-               <div
-            {...getRootProps()}
-            className={cn(
-              "border-2 border-dashed rounded-lg p-4 cursor-pointer transition-colors",
-              isDragActive
-                ? "border-primary bg-primary/10"
-                : "border-muted-foreground"
-            )}
-          >
-            <div className="flex flex-col items-center gap-2 ">
-              <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-sm text-muted-foreground">
-                {value.length >= maxFiles
-                  ? `Đã đạt giới hạn ${maxFiles} file`
-                  : content ?? "Kéo thả hoặc chọn file"}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(accept).map(([type, extensions]) => (
-                  <Badge key={type} variant="outline" className="text-xs">
-                    {extensions.map((ext) => ext.replace(".", "")).join(", ")}
-                  </Badge>
-                ))}
+            <div
+              {...getRootProps()}
+              className={cn(
+                "border-2 border-dashed rounded-lg p-4 cursor-pointer transition-colors",
+                isDragActive
+                  ? "border-primary bg-primary/10"
+                  : "border-muted-foreground"
+              )}
+            >
+              <div className="flex flex-col items-center gap-2 ">
+                <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-sm text-muted-foreground">
+                  {value.length >= maxFiles
+                    ? `Đã đạt giới hạn ${maxFiles} file`
+                    : content ?? "Kéo thả hoặc chọn file"}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(accept).map(([type, extensions]) => (
+                    <Badge key={type} variant="outline" className="text-xs">
+                      {extensions.map((ext) => ext.replace(".", "")).join(", ")}
+                    </Badge>
+                  ))}
+                </div>
               </div>
+              <Input
+                {...getInputProps()}
+                className="hidden"
+                disabled={disabled || value.length >= maxFiles}
+              />
             </div>
-            <Input
-              {...getInputProps()}
-              className="hidden"
-              disabled={disabled || value.length >= maxFiles}
-            />
-          </div>
-            )
           }
-         
 
           {/* Previews with Drag and Drop */}
           {previews.length > 0 && (
