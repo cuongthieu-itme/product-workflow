@@ -451,8 +451,34 @@ export const Fields = ({
       );
     }
 
-    // Special case: SAMPLE_MEDIA_LINK → show 3 media upload boxes (image/video)
+    if (field.enumValue === "FINAL_PRODUCT_VIDEO") {
+      // Special case: SAMPLE_MEDIA_LINK → show 3 media upload boxes (image/video)
+      const acceptMedia = {
+        "video/mp4": [".mp4"],
+      } as const;
+
+      return (
+        <div key={field.value} className="flex flex-col h-full space-y-2">
+          <label className="text-sm font-medium">{field.label}</label>
+          <div className="flex gap-3 overflow-x-auto">
+            <UploadFile
+              hideUploadWhenHavePreview={true}
+              name={`${fieldName}_1`}
+              control={control}
+              label={`Video`}
+              maxFiles={1}
+              accept={acceptMedia}
+              content="Kéo thả hoặc chọnvideo"
+              className="min-w-[220px]"
+              previewClasses="min-w-[190px] min-h-[200px] object-cover"
+            />
+          </div>
+        </div>
+      );
+    }
+
     if (field.enumValue === "SAMPLE_MEDIA_LINK") {
+      // Special case: SAMPLE_MEDIA_LINK → show 3 media upload boxes (image/video)
       const acceptMedia = {
         "image/jpeg": [".jpg", ".jpeg"],
         "image/png": [".png"],

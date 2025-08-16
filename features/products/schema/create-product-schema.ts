@@ -14,6 +14,12 @@ export const createProductInputSchema = z.object({
   sku: z.string().min(1, { message: "Mã sản phẩm không được để trống" }),
   manufacturingProcess: z.string().optional(),
   requestId: z.number().optional().nullable(),
+  productMaterials: z.array(
+    z.object({
+      materialId: z.number().int().nonnegative(),
+      quantity: z.number().int().nonnegative(),
+    })
+  ),
 });
 
 export type CreateProductInputType = z.infer<typeof createProductInputSchema>;
