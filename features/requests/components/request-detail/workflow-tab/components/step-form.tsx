@@ -275,7 +275,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
       userId: step.userId || undefined,
       price: step.price ?? undefined,
       isStepWithCost: step.isStepWithCost,
-      // Thêm current values từ fieldSubprocess nếu có
+      // Thêm current values từ fieldSubprocess nếu có, ưu tiên previousStepValues
       ...(step.fieldSubprocess
         ? Object.keys(step.fieldSubprocess).reduce((acc, key) => {
             // Kiểm tra xem field có phải là file input không
@@ -284,17 +284,35 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
               // Bỏ qua việc set giá trị cho file input
               return acc;
             }
-            // Set giá trị cho các trường không phải file
-            acc[key] =
-              step.fieldSubprocess?.[key as keyof typeof step.fieldSubprocess];
+            // Đối với sampleProductionPlan, ưu tiên lấy từ previousStepValues trước
+            if (key === "sampleProductionPlan" && previousStepValues[key]) {
+              acc[key] = previousStepValues[key];
+            } else {
+              // Set giá trị cho các trường không phải file
+              acc[key] =
+                step.fieldSubprocess?.[
+                  key as keyof typeof step.fieldSubprocess
+                ];
+            }
             return acc;
           }, {} as Record<string, any>)
         : {}),
+      // Thêm values từ previousStepValues nếu không có trong fieldSubprocess
+      ...Object.keys(previousStepValues).reduce((acc, key) => {
+        // Chỉ set nếu chưa có trong fieldSubprocess
+        if (!(key in (step.fieldSubprocess || {}))) {
+          acc[key] = previousStepValues[key];
+        }
+        return acc;
+      }, {} as Record<string, any>),
       // Thêm default values cho dynamic fields nếu có
       ...(fields?.data?.reduce((acc, field) => {
         if (shouldShowField(field)) {
-          // Chỉ set default nếu chưa có value từ fieldSubprocess
-          if (!(field.value in (step.fieldSubprocess || {}))) {
+          // Chỉ set default nếu chưa có value từ fieldSubprocess hoặc previousStepValues
+          if (
+            !(field.value in (step.fieldSubprocess || {})) &&
+            !(field.value in previousStepValues)
+          ) {
             switch (field.type.toLowerCase()) {
               case "number":
                 acc[field.value] = 0;
@@ -331,21 +349,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
 
   // Load request detail to get approvalInfo for defaulting SAMPLE_PRODUCTION_PLAN at step 1
   const { data: requestDetail } = useGetRequestDetailQuery();
-
-  useEffect(() => {
-    if (
-      step?.step === 1 &&
-      !getValues("fieldSubprocess.sampleProductionPlan") &&
-      requestDetail?.approvalInfo?.productionPlan
-    ) {
-      setValue(
-        "fieldSubprocess.sampleProductionPlan",
-        requestDetail.approvalInfo.productionPlan,
-        { shouldDirty: true, shouldValidate: false }
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step?.step, requestDetail?.approvalInfo?.productionPlan]);
 
   // Compute nearest previous SAMPLE_MEDIA_LINK for current step
   const nearestSampleMedia = useMemo(() => {
@@ -392,13 +395,14 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     return "";
   }, [steps, step]);
 
-  // Default sampleProductionPlan: prefer nearest previous; step 1 fallback from request.fieldSubprocess.sampleProductionPlan (then approvalInfo.productionPlan)
+  // Default sampleProductionPlan: prefer từ các bước trước, sau đó từ approvalInfo
   useEffect(() => {
     const current = getValues("fieldSubprocess.sampleProductionPlan") as
       | string
       | undefined;
     if (current && current.trim().length > 0) return;
 
+    // Ưu tiên 1: Lấy từ các bước trước (nearestSampleProductionPlan)
     if (nearestSampleProductionPlan) {
       setValue(
         "fieldSubprocess.sampleProductionPlan",
@@ -411,22 +415,36 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
       return;
     }
 
-    // Step 1: prefer request.fieldSubprocess.sampleProductionPlan, then approvalInfo.productionPlan
-    if (step?.step === 1) {
-      const fallbackFromRequest =
-        requestDetail?.fieldSubprocess?.sampleProductionPlan ||
-        requestDetail?.approvalInfo?.productionPlan ||
-        "";
-      if (fallbackFromRequest) {
-        setValue("fieldSubprocess.sampleProductionPlan", fallbackFromRequest, {
+    // Ưu tiên 2: Lấy từ previousStepValues
+    if (previousStepValues.sampleProductionPlan) {
+      setValue(
+        "fieldSubprocess.sampleProductionPlan",
+        previousStepValues.sampleProductionPlan,
+        {
           shouldDirty: true,
           shouldValidate: false,
-        });
-        return;
-      }
+        }
+      );
+      return;
     }
 
-    // Other steps: fallback to approvalInfo.productionPlan
+    // Ưu tiên 3: Step 1 - lấy từ request.fieldSubprocess.sampleProductionPlan
+    if (
+      step?.step === 1 &&
+      requestDetail?.fieldSubprocess?.sampleProductionPlan
+    ) {
+      setValue(
+        "fieldSubprocess.sampleProductionPlan",
+        requestDetail.fieldSubprocess.sampleProductionPlan,
+        {
+          shouldDirty: true,
+          shouldValidate: false,
+        }
+      );
+      return;
+    }
+
+    // Ưu tiên 4: Fallback cuối cùng từ approvalInfo.productionPlan
     if (requestDetail?.approvalInfo?.productionPlan) {
       setValue(
         "fieldSubprocess.sampleProductionPlan",
@@ -440,6 +458,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     nearestSampleProductionPlan,
+    previousStepValues.sampleProductionPlan,
     step?.step,
     requestDetail?.fieldSubprocess?.sampleProductionPlan,
     requestDetail?.approvalInfo?.productionPlan,

@@ -136,7 +136,7 @@ export function RequestManagementList() {
           {u.status === RequestStatus.HOLD ? (
             <Button variant="outline" size="sm" className="w-28" disabled>
               <Clock className="h-4 w-4 mr-2 text-orange-500" />
-              Đang hold
+              Tạm dừng
             </Button>
           ) : (
             <Button
@@ -155,7 +155,7 @@ export function RequestManagementList() {
               }}
             >
               <Clock className="h-4 w-4 mr-2 text-orange-500" />
-              Hold
+              Tạm dừng
             </Button>
           )}
 

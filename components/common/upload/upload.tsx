@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import {
   useController,
   type UseControllerProps,
@@ -89,12 +89,16 @@ export const UploadFile = <T extends FieldValues>({
   );
 
   // ----- PREVIEW -----
-  const [previews, setPreviews] = useState<
-    Array<{
-      src: string;
-      typeFile: FileTypeGen;
-    }>
-  >([]);
+  const previews = useMemo(() => {
+    if (value.length > 0) {
+      return value.map((src) => ({
+        src: getImageUrl(src),
+        typeFile: generateTypeFile(src),
+      }));
+    }
+    return [];
+  }, [value]);
+
   const { mutate: uploadMultipleFilesMutation } =
     useFileMutation("uploadMultiple");
   const { mutate: deleteFileMutation } = useFileMutation("delete");
@@ -127,12 +131,7 @@ export const UploadFile = <T extends FieldValues>({
           ...(data as FileType[]).map((f) => f.filename),
         ].slice(0, maxFiles);
         onChange(next);
-        setPreviews(
-          next.map((src) => ({
-            src: getImageUrl(src),
-            typeFile: generateTypeFile(src),
-          }))
-        );
+        // Remove manual setPreviews call - useEffect will handle this
       },
     });
   };
@@ -157,12 +156,7 @@ export const UploadFile = <T extends FieldValues>({
 
       const newImages = arrayMove(value, oldIndex, newIndex);
       onChange(newImages);
-      setPreviews(
-        arrayMove(previews, oldIndex, newIndex).map((item, index) => ({
-          ...item,
-          src: getImageUrl(newImages[index]),
-        }))
-      );
+      // Remove manual setPreviews call - useEffect will handle this
     }
   };
 
@@ -171,24 +165,11 @@ export const UploadFile = <T extends FieldValues>({
     deleteFileMutation(value[idx], {
       onSuccess: () => {
         const next = (value as string[]).filter((_, i) => i !== idx);
-        setPreviews(previews.filter((_, i) => i !== idx));
         onChange(next);
+        // Remove manual setPreviews call - useEffect will handle this
       },
     });
   };
-
-  useEffect(() => {
-    if (value.length > 0) {
-      setPreviews(
-        value.map((src) => ({
-          src: getImageUrl(src),
-          typeFile: generateTypeFile(src),
-        }))
-      );
-    } else {
-      setPreviews([]);
-    }
-  }, [value]);
 
   // ----- UI -----
   return (
