@@ -553,20 +553,20 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     });
 
     // Nếu đang ở chế độ hoàn thành, validate các field bắt buộc
-    if (completeMode) {
-      const errors = validateRequiredFields(normalizedData);
-      if (errors.length > 0) {
-        setValidationErrors(errors);
-        setShowValidationErrors(true);
-        toast({
-          title: "Lỗi validation",
-          description:
-            "Vui lòng điền đầy đủ các trường bắt buộc trước khi hoàn thành",
-          variant: "destructive",
-        });
-        return;
-      }
-    }
+    // if (completeMode) {
+    //   const errors = validateRequiredFields(normalizedData);
+    //   if (errors.length > 0) {
+    //     setValidationErrors(errors);
+    //     setShowValidationErrors(true);
+    //     toast({
+    //       title: "Lỗi validation",
+    //       description:
+    //         "Vui lòng điền đầy đủ các trường bắt buộc trước khi hoàn thành",
+    //       variant: "destructive",
+    //     });
+    //     return;
+    //   }
+    // }
 
     // Reset validation errors nếu validation thành công
     setValidationErrors([]);
@@ -1162,25 +1162,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
           )}
 
         <div className="mt-6 border-t pt-4 flex justify-between items-center">
-          <div className="space-x-2">
-            {!step.isRequired && (
-              <Button
-                type="button"
-                disabled={isSubmitting}
-                onClick={handleSkipStep}
-                variant="outline"
-                className="border-red-200 hover:bg-red-50 hover:text-red-600"
-              >
-                {isSubmitting && !completeMode ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <CircleSlash className="w-4 h-4 mr-2 text-red-500" />
-                )}
-                Bỏ qua
-              </Button>
-            )}
-          </div>
-
           <div className="flex justify-end gap-2">
             {/* Button Start Time - chỉ hiển thị nếu chưa có startTime */}
             {!hasStartTime && (isAdmin || isAssignedUser) && (
@@ -1210,22 +1191,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
               </Button>
             )}
 
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              onClick={() => {
-                setCompleteMode(false);
-              }}
-              variant="outline"
-              className="flex items-center"
-            >
-              {isSubmitting && !completeMode ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Clock className="w-4 h-4 mr-2" />
-              )}
-              Lưu thông tin
-            </Button>
             {/* Button Hold - Hiển thị khi có thể hold */}
             {(isAdmin || isAssignedUser || hasStartTime) &&
               holdInfo.canHold && (

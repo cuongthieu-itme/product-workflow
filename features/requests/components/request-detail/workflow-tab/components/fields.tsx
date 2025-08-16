@@ -99,6 +99,33 @@ export const Fields = ({
     );
   };
 
+  // Component for displaying completed number array fields
+  const CompletedNumberArrayField = ({ field }: { field: FieldType }) => {
+    const fieldName = field.value as string;
+    const fieldValue = values?.[fieldName] || [];
+
+    return (
+      <div key={field.value} className="flex flex-col space-y-2">
+        <label className="text-sm font-medium text-gray-700">
+          {field.label}
+        </label>
+        <div className="p-3 bg-gray-50 rounded-md border">
+          {Array.isArray(fieldValue) && fieldValue.length > 0 ? (
+            <ul className="space-y-1">
+              {fieldValue.filter(Boolean).map((item: number, index: number) => (
+                <li key={index} className="text-sm text-gray-800">
+                  • {item.toLocaleString("vi-VN")}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <span className="text-sm text-gray-500">Chưa có dữ liệu</span>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   // Helper function to get options based on field enumValue
   const getOptionsForField = (field: FieldType) => {
     // If field has enumValue, try to parse it first
@@ -299,6 +326,96 @@ export const Fields = ({
     );
   };
 
+  // Component for handling number_array fields
+  const NumberArrayField = ({ field }: { field: FieldType }) => {
+    const fieldName = field.value as string;
+    const {
+      fields: arrayFields,
+      append,
+      remove,
+    } = useFieldArray({
+      control,
+      name: fieldName,
+    });
+
+    // Ensure at least one field exists (required first field)
+    if (arrayFields.length === 0) {
+      append("");
+    }
+
+    const addNewField = () => {
+      append("");
+    };
+
+    const removeField = (index: number) => {
+      if (index > 0) {
+        remove(index);
+      }
+    };
+
+    return (
+      <div key={field.value} className="flex flex-col h-full space-y-3">
+        <label className="text-sm font-medium">{field.label}</label>
+
+        {arrayFields.map((item, index) => (
+          <div key={item.id} className="flex items-center gap-2">
+            <div className="flex-1">
+              <InputCustom
+                type="number"
+                name={`${fieldName}.${index}`}
+                control={control}
+                placeholder={
+                  index === 0
+                    ? `Nhập ${field.label.toLowerCase()} (bắt buộc)`
+                    : `Nhập ${field.label.toLowerCase()} (tùy chọn)`
+                }
+                className="w-full"
+                required={index === 0}
+              />
+            </div>
+
+            {index > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => removeField(index)}
+                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+
+            {index === arrayFields.length - 1 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addNewField}
+                className="text-green-500 hover:text-green-700 hover:bg-green-50"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        ))}
+
+        {arrayFields.length === 0 && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addNewField}
+            className="text-green-500 hover:text-green-700 hover:bg-green-50 w-fit"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Thêm {field.label.toLowerCase()}
+          </Button>
+        )}
+      </div>
+    );
+  };
+
   const renderDynamicField = (field: FieldType) => {
     if (!shouldShowField(field)) {
       return null;
@@ -313,6 +430,10 @@ export const Fields = ({
       // Handle string_array type for completed fields
       if (field.valueType === "string_array") {
         return <CompletedStringArrayField field={field} />;
+      }
+
+      if (field.valueType === "number_array") {
+        return <CompletedNumberArrayField field={field} />;
       }
 
       // Regular completed field display
@@ -423,44 +544,14 @@ export const Fields = ({
       );
     }
 
-    // Special case: FINAL_PRODUCT_VIDEO → show preview of nearest SAMPLE_MEDIA_LINK; hide if none
-    if (field.enumValue === "FINAL_PRODUCT_VIDEO") {
-      if (!nearestSampleMedia || nearestSampleMedia.length === 0) return null;
-
-      return (
-        <div key={field.value} className="flex flex-col h-full space-y-2">
-          <label className="text-sm font-medium">{field.label}</label>
-          <div className="flex gap-3 overflow-x-auto">
-            {nearestSampleMedia.map((src, idx) => {
-              const type = generateTypeFile(src);
-              const url = getImageUrl(src);
-              return (
-                <div key={`${src}-${idx}`} className="min-w-[220px]">
-                  {type === "image" ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={url}
-                      alt={`media-${idx}`}
-                      className="w-full h-40 object-cover rounded-md border"
-                    />
-                  ) : (
-                    <video
-                      src={url}
-                      className="w-full h-40 object-cover rounded-md border"
-                      controls
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      );
-    }
-
     // Check for string_array type - có thể check bằng field.type hoặc enumValue
     if (field.valueType === "string_array") {
       return <StringArrayField field={field} />;
+    }
+
+    // Check for number_array type
+    if (field.valueType === "number_array") {
+      return <NumberArrayField field={field} />;
     }
 
     switch (field.type.toLowerCase()) {
@@ -519,6 +610,9 @@ export const Fields = ({
           </div>
         );
 
+      case "number_array":
+        return <NumberArrayField field={field} />;
+
       case "select":
       case "enum":
         const options = getOptionsForField(field);
@@ -575,6 +669,7 @@ export const Fields = ({
               placeholder={`Chọn ${field.label.toLowerCase()}`}
               options={options}
               className="w-full"
+              valueType="number"
             />
           </div>
         );

@@ -11,6 +11,9 @@ export const createProductInputSchema = z.object({
       message: "Phải chọn danh mục sản phẩm",
     })
     .min(1, { message: "Phải chọn danh mục sản phẩm" }),
+  sku: z.string().min(1, { message: "Mã sản phẩm không được để trống" }),
+  manufacturingProcess: z.string().optional(),
+  requestId: z.number().optional().nullable(),
 });
 
 export type CreateProductInputType = z.infer<typeof createProductInputSchema>;

@@ -17,6 +17,7 @@ export const getProducts = async (params?: ProductFilterInput) => {
 };
 
 export const createProduct = async (data: CreateProductInputType) => {
+  console.log("createProduct", data);
   try {
     const response = await request.post<ProductType>("/products", {
       ...data,

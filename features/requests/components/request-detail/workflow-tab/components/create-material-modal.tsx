@@ -158,15 +158,14 @@ export const CreateMaterialModal: React.FC<CreateMaterialModalProps> = ({
                 />
 
                 <div className="flex gap-2 flex-row w-full justify-between">
-                  <SelectCustom
-                    options={units?.data || []}
+                  <InputCustom
                     control={control}
                     name="unit"
                     label="Đơn vị"
                     placeholder="Nhập đơn vị"
                     required
-                    containerClassName="w-full"
                     className="w-full"
+                    containerClassName="w-full"
                   />
 
                   <InputCustom
@@ -188,6 +187,7 @@ export const CreateMaterialModal: React.FC<CreateMaterialModalProps> = ({
                   label="Xuất xứ"
                   placeholder="Nhập xuất xứ"
                   required
+                  valueType="number"
                 />
 
                 {/* Thêm select cho loại material */}

@@ -4,6 +4,8 @@ import { PriorityEnum, SourceEnum } from "./constants";
 import { User } from "../users/type";
 import { ProductStatusType } from "../products-status/types";
 import { WorkFlowProcessType } from "../workflows/types";
+import { CreateProductInputType } from "../products/schema";
+import { ProductType } from "../products/types";
 
 export type SubprocessHistoryType = {
   id: number;
@@ -258,6 +260,8 @@ export interface RequestDetail {
     name: string;
     specifically: string;
   } | null;
+  product: ProductType | null;
+  materials: MaterialType[];
   requestMaterials: RequestMaterial[];
   createdById: number;
   createdBy: User;
