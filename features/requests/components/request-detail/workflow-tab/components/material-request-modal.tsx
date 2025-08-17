@@ -7,7 +7,7 @@ import { InputCustom } from "@/components/form/input";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { SelectCustom } from "@/components/form/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2, Trash2, ShoppingCart, Package } from "lucide-react";
+import { Loader2, Trash2, ShoppingCart, Package, Plus, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateMaterialRequestMutation } from "@/features/requests/hooks/useRequest";
@@ -20,6 +20,18 @@ import { SourceEnum, PriorityEnum } from "@/features/requests/constants";
 import { MaterialEnum } from "@/features/materials/constants";
 import { CreateMaterialModal } from "./create-material-modal";
 import { CreateMaterialInputType } from "@/features/materials/schema";
+import { RequestDetail } from "@/features/requests/type";
+
+// Extended interface để xử lý productLink có thể là string hoặc array
+interface ExtendedCreateRequestAndMaterialInput
+  extends Omit<CreateRequestAndMaterialInput, "requestData"> {
+  requestData: Omit<
+    CreateRequestAndMaterialInput["requestData"],
+    "productLink"
+  > & {
+    productLink?: string | string[];
+  };
+}
 
 // Options cho các select
 const sourceOptions = [
@@ -30,12 +42,7 @@ const sourceOptions = [
 interface MaterialRequestModalProps {
   open: boolean;
   onClose: () => void;
-  currentRequest?: {
-    source: string;
-    priority: string;
-    customerId: number;
-    statusProductId: number;
-  };
+  currentRequest?: RequestDetail;
   currentUser?: {
     id: number;
   };
@@ -50,37 +57,45 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
   const { mutate, isPending } = useCreateMaterialRequestMutation();
   const { toast } = useToast();
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreateRequestAndMaterialInput>({
-    resolver: zodResolver(CreateRequestAndMaterialSchema),
-    defaultValues: {
-      requestData: {
-        title: "",
-        description: "",
-        productLink: [],
-        media: [],
-        source: (currentRequest?.source as SourceEnum) ?? SourceEnum.OTHER,
-        priority: (currentRequest?.priority as any) ?? PriorityEnum.NORMAL,
-        createdById: currentUser?.id,
-        customerId: currentRequest?.customerId,
-        statusProductId: currentRequest?.statusProductId,
+  const { control, handleSubmit, reset, setValue } =
+    useForm<CreateRequestAndMaterialInput>({
+      resolver: zodResolver(CreateRequestAndMaterialSchema),
+      defaultValues: {
+        requestData: {
+          title: "",
+          description: "",
+          productLink: [""],
+          media: [],
+          source: (currentRequest?.source as SourceEnum) ?? SourceEnum.OTHER,
+          priority: (currentRequest?.priority as any) ?? PriorityEnum.NORMAL,
+          createdById: currentUser?.id,
+          customerId: currentRequest?.customer?.id,
+        },
+        materialsData: [],
       },
-      materialsData: [],
-    },
-  });
+    });
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "materialsData",
   });
 
+  const {
+    fields: productLinkFields,
+    append: appendProductLink,
+    remove: removeProductLink,
+  } = useFieldArray({
+    control,
+    name: "requestData.productLink",
+  });
+
   const handleFormSubmit: SubmitHandler<CreateRequestAndMaterialInput> = (
     data
   ) => {
+    // Filter out empty product links
+    data.requestData.productLink =
+      data.requestData.productLink?.filter((link) => link.trim() !== "") || [];
+
     // Validate materials array
     if (data.materialsData.length === 0) {
       toast({
@@ -115,7 +130,7 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
         });
         handleClose();
       },
-      onError: (error) => {
+      onError: () => {
         toast({
           title: "Lỗi",
           description: "Có lỗi xảy ra khi tạo yêu cầu",
@@ -123,6 +138,23 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
         });
       },
     });
+  };
+
+  const handleAddProductLink = () => {
+    appendProductLink("");
+  };
+
+  const handleRemoveProductLink = (index: number) => {
+    // Đảm bảo luôn có ít nhất 1 input
+    if (productLinkFields.length > 1) {
+      removeProductLink(index);
+    } else {
+      toast({
+        title: "Thông báo",
+        description: "Phải có ít nhất một trường link sản phẩm",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleAddMaterial = (material: CreateMaterialInputType) => {
@@ -178,6 +210,7 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
               label="Tiêu đề yêu cầu"
               placeholder="Nhập tiêu đề yêu cầu"
               required
+              className="w-full"
             />
 
             <div className="col-span-full">
@@ -190,13 +223,58 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
               />
             </div>
 
+            <div className="col-span-full">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-foreground">
+                    Link sản phẩm tham khảo
+                  </label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddProductLink}
+                    disabled={isPending}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Thêm link
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  {productLinkFields.map((field, index) => (
+                    <div key={field.id} className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <InputCustom
+                          control={control}
+                          name={`requestData.productLink.${index}`}
+                          placeholder={`Nhập link sản phẩm ${index + 1}`}
+                          className="w-full"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRemoveProductLink(index)}
+                        disabled={isPending || productLinkFields.length <= 1}
+                        className="text-red-600 hover:text-red-700 p-2"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             <SelectCustom
               control={control}
               name="requestData.priority"
               label="Độ ưu tiên"
               options={priorityOptions}
               required
-              disabled={!!currentRequest?.priority}
             />
 
             <SelectCustom

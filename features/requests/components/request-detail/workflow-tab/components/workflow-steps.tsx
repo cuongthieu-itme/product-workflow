@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { Check, Circle, AlertCircle } from "lucide-react";
 import {
+  RequestDetail,
+  RequestType,
   StatusSubprocessHistory,
   SubprocessHistoryType,
 } from "@/features/requests/type";
@@ -28,11 +30,15 @@ import { getImageUrl } from "@/features/settings/utils";
 
 interface WorkflowStepsProps {
   subprocessHistory: SubprocessHistoryType[];
+  request: RequestDetail;
 }
 
 import { useGetUserInfoQuery } from "@/features/auth/hooks/useGetUserInfoQuery";
 
-export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
+export const WorkflowSteps = ({
+  subprocessHistory,
+  request,
+}: WorkflowStepsProps) => {
   const [selectedStep, setSelectedStep] =
     useState<SubprocessHistoryType | null>(null);
   const { data: currentUserData } = useGetUserInfoQuery();
@@ -212,6 +218,7 @@ export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
                   step={selectedStep}
                   steps={subprocessHistory}
                   currentUser={currentUserData}
+                  request={request}
                 />
               </div>
             )}

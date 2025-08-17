@@ -2,11 +2,12 @@ import { InputCustom } from "@/components/form/input";
 import {
   SubprocessHistoryType,
   StatusSubprocessHistory,
+  RequestDetail,
 } from "@/features/requests/type";
 import { useGetUserInfoQuery } from "@/features/auth/hooks/useGetUserInfoQuery";
 import { Loader2, User, Pause, CheckCircle, Play } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { UserRoleEnum } from "@/features/auth/constants";
 import { useUsersQuery } from "@/features/users/hooks";
 import { useCategoriesQuery } from "@/features/categories/hooks";
@@ -27,17 +28,11 @@ interface StepEditFormProps {
   step: SubprocessHistoryType;
   steps: SubprocessHistoryType[];
   currentUser: any;
-  request?: {
-    source: string;
-    priority: string;
-    customerId: number;
-    statusProductId: number;
-  };
+  request?: RequestDetail;
 }
 
 import {
   BadgeCheck,
-  CircleSlash,
   Clock,
   CalendarDays,
   Coins,
@@ -70,6 +65,8 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
   const userAvatar = user?.avatarUrl || undefined;
 
   const { data: fields } = useGetFieldStep();
+
+  // Tối ưu hóa previousStepValues để tránh re-calculation không cần thiết
   const previousStepValues = useMemo(() => {
     // Lọc ra các bước trước step hiện tại
     const previousSteps = steps
@@ -92,7 +89,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     }
 
     return result;
-  }, [step, steps]);
+  }, [step.step, step.id, steps]);
 
   console.log("Previous Step Values:", previousStepValues);
 
@@ -102,7 +99,11 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
   const { data: productStatus } = useProductsStatusQuery({ limit: 10000 });
   const { data: materials } = useMaterialsQuery({ page: 1, limit: 10000 });
 
-  const checkFieldsList = getCheckFields(step);
+  // Tối ưu hóa checkFieldsList
+  const checkFieldsList = useMemo(
+    () => getCheckFields(step),
+    [step.fieldSubprocess?.checkFields]
+  );
 
   // State để theo dõi validation errors
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -207,47 +208,53 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     }
   };
 
-  // Function để kiểm tra field có nên hiển thị không dựa vào checkFields
-  const shouldShowField = (field: FieldType): boolean => {
-    // Nếu không có fields data, return false
-    if (!fields?.data) return false;
+  // Function để kiểm tra field có nên hiển thị không dựa vào checkFields - tối ưu hóa với useCallback
+  const shouldShowField = useCallback(
+    (field: FieldType): boolean => {
+      // Nếu không có fields data, return false
+      if (!fields?.data) return false;
 
-    // Nếu không có checkFields list, hiển thị tất cả
-    if (checkFieldsList.length === 0) return false;
+      // Nếu không có checkFields list, hiển thị tất cả
+      if (checkFieldsList.length === 0) return false;
 
-    // Kiểm tra enumValue của field có trong checkFields list không
-    const isIncluded = checkFieldsList.includes(field.enumValue);
+      // Kiểm tra enumValue của field có trong checkFields list không
+      const isIncluded = checkFieldsList.includes(field.enumValue);
 
-    return isIncluded;
-  };
+      return isIncluded;
+    },
+    [fields?.data, checkFieldsList]
+  );
 
-  // Function để validate các field bắt buộc
-  const validateRequiredFields = (formData: any): string[] => {
-    const errors: string[] = [];
+  // Function để validate các field bắt buộc - tối ưu hóa với useCallback
+  const validateRequiredFields = useCallback(
+    (formData: any): string[] => {
+      const errors: string[] = [];
 
-    if (!fields?.data) return errors;
+      if (!fields?.data) return errors;
 
-    // Kiểm tra tất cả các field hiển thị đều phải có dữ liệu để hoàn thành
-    fields.data.forEach((field) => {
-      if (shouldShowField(field)) {
-        const fieldValue = formData[field.value];
+      // Kiểm tra tất cả các field hiển thị đều phải có dữ liệu để hoàn thành
+      fields.data.forEach((field) => {
+        if (shouldShowField(field)) {
+          const fieldValue = formData[field.value];
 
-        // Kiểm tra field có giá trị hay không
-        if (
-          !fieldValue ||
-          (Array.isArray(fieldValue) &&
-            fieldValue.filter(Boolean).length === 0) ||
-          (typeof fieldValue === "string" && fieldValue.trim() === "") ||
-          fieldValue === null ||
-          fieldValue === undefined
-        ) {
-          errors.push(`${field.label} là bắt buộc`);
+          // Kiểm tra field có giá trị hay không
+          if (
+            !fieldValue ||
+            (Array.isArray(fieldValue) &&
+              fieldValue.filter(Boolean).length === 0) ||
+            (typeof fieldValue === "string" && fieldValue.trim() === "") ||
+            fieldValue === null ||
+            fieldValue === undefined
+          ) {
+            errors.push(`${field.label} là bắt buộc`);
+          }
         }
-      }
-    });
+      });
 
-    return errors;
-  };
+      return errors;
+    },
+    [fields?.data, shouldShowField]
+  );
 
   // Tạo dynamic schema dựa trên fields - simplified approach
   const { data: currentUserData } = useGetUserInfoQuery();
@@ -352,7 +359,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
 
   // Compute nearest previous SAMPLE_MEDIA_LINK for current step
   const nearestSampleMedia = useMemo(() => {
-    if (!Array.isArray(steps) || !step) return [] as string[];
+    if (!Array.isArray(steps) || !step?.id) return [] as string[];
     const currentIndex = steps.findIndex(
       (s: SubprocessHistoryType) => s.id === step.id
     );
@@ -363,11 +370,11 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
       }
     }
     return [] as string[];
-  }, [steps, step]);
+  }, [steps, step.id]);
 
   // Compute nearest previous FINAL_APPROVED_SAMPLE_IMAGE for current step
   const nearestApprovedSampleImage = useMemo(() => {
-    if (!Array.isArray(steps) || !step) return "";
+    if (!Array.isArray(steps) || !step?.id) return "";
     const currentIndex = steps.findIndex(
       (s: SubprocessHistoryType) => s.id === step.id
     );
@@ -378,11 +385,11 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
       }
     }
     return "";
-  }, [steps, step]);
+  }, [steps, step.id]);
 
   // Compute nearest previous SAMPLE_PRODUCTION_PLAN
   const nearestSampleProductionPlan = useMemo(() => {
-    if (!Array.isArray(steps) || !step) return "";
+    if (!Array.isArray(steps) || !step?.id) return "";
     const currentIndex = steps.findIndex(
       (s: SubprocessHistoryType) => s.id === step.id
     );
@@ -393,39 +400,19 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
       }
     }
     return "";
-  }, [steps, step]);
+  }, [steps, step.id]);
 
   // Default sampleProductionPlan: prefer từ các bước trước, sau đó từ approvalInfo
-  useEffect(() => {
-    const current = getValues("fieldSubprocess.sampleProductionPlan") as
-      | string
-      | undefined;
-    if (current && current.trim().length > 0) return;
-
+  // Sử dụng useMemo để tránh dependency loop
+  const sampleProductionPlanValue = useMemo(() => {
     // Ưu tiên 1: Lấy từ các bước trước (nearestSampleProductionPlan)
     if (nearestSampleProductionPlan) {
-      setValue(
-        "fieldSubprocess.sampleProductionPlan",
-        nearestSampleProductionPlan,
-        {
-          shouldDirty: true,
-          shouldValidate: false,
-        }
-      );
-      return;
+      return nearestSampleProductionPlan;
     }
 
     // Ưu tiên 2: Lấy từ previousStepValues
     if (previousStepValues.sampleProductionPlan) {
-      setValue(
-        "fieldSubprocess.sampleProductionPlan",
-        previousStepValues.sampleProductionPlan,
-        {
-          shouldDirty: true,
-          shouldValidate: false,
-        }
-      );
-      return;
+      return previousStepValues.sampleProductionPlan;
     }
 
     // Ưu tiên 3: Step 1 - lấy từ request.fieldSubprocess.sampleProductionPlan
@@ -433,36 +420,45 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
       step?.step === 1 &&
       requestDetail?.fieldSubprocess?.sampleProductionPlan
     ) {
-      setValue(
-        "fieldSubprocess.sampleProductionPlan",
-        requestDetail.fieldSubprocess.sampleProductionPlan,
-        {
-          shouldDirty: true,
-          shouldValidate: false,
-        }
-      );
-      return;
+      return requestDetail.fieldSubprocess.sampleProductionPlan;
     }
 
     // Ưu tiên 4: Fallback cuối cùng từ approvalInfo.productionPlan
     if (requestDetail?.approvalInfo?.productionPlan) {
-      setValue(
-        "fieldSubprocess.sampleProductionPlan",
-        requestDetail.approvalInfo.productionPlan,
-        {
-          shouldDirty: true,
-          shouldValidate: false,
-        }
-      );
+      return requestDetail.approvalInfo.productionPlan;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    return null;
   }, [
     nearestSampleProductionPlan,
+    // Chỉ lấy giá trị cụ thể thay vì toàn bộ object để tránh loop
     previousStepValues.sampleProductionPlan,
     step?.step,
     requestDetail?.fieldSubprocess?.sampleProductionPlan,
     requestDetail?.approvalInfo?.productionPlan,
   ]);
+
+  // useEffect riêng để set value, chỉ chạy khi có thay đổi thực sự
+  useEffect(() => {
+    const current = getValues("fieldSubprocess.sampleProductionPlan") as
+      | string
+      | undefined;
+
+    // Chỉ set value khi chưa có giá trị và có giá trị mới hợp lệ
+    if (
+      (!current || current.trim().length === 0) &&
+      sampleProductionPlanValue
+    ) {
+      setValue(
+        "fieldSubprocess.sampleProductionPlan",
+        sampleProductionPlanValue,
+        {
+          shouldDirty: true,
+          shouldValidate: false,
+        }
+      );
+    }
+  }, [sampleProductionPlanValue, setValue, getValues]);
 
   const { mutate: updateSubprocessHistory } =
     useUpdateSubprocessHistoryMutation();
@@ -945,16 +941,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
           </div>
         </div>
 
-        {/* Admin User Assignment Section - Only visible to admin */}
-        {isAdmin && (
-          <AdminUserAssignment
-            step={step}
-            selectedUserId={selectedUserId}
-            setSelectedUserId={setSelectedUserId}
-            isSubmitting={isSubmitting}
-          />
-        )}
-
         <CompletedFieldsDisplay
           step={step}
           fields={fields}
@@ -975,18 +961,18 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
         <div className="mt-6 border-t pt-4 flex justify-between items-center">
           <div className="flex justify-end gap-2">
             {/* Button Start Time - chỉ hiển thị nếu chưa có startTime */}
-            {!hasStartTime && (isAdmin || isAssignedUser) && (
-              <Button
-                type="button"
-                disabled={isSubmitting}
-                onClick={handleStartTime}
-                variant="outline"
-                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
-              >
-                <Play className="w-4 h-4 mr-2" />
-                Bắt đầu
-              </Button>
-            )}
+            {/* {!hasStartTime && (isAdmin || isAssignedUser) && ( */}
+            <Button
+              type="button"
+              disabled={isSubmitting}
+              onClick={handleStartTime}
+              variant="outline"
+              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
+            >
+              <Play className="w-4 h-4 mr-2" />
+              Bắt đầu
+            </Button>
+            {/* )} */}
 
             {/* Button Yêu cầu mua nguyên vật liệu - chỉ hiển thị ở step 1 */}
             {(isAdmin || isAssignedUser) && step.isShowRequestMaterial && (

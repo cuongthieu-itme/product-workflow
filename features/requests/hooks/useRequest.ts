@@ -176,8 +176,10 @@ export const useUpdateSubprocessHistoryMutation = () => {
   return useMutation({
     mutationFn: updateSubprocessHistory,
     onSuccess: () => {
+      // Chỉ invalidate queries cần thiết để tránh infinite loop
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+        exact: false,
       });
     },
   });
@@ -281,11 +283,10 @@ export const useUpdateFieldStepMutation = () => {
   return useMutation({
     mutationFn: updateFieldStep,
     onSuccess: () => {
+      // Chỉ invalidate queries cần thiết để tránh infinite loop
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY],
+        exact: false,
       });
     },
   });
