@@ -534,6 +534,10 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
         const arr = (data?.[`${field.value}Array`] as string[]) || [];
         normalizedData[field.value] = arr[0] || "";
       }
+      if (shouldShowField(field) && field.enumValue === "FINAL_PRODUCT_VIDEO") {
+        const videoArray = (data?.[`${field.value}_1`] as string[]) || [];
+        normalizedData[field.value] = videoArray[0] || "";
+      }
     });
 
     // Nếu đang ở chế độ hoàn thành, validate các field bắt buộc
@@ -949,6 +953,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
           fields={fields}
           shouldShowField={shouldShowField}
           getOptionsForField={getOptionsForField}
+          previousStepValues={previousStepValues}
         />
 
         <DynamicFieldsSection

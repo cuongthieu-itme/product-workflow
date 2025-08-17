@@ -463,9 +463,23 @@ export const Fields = memo(
           "video/mp4": [".mp4"],
         } as const;
 
+        if (previousStepValues?.[fieldName]) {
+          return (
+            <div key={field.value} className="flex flex-col h-full space-y-2">
+              <label className="text-sm font-medium">{field.label}</label>
+              <div className="flex gap-3 overflow-x-auto">
+                <video
+                  src={getImageUrl(previousStepValues[fieldName])}
+                  controls
+                  className="min-w-[190px] min-h-[200px] object-cover rounded-md border"
+                />
+              </div>
+            </div>
+          );
+        }
+
         return (
           <div key={field.value} className="flex flex-col h-full space-y-2">
-            <label className="text-sm font-medium">{field.label}</label>
             <div className="flex gap-3 overflow-x-auto">
               <UploadFile
                 hideUploadWhenHavePreview={true}
