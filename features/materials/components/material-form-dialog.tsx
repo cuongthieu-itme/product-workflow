@@ -84,7 +84,6 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
   const { toast } = useToast();
   const { control, handleSubmit, reset } = useForm<CreateMaterialInputType>({
     defaultValues: {
-      code: material?.code || "",
       name: material?.name || "",
       quantity: material?.quantity || 0,
       image: material?.image || [],
@@ -204,15 +203,6 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
                 name="description"
                 label="Chi tiết nguyên liệu"
                 placeholder="Nhập chi tiết nguyên liệu"
-                disabled={isPending}
-              />
-
-              <InputCustom
-                control={control}
-                name="code"
-                label="Mã nguyên liệu"
-                placeholder="Nhập mã nguyên liệu"
-                required
                 disabled={isPending}
               />
 

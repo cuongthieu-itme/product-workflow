@@ -1,6 +1,6 @@
 export enum MaterialEnum {
   MATERIAL = "INGREDIENT",
-  ACCESSORY = "ACCESSOR",
+  ACCESSORY = "ACCESSORY",
 }
 
 export enum MaterialStatus {

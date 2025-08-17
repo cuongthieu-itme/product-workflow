@@ -50,22 +50,22 @@ export const calculateCompletionPercentage = (
 export const getHoldInfo = (subprocess: SubprocessHistoryType) => {
   const holdDates = [
     subprocess.holdDateOne,
-    subprocess.holdDateTwo, 
+    subprocess.holdDateTwo,
     subprocess.holdDateThree,
   ];
-  
+
   const continueDates = [
     subprocess.continueDateOne,
     subprocess.continueDateTwo,
     subprocess.continueDateThree,
   ];
-  
+
   // Đếm số lần đã hold (có dữ liệu holdDate)
   const holdCount = holdDates.filter(Boolean).length;
-  
+
   // Đếm số lần đã continue (có dữ liệu continueDate)
   const continueCount = continueDates.filter(Boolean).length;
-  
+
   // Logic theo yêu cầu:
   // - Nếu có holdDateOne nhưng chưa có continueDateOne -> hiển thị continue 1
   // - Nếu có continueDateOne nhưng chưa có holdDateTwo -> hiển thị hold 2
@@ -73,50 +73,50 @@ export const getHoldInfo = (subprocess: SubprocessHistoryType) => {
   // - Nếu có continueDateTwo nhưng chưa có holdDateThree -> hiển thị hold 3
   // - Nếu có holdDateThree nhưng chưa có continueDateThree -> hiển thị continue 3
   // - Nếu có continueDateThree -> ẩn tất cả button
-  
+
   let canHold = false;
   let canContinue = false;
-  let nextAction = '';
-  
+  let nextAction = "";
+
   if (subprocess.continueDateThree) {
     // Đã hoàn thành tất cả chu kỳ hold/continue -> ẩn button
     canHold = false;
     canContinue = false;
-    nextAction = 'none';
+    nextAction = "none";
   } else if (subprocess.holdDateThree && !subprocess.continueDateThree) {
     // Đang hold lần 3 -> hiển thị continue 3
     canHold = false;
     canContinue = true;
-    nextAction = 'continue3';
+    nextAction = "continue3";
   } else if (subprocess.continueDateTwo && !subprocess.holdDateThree) {
     // Đã continue lần 2 -> hiển thị hold 3
     canHold = true;
     canContinue = false;
-    nextAction = 'hold3';
+    nextAction = "hold3";
   } else if (subprocess.holdDateTwo && !subprocess.continueDateTwo) {
     // Đang hold lần 2 -> hiển thị continue 2
     canHold = false;
     canContinue = true;
-    nextAction = 'continue2';
+    nextAction = "continue2";
   } else if (subprocess.continueDateOne && !subprocess.holdDateTwo) {
     // Đã continue lần 1 -> hiển thị hold 2
     canHold = true;
     canContinue = false;
-    nextAction = 'hold2';
+    nextAction = "hold2";
   } else if (subprocess.holdDateOne && !subprocess.continueDateOne) {
     // Đang hold lần 1 -> hiển thị continue 1
     canHold = false;
     canContinue = true;
-    nextAction = 'continue1';
+    nextAction = "continue1";
   } else {
     // Chưa hold lần nào -> hiển thị hold 1
     canHold = true;
     canContinue = false;
-    nextAction = 'hold1';
+    nextAction = "hold1";
   }
-  
+
   const isCurrentlyOnHold = subprocess.status === StatusSubprocessHistory.HOLD;
-  
+
   return {
     holdCount,
     continueCount,
@@ -131,7 +131,7 @@ export const getHoldInfo = (subprocess: SubprocessHistoryType) => {
 // Helper function để xác định trường nào cần update khi hold
 export const getHoldUpdateFields = (subprocess: SubprocessHistoryType) => {
   const currentTime = new Date().toISOString();
-  
+
   if (!subprocess.holdDateOne) {
     return { holdDateOne: currentTime };
   } else if (!subprocess.holdDateTwo) {
@@ -145,7 +145,7 @@ export const getHoldUpdateFields = (subprocess: SubprocessHistoryType) => {
 // Helper function để xác định trường nào cần update khi continue
 export const getContinueUpdateFields = (subprocess: SubprocessHistoryType) => {
   const currentTime = new Date().toISOString();
-  
+
   if (subprocess.holdDateOne && !subprocess.continueDateOne) {
     return { continueDateOne: currentTime };
   } else if (subprocess.holdDateTwo && !subprocess.continueDateTwo) {
@@ -154,7 +154,8 @@ export const getContinueUpdateFields = (subprocess: SubprocessHistoryType) => {
     return { continueDateThree: currentTime };
   }
   return {};
-};export const formatDate = (
+};
+export const formatDate = (
   date: Date | string | null | undefined,
   formatType?: string
 ) => {
@@ -173,6 +174,8 @@ export const generateRequestStatus = (status?: RequestStatus) => {
       return "Đã từ chối";
     case RequestStatus.HOLD:
       return "Tạm dừng";
+    case RequestStatus.COMPLETED:
+      return "Đã hoàn thành";
     default:
       return "Đang chờ duyệt";
   }

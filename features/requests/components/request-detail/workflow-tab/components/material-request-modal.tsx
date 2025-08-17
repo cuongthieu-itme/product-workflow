@@ -174,7 +174,6 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
       image: material.image || [],
       type: material.type,
       originId: material.originId,
-      code: material.code,
       price: material.price,
       isActive: material.isActive ?? true,
     });
@@ -343,11 +342,6 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
                         <label className="text-xs font-medium text-muted-foreground">
                           Tên nguyên vật liệu
                         </label>
-                        {field.code && (
-                          <Badge variant="outline" className="text-xs">
-                            {field.code}
-                          </Badge>
-                        )}
                         <Badge
                           variant={
                             field.type === MaterialEnum.MATERIAL
@@ -422,10 +416,7 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
                       name={`materialsData.${index}.originId`}
                       type="number"
                     />
-                    <InputCustom
-                      control={control}
-                      name={`materialsData.${index}.code`}
-                    />
+
                     <InputCustom
                       control={control}
                       name={`materialsData.${index}.price`}

@@ -271,17 +271,19 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {request?.product?.id ? (
+            {request?.status === RequestStatus.COMPLETED ? (
               <Button
                 variant="outline"
                 onClick={() => {
-                  if (request?.product?.id) {
-                    router.push(`/dashboard/products/${request.product.id}`);
+                  if (outputType === OutputTypeEnum.PRODUCT) {
+                    router.push(`/dashboard/products`);
+                  } else {
+                    router.push(`/dashboard/materials`);
                   }
                 }}
               >
                 <Package className="h-4 w-4 mr-2" />
-                Xem sản phẩm
+                Xem chi tiết
               </Button>
             ) : (
               <>
@@ -292,8 +294,7 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
                   {getProductTypeText(outputType)}.
                 </p>
                 <div className="flex gap-2">
-                  {outputType === OutputTypeEnum.PRODUCT ||
-                  outputType === OutputTypeEnum.ACCESSORY ? (
+                  {outputType === OutputTypeEnum.PRODUCT ? (
                     <Button
                       className="bg-green-600 hover:bg-green-700 text-white"
                       onClick={() => setIsCreateProductOpen(true)}
@@ -304,7 +305,9 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
                   ) : (
                     <Button
                       className="bg-green-600 hover:bg-green-700 text-white"
-                      onClick={() => setIsCreateMaterialOpen(true)}
+                      onClick={() => {
+                        setIsCreateMaterialOpen(true);
+                      }}
                     >
                       <Package className="h-4 w-4 mr-2" />
                       Chuyển thành {getProductTypeText(outputType)}
@@ -472,6 +475,8 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
     if (isRequestApproved) return renderApprovedState();
     if (isRequestRejected) return renderRejectedState();
     if (isRequestHold) return renderHoldState();
+    if (request?.status === RequestStatus.COMPLETED)
+      return renderApprovedState();
     return renderDefaultState();
   };
 
@@ -538,6 +543,7 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
       />
 
       <CreateMaterialDialog
+        request={request}
         open={isCreateMaterialOpen}
         onClose={() => setIsCreateMaterialOpen(false)}
       />

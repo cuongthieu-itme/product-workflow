@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2, AlertCircle } from "lucide-react";
+import { Plus } from "lucide-react";
 import { BaseDialog } from "@/components/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -11,7 +11,6 @@ import { SelectCustom } from "@/components/form/select";
 import { UploadFile } from "@/components/common/upload";
 import { useToast } from "@/components/ui/use-toast";
 import { MaterialEnum } from "@/features/materials/constants";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import {
   useOriginsQuery,
@@ -54,7 +53,6 @@ export const CreateMaterialModal: React.FC<CreateMaterialModalProps> = ({
       type: MaterialEnum.MATERIAL,
       price: 0,
       originId: 0,
-      code: "",
       image: [],
       isActive: true,
     },
@@ -62,7 +60,6 @@ export const CreateMaterialModal: React.FC<CreateMaterialModalProps> = ({
 
   // Lấy data cho select options
   const { data: origins } = useOriginsQuery();
-  const { data: units } = useUnitsQuery();
 
   const originsOptions = origins?.data.map((origin) => ({
     value: origin.id,
@@ -80,12 +77,7 @@ export const CreateMaterialModal: React.FC<CreateMaterialModalProps> = ({
 
   const handleFormSubmit: SubmitHandler<CreateMaterialInputType> = (data) => {
     // Validate required fields
-    if (
-      !data.name.trim() ||
-      data.quantity <= 0 ||
-      !data.unit.trim() ||
-      !data.code.trim()
-    ) {
+    if (!data.name.trim() || data.quantity <= 0 || !data.unit.trim()) {
       toast({
         title: "Lỗi",
         description: "Vui lòng điền đầy đủ thông tin bắt buộc",
@@ -147,14 +139,6 @@ export const CreateMaterialModal: React.FC<CreateMaterialModalProps> = ({
                   name="description"
                   label="Chi tiết nguyên liệu"
                   placeholder="Nhập chi tiết nguyên liệu"
-                />
-
-                <InputCustom
-                  control={control}
-                  name="code"
-                  label="Mã nguyên liệu"
-                  placeholder="Nhập mã nguyên liệu"
-                  required
                 />
 
                 <div className="flex gap-2 flex-row w-full justify-between">

@@ -72,9 +72,6 @@ export const CreateProductFormDialog = ({
           });
           onClose();
           queryClient.invalidateQueries();
-          await request.put(`requests/${requestId}/status/by-request`, {
-            status: RequestStatus.COMPLETED,
-          });
         },
         onError: (error) => {
           toast({
@@ -104,6 +101,7 @@ export const CreateProductFormDialog = ({
       onClose={onClose}
       title="Tạo sản phẩm mới"
       description="Điền thông tin để tạo sản phẩm mới từ yêu cầu."
+      contentClassName="min-w-[50vw]"
     >
       <FormProvider {...methods}>
         <ScrollArea className="max-h-[80vh] pr-4 -mr-4">

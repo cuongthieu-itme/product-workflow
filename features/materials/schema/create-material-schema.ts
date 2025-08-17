@@ -6,11 +6,6 @@ export const createMaterialInputSchema = z.object({
     .array(z.string())
     .min(1, { message: "Phải chọn ít nhất 1 ảnh" })
     .max(5, { message: "Không được quá 5 ảnh" }),
-  code: z
-    .string()
-    .trim()
-    .min(1, { message: "Mã vật tư không được trống" })
-    .max(32, { message: "Mã vật tư tối đa 32 ký tự" }),
   name: z
     .string()
     .trim()

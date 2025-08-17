@@ -7,15 +7,21 @@ import { useToast } from "@/components/ui/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import request from "@/configs/axios-config";
+import { RequestDetail, RequestStatus } from "../../type";
+import { requestMaterialSchema } from "../../schema";
+import { MaterialStatus } from "@/features/materials/constants";
 
 interface CreateMaterialDialogProps {
   open: boolean;
   onClose: () => void;
+  request: RequestDetail | undefined;
 }
 
 export const CreateMaterialDialog = ({
   open,
   onClose,
+  request: requestData,
 }: CreateMaterialDialogProps) => {
   const { toast } = useToast();
   const requestId = useParams().id;
@@ -26,11 +32,17 @@ export const CreateMaterialDialog = ({
     setIsLoading(true);
 
     try {
-      // TODO: Thêm API call để chuyển đổi thành nguyên liệu
-      // await convertToMaterial(requestId);
-
       // Giả lập API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await request.put("/materials/update-status", {
+        materials: requestData?.requestMaterials.map((material) => ({
+          id: material.material.id,
+          status: MaterialStatus.AVAILABLE_IN_STOCK,
+        })),
+      });
+
+      await request.put(`requests/${requestId}/by-status/updated`, {
+        status: RequestStatus.COMPLETED,
+      });
 
       toast({
         title: "Thành công",
