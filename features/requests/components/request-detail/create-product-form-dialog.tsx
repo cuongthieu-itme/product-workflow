@@ -21,6 +21,8 @@ import { useParams } from "next/navigation";
 import { on } from "events";
 import { AddMaterialDialog } from "./workflow-tab/add-material-dialog";
 import { MaterialTable } from "./workflow-tab/material-table";
+import request from "@/configs/axios-config";
+import { RequestStatus } from "../../type";
 
 interface CreateProductFormDialogProps {
   open: boolean;
@@ -55,14 +57,14 @@ export const CreateProductFormDialog = ({
 
   const queryClient = useQueryClient();
 
-  const onSubmit: SubmitHandler<CreateProductInputType> = (data) => {
+  const onSubmit: SubmitHandler<CreateProductInputType> = async (data) => {
     mutate(
       {
         ...data,
         requestId: Number(requestId),
       },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
           resetMutation();
           toast({
             title: "Thành công",
@@ -70,6 +72,9 @@ export const CreateProductFormDialog = ({
           });
           onClose();
           queryClient.invalidateQueries();
+          await request.put(`requests/${requestId}/status/by-request`, {
+            status: RequestStatus.COMPLETED,
+          });
         },
         onError: (error) => {
           toast({

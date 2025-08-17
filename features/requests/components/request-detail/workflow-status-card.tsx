@@ -43,6 +43,7 @@ import { OutputTypeEnum } from "@/features/workflows/schema/create-workflow-sche
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { CreateProductFormDialog } from "./create-product-form-dialog";
+import { CreateMaterialDialog } from "./create-material-dialog";
 import { useRouter } from "next/navigation";
 
 interface WorkflowStatusCardProps {
@@ -57,6 +58,7 @@ interface FieldSubprocess {
   SKU?: string | null;
   productCode?: string | null;
   SKUDescription?: string | null;
+  category?: string | null;
   [key: string]: any;
 }
 
@@ -69,6 +71,7 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [dialogTitle, setDialogTitle] = useState("");
   const [isCreateProductOpen, setIsCreateProductOpen] = useState(false);
+  const [isCreateMaterialOpen, setIsCreateMaterialOpen] = useState(false);
 
   const currentStep = calculateCurrentStep(
     request?.procedureHistory?.subprocessesHistory
@@ -130,6 +133,7 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
     let sku = "";
     let productCode = "";
     let skuDescription = "";
+    let categoryId: undefined | number;
 
     subprocessHistory.forEach((step: SubprocessHistoryType) => {
       const fieldSubprocess = (step.fieldSubprocess as FieldSubprocess) || {};
@@ -150,6 +154,11 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
       if (fieldSubprocess.SKUDescription) {
         skuDescription = fieldSubprocess.SKUDescription;
       }
+      if (fieldSubprocess.category) {
+        categoryId = fieldSubprocess.category
+          ? Number(fieldSubprocess.category)
+          : undefined;
+      }
     });
 
     return {
@@ -157,6 +166,7 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
       manufacturingProcess,
       sku: sku || productCode, // Use SKU if available, fallback to productCode
       description: skuDescription || "", // Use SKUDescription if available
+      categoryId: categoryId,
     };
   };
 
@@ -282,13 +292,24 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
                   {getProductTypeText(outputType)}.
                 </p>
                 <div className="flex gap-2">
-                  <Button
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={() => setIsCreateProductOpen(true)}
-                  >
-                    <Package className="h-4 w-4 mr-2" />
-                    Chuyển thành {getProductTypeText(outputType)}
-                  </Button>
+                  {outputType === OutputTypeEnum.PRODUCT ||
+                  outputType === OutputTypeEnum.ACCESSORY ? (
+                    <Button
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => setIsCreateProductOpen(true)}
+                    >
+                      <Package className="h-4 w-4 mr-2" />
+                      Chuyển thành {getProductTypeText(outputType)}
+                    </Button>
+                  ) : (
+                    <Button
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => setIsCreateMaterialOpen(true)}
+                    >
+                      <Package className="h-4 w-4 mr-2" />
+                      Chuyển thành {getProductTypeText(outputType)}
+                    </Button>
+                  )}
                 </div>
               </>
             )}
@@ -514,6 +535,11 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
         open={isCreateProductOpen}
         onClose={() => setIsCreateProductOpen(false)}
         defaultValues={getDefaultValues()}
+      />
+
+      <CreateMaterialDialog
+        open={isCreateMaterialOpen}
+        onClose={() => setIsCreateMaterialOpen(false)}
       />
     </>
   );

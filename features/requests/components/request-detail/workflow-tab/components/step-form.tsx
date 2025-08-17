@@ -238,6 +238,17 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
         if (shouldShowField(field)) {
           const fieldValue = formData[field.value];
 
+          // Bỏ qua validation nếu field đã có dữ liệu từ các bước trước
+          const hasDataFromPreviousSteps =
+            previousStepValues[field.value] &&
+            previousStepValues[field.value] !== null &&
+            previousStepValues[field.value] !== undefined &&
+            previousStepValues[field.value] !== "";
+
+          if (hasDataFromPreviousSteps) {
+            return; // Bỏ qua validation cho field này
+          }
+
           // Kiểm tra field có giá trị hay không
           if (
             !fieldValue ||
@@ -254,7 +265,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
 
       return errors;
     },
-    [fields?.data, shouldShowField]
+    [fields?.data, shouldShowField, previousStepValues]
   );
 
   // Tạo dynamic schema dựa trên fields - simplified approach
@@ -541,20 +552,20 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     });
 
     // Nếu đang ở chế độ hoàn thành, validate các field bắt buộc
-    // if (completeMode) {
-    //   const errors = validateRequiredFields(normalizedData);
-    //   if (errors.length > 0) {
-    //     setValidationErrors(errors);
-    //     setShowValidationErrors(true);
-    //     toast({
-    //       title: "Lỗi validation",
-    //       description:
-    //         "Vui lòng điền đầy đủ các trường bắt buộc trước khi hoàn thành",
-    //       variant: "destructive",
-    //     });
-    //     return;
-    //   }
-    // }
+    if (completeMode) {
+      const errors = validateRequiredFields(normalizedData);
+      if (errors.length > 0) {
+        setValidationErrors(errors);
+        setShowValidationErrors(true);
+        toast({
+          title: "Lỗi validation",
+          description:
+            "Vui lòng điền đầy đủ các trường bắt buộc trước khi hoàn thành",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
 
     // Reset validation errors nếu validation thành công
     setValidationErrors([]);

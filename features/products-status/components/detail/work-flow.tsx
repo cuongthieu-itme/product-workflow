@@ -35,7 +35,6 @@ import { useGetRequestByProductStatusQuery } from "@/features/requests/hooks/use
 export function WorkFlow({ productStatusId }: { productStatusId: number }) {
   const { data: request, isLoading: isRequestLoading } =
     useGetRequestByProductStatusQuery(productStatusId);
-  console.log("request", request);
   const [selectedRequestId, setSelectedRequestId] = useState<
     string | undefined
   >(request && request[0] ? request[0].id.toString() : undefined);
@@ -52,8 +51,6 @@ export function WorkFlow({ productStatusId }: { productStatusId: number }) {
       request && request[0] ? request[0].id.toString() : undefined
     );
   }, [request]);
-
-  console.log("selectedRequestId", selectedRequest);
 
   if (isLoading) {
     return (
