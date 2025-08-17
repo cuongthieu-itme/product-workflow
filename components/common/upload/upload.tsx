@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import {
   useController,
   type UseControllerProps,
@@ -45,6 +45,7 @@ export type UploadFileProps<T extends FieldValues> = UseControllerProps<T> & {
   hideHeader?: boolean;
   content?: string;
   previewClasses?: string;
+  hideUploadWhenHavePreview?: boolean;
 };
 
 export const UploadFile = <T extends FieldValues>({
@@ -87,12 +88,16 @@ export const UploadFile = <T extends FieldValues>({
   );
 
   // ----- PREVIEW -----
-  const [previews, setPreviews] = useState<
-    Array<{
-      src: string;
-      typeFile: FileTypeGen;
-    }>
-  >([]);
+  const previews = useMemo(() => {
+    if (value.length > 0) {
+      return value.map((src) => ({
+        src: getImageUrl(src),
+        typeFile: generateTypeFile(src),
+      }));
+    }
+    return [];
+  }, [value]);
+
   const { mutate: uploadMultipleFilesMutation } =
     useFileMutation("uploadMultiple");
   const { mutate: deleteFileMutation } = useFileMutation("delete");
@@ -125,12 +130,7 @@ export const UploadFile = <T extends FieldValues>({
           ...(data as FileType[]).map((f) => f.filename),
         ].slice(0, maxFiles);
         onChange(next);
-        setPreviews(
-          next.map((src) => ({
-            src: getImageUrl(src),
-            typeFile: generateTypeFile(src),
-          }))
-        );
+        // Remove manual setPreviews call - useEffect will handle this
       },
     });
   };
@@ -155,12 +155,7 @@ export const UploadFile = <T extends FieldValues>({
 
       const newImages = arrayMove(value, oldIndex, newIndex);
       onChange(newImages);
-      setPreviews(
-        arrayMove(previews, oldIndex, newIndex).map((item, index) => ({
-          ...item,
-          src: getImageUrl(newImages[index]),
-        }))
-      );
+      // Remove manual setPreviews call - useEffect will handle this
     }
   };
 
@@ -169,24 +164,11 @@ export const UploadFile = <T extends FieldValues>({
     deleteFileMutation(value[idx], {
       onSuccess: () => {
         const next = (value as string[]).filter((_, i) => i !== idx);
-        setPreviews(previews.filter((_, i) => i !== idx));
         onChange(next);
+        // Remove manual setPreviews call - useEffect will handle this
       },
     });
   };
-
-  useEffect(() => {
-    if (value.length > 0) {
-      setPreviews(
-        value.map((src) => ({
-          src: getImageUrl(src),
-          typeFile: generateTypeFile(src),
-        }))
-      );
-    } else {
-      setPreviews([]);
-    }
-  }, [value]);
 
   // ----- UI -----
   return (
@@ -204,36 +186,38 @@ export const UploadFile = <T extends FieldValues>({
 
         <CardContent className="p-4">
           {/* Drop zone */}
-          <div
-            {...getRootProps()}
-            className={cn(
-              "border-2 border-dashed rounded-lg p-4 cursor-pointer transition-colors",
-              isDragActive
-                ? "border-primary bg-primary/10"
-                : "border-muted-foreground"
-            )}
-          >
-            <div className="flex flex-col items-center gap-2 ">
-              <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-sm text-muted-foreground">
-                {value.length >= maxFiles
-                  ? `Đã đạt giới hạn ${maxFiles} file`
-                  : content ?? "Kéo thả hoặc chọn file"}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(accept).map(([type, extensions]) => (
-                  <Badge key={type} variant="outline" className="text-xs">
-                    {extensions.map((ext) => ext.replace(".", "")).join(", ")}
-                  </Badge>
-                ))}
+          {
+            <div
+              {...getRootProps()}
+              className={cn(
+                "border-2 border-dashed rounded-lg p-4 cursor-pointer transition-colors",
+                isDragActive
+                  ? "border-primary bg-primary/10"
+                  : "border-muted-foreground"
+              )}
+            >
+              <div className="flex flex-col items-center gap-2 ">
+                <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-sm text-muted-foreground">
+                  {value.length >= maxFiles
+                    ? `Đã đạt giới hạn ${maxFiles} file`
+                    : content ?? "Kéo thả hoặc chọn file"}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(accept).map(([type, extensions]) => (
+                    <Badge key={type} variant="outline" className="text-xs">
+                      {extensions.map((ext) => ext.replace(".", "")).join(", ")}
+                    </Badge>
+                  ))}
+                </div>
               </div>
+              <Input
+                {...getInputProps()}
+                className="hidden"
+                disabled={disabled || value.length >= maxFiles}
+              />
             </div>
-            <Input
-              {...getInputProps()}
-              className="hidden"
-              disabled={disabled || value.length >= maxFiles}
-            />
-          </div>
+          }
 
           {/* Previews with Drag and Drop */}
           {previews.length > 0 && (
@@ -246,7 +230,7 @@ export const UploadFile = <T extends FieldValues>({
                 items={previews.map((_, index) => `file-${index}`)}
                 strategy={verticalListSortingStrategy}
               >
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                   {previews.map(({ src, typeFile }, i) => (
                     <PreviewFileItem
                       previewClasses={previewClasses}

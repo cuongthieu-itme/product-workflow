@@ -2,6 +2,10 @@ import { PaginatedResult } from "@/types/common";
 import { MaterialType } from "../materials/type";
 import { PriorityEnum, SourceEnum } from "./constants";
 import { User } from "../users/type";
+import { ProductStatusType } from "../products-status/types";
+import { WorkFlowProcessType } from "../workflows/types";
+import { CreateProductInputType } from "../products/schema";
+import { ProductType } from "../products/types";
 
 export type SubprocessHistoryType = {
   id: number;
@@ -31,6 +35,7 @@ export type SubprocessHistoryType = {
   isApproved: boolean;
   createdAt: string;
   updatedAt: string;
+  isShowRequestMaterial: boolean;
 };
 
 export interface ProcedureHistory {
@@ -255,6 +260,8 @@ export interface RequestDetail {
     name: string;
     specifically: string;
   } | null;
+  product: ProductType | null;
+  materials: MaterialType[];
   requestMaterials: RequestMaterial[];
   createdById: number;
   createdBy: User;
@@ -263,6 +270,9 @@ export interface RequestDetail {
   priority: PriorityEnum;
   approvalInfo: ApprovalInfo;
   fieldSubprocess: FieldSubprocess;
+  statusProduct: ProductStatusType & {
+    procedure: WorkFlowProcessType;
+  };
 }
 
 export type EvaluateFilterInput = {

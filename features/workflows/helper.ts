@@ -16,5 +16,6 @@ export const convertSubProcessFormData = (
     isStepWithCost: s?.isStepWithCost,
     step: s?.step,
     checkFields: s?.fieldSubprocess?.checkFields || [],
+    isShowRequestMaterial: s.isShowRequestMaterial || false,
   }));
 };

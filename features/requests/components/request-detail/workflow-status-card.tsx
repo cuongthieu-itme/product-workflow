@@ -39,11 +39,27 @@ import {
 } from "@/components/ui/carousel";
 import Image from "next/image";
 import { getImageUrl } from "@/features/settings/utils";
+import { OutputTypeEnum } from "@/features/workflows/schema/create-workflow-schema";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { CreateProductFormDialog } from "./create-product-form-dialog";
+import { CreateMaterialDialog } from "./create-material-dialog";
+import { useRouter } from "next/navigation";
 
 interface WorkflowStatusCardProps {
   request?: RequestDetail;
   onChangeTab?: (tab: string) => void;
   onConvertToProduct?: () => void;
+}
+
+interface FieldSubprocess {
+  productName?: string | null;
+  howToProduce?: string | null;
+  SKU?: string | null;
+  productCode?: string | null;
+  SKUDescription?: string | null;
+  category?: string | null;
+  [key: string]: any;
 }
 
 export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
@@ -54,6 +70,8 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [dialogTitle, setDialogTitle] = useState("");
+  const [isCreateProductOpen, setIsCreateProductOpen] = useState(false);
+  const [isCreateMaterialOpen, setIsCreateMaterialOpen] = useState(false);
 
   const currentStep = calculateCurrentStep(
     request?.procedureHistory?.subprocessesHistory
@@ -79,6 +97,77 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
     setIsImageDialogOpen(false);
     setSelectedImages([]);
     setDialogTitle("");
+  };
+
+  const outputType = request?.statusProduct?.procedure?.outputType;
+
+  const getProductTypeText = (type?: OutputTypeEnum) => {
+    switch (type) {
+      case OutputTypeEnum.ACCESSORY:
+        return "phụ kiện";
+      case OutputTypeEnum.PRODUCT:
+        return "sản phẩm";
+      default:
+        return "nguyên vật liệu";
+    }
+  };
+
+  const getWorkflowTitle = (type?: OutputTypeEnum) => {
+    switch (type) {
+      case OutputTypeEnum.ACCESSORY:
+        return "Quy trình phụ kiện";
+      case OutputTypeEnum.PRODUCT:
+        return "Quy trình sản phẩm";
+      default:
+        return "Quy trình nguyên vật liệu";
+    }
+  };
+
+  const router = useRouter();
+
+  const getDefaultValues = () => {
+    const subprocessHistory =
+      request?.procedureHistory?.subprocessesHistory || [];
+    let productName = "";
+    let manufacturingProcess = "";
+    let sku = "";
+    let productCode = "";
+    let skuDescription = "";
+    let categoryId: undefined | number;
+
+    subprocessHistory.forEach((step: SubprocessHistoryType) => {
+      const fieldSubprocess = (step.fieldSubprocess as FieldSubprocess) || {};
+
+      // Check each field in fieldSubprocess
+      if (fieldSubprocess.productName) {
+        productName = fieldSubprocess.productName;
+      }
+      if (fieldSubprocess.howToProduce) {
+        manufacturingProcess = fieldSubprocess.howToProduce;
+      }
+      if (fieldSubprocess.SKU) {
+        sku = fieldSubprocess.SKU;
+      }
+      if (fieldSubprocess.productCode) {
+        productCode = fieldSubprocess.productCode;
+      }
+      if (fieldSubprocess.SKUDescription) {
+        skuDescription = fieldSubprocess.SKUDescription;
+      }
+      if (fieldSubprocess.category) {
+        categoryId = fieldSubprocess.category
+          ? Number(fieldSubprocess.category)
+          : undefined;
+      }
+    });
+
+    return {
+      name: productName,
+      manufacturingProcess,
+      sku: sku || productCode, // Use SKU if available, fallback to productCode
+      description: skuDescription || "", // Use SKUDescription if available
+      categoryId: categoryId,
+    };
   };
 
   const renderApprovedState = () => (
@@ -178,24 +267,55 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-green-800">
               <CheckCircle className="h-5 w-5" />
-              Quy trình hoàn thành
+              {getWorkflowTitle(outputType)} hoàn thành
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-green-700">
-              Tất cả các bước trong quy trình đã được hoàn thành thành công. Bạn
-              có thể chuyển đổi yêu cầu này thành sản phẩm.
-            </p>
-            <div className="flex gap-2">
+            {request?.status === RequestStatus.COMPLETED ? (
               <Button
-                className="bg-green-600 hover:bg-green-700 text-white"
-                onClick={onConvertToProduct}
+                variant="outline"
+                onClick={() => {
+                  if (outputType === OutputTypeEnum.PRODUCT) {
+                    router.push(`/dashboard/products`);
+                  } else {
+                    router.push(`/dashboard/materials`);
+                  }
+                }}
               >
                 <Package className="h-4 w-4 mr-2" />
-                Chuyển thành sản phẩm
+                Xem chi tiết
               </Button>
-              <Button variant="outline">Xuất báo cáo</Button>
-            </div>
+            ) : (
+              <>
+                <p className="text-green-700">
+                  Tất cả các bước trong{" "}
+                  {getWorkflowTitle(outputType).toLowerCase()} đã được hoàn
+                  thành thành công. Bạn có thể chuyển đổi yêu cầu này thành{" "}
+                  {getProductTypeText(outputType)}.
+                </p>
+                <div className="flex gap-2">
+                  {outputType === OutputTypeEnum.PRODUCT ? (
+                    <Button
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => setIsCreateProductOpen(true)}
+                    >
+                      <Package className="h-4 w-4 mr-2" />
+                      Chuyển thành {getProductTypeText(outputType)}
+                    </Button>
+                  ) : (
+                    <Button
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => {
+                        setIsCreateMaterialOpen(true);
+                      }}
+                    >
+                      <Package className="h-4 w-4 mr-2" />
+                      Chuyển thành {getProductTypeText(outputType)}
+                    </Button>
+                  )}
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
       )}
@@ -355,6 +475,8 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
     if (isRequestApproved) return renderApprovedState();
     if (isRequestRejected) return renderRejectedState();
     if (isRequestHold) return renderHoldState();
+    if (request?.status === RequestStatus.COMPLETED)
+      return renderApprovedState();
     return renderDefaultState();
   };
 
@@ -413,6 +535,18 @@ export const WorkflowStatusCard: React.FC<WorkflowStatusCardProps> = ({
           </Button>
         </DialogFooter>
       </BaseDialog>
+
+      <CreateProductFormDialog
+        open={isCreateProductOpen}
+        onClose={() => setIsCreateProductOpen(false)}
+        defaultValues={getDefaultValues()}
+      />
+
+      <CreateMaterialDialog
+        request={request}
+        open={isCreateMaterialOpen}
+        onClose={() => setIsCreateMaterialOpen(false)}
+      />
     </>
   );
 };

@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { Check, Circle, AlertCircle } from "lucide-react";
 import {
+  RequestDetail,
+  RequestType,
   StatusSubprocessHistory,
   SubprocessHistoryType,
 } from "@/features/requests/type";
@@ -28,36 +30,48 @@ import { getImageUrl } from "@/features/settings/utils";
 
 interface WorkflowStepsProps {
   subprocessHistory: SubprocessHistoryType[];
+  request: RequestDetail;
 }
 
 import { useGetUserInfoQuery } from "@/features/auth/hooks/useGetUserInfoQuery";
 
-export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
+export const WorkflowSteps = ({
+  subprocessHistory,
+  request,
+}: WorkflowStepsProps) => {
   const [selectedStep, setSelectedStep] =
     useState<SubprocessHistoryType | null>(null);
   const { data: currentUserData } = useGetUserInfoQuery();
 
-  // Auto focus on next step when current step is completed
+  // Control focus behavior:
+  // - Keep current selection when steps update (e.g., start/complete actions)
+  // - If all steps are approved, focus the last step
+  // - If no selection yet, default to the first step
   useEffect(() => {
-    if (subprocessHistory) {
-      const completedStepIndex = subprocessHistory.findIndex(
-        (step) => step.isApproved
-      );
+    if (!subprocessHistory || subprocessHistory.length === 0) return;
 
-      if (completedStepIndex >= 0) {
-        const nextStep = subprocessHistory[completedStepIndex + 1];
-        if (nextStep) {
-          setSelectedStep(nextStep);
-        } else {
-          const lastStep = subprocessHistory[completedStepIndex];
-          setSelectedStep(lastStep);
-        }
-      } else {
-        const firstStep = subprocessHistory[0];
-        setSelectedStep(firstStep);
+    // Nếu đang có selected step, tìm step tương ứng trong subprocessHistory mới
+    if (selectedStep) {
+      const updatedStep = subprocessHistory.find(
+        (step) => step.id === selectedStep.id
+      );
+      if (updatedStep) {
+        setSelectedStep(updatedStep);
+        return;
       }
     }
-  }, [subprocessHistory]);
+
+    // Nếu không có selected step hoặc không tìm thấy step tương ứng
+    // Kiểm tra nếu tất cả các bước đã được approve
+    const allApproved = subprocessHistory.every((step) => step.isApproved);
+    if (allApproved) {
+      setSelectedStep(subprocessHistory[subprocessHistory.length - 1]);
+      return;
+    }
+
+    // Nếu không có step nào được chọn, chọn step đầu tiên
+    setSelectedStep(subprocessHistory[0]);
+  }, [subprocessHistory, selectedStep]);
 
   const getStepIcon = (status: StatusSubprocessHistory) => {
     switch (status) {
@@ -204,6 +218,7 @@ export const WorkflowSteps = ({ subprocessHistory }: WorkflowStepsProps) => {
                   step={selectedStep}
                   steps={subprocessHistory}
                   currentUser={currentUserData}
+                  request={request}
                 />
               </div>
             )}

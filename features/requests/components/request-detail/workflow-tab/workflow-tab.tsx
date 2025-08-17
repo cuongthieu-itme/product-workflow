@@ -29,6 +29,7 @@ export const WorkFlowTab = () => {
         <WorkflowInfo workflow={request?.procedureHistory} />
         <WorkflowSteps
           subprocessHistory={request?.procedureHistory?.subprocessesHistory}
+          request={request}
         />
       </div>
     </TabsContent>

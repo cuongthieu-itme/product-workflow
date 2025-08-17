@@ -65,7 +65,7 @@ export default function Header() {
       {/* Right side actions */}
       <div className="flex items-center space-x-2">
         {/* Notifications - responsive */}
-        {isAdmin && <NotificationsPopover />}
+        <NotificationsPopover />
 
         {/* Theme toggle */}
         <ThemeToggle />

@@ -109,10 +109,10 @@ export const RequestConfirmDialog = ({
       title="Duyệt yêu cầu"
       contentClassName="sm:max-w-[800px]"
       description={
-        <div className="flex items-center gap-2 text-amber-600">
+        <p className="flex items-center gap-2 text-amber-600">
           <Info className="h-4 w-4" />
           Xác nhận duyệt yêu cầu và chọn trạng thái sản phẩm
-        </div>
+        </p>
       }
     >
       <ScrollArea className="max-h-[70vh] overflow-y-auto pr-4">

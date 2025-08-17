@@ -55,6 +55,7 @@ export function StepFormModal({
         isStepWithCost: data?.isStepWithCost || false,
         step: data?.step || 1,
         checkFields: data?.checkFields || [],
+        isShowRequestMaterial: data?.isShowRequestMaterial || false,
       },
       resolver: zodResolver(subprocessesSchema),
     });
@@ -90,6 +91,7 @@ export function StepFormModal({
         isStepWithCost: data?.isStepWithCost || false,
         step: data?.step || 1,
         checkFields: fieldsData,
+        isShowRequestMaterial: data?.isShowRequestMaterial || false,
       });
     }
   }, [isOpen, data, reset]);
@@ -113,7 +115,6 @@ export function StepFormModal({
     setValue("checkFields", updatedFields);
   };
 
-  console.log("Selected fields:", data);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -188,6 +189,11 @@ export function StepFormModal({
                 name="isStepWithCost"
                 control={control}
                 label="Bước có chi phí"
+              />
+              <SwitchCustom
+                name="isShowRequestMaterial"
+                control={control}
+                label="Hiển thị yêu cầu vật liệu"
               />
             </div>
 

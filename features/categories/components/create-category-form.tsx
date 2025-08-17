@@ -98,7 +98,7 @@ export function CreateCategoryForm({
           </Alert>
         )}
 
-        <ScrollArea className="h-[600px]">
+        <ScrollArea>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-6 ">
               <InputCustom

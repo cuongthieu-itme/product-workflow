@@ -18,6 +18,7 @@ import { useCategoriesQuery } from "@/features/categories/hooks";
 import { useToast } from "@/components/ui/use-toast";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { CreateCategoryPopover } from "./create-category-popover";
+import { useParams } from "next/navigation";
 
 export function CreateProductForm({
   onCustomerAdded,
@@ -32,6 +33,8 @@ export function CreateProductForm({
       categoryId: undefined,
       description: "",
       name: "",
+      sku: "",
+      manufacturingProcess: "",
     },
     resolver: zodResolver(createProductInputSchema),
   });
@@ -45,19 +48,31 @@ export function CreateProductForm({
   } = useCreateProductMutation();
 
   const onSubmit: SubmitHandler<CreateProductInputType> = (data) => {
-    mutate(data, {
-      onSuccess: () => {
-        reset();
-        setIsDialogOpen(false);
-        toast({
-          title: "Thành công",
-          description: "Sản phẩm đã được thêm thành công.",
-        });
-        if (onCustomerAdded) {
-          onCustomerAdded();
-        }
+    mutate(
+      {
+        ...data,
       },
-    });
+      {
+        onSuccess: () => {
+          reset();
+          setIsDialogOpen(false);
+          toast({
+            title: "Thành công",
+            description: "Sản phẩm đã được thêm thành công.",
+          });
+          if (onCustomerAdded) {
+            onCustomerAdded();
+          }
+        },
+        onError: (error) => {
+          toast({
+            title: "Lỗi",
+            description: error.message,
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   const { data: categories } = useCategoriesQuery({ limit: 10000 });
@@ -121,6 +136,15 @@ export function CreateProductForm({
               <div className="space-y-4">
                 <InputCustom
                   control={control}
+                  name="sku"
+                  label="Mã sản phẩm"
+                  placeholder="Nhập mã sản phẩm"
+                  required
+                  disabled={isPending}
+                />
+
+                <InputCustom
+                  control={control}
                   name="name"
                   label="Tên sản phẩm"
                   placeholder="Nhập tên sản phẩm"
@@ -134,6 +158,14 @@ export function CreateProductForm({
                   label="Chi tiết sản phẩm"
                   placeholder="Nhập chi tiết sản phẩm"
                   required
+                  disabled={isPending}
+                />
+
+                <TextAreaCustom
+                  control={control}
+                  name="manufacturingProcess"
+                  label="Quy trình sản xuất"
+                  placeholder="Nhập quy trình sản xuất"
                   disabled={isPending}
                 />
 

@@ -61,14 +61,6 @@ export function RequestDetail() {
         </div>
         <div className="flex items-center gap-2">
           {request?.status && <StatusBadge status={request?.status} />}
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-            disabled={!isCompleted}
-          >
-            Chuyển thành sản phẩm
-          </Button>
         </div>
       </div>
 

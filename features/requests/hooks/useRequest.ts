@@ -25,6 +25,7 @@ import {
   approveSubprocessHistory,
   holdSubprocess,
   continueSubprocess,
+  createMaterialRequest,
 } from "../services";
 import {
   EvaluateFilterInput,
@@ -175,8 +176,10 @@ export const useUpdateSubprocessHistoryMutation = () => {
   return useMutation({
     mutationFn: updateSubprocessHistory,
     onSuccess: () => {
+      // Chỉ invalidate queries cần thiết để tránh infinite loop
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+        exact: false,
       });
     },
   });
@@ -280,11 +283,10 @@ export const useUpdateFieldStepMutation = () => {
   return useMutation({
     mutationFn: updateFieldStep,
     onSuccess: () => {
+      // Chỉ invalidate queries cần thiết để tránh infinite loop
       queryClient.invalidateQueries({
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY],
+        exact: false,
       });
     },
   });
@@ -335,5 +337,14 @@ export const useContinueSubprocessMutation = () => {
         queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY],
       });
     },
+  });
+};
+
+export const useCreateMaterialRequestMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createMaterialRequest,
+    onSuccess: () => {},
   });
 };

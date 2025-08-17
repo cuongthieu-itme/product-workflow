@@ -1,7 +1,5 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { FileText, User, Users } from "lucide-react";
@@ -9,7 +7,6 @@ import React from "react";
 import { useGetRequestDetailQuery } from "../../hooks";
 import { formatDate } from "../../helpers";
 import { useRouter } from "next/navigation";
-import { RequestStatus } from "../../type";
 import { PriorityBadge, StatusBadge } from "../badge";
 import { WorkflowStatusCard } from "./workflow-status-card";
 
@@ -98,8 +95,6 @@ export const OverViewTab: React.FC<OverViewTabProps> = ({ onChangeTab }) => {
                 </p>
               </div>
             </div>
-
-            <Separator />
           </CardContent>
         </Card>
 

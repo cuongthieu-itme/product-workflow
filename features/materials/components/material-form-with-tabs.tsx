@@ -64,6 +64,7 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
       description: material?.description || "",
       isActive: material?.isActive !== undefined ? material.isActive : true,
       type: material?.type ?? activeTab,
+      price: material?.price || 0,
     },
     resolver: zodResolver(createMaterialInputSchema),
   });
@@ -263,6 +264,18 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
             className="w-full"
           />
         </div>
+
+        <InputCustom
+          control={control}
+          name="price"
+          label="Giá"
+          placeholder="Nhập giá"
+          required
+          disabled={isPending}
+          type="number"
+          containerClassName="w-full"
+          className="w-full"
+        />
 
         <SelectCustom
           options={originOptions}

@@ -2,3 +2,9 @@ export enum MaterialEnum {
   MATERIAL = "INGREDIENT",
   ACCESSORY = "ACCESSORY",
 }
+
+export enum MaterialStatus {
+  AVAILABLE_IN_STOCK = "AVAILABLE_IN_STOCK",
+  SENDING_REQUEST = "SENDING_REQUEST",
+  CANCELLED = "CANCELLED",
+}
