@@ -125,6 +125,11 @@ export const CompletedFieldsDisplay = ({
     return value.toString();
   };
 
+  console.log(
+    "Completed Fields Display",
+    fields?.data?.filter((field) => shouldShowField(field))
+  );
+
   const isVideoUrl = (url: string) =>
     typeof url === "string" && /\.(mp4|webm|mov|m4v)$/i.test(url);
 
@@ -137,11 +142,7 @@ export const CompletedFieldsDisplay = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {fields?.data
-          ?.filter(
-            (field) =>
-              shouldShowField(field) &&
-              (step.fieldSubprocess as any)?.[field.value as string]
-          )
+          ?.filter((field) => shouldShowField(field))
           .map((field) => {
             const fieldValue = (step.fieldSubprocess as any)?.[
               field.value as string
@@ -154,6 +155,16 @@ export const CompletedFieldsDisplay = ({
                 </span>
                 <div className="text-sm text-green-700 bg-white p-3 rounded-md border border-green-200">
                   {/* SAMPLE_MEDIA_LINK: array of media urls */}
+                  {field.enumValue === "FINAL_PRODUCT_VIDEO" && (
+                    <div className="relative w-full">
+                      <video
+                        src={getImageUrl(fieldValue)}
+                        controls
+                        className="w-full rounded-md border"
+                      />
+                    </div>
+                  )}
+
                   {field.enumValue === "SAMPLE_MEDIA_LINK" &&
                   Array.isArray(fieldValue) ? (
                     fieldValue.filter(Boolean).length > 0 ? (
@@ -184,9 +195,7 @@ export const CompletedFieldsDisplay = ({
                       </span>
                     )
                   ) : field.enumValue === "FINAL_APPROVED_SAMPLE_IMAGE" ? (
-                    step.isApproved &&
-                    typeof fieldValue === "string" &&
-                    fieldValue ? (
+                    typeof fieldValue === "string" && fieldValue ? (
                       <div className="relative w-full">
                         <img
                           src={getImageUrl(fieldValue)}
@@ -196,9 +205,7 @@ export const CompletedFieldsDisplay = ({
                       </div>
                     ) : (
                       <span className="text-gray-500 italic">
-                        {step.isApproved
-                          ? "Chưa có hình ảnh được phê duyệt"
-                          : "Chờ phê duyệt"}
+                        Chưa có hình ảnh
                       </span>
                     )
                   ) : field.enumValue === "FINAL_PRODUCT_VIDEO" &&

@@ -66,7 +66,6 @@ export const UploadFile = <T extends FieldValues>({
   content,
   previewClasses,
   disabled = false,
-  hideUploadWhenHavePreview = false,
 }: UploadFileProps<T>) => {
   const { toast } = useToast();
   const {

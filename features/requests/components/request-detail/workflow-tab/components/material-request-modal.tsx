@@ -56,15 +56,16 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
 }) => {
   const { mutate, isPending } = useCreateMaterialRequestMutation();
   const { toast } = useToast();
+  const [productLinks, setProductLinks] = React.useState<string[]>([""]);
 
-  const { control, handleSubmit, reset, setValue } =
+  const { control, handleSubmit, reset } =
     useForm<CreateRequestAndMaterialInput>({
       resolver: zodResolver(CreateRequestAndMaterialSchema),
       defaultValues: {
         requestData: {
           title: "",
           description: "",
-          productLink: [""],
+          productLink: [],
           media: [],
           source: (currentRequest?.source as SourceEnum) ?? SourceEnum.OTHER,
           priority: (currentRequest?.priority as any) ?? PriorityEnum.NORMAL,
@@ -72,6 +73,7 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
           customerId: currentRequest?.customer?.id,
         },
         materialsData: [],
+        requestId: currentRequest?.id,
       },
     });
 
@@ -80,21 +82,13 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
     name: "materialsData",
   });
 
-  const {
-    fields: productLinkFields,
-    append: appendProductLink,
-    remove: removeProductLink,
-  } = useFieldArray({
-    control,
-    name: "requestData.productLink",
-  });
-
   const handleFormSubmit: SubmitHandler<CreateRequestAndMaterialInput> = (
     data
   ) => {
-    // Filter out empty product links
-    data.requestData.productLink =
-      data.requestData.productLink?.filter((link) => link.trim() !== "") || [];
+    // Set productLinks từ state vào data
+    data.requestData.productLink = productLinks.filter(
+      (link) => link.trim() !== ""
+    );
 
     // Validate materials array
     if (data.materialsData.length === 0) {
@@ -122,32 +116,38 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
       return;
     }
 
-    mutate(data, {
-      onSuccess: () => {
-        toast({
-          title: "Thành công",
-          description: "Yêu cầu mua nguyên vật liệu đã được tạo thành công",
-        });
-        handleClose();
+    mutate(
+      {
+        ...data,
+        requestId: currentRequest?.id,
       },
-      onError: () => {
-        toast({
-          title: "Lỗi",
-          description: "Có lỗi xảy ra khi tạo yêu cầu",
-          variant: "destructive",
-        });
-      },
-    });
+      {
+        onSuccess: () => {
+          toast({
+            title: "Thành công",
+            description: "Yêu cầu mua nguyên vật liệu đã được tạo thành công",
+          });
+          handleClose();
+        },
+        onError: () => {
+          toast({
+            title: "Lỗi",
+            description: "Có lỗi xảy ra khi tạo yêu cầu",
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   const handleAddProductLink = () => {
-    appendProductLink("");
+    setProductLinks((prev) => [...prev, ""]);
   };
 
   const handleRemoveProductLink = (index: number) => {
     // Đảm bảo luôn có ít nhất 1 input
-    if (productLinkFields.length > 1) {
-      removeProductLink(index);
+    if (productLinks.length > 1) {
+      setProductLinks((prev) => prev.filter((_, i) => i !== index));
     } else {
       toast({
         title: "Thông báo",
@@ -155,6 +155,14 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
         variant: "destructive",
       });
     }
+  };
+
+  const handleProductLinkChange = (index: number, value: string) => {
+    setProductLinks((prev) => {
+      const newLinks = [...prev];
+      newLinks[index] = value;
+      return newLinks;
+    });
   };
 
   const handleAddMaterial = (material: CreateMaterialInputType) => {
@@ -184,6 +192,7 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
 
   const handleClose = () => {
     reset();
+    setProductLinks([""]);
     onClose();
   };
 
@@ -243,14 +252,18 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  {productLinkFields.map((field, index) => (
-                    <div key={field.id} className="flex items-center gap-2">
+                  {productLinks.map((link, index) => (
+                    <div key={index} className="flex items-center gap-2">
                       <div className="flex-1">
-                        <InputCustom
-                          control={control}
-                          name={`requestData.productLink.${index}`}
+                        <input
+                          type="text"
+                          value={link}
+                          onChange={(e) =>
+                            handleProductLinkChange(index, e.target.value)
+                          }
                           placeholder={`Nhập link sản phẩm ${index + 1}`}
-                          className="w-full"
+                          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          disabled={isPending}
                         />
                       </div>
                       <Button
@@ -258,7 +271,7 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
                         variant="outline"
                         size="sm"
                         onClick={() => handleRemoveProductLink(index)}
-                        disabled={isPending || productLinkFields.length <= 1}
+                        disabled={isPending || productLinks.length <= 1}
                         className="text-red-600 hover:text-red-700 p-2"
                       >
                         <X className="w-4 h-4" />

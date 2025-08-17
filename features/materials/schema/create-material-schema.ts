@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MaterialEnum } from "../constants";
+import { MaterialEnum, MaterialStatus } from "../constants";
 
 export const createMaterialInputSchema = z.object({
   image: z

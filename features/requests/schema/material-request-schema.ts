@@ -92,6 +92,7 @@ export const CreateRequestAndMaterialSchema = z.object({
         message: "Tên nguyên vật liệu không được trùng lặp",
       }
     ),
+  requestId: z.number().optional().nullable(),
 });
 
 // Type inference

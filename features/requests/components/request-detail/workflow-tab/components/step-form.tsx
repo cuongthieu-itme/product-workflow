@@ -36,7 +36,6 @@ import {
   Clock,
   CalendarDays,
   Coins,
-  Settings,
   ShoppingCart,
   AlertCircle,
 } from "lucide-react";
@@ -44,13 +43,10 @@ import { getCheckFields, getHoldInfo } from "@/features/requests/helpers";
 import { format } from "date-fns";
 import { useGetFieldStep } from "@/features/workflows/hooks/useWorkFlowProcess";
 import { FieldType } from "@/features/workflows/types";
-import { Fields } from "./fields";
 import { StepInfo } from "./step-infor";
-import { AdminUserAssignment } from "./admin-user-assignment";
 import { HoldSubprocessDialog } from "./hold-subprocess-dialog";
 import { MaterialRequestModal } from "./material-request-modal";
 import { useGetRequestDetailQuery } from "@/features/requests/hooks";
-import { getImageUrl } from "@/features/settings/utils";
 import { CompletedFieldsDisplay } from "./completed-fields-display";
 import { DynamicFieldsSection } from "./dynamic-fields-section";
 
@@ -68,10 +64,12 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
 
   // Tối ưu hóa previousStepValues để tránh re-calculation không cần thiết
   const previousStepValues = useMemo(() => {
-    // Lọc ra các bước trước step hiện tại
+    // Lọc ra các bước trước step hiện tại (bao gồm tất cả step trước đó)
     const previousSteps = steps
-      .filter((s) => s.step === step.step && s.id < step.id)
-      .sort((a, b) => b.id - a.id); // Sắp xếp giảm dần theo ID để lấy bước gần nhất
+      .filter(
+        (s) => s.step < step.step || (s.step === step.step && s.id < step.id)
+      )
+      .sort((a, b) => b.step - a.step || b.id - a.id); // Sắp xếp theo step giảm dần, sau đó theo ID giảm dần
 
     // Khởi tạo object để lưu giá trị
     const result: Record<string, any> = {};
@@ -80,8 +78,13 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
     for (const prevStep of previousSteps) {
       if (prevStep.fieldSubprocess) {
         Object.entries(prevStep.fieldSubprocess).forEach(([key, value]) => {
-          // Chỉ lưu giá trị nếu trường đó chưa có trong result
-          if (!(key in result)) {
+          // Chỉ lưu giá trị nếu trường đó chưa có trong result (ưu tiên step gần nhất)
+          if (
+            !(key in result) &&
+            value !== null &&
+            value !== undefined &&
+            value !== ""
+          ) {
             result[key] = value;
           }
         });
@@ -90,8 +93,6 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
 
     return result;
   }, [step.step, step.id, steps]);
-
-  console.log("Previous Step Values:", previousStepValues);
 
   // Fetch data for select field mapping
   const { data: users } = useUsersQuery({ limit: 10000 });
@@ -282,6 +283,7 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
       userId: step.userId || undefined,
       price: step.price ?? undefined,
       isStepWithCost: step.isStepWithCost,
+
       // Thêm current values từ fieldSubprocess nếu có, ưu tiên previousStepValues
       ...(step.fieldSubprocess
         ? Object.keys(step.fieldSubprocess).reduce((acc, key) => {
@@ -292,8 +294,9 @@ export const StepEditForm: React.FC<StepEditFormProps> = ({
               return acc;
             }
             // Đối với sampleProductionPlan, ưu tiên lấy từ previousStepValues trước
-            if (key === "sampleProductionPlan" && previousStepValues[key]) {
-              acc[key] = previousStepValues[key];
+            if (key === "sampleProductionPlan") {
+              acc[key] =
+                previousStepValues[key] ?? request?.approvalInfo.productionPlan;
             } else {
               // Set giá trị cho các trường không phải file
               acc[key] =

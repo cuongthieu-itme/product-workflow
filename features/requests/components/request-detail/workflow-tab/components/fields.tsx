@@ -494,7 +494,7 @@ export const Fields = memo(
           "video/quicktime": [".mov"],
         } as const;
 
-        if (nearestSampleMedia) {
+        if (nearestSampleMedia.length > 0) {
           return (
             <div key={field.value} className="flex flex-col h-full space-y-2">
               <label className="text-sm font-medium">{field.label}</label>
@@ -527,7 +527,6 @@ export const Fields = memo(
             <label className="text-sm font-medium">{field.label}</label>
             <div className="flex gap-3 overflow-x-auto">
               <UploadFile
-                hideUploadWhenHavePreview={true}
                 name={`${fieldName}_1`}
                 control={control}
                 label={`Ảnh/Video 1`}
@@ -538,7 +537,6 @@ export const Fields = memo(
                 previewClasses="min-w-[190px] min-h-[200px] object-cover"
               />
               <UploadFile
-                hideUploadWhenHavePreview={true}
                 name={`${fieldName}_2`}
                 control={control}
                 label={`Ảnh/Video 2`}
@@ -549,7 +547,6 @@ export const Fields = memo(
                 previewClasses="min-w-[190px] min-h-[200px] object-cover"
               />
               <UploadFile
-                hideUploadWhenHavePreview={true}
                 name={`${fieldName}_3`}
                 control={control}
                 label={`Ảnh/Video 3`}
@@ -683,7 +680,7 @@ export const Fields = memo(
 
             if (previousDesigner) {
               const designerOption = users?.data?.find(
-                (u) => u.id === previousDesigner
+                (u) => u.id == previousDesigner
               );
               return (
                 <div key={field.value} className="flex flex-col space-y-2">
