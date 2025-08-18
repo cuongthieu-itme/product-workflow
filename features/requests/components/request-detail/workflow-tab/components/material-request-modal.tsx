@@ -17,7 +17,7 @@ import {
 } from "@/features/requests/schema/material-request-schema";
 import { priorityOptions } from "@/features/requests/options";
 import { SourceEnum, PriorityEnum } from "@/features/requests/constants";
-import { MaterialEnum } from "@/features/materials/constants";
+import { MaterialEnum, MaterialStatus } from "@/features/materials/constants";
 import { CreateMaterialModal } from "./create-material-modal";
 import { CreateMaterialInputType } from "@/features/materials/schema";
 import { RequestDetail } from "@/features/requests/type";
@@ -120,6 +120,10 @@ export const MaterialRequestModal: React.FC<MaterialRequestModalProps> = ({
       {
         ...data,
         requestId: currentRequest?.id,
+        materialsData: data.materialsData.map((material) => ({
+          ...material,
+          status: MaterialStatus.SENDING_REQUEST,
+        })),
       },
       {
         onSuccess: () => {
