@@ -21,6 +21,10 @@ import { SourceSelect } from "./source-other";
 import { RequestDetail } from "../type";
 import { toRequestFormInput } from "../helpers";
 import { useUpdateRequestMutation } from "../hooks/useRequest";
+import { useGetUserInfoQuery } from "@/features/auth/hooks";
+import { useEffect } from "react";
+import { SelectCustom } from "@/components/form";
+import { priorityOptions } from "../options";
 
 interface RequestFormTabProps {
   onSuccess: () => void;
@@ -33,6 +37,7 @@ export const RequestFormTab = ({
 }: RequestFormTabProps) => {
   const sourceSelected = useAtomValue(sourceAtom);
   const { toast } = useToast();
+  const { data: user } = useGetUserInfoQuery();
 
   const methods = useForm<RequestInputType>({
     defaultValues: toRequestFormInput({
@@ -47,6 +52,17 @@ export const RequestFormTab = ({
   const { mutate, isPending } = useCreateRequestMutation();
   const { mutate: updateMutate, isPending: isUpdatePending } =
     useUpdateRequestMutation();
+
+  useEffect(() => {
+    if (defaultValues?.id) {
+      reset(
+        toRequestFormInput({
+          detail: defaultValues,
+          sourceSelected,
+        })
+      );
+    }
+  }, [defaultValues, reset, sourceSelected]);
 
   const onSubmit: SubmitHandler<RequestInputType> = (data) => {
     if (defaultValues?.id) {
@@ -73,23 +89,29 @@ export const RequestFormTab = ({
 
       return;
     }
-    mutate(data, {
-      onSuccess: () => {
-        toast({
-          title: "Tạo yêu cầu thành công",
-          description: "Yêu cầu đã được tạo thành công.",
-        });
-        reset();
-        onSuccess();
+    mutate(
+      {
+        ...data,
+        createdById: user?.id,
       },
-      onError: (error) => {
-        toast({
-          title: "Tạo yêu cầu thất bại",
-          description: error.message,
-          variant: "destructive",
-        });
-      },
-    });
+      {
+        onSuccess: () => {
+          toast({
+            title: "Tạo yêu cầu thành công",
+            description: "Yêu cầu đã được tạo thành công.",
+          });
+          reset();
+          onSuccess();
+        },
+        onError: (error) => {
+          toast({
+            title: "Tạo yêu cầu thất bại",
+            description: error.message,
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   return (
@@ -121,6 +143,14 @@ export const RequestFormTab = ({
             disabled={isPending || isUpdatePending}
           />
 
+          <SelectCustom
+            disabled={sourceSelected === SourceEnum.CUSTOMER}
+            control={control}
+            name="priority"
+            options={priorityOptions}
+            label="Độ ưu tiên"
+          />
+
           <ProductLinks />
 
           <UploadFile
@@ -128,6 +158,11 @@ export const RequestFormTab = ({
             name="media"
             label="Hình ảnh hoặc video"
             disabled={isPending || isUpdatePending}
+            accept={{
+              "image/jpeg": [".jpg", ".jpeg"],
+              "image/png": [".png"],
+              "video/mp4": [".mp4"],
+            }}
           />
 
           <MaterialSelector />

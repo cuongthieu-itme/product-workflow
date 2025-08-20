@@ -17,3 +17,10 @@ export type CategoryFilterInput = {
   page?: number;
   limit?: number;
 };
+
+export enum SourceEnum {
+  FACEBOOK = "FACEBOOK",
+  WEBSITE = "WEBSITE",
+  REFERRAL = "REFERRAL",
+  OTHER = "OTHER",
+}

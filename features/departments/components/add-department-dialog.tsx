@@ -22,7 +22,6 @@ export const AddDepartmentDialog = () => {
         onClose={() => setIsDialogOpen(false)}
         title="Tạo phòng ban mới"
         description="Điền thông tin để tạo phòng ban mới. Nhấn nút Tạo phòng ban khi hoàn tất."
-        contentClassName="sm:max-w-[400px]"
       >
         <CreateDepartmentForm
           onDepartmentAdded={() => setIsDialogOpen(false)}

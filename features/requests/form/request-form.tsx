@@ -7,7 +7,7 @@ import { CheckCircle2, AlertCircle, Users, Package2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCreateRequestMutation, useGetRequestDetailQuery } from "../hooks";
 import { BaseDialog } from "@/components/dialog";
-import { MaterialForm, MaterialFormWithTabs } from "@/features/materials";
+import { MaterialFormWithTabs } from "@/features/materials";
 import { openMaterialDialogAtom, sourceAtom } from "../requestAtom";
 import { useAtom } from "jotai";
 import { CustomerFormDialog } from "./customer";

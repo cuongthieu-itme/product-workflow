@@ -1,34 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { DataTable } from "@/components/data-table";
 import { TablePagination } from "@/components/data-table/pagination";
-import { Edit, Package, Power, Trash2 } from "lucide-react";
-import type { Column } from "@/components/data-table/types";
+import { Edit, Package, Power } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
 import { TableToolbar } from "@/components/data-table/toolbar";
 import { LIMIT, PAGE } from "@/constants/pagination";
 import { MaterialType } from "../type";
 import Image from "next/image";
-import { CreateMaterialForm, MaterialForm } from "./material-form-dialog";
+import { CreateMaterialForm } from "./material-form-dialog";
 import { useMaterialsQuery } from "../hooks";
 import { ToggleStatusMaterialDialog } from "./toggle-status-material-dialog";
 import { Badge } from "@/components/ui/badge";
 import { getImageUrl } from "@/features/settings/utils";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useOriginsQuery, useUnitsQuery } from "../hooks/useMaterials";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { KEY_EMPTY_SELECT, SelectOption } from "@/components/form/select";
+import { useOriginsQuery } from "../hooks/useMaterials";
+import { KEY_EMPTY_SELECT } from "@/components/form/select";
 import { ToolbarFilters } from "@/components/data-table/toolbar-filter";
 import { ImageDialog } from "./image-dialog";
 import { MaterialFormWithTabs } from "./material-form-with-tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function MaterialList() {
   const [page, setPage] = useState(PAGE);
@@ -36,7 +27,6 @@ export function MaterialList() {
   const debouncedSearchValue = useDebounce(searchValue, 500);
   const [filterOrigin, setFilterOrigin] = useState(KEY_EMPTY_SELECT);
   const [filterStatus, setFilterStatus] = useState(KEY_EMPTY_SELECT);
-  const [filterUnit, setFilterUnit] = useState(KEY_EMPTY_SELECT);
   const {
     data: materials,
     isFetching,
@@ -50,7 +40,6 @@ export function MaterialList() {
       filterStatus === KEY_EMPTY_SELECT
         ? undefined
         : Boolean(Number(filterStatus)),
-    unit: filterUnit,
   });
   const [editForm, setEditForm] = useState<MaterialType | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -72,7 +61,6 @@ export function MaterialList() {
   };
 
   const { data: origins, refetch: refetchOrigins } = useOriginsQuery();
-  const { data: units, refetch: refetchUnits } = useUnitsQuery();
 
   const handleOpenChangeStatusDialog = (customer: MaterialType) => {
     setToggleStatusForm(customer);
@@ -95,7 +83,6 @@ export function MaterialList() {
   const handleRefresh = () => {
     refetch();
     refetchOrigins();
-    refetchUnits();
   };
 
   const statusOptions = [
@@ -108,12 +95,6 @@ export function MaterialList() {
     origins?.data.map((origin) => ({
       value: origin.id,
       label: origin.name,
-    })) ?? [];
-
-  const unitOptions =
-    units?.data.map((unit) => ({
-      value: unit.id,
-      label: unit.name,
     })) ?? [];
 
   return (
@@ -151,15 +132,6 @@ export function MaterialList() {
                   ],
                 },
                 {
-                  placeholder: "Lọc theo đơn vị",
-                  value: filterUnit,
-                  onChange: setFilterUnit,
-                  options: [
-                    { value: KEY_EMPTY_SELECT, label: "Tất cả đơn vị" },
-                    ...unitOptions,
-                  ],
-                },
-                {
                   placeholder: "Lọc theo trạng thái",
                   value: filterStatus,
                   onChange: setFilterStatus,
@@ -170,10 +142,22 @@ export function MaterialList() {
           </TableToolbar>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 py-6">
-            {materials?.data.length === 0 ? (
+            {isFetching ? (
+              <div className="flex flex-row gap-6">
+                <Skeleton className="h-24 w-24 mb-3 opacity-60" />
+                <Skeleton className="h-24 w-24 mb-3 opacity-60" />
+                <Skeleton className="h-24 w-24 mb-3 opacity-60" />
+                <Skeleton className="h-24 w-24 mb-3 opacity-60" />
+                <Skeleton className="h-24 w-24 mb-3 opacity-60" />
+              </div>
+            ) : materials?.data.length === 0 ? (
               <div className="py-6 col-span-full flex flex-col items-center justify-center text-gray-500 border border-dashed rounded-lg">
                 <Package className="h-12 w-12 mb-3 opacity-60" />
-                <p className="text-sm">Không có dữ liệu phụ kiện</p>
+                <p className="text-sm">Không có dữ liệu nguyên liệu</p>
+                <p className="text-sm mt-2 text-gray-400">
+                  Bạn có thể thêm nguyên liệu bằng cách nhấn nút "Thêm mới" ở
+                  trên
+                </p>
               </div>
             ) : (
               materials?.data.map((material) => (

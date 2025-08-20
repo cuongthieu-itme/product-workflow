@@ -13,13 +13,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { useGetUserInfoQuery } from "@/features/auth/hooks";
 import { UserRoleEnum } from "@/features/auth/constants";
 import { getRoleName } from "@/helpers";
 import { removeAccessTokenFromStorage } from "@/utils/localStorage";
 import { useQueryClient } from "@tanstack/react-query";
+import { NotificationsPopover } from "./notifications-popover";
 
 export default function Header() {
   const router = useRouter();
@@ -44,6 +44,10 @@ export default function Header() {
     }).format(date);
   };
 
+  const isAdmin =
+    data?.role === UserRoleEnum.ADMIN ||
+    data?.role === UserRoleEnum.SUPER_ADMIN;
+
   return (
     <header className="flex h-14 items-center justify-between w-full">
       {/* Logo/Title - hidden on mobile, shown on larger screens */}
@@ -61,69 +65,7 @@ export default function Header() {
       {/* Right side actions */}
       <div className="flex items-center space-x-2">
         {/* Notifications - responsive */}
-        {data?.role === UserRoleEnum.ADMIN && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="relative">
-                <Bell className="h-4 w-4" />
-                {passwordRequests.length > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -right-1 -top-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
-                  >
-                    {passwordRequests.length}
-                  </Badge>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-80 max-w-[calc(100vw-2rem)]"
-            >
-              <DropdownMenuLabel>Thông báo</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {passwordRequests.length === 0 ? (
-                <div className="p-4 text-center text-sm text-muted-foreground">
-                  Không có thông báo mới
-                </div>
-              ) : (
-                <>
-                  {passwordRequests.map((request) => (
-                    <DropdownMenuItem
-                      key={request.id}
-                      className="cursor-pointer"
-                    >
-                      <div className="flex flex-col gap-1 w-full">
-                        <div className="font-medium text-sm">
-                          Yêu cầu đặt lại mật khẩu
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          Người dùng{" "}
-                          <span className="font-medium">
-                            {request.username}
-                          </span>{" "}
-                          đã yêu cầu đặt lại mật khẩu
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {formatDate(request.requestedAt)}
-                        </div>
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    asChild
-                    className="cursor-pointer justify-center"
-                  >
-                    <Link href="/dashboard/users?tab=password-requests">
-                      Xem tất cả
-                    </Link>
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        <NotificationsPopover />
 
         {/* Theme toggle */}
         <ThemeToggle />

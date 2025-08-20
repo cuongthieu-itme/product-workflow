@@ -51,6 +51,7 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
     defaultTab || MaterialEnum.MATERIAL
   );
   const { toast } = useToast();
+  const prefixCode = activeTab === MaterialEnum.MATERIAL ? "M-" : "A-";
 
   const { control, handleSubmit, reset } = useForm<CreateMaterialInputType>({
     defaultValues: {
@@ -62,6 +63,7 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
       description: material?.description || "",
       isActive: material?.isActive !== undefined ? material.isActive : true,
       type: material?.type ?? activeTab,
+      price: material?.price || 0,
     },
     resolver: zodResolver(createMaterialInputSchema),
   });
@@ -104,31 +106,59 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
       return;
     }
 
-    mutate(data, {
-      onSuccess: () => {
-        reset();
-        onClose();
-        if (onMaterialAdded) {
-          onMaterialAdded();
-        }
-        toast({
-          title: "Thành công",
-          description: `${
-            activeTab === MaterialEnum.MATERIAL ? "Nguyên liệu" : "Phụ kiện"
-          } đã được thêm thành công.`,
-        });
+    mutate(
+      {
+        ...data,
+        type: activeTab,
       },
-    });
+      {
+        onSuccess: () => {
+          reset();
+          onClose();
+          if (onMaterialAdded) {
+            onMaterialAdded();
+          }
+          toast({
+            title: "Thành công",
+            description: `${
+              activeTab === MaterialEnum.MATERIAL ? "Nguyên liệu" : "Phụ kiện"
+            } đã được thêm thành công.`,
+          });
+        },
+      }
+    );
   };
 
   useEffect(() => {
     if (isDialogOpen) {
       reset();
       resetMutation();
-      // Reset về tab đầu tiên khi mở dialog
-      setActiveTab(defaultTab ?? MaterialEnum.MATERIAL);
+      // Khi cập nhật material, sử dụng type hiện tại của material
+      // Khi tạo mới, sử dụng defaultTab hoặc MATERIAL
+      if (material) {
+        setActiveTab(material.type);
+      } else {
+        setActiveTab(defaultTab ?? MaterialEnum.MATERIAL);
+      }
     }
-  }, [isDialogOpen]);
+  }, [isDialogOpen, material, defaultTab]);
+
+  // Reset form khi activeTab thay đổi (chỉ khi không phải đang cập nhật)
+  useEffect(() => {
+    if (!material && isDialogOpen) {
+      reset({
+        code: "",
+        name: "",
+        quantity: 0,
+        image: [],
+        unit: "",
+        originId: 0,
+        description: "",
+        isActive: true,
+        type: activeTab,
+      });
+    }
+  }, [activeTab, material, isDialogOpen, reset]);
 
   const getTabTitle = () => {
     if (material) {
@@ -197,17 +227,13 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
         />
 
         <InputCustom
+          prefix={prefixCode}
           control={control}
           name="code"
           label={
             activeTab === MaterialEnum.MATERIAL
               ? "Mã nguyên liệu"
               : "Mã phụ kiện"
-          }
-          placeholder={
-            activeTab === MaterialEnum.MATERIAL
-              ? "Nhập mã nguyên liệu"
-              : "Nhập mã phụ kiện"
           }
           required
           disabled={isPending}
@@ -237,6 +263,18 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
             className="w-full"
           />
         </div>
+
+        <InputCustom
+          control={control}
+          name="price"
+          label="Giá"
+          placeholder="Nhập giá"
+          required
+          disabled={isPending}
+          type="number"
+          containerClassName="w-full"
+          className="w-full"
+        />
 
         <SelectCustom
           options={originOptions}
@@ -303,27 +341,28 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
           <Tabs
             value={activeTab}
             onValueChange={(value) => {
-              console.log(value);
               setActiveTab(value as MaterialEnum);
             }}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger
-                value={MaterialEnum.MATERIAL}
-                className="flex items-center gap-2"
-              >
-                <Package className="h-4 w-4" />
-                Nguyên liệu
-              </TabsTrigger>
-              <TabsTrigger
-                value={MaterialEnum.ACCESSORY}
-                className="flex items-center gap-2"
-              >
-                <Wrench className="h-4 w-4" />
-                Phụ kiện
-              </TabsTrigger>
-            </TabsList>
+            {!material && (
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger
+                  value={MaterialEnum.MATERIAL}
+                  className="flex items-center gap-2"
+                >
+                  <Package className="h-4 w-4" />
+                  Nguyên liệu
+                </TabsTrigger>
+                <TabsTrigger
+                  value={MaterialEnum.ACCESSORY}
+                  className="flex items-center gap-2"
+                >
+                  <Wrench className="h-4 w-4" />
+                  Phụ kiện
+                </TabsTrigger>
+              </TabsList>
+            )}
 
             <TabsContent value={MaterialEnum.MATERIAL} className="mt-6">
               <div className="space-y-4">

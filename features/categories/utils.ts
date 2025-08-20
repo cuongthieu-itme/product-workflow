@@ -1,5 +1,5 @@
 import { GenderEnum } from "@/constants/gender";
-import { SourceEnum } from "./type";
+import { SourceEnum } from "./types";
 
 export const getGender = (gender: GenderEnum) => {
   switch (gender) {

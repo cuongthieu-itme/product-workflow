@@ -1,7 +1,7 @@
 import request from "@/configs/axios-config";
 import { ChangeInfoInputType, ChangePasswordInputType } from "./schema";
-import { BaseResultQuery } from "@/types/common";
-import { CurrentUserType } from "./type";
+import { BaseResultQuery, PaginatedResult } from "@/types/common";
+import { CurrentUserType, NotificationType } from "./type";
 
 export const changePassword = async (data: ChangePasswordInputType) => {
   try {
@@ -62,6 +62,31 @@ export const removeFileByFileName = async (fileName: string) => {
     const response = await request.delete(`/files/${fileName}`);
 
     return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getNotificationSettings = async (page = 1, limit = 10) => {
+  try {
+    const response = await request.get<
+      PaginatedResult<"data", NotificationType>
+    >(`/broadcasts?page=${page}&limit=${limit}`);
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const markAsReadNotification = async (ids: number[]) => {
+  try {
+    const response = await request.patch<{
+      success: boolean;
+      data: NotificationType;
+    }>(`/broadcasts/is-read`, { ids });
+
+    return response.data.data;
   } catch (error) {
     throw error;
   }

@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createWorkflowInputSchema,
   CreateWorkflowInputType,
+  OutputTypeEnum,
   SubProcessInputType,
 } from "../../schema/create-workflow-schema";
 import { Button } from "@/components/ui/button";
@@ -24,21 +25,17 @@ import { StepFormModal } from "./step-form-modal";
 import { nanoid } from "nanoid";
 import { useParams, useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  ArrowLeft,
-  RefreshCw,
-} from "lucide-react";
+import { AlertCircle, Loader2, ArrowLeft } from "lucide-react";
 import { convertSubProcessFormData } from "../../helper";
 import { WorkflowSkeleton } from "./skeleton";
+import { useToast } from "@/components/ui/use-toast";
 
 export function WorkflowForm() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading } = useGetWorkflowProcessByIdQuery(Number(id));
   const [isCreateStepModalOpen, setIsCreateStepModalOpen] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
 
   const methods = useForm<CreateWorkflowInputType>({
     resolver: zodResolver(createWorkflowInputSchema),
@@ -47,6 +44,8 @@ export function WorkflowForm() {
       name: "",
       description: "",
       subprocesses: [],
+      outputType: OutputTypeEnum.PRODUCT,
+      sameAssigns: [],
     },
   });
 
@@ -60,33 +59,47 @@ export function WorkflowForm() {
 
   useEffect(() => {
     if (data) {
-      setValue("name", data.name);
-      setValue("description", data.description);
-      setValue("subprocesses", convertSubProcessFormData(data.subprocesses));
+      methods.reset({
+        name: data.name,
+        description: data.description,
+        subprocesses: convertSubProcessFormData(data.subprocesses || []),
+        outputType:
+          (data.outputType as OutputTypeEnum) || OutputTypeEnum.PRODUCT,
+        sameAssigns: data.sameAssigns || [],
+      });
     }
-  }, [data]);
+  }, [data, methods]);
 
   const handleOpenStepModal = () => {
     setIsCreateStepModalOpen(true);
   };
 
   const handleCreateStep = (stepData: SubProcessInputType) => {
-    const newStep = {
-      ...stepData,
-      step: fields.length + 1,
-      fieldId: nanoid(),
-    };
+    if (stepData.id) {
+      const updatedFields = fields.map((field) => {
+        if (field.id === stepData.id) {
+          return {
+            ...field,
+            ...stepData,
+          };
+        }
+        return field;
+      });
+      setValue("subprocesses", updatedFields, { shouldValidate: true });
+    } else {
+      const newStep = {
+        ...stepData,
+        step: fields.length + 1,
+        fieldId: nanoid(),
+      };
+      setValue("subprocesses", [...fields, newStep], { shouldValidate: true });
+    }
 
-    const updatedFields = [...fields, newStep];
-    setValue("subprocesses", updatedFields, { shouldValidate: true });
     setIsCreateStepModalOpen(false);
   };
 
-  const {
-    mutate: createWorkflowProcess,
-    error,
-    isSuccess,
-  } = useCreateOfUpdateWPMutation();
+  const { mutate: createWorkflowProcess, error } =
+    useCreateOfUpdateWPMutation();
 
   const onSubmit: SubmitHandler<CreateWorkflowInputType> = (formData) => {
     const normalizedSubprocesses = formData.subprocesses.map(
@@ -98,22 +111,51 @@ export function WorkflowForm() {
       }
     );
 
+    const workflowData = {
+      name: formData.name,
+      description: formData.description,
+      outputType: formData.outputType,
+      subprocesses: normalizedSubprocesses,
+      sameAssigns: formData.sameAssigns,
+    };
+
     if (data?.id) {
-      createWorkflowProcess({
-        id: data.id,
-        name: formData.name,
-        description: formData.description,
-        subprocesses: normalizedSubprocesses,
-      });
+      createWorkflowProcess(
+        {
+          id: data.id,
+          ...workflowData,
+        },
+        {
+          onSuccess: () => {
+            router.push(`/dashboard/workflows`);
+          },
+        }
+      );
 
       return;
     }
 
-    createWorkflowProcess({
-      name: formData.name,
-      description: formData.description,
-      subprocesses: normalizedSubprocesses,
-    });
+    createWorkflowProcess(
+      {
+        ...workflowData,
+      },
+      {
+        onSuccess: (response) => {
+          toast({
+            title: "Thành công",
+            description: "Quy trình đã được tạo thành công.",
+          });
+          router.push(`/dashboard/workflows`);
+        },
+        onError: (error) => {
+          toast({
+            title: "Lỗi",
+            description: error.message,
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   if (isLoading) return <WorkflowSkeleton />;
@@ -143,18 +185,6 @@ export function WorkflowForm() {
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Lỗi</AlertTitle>
               <AlertDescription>{error.message}</AlertDescription>
-            </Alert>
-          )}
-
-          {isSuccess && (
-            <Alert className="bg-green-50 border-green-200">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertTitle className="text-green-800">Thành công!</AlertTitle>
-              <AlertDescription className="text-green-700">
-                {id
-                  ? "Quy trình đã được cập nhật"
-                  : "Quy trình đã được tạo thành công"}
-              </AlertDescription>
             </Alert>
           )}
 

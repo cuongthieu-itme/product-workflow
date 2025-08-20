@@ -18,17 +18,36 @@ import { Button } from "@/components/ui/button";
 import { TableToolbar } from "@/components/data-table/toolbar";
 import { LIMIT, PAGE } from "@/constants/pagination";
 import { useGetRequestsQuery } from "../hooks";
-import { RequestType } from "../type";
+import { RequestStatus, RequestType } from "../type";
 import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { CreateRequestButton } from "./create-request-button";
 import { RequestForm } from "../form";
+import { useRouter } from "next/navigation";
+import { useStatisticsRequestQuery } from "../hooks/useRequest";
+import { DeleteRequestDialog } from "./delete-request-dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { PriorityBadge, StatusBadge } from "./badge";
 
 export function RequestList() {
   const [page, setPage] = useState(PAGE);
+  const router = useRouter();
   const [searchValue, setSearchValue] = useState("");
+  const [statusFilter, setStatusFilter] = useState<RequestStatus | "all">(
+    "all"
+  );
   const debouncedSearch = useDebounce(searchValue, 400);
+  const { data } = useStatisticsRequestQuery();
+  const [deleteDialogState, setDeleteDialogState] = useState<{
+    isOpen: boolean;
+    request: RequestType | null;
+  }>({
+    isOpen: false,
+    request: null,
+  });
+
   const {
     data: requests,
     isFetching,
@@ -37,6 +56,7 @@ export function RequestList() {
     page,
     limit: LIMIT,
     title: debouncedSearch,
+    status: statusFilter === "all" ? undefined : statusFilter,
   });
   const [openRequestFormEdit, setOpenRequestFormEdit] = useState<{
     isOpen: boolean;
@@ -46,15 +66,38 @@ export function RequestList() {
     requestId: undefined,
   });
 
-  const totalPages = requests
-    ? Math.max(PAGE, Math.ceil(requests.total / LIMIT))
+  const totalPages = requests?.total
+    ? Math.ceil(requests?.total / LIMIT)
     : PAGE;
 
+  // Reset page to 1 when status filter changes
+  const handleStatusChange = (value: string) => {
+    if (value === "all") {
+      setStatusFilter("all");
+      setPage(PAGE);
+
+      return;
+    }
+    setStatusFilter(value as RequestStatus | "all");
+    setPage(PAGE);
+  };
+
   const columns: Column<RequestType>[] = [
+    { id: "code", header: "Mã yêu cầu" },
     { id: "title", header: "Tên yêu cầu" },
     {
       id: "description",
       header: "Chi tiết yêu cầu",
+    },
+    {
+      id: "status",
+      header: "Trạng thái",
+      cell: (u) => <StatusBadge status={u.status} />,
+    },
+    {
+      id: "priority",
+      header: "Ưu tiên",
+      cell: (u) => <PriorityBadge priority={u.priority} />,
     },
     {
       id: "createdAt",
@@ -72,7 +115,13 @@ export function RequestList() {
       className: "text-right w-1",
       cell: (u) => (
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              router.push(`/dashboard/requests/${u.id}`);
+            }}
+          >
             <Eye className="h-4 w-4 mr-2" />
             Chi tiết
           </Button>
@@ -90,7 +139,17 @@ export function RequestList() {
             <Edit className="h-4 w-4 mr-2" />
             Chỉnh Sửa
           </Button>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={u.status !== RequestStatus.PENDING}
+            onClick={() => {
+              setDeleteDialogState({
+                isOpen: true,
+                request: u,
+              });
+            }}
+          >
             <Trash2 className="h-4 w-4 mr-2 text-red-500" />
             Xóa
           </Button>
@@ -118,9 +177,11 @@ export function RequestList() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Chờ xử lý</p>
-                <p className="text-3xl font-bold text-yellow-600 mt-2">0</p>
+                <p className="text-3xl font-bold text-yellow-600 mt-2">
+                  {data?.data.PENDING || 0}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Yêu cầu chưa được xử lý
+                  Yêu cầu chưa được xác nhận
                 </p>
               </div>
               <div className="p-3 bg-yellow-100 rounded-full">
@@ -133,10 +194,12 @@ export function RequestList() {
           <div className="bg-white p-6 rounded-lg border shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Đang xử lý</p>
-                <p className="text-3xl font-bold text-blue-600 mt-2">0</p>
+                <p className="text-sm font-medium text-gray-600">Đã xác nhận</p>
+                <p className="text-3xl font-bold text-blue-600 mt-2">
+                  {data?.data.APPROVED || 0}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Yêu cầu đang được thực hiện
+                  Yêu cầu đã được xác nhận
                 </p>
               </div>
               <div className="p-3 bg-blue-100 rounded-full">
@@ -150,7 +213,9 @@ export function RequestList() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Hoàn thành</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">0</p>
+                <p className="text-3xl font-bold text-green-600 mt-2">
+                  {data?.data.COMPLETED || 0}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Yêu cầu đã hoàn thành
                 </p>
@@ -168,9 +233,12 @@ export function RequestList() {
                 <p className="text-sm font-medium text-gray-600">
                   Từ chối/Tạm dừng
                 </p>
-                <p className="text-3xl font-bold text-red-600 mt-2">0</p>
+                <p className="text-3xl font-bold text-red-600 mt-2">
+                  {" "}
+                  {data?.data.REJECTED || 0}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  0 từ chối, 0 tạm dừng
+                  Yêu cầu đã bị từ chối hoặc tạm dừng
                 </p>
               </div>
               <div className="p-3 bg-red-100 rounded-full">
@@ -180,6 +248,50 @@ export function RequestList() {
           </div>
         </div>
       </div>
+
+      <Tabs
+        value={statusFilter}
+        onValueChange={handleStatusChange}
+        className="space-y-4"
+      >
+        <div className="overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 min-w-max">
+            <TabsTrigger value="all" className="text-xs lg:text-sm">
+              Tất cả ({data?.data.ALL || 0})
+            </TabsTrigger>
+            <TabsTrigger
+              value={RequestStatus.PENDING}
+              className="text-xs lg:text-sm"
+            >
+              Chờ xử lý ({data?.data.PENDING || 0})
+            </TabsTrigger>
+            <TabsTrigger
+              value={RequestStatus.APPROVED}
+              className="text-xs lg:text-sm"
+            >
+              Đã xác nhận ({data?.data.APPROVED || 0})
+            </TabsTrigger>
+            <TabsTrigger
+              value={RequestStatus.IN_PROGRESS}
+              className="text-xs lg:text-sm"
+            >
+              Đang xử lý ({data?.data.IN_PROGRESS || 0})
+            </TabsTrigger>
+            <TabsTrigger
+              value={RequestStatus.COMPLETED}
+              className="text-xs lg:text-sm"
+            >
+              Hoàn thành ({data?.data.COMPLETED || 0})
+            </TabsTrigger>
+            <TabsTrigger
+              value={RequestStatus.REJECTED}
+              className="text-xs lg:text-sm"
+            >
+              Từ chối ({data?.data.REJECTED || 0})
+            </TabsTrigger>
+          </TabsList>
+        </div>
+      </Tabs>
 
       <Card className="p-6">
         <div className="space-y-4">
@@ -195,16 +307,16 @@ export function RequestList() {
           ></TableToolbar>
 
           <DataTable<RequestType>
-            data={requests?.data}
+            data={requests?.data || []}
             columns={columns}
             loading={isFetching}
           />
 
-          {/* <TablePagination
+          <TablePagination
             page={page}
             totalPages={totalPages}
             onPageChange={setPage}
-          /> */}
+          />
         </div>
       </Card>
 
@@ -215,6 +327,17 @@ export function RequestList() {
         }
         requestId={openRequestFormEdit.requestId}
       />
+
+      {deleteDialogState.request && (
+        <DeleteRequestDialog
+          isOpen={deleteDialogState.isOpen}
+          onClose={() => {
+            setDeleteDialogState({ isOpen: false, request: null });
+            refetch(); // Refresh the list after deletion
+          }}
+          request={deleteDialogState.request}
+        />
+      )}
     </div>
   );
 }

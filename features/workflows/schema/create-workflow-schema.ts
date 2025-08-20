@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+export enum OutputTypeEnum {
+  PRODUCT = "PRODUCT",
+  ACCESSORY = "ACCESSORY",
+  MATERIAL = "INGREDIENT",
+}
+
 export const subprocessesSchema = z.object({
   id: z.string().or(z.number()).optional().nullable(),
   name: z
@@ -32,6 +38,13 @@ export const subprocessesSchema = z.object({
   isRequired: z.boolean().default(false).optional(),
   isStepWithCost: z.boolean().default(false).optional(),
   step: z.number().min(1).optional(),
+  checkFields: z.array(z.string()).optional(),
+  isShowRequestMaterial: z.boolean().optional(),
+});
+
+export const sameAssignSchema = z.object({
+  departmentId: z.number(),
+  steps: z.array(z.number()).min(1, "Phải chọn ít nhất 1 bước"),
 });
 
 export const createWorkflowInputSchema = z.object({
@@ -44,9 +57,18 @@ export const createWorkflowInputSchema = z.object({
     .string()
     .min(3, "Mô tả phải có ít nhất 3 ký tự")
     .max(100, "Mô tả phải có nhiều nhất 100 ký tự"),
+  outputType: z.enum(
+    [OutputTypeEnum.PRODUCT, OutputTypeEnum.ACCESSORY, OutputTypeEnum.MATERIAL],
+    {
+      errorMap: () => ({ message: "Phải chọn loại đầu ra" }),
+    }
+  ),
   subprocesses: z.array(subprocessesSchema).min(1, "Phải có ít nhất 1 bước"),
+  sameAssigns: z.array(sameAssignSchema).optional(),
 });
 
 export type CreateWorkflowInputType = z.infer<typeof createWorkflowInputSchema>;
 
 export type SubProcessInputType = z.infer<typeof subprocessesSchema>;
+
+export type SameAssignInputType = z.infer<typeof sameAssignSchema>;

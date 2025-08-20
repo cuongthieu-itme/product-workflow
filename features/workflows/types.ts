@@ -1,4 +1,8 @@
 import { DepartmentType } from "../departments/type";
+import {
+  OutputTypeEnum,
+  SameAssignInputType,
+} from "./schema/create-workflow-schema";
 
 export type WorkFlowStepType = {
   id: number;
@@ -11,6 +15,10 @@ export type WorkFlowStepType = {
   isStepWithCost: boolean;
   department: DepartmentType;
   step: number;
+  isShowRequestMaterial: boolean;
+  fieldSubprocess: {
+    checkFields: string[];
+  };
 };
 
 export type WorkFlowProcessType = {
@@ -21,6 +29,8 @@ export type WorkFlowProcessType = {
   updatedAt: string;
   subprocesses: Array<WorkFlowStepType>;
   version: number;
+  sameAssigns: SameAssignInputType[];
+  outputType: OutputTypeEnum;
   updateAt: string;
 };
 
@@ -28,4 +38,13 @@ export type WorkFlowProcessFilterInput = {
   name?: string;
   page?: number;
   limit?: number;
+};
+
+export type FieldType = {
+  label: string;
+  value: string;
+  type: string;
+  enumValue: string;
+  valueType?: string;
+  source?: string;
 };

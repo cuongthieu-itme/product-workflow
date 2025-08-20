@@ -10,7 +10,6 @@ export function MaterialSelector() {
       <div className="flex gap-2 flex-col">
         <div className="flex gap-2">
           <AddMaterialDialog />
-          <CreateMaterialDialog />
         </div>
         <MaterialTable />
       </div>

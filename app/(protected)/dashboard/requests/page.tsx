@@ -1,5 +1,5 @@
-import { RequestsPageClient } from './requests-page-client'
+import { RequestList } from "@/features/requests/components";
 
-export default function RequestsPage() {
-  return <RequestsPageClient />
+export default function Page() {
+  return <RequestList />;
 }

@@ -1,9 +1,6 @@
 import { BaseDialog } from "@/components/dialog";
 import { useAtom } from "jotai";
-import {
-  openCustomerFormDialogAtom,
-  openSourceFormDialogAtom,
-} from "../../requestAtom";
+import { openSourceFormDialogAtom } from "../../requestAtom";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { sourceOtherInputSchema, SourceOtherInputType } from "../../schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,6 +27,7 @@ export const SourceFormDialog = () => {
     mutate(data, {
       onSuccess: () => {
         reset();
+        setIsDialogOpen(false);
       },
     });
   };

@@ -1,16 +1,11 @@
 import { z } from "zod";
-import { MaterialEnum } from "../constants";
+import { MaterialEnum, MaterialStatus } from "../constants";
 
 export const createMaterialInputSchema = z.object({
   image: z
     .array(z.string())
     .min(1, { message: "Phải chọn ít nhất 1 ảnh" })
     .max(5, { message: "Không được quá 5 ảnh" }),
-  code: z
-    .string()
-    .trim()
-    .min(1, { message: "Mã vật tư không được trống" })
-    .max(32, { message: "Mã vật tư tối đa 32 ký tự" }),
   name: z
     .string()
     .trim()
@@ -32,9 +27,14 @@ export const createMaterialInputSchema = z.object({
   description: z.string().trim().optional().or(z.literal("")),
   isActive: z.boolean().default(true).optional(),
   type: z.enum([MaterialEnum.ACCESSORY, MaterialEnum.MATERIAL]),
+  price: z
+    .number()
+    .int({ message: "Giá phải là số nguyên" })
+    .positive({ message: "Giá phải > 0" })
+    .optional(),
 });
 
 export type CreateMaterialInputType = z.infer<typeof createMaterialInputSchema>;
 export type UpdateMaterialInputType = CreateMaterialInputType & {
-  id: string;
+  id: number;
 };

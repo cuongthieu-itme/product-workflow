@@ -6,30 +6,59 @@ import {
   getRequests,
   getSourceOthers,
   updateRequest,
+  changeStatusRequest,
+  createEvaluate,
+  getEvaluates,
+  rejectRequest,
+  holdRequest,
+  getSubprocessHistory,
+  updateSubprocessHistory,
+  updateSubprocessHistorySkip,
+  updateMediaRequest,
+  assignUserToStep,
+  getRequestByProductStatus,
+  addMaterialToRequest,
+  removeMaterialFromRequest,
+  getStatisticsByRequest,
+  deleteRequest,
+  updateFieldStep,
+  approveSubprocessHistory,
+  holdSubprocess,
+  continueSubprocess,
+  createMaterialRequest,
 } from "../services";
-import { RequestFilterInput, SourceOtherFilterInput } from "../type";
+import {
+  EvaluateFilterInput,
+  RequestFilterInput,
+  SourceOtherFilterInput,
+  SubprocessHistoryFilterInput,
+} from "../type";
+import { useParams } from "next/navigation";
 
 export enum REQUESTS_QUERY_KEY {
   REQUESTS = "requests",
   SOURCE_OTHERS = "source-others",
+  CHANGE_STATUS = "change-status",
+  EVALUATES = "evaluates",
+  SUBPROCESS_HISTORY = "subprocess-history",
+  REQUEST_BY_PRODUCT_STATUS = "request-by-product-status",
 }
 
 export const useGetRequestsQuery = (params?: RequestFilterInput) => {
   return useQuery({
-    queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+    queryKey: [REQUESTS_QUERY_KEY.REQUESTS, params],
     queryFn: () => getRequests(params),
   });
 };
 
-export const useGetRequestDetailQuery = (id?: number) => {
+export const useGetRequestDetailQuery = (requestId?: number) => {
+  const { id } = useParams<{ id: string }>();
+  const queryId = requestId ?? id;
+
   return useQuery({
-    queryKey: [REQUESTS_QUERY_KEY.REQUESTS, id],
-    queryFn: () => getDetailRequest(id as number),
-    enabled: id !== undefined && id !== null,
-    staleTime: 0,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    refetchOnMount: false,
+    queryKey: [REQUESTS_QUERY_KEY.REQUESTS, queryId],
+    queryFn: () => getDetailRequest(Number(queryId)),
+    enabled: queryId !== undefined && queryId !== null,
   });
 };
 
@@ -74,5 +103,248 @@ export const useUpdateRequestMutation = () => {
         queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
       });
     },
+  });
+};
+
+export const useChangeStatusRequestMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: changeStatusRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useGetEvaluatesQuery = (params: EvaluateFilterInput) => {
+  return useQuery({
+    queryKey: [REQUESTS_QUERY_KEY.EVALUATES, params],
+    queryFn: () => getEvaluates(params),
+  });
+};
+
+export const useCreateEvaluateMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createEvaluate,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.EVALUATES],
+      });
+    },
+  });
+};
+
+export const useRejectRequestMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: rejectRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useHoldRequestMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: holdRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useGetSubprocessHistoryQuery = (
+  params: SubprocessHistoryFilterInput
+) => {
+  return useQuery({
+    queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY, params],
+    queryFn: () => getSubprocessHistory(params),
+  });
+};
+
+export const useUpdateSubprocessHistoryMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateSubprocessHistory,
+    onSuccess: () => {
+      // Chỉ invalidate queries cần thiết để tránh infinite loop
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+        exact: false,
+      });
+    },
+  });
+};
+
+export const useSkipSubprocessHistoryMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateSubprocessHistorySkip,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useUpdateMediaMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateMediaRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useAssignUserToStepMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: assignUserToStep,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useGetRequestByProductStatusQuery = (productStatusId: number) => {
+  return useQuery({
+    queryKey: [REQUESTS_QUERY_KEY.REQUESTS, productStatusId],
+    queryFn: () => getRequestByProductStatus(productStatusId),
+  });
+};
+
+export const useAddMaterialToRequestMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: addMaterialToRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useRemoveMaterialFromRequestMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: removeMaterialFromRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useStatisticsRequestQuery = () => {
+  return useQuery({
+    queryKey: [REQUESTS_QUERY_KEY.REQUEST_BY_PRODUCT_STATUS],
+    queryFn: getStatisticsByRequest,
+  });
+};
+
+export const useDeleteRequestMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+    },
+  });
+};
+
+export const useUpdateFieldStepMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateFieldStep,
+    onSuccess: () => {
+      // Chỉ invalidate queries cần thiết để tránh infinite loop
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+        exact: false,
+      });
+    },
+  });
+};
+
+export const useApproveSubprocessHistoryMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: approveSubprocessHistory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY],
+      });
+    },
+  });
+};
+
+export const useHoldSubprocessMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: holdSubprocess,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY],
+      });
+    },
+  });
+};
+
+export const useContinueSubprocessMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: continueSubprocess,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.REQUESTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [REQUESTS_QUERY_KEY.SUBPROCESS_HISTORY],
+      });
+    },
+  });
+};
+
+export const useCreateMaterialRequestMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createMaterialRequest,
+    onSuccess: () => {},
   });
 };

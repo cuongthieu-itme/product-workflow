@@ -21,6 +21,7 @@ import { useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { ChooseColorProductStatus } from "./choose-color-product-status";
 import { useWorkFlowProcessesQuery } from "@/features/workflows/hooks";
+import { TextAreaCustom } from "@/components/form/textarea";
 
 export function UpdateProductStatusForm({
   onCustomerAdded,
@@ -78,16 +79,6 @@ export function UpdateProductStatusForm({
     reset();
   }, [open]);
 
-  const { data: procedures } = useWorkFlowProcessesQuery({
-    limit: 1000,
-  });
-
-  const proceduresOptions =
-    procedures?.data?.map((p) => ({
-      value: p.id,
-      label: p.name,
-    })) ?? [];
-
   return (
     <BaseDialog
       open={open}
@@ -133,29 +124,17 @@ export function UpdateProductStatusForm({
                 disabled={isPending}
               />
 
-              <InputCustom
+              <TextAreaCustom
                 control={control}
                 name="description"
                 label="Chi tiết"
                 placeholder="Nhập chi tiết"
                 required
+                rows={5}
                 disabled={isPending}
               />
 
               <ChooseColorProductStatus control={control} name="color" />
-
-              <SelectCustom
-                name="procedureId"
-                control={control}
-                label="Quy trình"
-                emptyOption={{
-                  label: "Chọn quy trình",
-                }}
-                options={proceduresOptions}
-                required
-                placeholder="Chọn quy trình"
-                disabled={isPending}
-              />
             </div>
 
             <DialogFooter className="flex justify-end gap-2">

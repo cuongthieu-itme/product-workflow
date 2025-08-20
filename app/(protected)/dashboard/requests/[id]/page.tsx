@@ -1,9 +1,5 @@
-import { RequestDetailPageClient } from './request-detail-page-client'
+import { RequestDetail } from "@/features/requests";
 
-export default function RequestDetailPage({
-  params
-}: {
-  params: { id: string }
-}) {
-  return <RequestDetailPageClient id={params.id} />
+export default function Page() {
+  return <RequestDetail />;
 }

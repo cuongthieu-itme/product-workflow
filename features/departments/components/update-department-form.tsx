@@ -16,13 +16,13 @@ import { useUpdateDepartmentMutation } from "../hooks";
 import { InputCustom } from "@/components/form/input";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { SelectCustom } from "@/components/form/select";
-import { useUsersQuery } from "@/features/users/hooks";
 import { DepartmentType } from "../type";
 import { BaseDialog } from "@/components/dialog";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
+import { useGetUserNoDepartmentsQuery } from "@/features/users/hooks/useUsersQuery";
 
 export function UpdateDepartmentForm({
   onDepartmentAdded,
@@ -66,7 +66,7 @@ export function UpdateDepartmentForm({
     data,
     // reset: resetMutationStatus,
   } = useUpdateDepartmentMutation();
-  const { data: users } = useUsersQuery();
+  const { data: users } = useGetUserNoDepartmentsQuery();
 
   const onSubmit: SubmitHandler<UpdateDepartmentInputType> = (data) => {
     if (!department?.id) return;
@@ -110,7 +110,6 @@ export function UpdateDepartmentForm({
       onClose={onClose}
       title="Cập nhật phòng ban"
       description="Điền thông tin để cập nhật phòng ban. Nhấn nút Cập nhật khi hoàn tất."
-      contentClassName="sm:max-w-[400px]"
     >
       <ScrollArea className="max-h-[80vh] pr-4 -mr-4">
         <div className="space-y-6 pr-4">

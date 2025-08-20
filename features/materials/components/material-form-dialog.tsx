@@ -24,16 +24,23 @@ import {
 } from "../hooks/useMaterials";
 import { useToast } from "@/components/ui/use-toast";
 import { MaterialFormWithTabs } from "./material-form-with-tabs";
+import { MaterialEnum } from "../constants";
+
+interface CreateMaterialFormProps {
+  onMaterialAdded?: () => void;
+  material?: MaterialType;
+  children?: React.ReactNode;
+  defaultTab?: MaterialEnum;
+  createLabel?: string;
+}
 
 export function CreateMaterialForm({
   onMaterialAdded,
   material,
   children,
-}: {
-  onMaterialAdded?: () => void;
-  material?: MaterialType;
-  children?: React.ReactNode;
-}) {
+  defaultTab,
+  createLabel = "Tạo nguyên liệu",
+}: CreateMaterialFormProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
@@ -46,11 +53,12 @@ export function CreateMaterialForm({
           onClick={() => setIsDialogOpen(true)}
         >
           <PlusCircle className="mr-2 h-4 w-4" />
-          Tạo nguyên liệu
+          {createLabel}
         </Button>
       )}
 
       <MaterialFormWithTabs
+        defaultTab={defaultTab}
         material={material}
         isDialogOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
@@ -76,7 +84,6 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
   const { toast } = useToast();
   const { control, handleSubmit, reset } = useForm<CreateMaterialInputType>({
     defaultValues: {
-      code: material?.code || "",
       name: material?.name || "",
       quantity: material?.quantity || 0,
       image: material?.image || [],
@@ -196,15 +203,6 @@ export const MaterialForm: React.FC<MaterialFormProps> = ({
                 name="description"
                 label="Chi tiết nguyên liệu"
                 placeholder="Nhập chi tiết nguyên liệu"
-                disabled={isPending}
-              />
-
-              <InputCustom
-                control={control}
-                name="code"
-                label="Mã nguyên liệu"
-                placeholder="Nhập mã nguyên liệu"
-                required
                 disabled={isPending}
               />
 

@@ -32,6 +32,7 @@ import { InputCustom } from "@/components/form/input";
 import { TextAreaCustom } from "@/components/form/textarea";
 import { SelectCustom } from "@/components/form/select";
 import { useUsersQuery } from "@/features/users/hooks";
+import { useGetUserNoDepartmentsQuery } from "@/features/users/hooks/useUsersQuery";
 
 export function CreateDepartmentForm({
   onDepartmentAdded,
@@ -76,7 +77,7 @@ export function CreateDepartmentForm({
     });
   };
 
-  const { data: users } = useUsersQuery({ limit: 10000 });
+  const { data: users } = useGetUserNoDepartmentsQuery();
 
   const headOptions =
     users?.data

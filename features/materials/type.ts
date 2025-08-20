@@ -12,10 +12,23 @@ export type MaterialType = {
     name: string;
   };
   isActive: boolean;
+  requestInput: {
+    id: number;
+    quantity: number;
+    expectedDate: string;
+    supplier: string;
+    sourceCountry: string;
+    price: number;
+    reason: string;
+    materialId: number;
+    createdAt: string;
+    updatedAt: string;
+  };
   description: string;
   type: MaterialEnum;
   createdAt: string;
   updatedAt: string;
+  price: number;
 };
 
 export type MaterialFilterInput = {
@@ -29,7 +42,7 @@ export type MaterialFilterInput = {
 };
 
 export type ChangeStatusMaterialInput = {
-  id: string;
+  id: string | number;
   isActive: boolean;
 };
 
@@ -44,6 +57,7 @@ export type AccessoryType = {
   code: string;
   name: string;
   isActive: boolean;
+  price: number;
   quantity: number;
   description: string;
   createdAt: string;

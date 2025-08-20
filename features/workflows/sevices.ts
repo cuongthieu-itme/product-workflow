@@ -1,5 +1,9 @@
 import request from "@/configs/axios-config";
-import { WorkFlowProcessFilterInput, WorkFlowProcessType } from "./types";
+import {
+  FieldType,
+  WorkFlowProcessFilterInput,
+  WorkFlowProcessType,
+} from "./types";
 import { BaseResultQuery, PaginatedResult } from "@/types/common";
 import { omitVoid } from "@/utils/removeParams";
 import { CreateWorkflowInputType } from "./schema/create-workflow-schema";
@@ -32,7 +36,7 @@ export const createOfUpdateWorkflowProcess = async (
   data: CreateWorkflowInputType
 ) => {
   try {
-    const response = await request.post<WorkFlowProcessType>(
+    const response = await request.post<CreateWorkflowInputType>(
       "/procedures/create-or-update",
       data
     );
@@ -48,6 +52,17 @@ export const getWorkflowProcessById = async (id: number) => {
       `/procedures/${id}`
     );
     return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getFieldsStep = async () => {
+  try {
+    const response = await request.get<BaseResultQuery<FieldType[]>>(
+      "/field-subprocess/check-field-options"
+    );
+    return response.data;
   } catch (error) {
     throw error;
   }

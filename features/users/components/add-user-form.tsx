@@ -24,8 +24,6 @@ export function AddUserForm() {
   const { control, handleSubmit, reset } = useForm<CreateUserInputType>({
     defaultValues: {
       userName: "",
-      password: "",
-      confirmPassword: "",
       fullName: "",
       email: "",
       role: UserRoleEnum.USER,
@@ -45,7 +43,9 @@ export function AddUserForm() {
     });
   };
 
-  const { data: departments, error: departmentError } = useDepartmentsQuery({ limit: 10000 });
+  const { data: departments, error: departmentError } = useDepartmentsQuery({
+    limit: 10000,
+  });
 
   const departOptions: SelectOption[] =
     departments?.data.map((d) => ({
@@ -145,24 +145,16 @@ export function AddUserForm() {
             required
             disabled={isPending}
           />
+        </div>
 
-          <InputCustom
-            control={control}
-            name="password"
-            label="Mật khẩu"
-            placeholder="Nhập mật khẩu"
-            type="password"
-            required
-          />
-
-          <InputCustom
-            control={control}
-            name="confirmPassword"
-            label="Xác nhận mật khẩu"
-            placeholder="Nhập lại mật khẩu"
-            type="password"
-            required
-          />
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-2">
+          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+          <span className="text-blue-800 font-medium">
+            Mật khẩu mặc định:
+            <code className="ml-2 bg-blue-100 px-2 py-1 rounded text-blue-900 font-mono text-sm">
+              printway@123
+            </code>
+          </span>
         </div>
 
         <div className="flex justify-end">

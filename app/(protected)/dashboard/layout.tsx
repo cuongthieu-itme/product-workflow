@@ -4,17 +4,6 @@ import type React from "react";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-import { RequestProvider } from "@/components/requests/request-context-firebase";
-import { MaterialProvider } from "@/components/materials/material-context-firebase";
-import { CustomerProvider } from "@/components/customers/customer-context";
-import { ProductStatusProvider } from "@/components/product-status/product-status-context-firebase";
-import { WorkflowProvider } from "@/components/workflow/workflow-context-firebase";
-import { SubWorkflowProvider } from "@/components/workflow/sub-workflow-context-firebase";
-import { StandardWorkflowProvider } from "@/components/workflow/standard-workflow-context-firebase";
-import { PermissionsProvider } from "@/components/permissions-context";
-import { AvailableVariablesProvider } from "@/components/variables/available-variables-context";
-import { UserContextProvider } from "@/components/workflow/user-context-provider";
-
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -80,28 +69,9 @@ export default function DashboardLayout({
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <PermissionsProvider>
-        <UserContextProvider>
-          <AvailableVariablesProvider>
-            <ProductStatusProvider>
-              <StandardWorkflowProvider>
-                <SubWorkflowProvider>
-                  <WorkflowProvider>
-                    <MaterialProvider>
-                      <CustomerProvider>
-                        <RequestProvider>
-                          {MainShell}
-                          <Toaster />
-                        </RequestProvider>
-                      </CustomerProvider>
-                    </MaterialProvider>
-                  </WorkflowProvider>
-                </SubWorkflowProvider>
-              </StandardWorkflowProvider>
-            </ProductStatusProvider>
-          </AvailableVariablesProvider>
-        </UserContextProvider>
-      </PermissionsProvider>
+      {MainShell}
+
+      <Toaster />
     </ThemeProvider>
   );
 }

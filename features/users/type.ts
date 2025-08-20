@@ -27,7 +27,7 @@ export type UserFilterInput = {
   isVerifiedAccount?: boolean;
   limit?: number;
   page?: number;
-  departmentId?: string;
+  departmentId?: number | string | null;
 };
 
 export type UsersType = PaginatedResult<"data", User>;

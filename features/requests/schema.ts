@@ -1,22 +1,86 @@
 import { z } from "zod";
-import { SourceEnum } from "./constants";
-import { MaterialEnum } from "../materials/constants";
+import { PriorityEnum, SourceEnum } from "./constants";
+import { RequestStatus, StatusSubprocessHistory } from "./type";
+
+export const prioritySchema = z.enum(
+  [
+    PriorityEnum.NORMAL,
+    PriorityEnum.MEDIUM,
+    PriorityEnum.HIGH,
+    PriorityEnum.VERY_HIGH,
+  ],
+  {
+    message: "Ưu tiên phải là 'THẤP', 'TRUNG BÌNH', 'CAO', 'RẤT CAO'",
+    required_error: "Ưu tiên là bắt buộc",
+  }
+);
+
+export const materialRequestInputSchema = z
+  .object({
+    id: z.number().int().optional().nullable(),
+    quantity: z.number().int().nonnegative(),
+    expectedDate: z.string().min(1, {
+      message: "",
+    }),
+    supplier: z.string().optional(),
+    sourceCountry: z.string().optional(),
+    price: z.number().optional(),
+    reason: z.string().optional(),
+  })
+  .optional()
+  .nullable();
+
+export const sourceSchema = z.enum([SourceEnum.CUSTOMER, SourceEnum.OTHER], {
+  message: "Nguồn yêu cầu phải là 'Khách hàng' hoặc 'Khác'",
+});
 
 export const requestInputSchema = z
   .object({
     title: z.string().min(1, { message: "Tên yêu cầu không được để trống" }),
     description: z.string().optional(),
-    productLink: z.array(
-      z.object({
-        url: z.string(),
+    productLink: z
+      .array(
+        z.object({
+          url: z
+            .string()
+            .min(1, { message: "Liên kết sản phẩm không được để trống" })
+            .url({ message: "Liên kết sản phẩm không hợp lệ" }),
+        })
+      )
+      .min(1, { message: "Vui lòng nhập ít nhất một liên kết sản phẩm" }),
+    media: z
+      .array(z.string())
+      .min(1, {
+        message: "Vui lòng tải lên ít nhất 1 file media",
       })
-    ),
-    media: z.array(z.string()).min(1, {
-      message: "Vui lòng tải lên ít nhất 1 hình ảnh hoặc video",
-    }),
-    source: z.enum([SourceEnum.CUSTOMER, SourceEnum.OTHER], {
-      message: "Nguồn yêu cầu phải là 'Khách hàng' hoặc 'Khác'",
-    }),
+      .refine(
+        (media) => {
+          // Kiểm tra phải có ít nhất 1 hình ảnh
+          const imageExtensions = [
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".gif",
+            ".bmp",
+            ".webp",
+            ".svg",
+          ];
+          const hasImage = media.some((url) =>
+            imageExtensions.some(
+              (ext) =>
+                url.toLowerCase().includes(ext) ||
+                url.toLowerCase().endsWith(ext)
+            )
+          );
+          return hasImage;
+        },
+        {
+          message: "Bắt buộc phải có ít nhất 1 hình ảnh",
+        }
+      ),
+    source: sourceSchema,
+    createdById: z.number().int().nonnegative().optional().nullable(),
+    priority: prioritySchema,
     customerId: z
       .number()
       .int()
@@ -28,9 +92,7 @@ export const requestInputSchema = z
         z.object({
           materialId: z.number().int().nonnegative(),
           quantity: z.number().int().nonnegative(),
-          materialType: z
-            .enum([MaterialEnum.MATERIAL, MaterialEnum.ACCESSORY])
-            .optional(),
+          requestInput: materialRequestInputSchema.optional().nullable(),
         })
       )
       .min(1, {
@@ -67,5 +129,239 @@ export const sourceOtherInputSchema = z.object({
   }),
 });
 
+export const evaluateInputSchema = z.object({
+  title: z.string().min(1, { message: "Tên đánh giá không được để trống" }),
+  reviewType: z.string().min(1, {
+    message: "Loại đánh giá không được để trống",
+  }),
+  score: z.number().int().nonnegative(),
+  description: z.string().min(1, {
+    message: "Mô tả không được để trống",
+  }),
+  isAnonymous: z.boolean(),
+  requestId: z.number().int().nonnegative(),
+  createdById: z.number().int().nonnegative(),
+});
+
+export const mediaSchema = z.object({
+  id: z.number().int().nonnegative().optional(),
+  media: z
+    .array(z.string())
+    .min(1, {
+      message: "Vui lòng tải lên ít nhất 1 file media",
+    })
+    .refine(
+      (media) => {
+        // Kiểm tra phải có ít nhất 1 hình ảnh
+        const imageExtensions = [
+          ".jpg",
+          ".jpeg",
+          ".png",
+          ".gif",
+          ".bmp",
+          ".webp",
+          ".svg",
+        ];
+        const hasImage = media.some((url) =>
+          imageExtensions.some(
+            (ext) =>
+              url.toLowerCase().includes(ext) || url.toLowerCase().endsWith(ext)
+          )
+        );
+        return hasImage;
+      },
+      {
+        message: "Bắt buộc phải có ít nhất 1 hình ảnh",
+      }
+    ),
+});
+
+export const confirmRequestInputSchema = z.object({
+  id: z
+    .number({
+      message: "Yêu cầu không hợp lệ",
+      required_error: "Yêu cầu là bắt buộc",
+    })
+    .int()
+    .nonnegative()
+    .optional()
+    .nullable(),
+  status: z.enum(
+    [
+      RequestStatus.APPROVED,
+      RequestStatus.REJECTED,
+      RequestStatus.PENDING,
+      RequestStatus.HOLD,
+    ],
+    {
+      message: "Trạng thái yêu cầu không hợp lệ",
+      required_error: "Trạng thái là bắt buộc",
+    }
+  ),
+  statusProductId: z.union([z.string(), z.number()]).pipe(
+    z.coerce
+      .number({
+        required_error: "Quy trình là bắt buộc",
+        invalid_type_error: "Quy trình không hợp lệ",
+      })
+      .int({ message: "Quy trình phải là số nguyên" })
+      .positive({ message: "Quy trình phải là số dương" })
+  ),
+  productionPlan: z.string().min(1, {
+    message: "Vui lòng nhập phương án sản xuất",
+  }),
+});
+
+export const subprocessHistoryFormSchema = z.object({
+  id: z.number().int().nonnegative().optional().nullable(),
+  isStepWithCost: z.boolean(),
+  startDate: z.string().datetime({ offset: true }).or(z.date()),
+  endDate: z
+    .string()
+    .datetime({ offset: true })
+    .or(z.date())
+    .optional()
+    .nullable(),
+  userId: z.coerce
+    .number({
+      required_error: "Vui lòng chọn người thực hiện",
+    })
+    .int("ID không hợp lệ")
+    .positive("Vui lòng chọn người thực hiện"),
+  price: z.coerce
+    .number({
+      invalid_type_error: "Giá phải là số",
+    })
+    .positive("Giá phải lớn hơn 0")
+    .nullable()
+    .optional(),
+  status: z.enum([
+    StatusSubprocessHistory.CANCELLED,
+    StatusSubprocessHistory.COMPLETED,
+    StatusSubprocessHistory.IN_PROGRESS,
+    StatusSubprocessHistory.PENDING,
+    StatusSubprocessHistory.SKIPPED,
+    StatusSubprocessHistory.HOLD,
+  ]),
+});
+
+export const approveSubprocessHistorySchema = z.object({
+  id: z
+    .number({
+      message: "ID không hợp lệ",
+      required_error: "ID là bắt buộc",
+    })
+    .int()
+    .positive(),
+  isApproved: z.boolean().default(true),
+});
+
 export type RequestInputType = z.infer<typeof requestInputSchema>;
 export type SourceOtherInputType = z.infer<typeof sourceOtherInputSchema>;
+export type MaterialRequestInputType = z.infer<
+  typeof materialRequestInputSchema
+>;
+export type EvaluateInputType = z.infer<typeof evaluateInputSchema>;
+export type MediaInputType = z.infer<typeof mediaSchema>;
+export type ConfirmRequestInputType = z.infer<typeof confirmRequestInputSchema>;
+export type SubprocessHistoryFormType = z.infer<
+  typeof subprocessHistoryFormSchema
+>;
+export type ApproveSubprocessHistoryInputType = z.infer<
+  typeof approveSubprocessHistorySchema
+>;
+
+// Hold Subprocess Schema
+export const holdSubprocessSchema = z.object({
+  id: z
+    .number({
+      message: "ID không hợp lệ",
+      required_error: "ID là bắt buộc",
+    })
+    .int()
+    .positive(),
+});
+
+// Continue Subprocess Schema
+export const continueSubprocessSchema = z.object({
+  id: z
+    .number({
+      message: "ID không hợp lệ",
+      required_error: "ID là bắt buộc",
+    })
+    .int()
+    .positive(),
+});
+
+export type HoldSubprocessInputType = z.infer<typeof holdSubprocessSchema>;
+export type ContinueSubprocessInputType = z.infer<
+  typeof continueSubprocessSchema
+>;
+
+export const holdRequestInputSchema = z.object({
+  id: z
+    .number({
+      message: "Yêu cầu không hợp lệ",
+      required_error: "Yêu cầu là bắt buộc",
+    })
+    .int()
+    .nonnegative()
+    .optional()
+    .nullable(),
+  status: z.enum([
+    RequestStatus.APPROVED,
+    RequestStatus.REJECTED,
+    RequestStatus.PENDING,
+    RequestStatus.HOLD,
+  ]),
+  holdReason: z.string().min(1, { message: "Lý do hold không được để trống" }),
+  files: z.array(z.string()).optional().nullable(),
+});
+
+export type HoldRequestInputType = z.infer<typeof holdRequestInputSchema>;
+
+// Reject Request Schema
+export const rejectRequestInputSchema = z.object({
+  id: z
+    .number({
+      message: "Yêu cầu không hợp lệ",
+      required_error: "Yêu cầu là bắt buộc",
+    })
+    .int()
+    .nonnegative()
+    .optional()
+    .nullable(),
+  status: z.enum([
+    RequestStatus.APPROVED,
+    RequestStatus.REJECTED,
+    RequestStatus.PENDING,
+    RequestStatus.HOLD,
+  ]),
+  denyReason: z
+    .string()
+    .min(1, { message: "Lý do từ chối không được để trống" }),
+  files: z.array(z.string()).optional().nullable(),
+});
+
+export const requestMaterialSchema = z.object({
+  quantity: z.number().int().nonnegative(),
+  unit: z.string().min(1, {
+    message: "Đơn vị không được để trống",
+  }),
+  color: z.string().optional(),
+  materialType: z.string().min(1, {
+    message: "Loại vật liệu không được để trống",
+  }),
+  media: z.array(z.string()),
+  links: z.array(z.string()).min(1, {
+    message: "Vui lòng tải lên ít nhất 1 file media",
+  }),
+  note: z.string().optional(),
+});
+
+export type RejectRequestInputType = z.infer<typeof rejectRequestInputSchema>;
+
+export type RequestMaterialType = z.infer<typeof requestMaterialSchema>;
+
+// Export material request schema
+export * from "./schema/material-request-schema";

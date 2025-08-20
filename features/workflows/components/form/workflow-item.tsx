@@ -152,6 +152,7 @@ export function WorkflowItem({
         onClose={() => setIsUpdateStepModalOpen(false)}
         handleSaveStep={(data) => {
           onUpdateStep(data);
+          setIsUpdateStepModalOpen(false);
         }}
         data={data}
       />

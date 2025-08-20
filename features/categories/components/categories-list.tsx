@@ -11,7 +11,6 @@ import { format } from "date-fns";
 import { TableToolbar } from "@/components/data-table/toolbar";
 import { LIMIT, PAGE } from "@/constants/pagination";
 import { CategoryType } from "../types";
-import { AddDepartmentForm } from "@/components/departments/add-department-form";
 import { DeleteCategoryDialog } from "./delete-category-dialog";
 import { useCategoriesQuery } from "../hooks";
 import { UpdateCategoryForm } from "./update-category-form";

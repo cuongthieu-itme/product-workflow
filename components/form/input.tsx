@@ -17,6 +17,7 @@ export type InputProps<T extends FieldValues> = UseControllerProps<T> &
     className?: string;
     labelIcon?: ReactElement;
     containerClassName?: string;
+    prefix?: string;
   };
 
 export const InputCustom = <T extends FieldValues>({
@@ -33,6 +34,7 @@ export const InputCustom = <T extends FieldValues>({
   className = "",
   labelIcon,
   containerClassName = "",
+  prefix,
   ...props
 }: InputProps<T>) => {
   const {
@@ -47,33 +49,92 @@ export const InputCustom = <T extends FieldValues>({
   });
 
   const [showPassword, setShowPassword] = useState(false);
-  // Determine the type actually rendered by the input element
   const inputType =
     type === "password" ? (showPassword ? "text" : "password") : type;
 
-  /**
-   * Ensure numeric inputs store numbers instead of strings.
-   * React-hook-form’s `field.onChange` can accept either an event or a value.
-   */
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (type === "number") {
-      const raw = e.target.value;
-      // Pass empty string through so RHF can clear the field
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+
+    if (prefix) {
+      // Luôn đảm bảo prefix ở đầu và không bị xóa
+      if (raw.startsWith(prefix)) {
+        // Lưu nguyên giá trị có prefix vào form
+        field.onChange(raw);
+      } else {
+        // Nếu không có prefix hoặc bị xóa, khôi phục lại
+        const userInput = raw.replace(
+          new RegExp(`^${prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}?`),
+          ""
+        );
+        const valueWithPrefix = prefix + userInput;
+        field.onChange(valueWithPrefix);
+
+        // Khôi phục prefix trong DOM
+        setTimeout(() => {
+          e.target.value = valueWithPrefix;
+          e.target.setSelectionRange(
+            prefix.length + userInput.length,
+            prefix.length + userInput.length
+          );
+        }, 0);
+      }
+    } else if (type === "number") {
       field.onChange(raw === "" ? "" : Number(raw));
     } else {
       field.onChange(e);
     }
   };
 
+  const displayValue = prefix
+    ? value && typeof value === "string"
+      ? value
+      : prefix
+    : value ?? "";
+
+  const handleCaretPosition = (e: React.SyntheticEvent<HTMLInputElement>) => {
+    if (prefix) {
+      const input = e.currentTarget;
+      requestAnimationFrame(() => {
+        // Nếu con trỏ nằm trong prefix thì ép nó ra sau prefix
+        if (
+          input.selectionStart !== null &&
+          input.selectionStart < prefix.length
+        ) {
+          input.setSelectionRange(prefix.length, prefix.length);
+        }
+      });
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    if (prefix) {
+      e.preventDefault();
+      const pastedText = e.clipboardData.getData("text");
+      const input = e.currentTarget;
+      const start = Math.max(input.selectionStart || 0, prefix.length);
+      const end = Math.max(input.selectionEnd || 0, prefix.length);
+
+      // Lấy giá trị hiện tại
+      const currentValue = value && typeof value === "string" ? value : prefix;
+
+      const beforeSelection = currentValue.slice(0, start);
+      const afterSelection = currentValue.slice(end);
+      const newValue = beforeSelection + pastedText + afterSelection;
+
+      field.onChange(newValue);
+
+      setTimeout(() => {
+        const newCursorPosition = beforeSelection.length + pastedText.length;
+        input.setSelectionRange(newCursorPosition, newCursorPosition);
+      }, 0);
+    }
+  };
   return (
     <div className={cn("space-y-2", containerClassName)}>
       {label && (
         <div className="flex items-center h-[24px]">
           <Label htmlFor={name} className="flex items-center gap-2">
             {labelIcon}
-
             {label}
           </Label>
           {required && <span className="text-red-500 ml-1">*</span>}
@@ -85,14 +146,54 @@ export const InputCustom = <T extends FieldValues>({
             id={name}
             type={inputType}
             placeholder={placeholder}
-            value={value}
+            value={displayValue}
             {...field}
             onChange={handleChange}
             disabled={disabled}
+            onFocus={handleCaretPosition}
+            onClick={handleCaretPosition}
+            onPaste={handlePaste}
+            onKeyDown={(e) => {
+              if (prefix) {
+                const input = e.currentTarget;
+                const cursorPosition = input.selectionStart || 0;
+
+                // Ngăn xóa prefix bằng Backspace hoặc Delete
+                if (
+                  (e.key === "Backspace" && cursorPosition <= prefix.length) ||
+                  (e.key === "Delete" && cursorPosition < prefix.length)
+                ) {
+                  e.preventDefault();
+                  return;
+                }
+
+                // Ngăn di chuyển cursor vào vùng prefix bằng phím mũi tên
+                if (e.key === "ArrowLeft" && cursorPosition <= prefix.length) {
+                  e.preventDefault();
+                  input.setSelectionRange(prefix.length, prefix.length);
+                  return;
+                }
+
+                // Ngăn chọn text trong vùng prefix
+                if ((e.ctrlKey || e.metaKey) && e.key === "a") {
+                  e.preventDefault();
+                  input.setSelectionRange(prefix.length, input.value.length);
+                  return;
+                }
+
+                // Ngăn Home key di chuyển về đầu hoàn toàn
+                if (e.key === "Home") {
+                  e.preventDefault();
+                  input.setSelectionRange(prefix.length, prefix.length);
+                  return;
+                }
+              }
+            }}
             className={cn(
-              `w-full ${className} ${fieldState.error
-                ? "border-red-500 placeholder:text-red-500 focus-visible:placeholder:text-red-500 focus-visible:border-red-500"
-                : ""
+              `w-full ${className} ${
+                fieldState.error
+                  ? "border-red-500 placeholder:text-red-500 focus-visible:placeholder:text-red-500 focus-visible:border-red-500"
+                  : ""
               }`
             )}
             {...props}

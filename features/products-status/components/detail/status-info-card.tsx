@@ -17,7 +17,7 @@ interface StatusInfoCardProps {
 
 export function StatusInfoCard({ status }: StatusInfoCardProps) {
   return (
-    <ScrollArea className="h-[calc(100vh-300px)]">
+    <ScrollArea>
       <div className="space-y-4 p-1">
         <Card>
           <CardHeader>
@@ -50,24 +50,11 @@ export function StatusInfoCard({ status }: StatusInfoCardProps) {
                     )}
                   </div>
                 </div>
-                {/* <div className="grid grid-cols-[100px_1fr] gap-2">
-                  <div className="font-medium">Mặc định:</div>
-                  <div>{status.isDefault ? "Có" : "Không"}</div>
-                </div> */}
+
                 <div className="grid grid-cols-[100px_1fr] gap-2">
                   <div className="font-medium">Quy trình:</div>
                   <div className="flex items-center gap-2">
-                    {/* TODO: API quy trình */}
-                    {/* {status.workflowId === getStandardWorkflowId() ? (
-                        <span>Quy trình chuẩn</span>
-                      ) : subWorkflow ? (
-                        <span>Quy trình tùy chỉnh: {subWorkflow.name}</span>
-                      ) : (
-                        <span>
-                          Quy trình tùy chỉnh (ID: {status.workflowId})
-                        </span>
-                      )} */}
-                    <span>Chưa có quy trình</span>
+                    <span>{status.procedure.name}</span>
                     <LinkIcon className="h-4 w-4 text-muted-foreground" />
                   </div>
                 </div>

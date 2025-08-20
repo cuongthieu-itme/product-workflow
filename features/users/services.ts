@@ -17,11 +17,22 @@ export const getUsers = async (params?: UserFilterInput) => {
   }
 };
 
+export const getUserNoDepartments = async () => {
+  try {
+    const response = await request.get<BaseResultQuery<UserType[]>>(
+      "/users/no-department/current"
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const createUser = async (data: CreateUserInputType) => {
   try {
     const response = await request.post<UserFilterInput>(
       "/users",
-      omitVoid(data, ["confirmPassword"])
+      omitVoid(data)
     );
     return response.data;
   } catch (error) {
@@ -80,10 +91,11 @@ export const verifyUserAccount = async (id: string) => {
   }
 };
 
-
 export const getUser = async (id: string) => {
   try {
-    const response = await request.get<BaseResultQuery<UserType>>(`/users/${id}`);
+    const response = await request.get<BaseResultQuery<UserType>>(
+      `/users/${id}`
+    );
     return response.data;
   } catch (error) {
     throw error;

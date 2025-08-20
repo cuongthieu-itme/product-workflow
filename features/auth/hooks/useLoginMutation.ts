@@ -5,8 +5,6 @@ import { getUserInfo, loginUser } from "../services";
 import { useRouter } from "next/navigation";
 import { setAccessTokenToStorage } from "@/utils";
 import { USER_INFO_QUERY_KEY } from "./useGetUserInfoQuery";
-import { useAtom } from "jotai";
-import { authAtom } from "@/atoms";
 
 export const useLoginMutation = () => {
   const router = useRouter();
@@ -15,7 +13,11 @@ export const useLoginMutation = () => {
   return useMutation({
     mutationFn: loginUser,
     onSuccess: async (data) => {
-      router.push("/dashboard");
+      if (data.isFirstLogin) {
+        router.push("/change-password");
+      } else {
+        router.push("/dashboard");
+      }
       setAccessTokenToStorage(data.accessToken);
       queryClient.prefetchQuery({
         queryKey: [USER_INFO_QUERY_KEY],

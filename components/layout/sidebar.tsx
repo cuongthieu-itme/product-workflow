@@ -187,6 +187,12 @@ export function AppSidebar({
 
   const systemItems = [
     {
+      title: "Quản lý yêu cầu",
+      href: "/dashboard/requests-management",
+      icon: <FileText className="h-4 w-4" />,
+      roles: [UserRoleEnum.ADMIN, UserRoleEnum.SUPER_ADMIN],
+    },
+    {
       title: "Quản lý người dùng",
       href: "/dashboard/users",
       icon: <Users className="h-4 w-4" />,

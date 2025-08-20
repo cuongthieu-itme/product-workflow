@@ -1,16 +1,17 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import {
   useController,
   type UseControllerProps,
   type FieldValues,
 } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, X, GripVertical } from "lucide-react";
+import { Plus, X, GripVertical, ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDropzone } from "react-dropzone";
 import type { Accept, FileWithPath } from "react-dropzone";
@@ -41,6 +42,10 @@ export type UploadFileProps<T extends FieldValues> = UseControllerProps<T> & {
   className?: string;
   maxFiles?: number;
   accept?: Accept;
+  hideHeader?: boolean;
+  content?: string;
+  previewClasses?: string;
+  hideUploadWhenHavePreview?: boolean;
 };
 
 export const UploadFile = <T extends FieldValues>({
@@ -57,6 +62,10 @@ export const UploadFile = <T extends FieldValues>({
     "image/png": [".png"],
     "image/webp": [".webp"],
   },
+  hideHeader = false,
+  content,
+  previewClasses,
+  disabled = false,
 }: UploadFileProps<T>) => {
   const { toast } = useToast();
   const {
@@ -79,12 +88,16 @@ export const UploadFile = <T extends FieldValues>({
   );
 
   // ----- PREVIEW -----
-  const [previews, setPreviews] = useState<
-    Array<{
-      src: string;
-      typeFile: FileTypeGen;
-    }>
-  >([]);
+  const previews = useMemo(() => {
+    if (value.length > 0) {
+      return value.map((src) => ({
+        src: getImageUrl(src),
+        typeFile: generateTypeFile(src),
+      }));
+    }
+    return [];
+  }, [value]);
+
   const { mutate: uploadMultipleFilesMutation } =
     useFileMutation("uploadMultiple");
   const { mutate: deleteFileMutation } = useFileMutation("delete");
@@ -117,12 +130,7 @@ export const UploadFile = <T extends FieldValues>({
           ...(data as FileType[]).map((f) => f.filename),
         ].slice(0, maxFiles);
         onChange(next);
-        setPreviews(
-          next.map((src) => ({
-            src: getImageUrl(src),
-            typeFile: generateTypeFile(src),
-          }))
-        );
+        // Remove manual setPreviews call - useEffect will handle this
       },
     });
   };
@@ -147,12 +155,7 @@ export const UploadFile = <T extends FieldValues>({
 
       const newImages = arrayMove(value, oldIndex, newIndex);
       onChange(newImages);
-      setPreviews(
-        arrayMove(previews, oldIndex, newIndex).map((item, index) => ({
-          ...item,
-          src: getImageUrl(newImages[index]),
-        }))
-      );
+      // Remove manual setPreviews call - useEffect will handle this
     }
   };
 
@@ -161,62 +164,60 @@ export const UploadFile = <T extends FieldValues>({
     deleteFileMutation(value[idx], {
       onSuccess: () => {
         const next = (value as string[]).filter((_, i) => i !== idx);
-        setPreviews(previews.filter((_, i) => i !== idx));
         onChange(next);
+        // Remove manual setPreviews call - useEffect will handle this
       },
     });
   };
 
-  useEffect(() => {
-    if (value.length > 0) {
-      setPreviews(
-        value.map((src) => ({
-          src: getImageUrl(src),
-          typeFile: generateTypeFile(src),
-        }))
-      );
-    } else {
-      setPreviews([]);
-    }
-  }, [value]);
-
   // ----- UI -----
   return (
     <div className={cn("space-y-2", className)}>
-      <Label htmlFor={name}>{label}</Label>
+      {!hideHeader && <Label htmlFor={name}>{label}</Label>}
 
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">
-            Kéo thả hoặc chọn ảnh
-          </CardTitle>
-        </CardHeader>
+        {!hideHeader && (
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">
+              {label ?? "Kéo thả hoặc chọn file"}
+            </CardTitle>
+          </CardHeader>
+        )}
 
         <CardContent className="p-4">
           {/* Drop zone */}
-          <div
-            {...getRootProps()}
-            className={cn(
-              "border-2 border-dashed rounded-lg p-4 cursor-pointer transition-colors",
-              isDragActive
-                ? "border-primary bg-primary/10"
-                : "border-muted-foreground"
-            )}
-          >
-            <div className="flex flex-col items-center gap-2 ">
-              <Plus className="h-6 w-6 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                {value.length >= maxFiles
-                  ? `Đã đạt giới hạn ${maxFiles} ảnh`
-                  : "Kéo thả ảnh hoặc nhấp để chọn"}
-              </p>
+          {
+            <div
+              {...getRootProps()}
+              className={cn(
+                "border-2 border-dashed rounded-lg p-4 cursor-pointer transition-colors",
+                isDragActive
+                  ? "border-primary bg-primary/10"
+                  : "border-muted-foreground"
+              )}
+            >
+              <div className="flex flex-col items-center gap-2 ">
+                <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-sm text-muted-foreground">
+                  {value.length >= maxFiles
+                    ? `Đã đạt giới hạn ${maxFiles} file`
+                    : content ?? "Kéo thả hoặc chọn file"}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(accept).map(([type, extensions]) => (
+                    <Badge key={type} variant="outline" className="text-xs">
+                      {extensions.map((ext) => ext.replace(".", "")).join(", ")}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <Input
+                {...getInputProps()}
+                className="hidden"
+                disabled={disabled || value.length >= maxFiles}
+              />
             </div>
-            <Input
-              {...getInputProps()}
-              className="hidden"
-              disabled={value.length >= maxFiles}
-            />
-          </div>
+          }
 
           {/* Previews with Drag and Drop */}
           {previews.length > 0 && (
@@ -229,15 +230,17 @@ export const UploadFile = <T extends FieldValues>({
                 items={previews.map((_, index) => `file-${index}`)}
                 strategy={verticalListSortingStrategy}
               >
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                   {previews.map(({ src, typeFile }, i) => (
                     <PreviewFileItem
+                      previewClasses={previewClasses}
                       key={`file-${i}`}
                       id={`file-${i}`}
                       src={src}
                       index={i}
                       onRemove={removeAt}
                       typeFile={typeFile}
+                      disabled={disabled}
                     />
                   ))}
                 </div>

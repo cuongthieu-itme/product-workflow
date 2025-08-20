@@ -73,6 +73,7 @@ export const AccessoryForm: React.FC<AccessoryFormProps> = ({
       description: accessory?.description || "",
       isActive: accessory?.isActive !== undefined ? accessory.isActive : true,
       quantity: accessory?.quantity || 0,
+      price: accessory?.price || 0,
     },
     resolver: zodResolver(accessoryInputSchema),
   });
@@ -173,6 +174,15 @@ export const AccessoryForm: React.FC<AccessoryFormProps> = ({
                 name="description"
                 label="Chi tiết phụ kiện"
                 placeholder="Nhập chi tiết phụ kiện"
+                disabled={isPending}
+              />
+
+              <InputCustom
+                control={control}
+                name="price"
+                label="Giá"
+                placeholder="Nhập giá"
+                type="number"
                 disabled={isPending}
               />
 
