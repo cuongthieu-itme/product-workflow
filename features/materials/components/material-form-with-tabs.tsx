@@ -27,7 +27,6 @@ import { SelectCustom } from "@/components/form/select";
 import { MaterialType } from "../type";
 import {
   useOriginsQuery,
-  useUnitsQuery,
   useUpdateMaterialMutation,
 } from "../hooks/useMaterials";
 import { useToast } from "@/components/ui/use-toast";
@@ -55,7 +54,6 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
 
   const { control, handleSubmit, reset } = useForm<CreateMaterialInputType>({
     defaultValues: {
-      code: material?.code || "",
       name: material?.name || "",
       quantity: material?.quantity || 0,
       image: material?.image || [],
@@ -78,15 +76,13 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
   const { mutate: updateMaterial } = useUpdateMaterialMutation();
 
   const { data: origins } = useOriginsQuery();
-  const { data: units } = useUnitsQuery();
 
-  console.log("activeTab", activeTab);
   const onSubmit: SubmitHandler<CreateMaterialInputType> = (data) => {
     if (material) {
       updateMaterial(
         {
           ...data,
-          id: material.id,
+          id: String(material.id),
           type: activeTab,
         },
         {
