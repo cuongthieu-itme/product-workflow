@@ -84,7 +84,7 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
       updateMaterial(
         {
           ...data,
-          id: String(material.id),
+          id: material.id,
           type: activeTab,
         },
         {
@@ -147,7 +147,6 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
   useEffect(() => {
     if (!material && isDialogOpen) {
       reset({
-        code: "",
         name: "",
         quantity: 0,
         image: [],
@@ -223,19 +222,6 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
               ? "Nhập chi tiết nguyên liệu"
               : "Nhập chi tiết phụ kiện"
           }
-          disabled={isPending}
-        />
-
-        <InputCustom
-          prefix={prefixCode}
-          control={control}
-          name="code"
-          label={
-            activeTab === MaterialEnum.MATERIAL
-              ? "Mã nguyên liệu"
-              : "Mã phụ kiện"
-          }
-          required
           disabled={isPending}
         />
 
