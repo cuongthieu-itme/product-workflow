@@ -55,7 +55,6 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
 
   const { control, handleSubmit, reset } = useForm<CreateMaterialInputType>({
     defaultValues: {
-      code: material?.code || "",
       name: material?.name || "",
       quantity: material?.quantity || 0,
       image: material?.image || [],
@@ -148,7 +147,6 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
   useEffect(() => {
     if (!material && isDialogOpen) {
       reset({
-        code: "",
         name: "",
         quantity: 0,
         image: [],
@@ -224,19 +222,6 @@ export const MaterialFormWithTabs: React.FC<MaterialFormWithTabsProps> = ({
               ? "Nhập chi tiết nguyên liệu"
               : "Nhập chi tiết phụ kiện"
           }
-          disabled={isPending}
-        />
-
-        <InputCustom
-          prefix={prefixCode}
-          control={control}
-          name="code"
-          label={
-            activeTab === MaterialEnum.MATERIAL
-              ? "Mã nguyên liệu"
-              : "Mã phụ kiện"
-          }
-          required
           disabled={isPending}
         />
 
